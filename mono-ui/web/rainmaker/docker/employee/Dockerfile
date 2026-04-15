@@ -1,0 +1,19 @@
+
+FROM node:14.20.0-alpine AS build
+ARG WORK_DIR
+WORKDIR /app
+ENV NODE_OPTIONS "--max-old-space-size=8192"
+
+# copy the project files
+COPY ${WORK_DIR} .
+RUN yarn config set ignore-engines true
+RUN yarn run prod:employee
+
+# Create runtime image
+FROM nginx:mainline-alpine 
+ENV WEB_DIR=/var/web/employee
+
+RUN mkdir -p ${WEB_DIR}
+
+COPY --from=build /app/packages/employee/build ${WEB_DIR}/
+COPY --from=build /app/docker/employee/nginx.conf /etc/nginx/conf.d/default.conf
