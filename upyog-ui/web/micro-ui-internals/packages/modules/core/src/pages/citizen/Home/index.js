@@ -191,18 +191,40 @@ console.log("citizenServicesObjcitizenServicesObj",citizenServicesObj)
       </div> */}
       <div className="HomePageWrapper">
         {<div className="BannerWithSearch">
-          {isMobile ? <img src={"https://niuatt-filestore.s3.ap-south-1.amazonaws.com/pg/logo/Banner+UPYOG.jpg"} /> : <img src={"https://niuatt-filestore.s3.ap-south-1.amazonaws.com/pg/logo/Banner+UPYOG.jpg"} />}
+          {/* {isMobile ? <img src={"https://niuatt-filestore.s3.ap-south-1.amazonaws.com/pg/logo/Banner+UPYOG.jpg"} /> : <img src={"https://niuatt-filestore.s3.ap-south-1.amazonaws.com/pg/logo/Banner+UPYOG.jpg"} />} */}
           {/* <div className="Search">
             <StandaloneSearchBar placeholder={t("CS_COMMON_SEARCH_PLACEHOLDER")} />
           </div> */}
-          <div className="ServicesSection">
-          <CardBasedOptions style={{marginTop:"-30px"}} {...allCitizenServicesProps} />
-          <CardBasedOptions style={isMobile ? {marginTop:"-30px"} : {marginTop:"-30px"}} {...allInfoAndUpdatesProps} />
-        </div>
+          <div className="ServicesSection" style={{marginTop:20}}>
+            <CardBasedOptions style={{marginTop:"-30px"}} {...allCitizenServicesProps} />
+            <CardBasedOptions style={isMobile ? {marginTop:"-30px"} : {marginTop:"-30px"}} {...allInfoAndUpdatesProps} />
+            
+          </div>
+            <style>
+            {`
+              .citizen .ServicesSection .CardBasedOptions:nth-child(odd) .employeeCustomCard { 
+                background-image: none;
+                background-color: #716565;
+                background-blend-mode: normal !important;
+                background-size: cover !important;
+              }
+
+              .citizen .ServicesSection .CardBasedOptions:nth-child(even) .employeeCustomCard { 
+                background-image: none;
+                background-color: #716565;
+                background-blend-mode: normal !important;
+                background-size: cover !important;
+              }
+            `}
+
+              
+            </style>
+
+
         </div>}
 
 
-        {(whatsAppBannerMobObj || whatsAppBannerWebObj) && (
+        {/* {(whatsAppBannerMobObj || whatsAppBannerWebObj) && (
           <div className="WhatsAppBanner">
             {isMobile ? (
               <img src={"https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+%281920x500%29B+%282%29.jpg"} onClick={() => handleClickOnWhatsAppBanner(whatsAppBannerMobObj)} style={{"width":"100%"}}/>
@@ -210,7 +232,7 @@ console.log("citizenServicesObjcitizenServicesObj",citizenServicesObj)
               <img src={"https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+%281920x500%29B+%282%29.jpg"} onClick={() => handleClickOnWhatsAppBanner(whatsAppBannerWebObj)} style={{"width":"100%"}}/>
             )}
           </div>
-        )}
+        )} */}
 
         {conditionsToDisableNotificationCountTrigger() ? (
           EventsDataLoading ? (

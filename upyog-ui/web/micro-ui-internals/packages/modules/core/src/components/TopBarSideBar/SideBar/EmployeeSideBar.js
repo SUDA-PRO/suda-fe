@@ -175,9 +175,20 @@ const EmployeeSideBar = () => {
   };
 
   return (
-    <div className="sidebar" ref={sidebarRef} onMouseOver={expandNav} onMouseLeave={collapseNav} style={{display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
+    <div className="sidebar" ref={sidebarRef} onMouseOver={expandNav} onMouseLeave={collapseNav} style={{display:window.location.href.includes("main-dashboard-landing")?"none":"", background: "linear-gradient(to bottom, #FFA500, #FF6A00) !important"}}>
       {renderSearch()}
       {splitKeyValue()}
+      
+      <style>
+      {`
+        .citizen .sidebar, .employee .sidebar {
+          background-image: linear-gradient(to bottom, #f0771a, #ff9d00) !important;
+          background-blend-mode: normal !important;
+          background-size: cover !important;
+        }
+      `}
+      </style>
+
     </div>
   );
 };

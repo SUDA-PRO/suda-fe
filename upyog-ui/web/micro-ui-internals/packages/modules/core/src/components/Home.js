@@ -161,6 +161,25 @@ const EmployeeHome = ({ modules }) => {
           return <Card key={index} />;
         })}
       </div>
+        <style>
+      {`
+        .employee .customEmployeeCard:nth-child(odd) .employeeCustomCard {
+          background-image: none;
+          background-color: #716565;
+          background-blend-mode: normal !important;
+          background-size: cover !important;
+        }
+        .employee .customEmployeeCard:nth-child(even) .employeeCustomCard {
+          background-image: none;
+          background-color: #716565;
+          background-blend-mode: normal !important;
+          background-size: cover !important;
+        }
+      `}
+      </style>
+
+
+
     </div>
   );
 };

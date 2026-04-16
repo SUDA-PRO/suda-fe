@@ -190,7 +190,8 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
                     "header": "PT_PROOF_OF_ADDRESS_HEADER",
                     "cardText": "",
                     "nextText": "PT_COMMONS_NEXT",
-                    "submitBarLabel": "PT_COMMONS_NEXT"
+                    "submitBarLabel": "PT_COMMONS_NEXT",
+                    "skipText": "CORE_COMMON_SKIP_CONTINUE"
                 },
                 "key": "address",
                 "nextStep": "owner-ship-details@0",

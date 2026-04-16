@@ -108,16 +108,17 @@ const TopBar = ({
   return (
     <div className="topbar">
       {mobileView ? <Hamburger handleClick={toggleSidebar} color="#9E9E9E" /> : null}
-      <img className="city" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" />
+      {/* <img className="city" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" /> */}
+      <h2 style={{fontSize:30, color:'orange', fontWeight:'bold'}}>SUDA</h2>
       <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
         {loggedin &&
           (cityDetails?.city?.ulbGrade ? (
-            <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block" } : {}}>
-              {t(cityDetails?.i18nKey).toUpperCase()}{" "}
+            <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block" } : { paddingLeft:15, borderLeft:"2px solid orange", marginLeft:14}}>
+              {t(cityDetails?.i18nKey).toUpperCase()}
               {t(`ULBGRADE_${cityDetails?.city?.ulbGrade.toUpperCase().replace(" ", "_").replace(".", "_")}`).toUpperCase()}
             </p>
           ) : (
-            <img className="state" src={logoUrl} />
+            <img className="state" alt="logoUrl" src={logoUrl} />
           ))}
         {!loggedin && (
           <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block" } : {}}>
@@ -140,19 +141,19 @@ const TopBar = ({
                   select={handleUserDropdownSelection}
                   showArrow={true}
                   freeze={true}
-                  style={mobileView ? { right: 0 } : {}}
+                  style={mobileView ? { right: 0 } : {right:20}}
                   optionCardStyles={{ overflow: "revert" }}
                   customSelector={
                     profilePic == null ? (
                       <TextToImg name={userDetails?.info?.name || userDetails?.info?.userInfo?.name || "Employee"} />
                     ) : (
-                      <img src={profilePic} style={{ height: "48px", width: "48px", borderRadius: "50%" }} />
+                      <img src={profilePic} alt="profilePic" style={{ height: "48px", width: "48px", borderRadius: "50%" }} />
                     )
                   }
                 />
               </div>
             )}
-            <img className="state" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" />
+            {/* <img className="state" alt="State" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" /> */}
           </div>
         )}
       </span>

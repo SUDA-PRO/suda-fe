@@ -265,7 +265,7 @@ import {
     return (
       <FilterContext.Provider value={provided}>
         <div ref={fullPageRef} id="divToPrint">
-          <div style={{backgroundColor:"red",width:"100%",height:"150px",marginBottom:"70px",marginTop:"-50px",backgroundImage:"url(https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/top-green-card.png)"}}>
+          <div style={{backgroundColor:"red",width:"100%",height:"150px",marginBottom:"70px",marginTop:"-50px",backgroundImage:"linear-gradient(to bottom, #FFA500, #FF6A00) !important"}}>
           <div className="options" style={{paddingLeft:"5%", paddingTop:"40px",marginBottom:"20px"}}>
             <Header styles={mobileView ? { marginLeft: "0px", whiteSpace: "pre-line" } : { marginBottom: "0px", whiteSpace: "pre" }}>
               {t(dashboardConfig?.[0]?.name)}

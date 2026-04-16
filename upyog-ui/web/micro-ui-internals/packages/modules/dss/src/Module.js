@@ -62,7 +62,7 @@ const Routes = ({ path, stateCode }) => {
   }
   return (
     <div style={{display:"flex"}}>
-      <div className="chart-sidebar" style={{width:"300px",marginLeft:"-80px", backgroundImage:"url(https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/top-green-card.png), url(https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/top-red-card.png)", backgroundSize:"cover",backgroundBlendMode:"lighten",display:window.location.href.includes("main-dashboard-landing")?"":"none"}}>
+      <div className="chart-sidebar" style={{width:"300px",marginLeft:"-80px", backgroundImage: "linear-gradient(to bottom, #FFA500, #FF6A00) !important", backgroundSize:"cover",backgroundBlendMode:"lighten",display:window.location.href.includes("main-dashboard-landing")?"":"none"}}>
         <div style={{width:"90%",margin:"5%",backgroundColor:"white",fontWeight:"700",textAlign:"center",height:"50px",lineHeight:"3",cursor:"pointer",marginTop:"10%"}}  onClick = {(e)=>handClick(e,"home")}className="dashBoard">View dashboard</div>
         <div style={{width:"90%",margin:"5%",backgroundColor:"white",fontWeight:"700",textAlign:"center",height:"50px",cursor:"pointer"}} className="dashBoard" onClick = {(e)=>handClick(e,"national-propertytax")}>
 Property Tax Assessment and Payment</div>
