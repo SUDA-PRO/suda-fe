@@ -141,47 +141,65 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
   return isLoading || isStoreLoading ? (
     <Loader />
   ) : (
-    <Background>
-      <div className="employeeBackbuttonAlign">
-        <BackButton variant="white" style={{ borderBottom: "none" }} />
-      </div>
+    <React.Fragment>
+      <style>
+        {`
+          .loginFormStyleEmployee .employeeCard {
+            
+          }
 
-      <FormComposer
-        onSubmit={onLogin}
-        isDisabled={isDisabled || disable}
-        noBoxShadow
-        inline
-        submitInForm
-        config={config}
-        label={propsConfig.texts.submitButtonLabel}
-        secondaryActionLabel={propsConfig.texts.secondaryButtonLabel}
-        onSecondayActionClick={onForgotPassword}
-        heading={propsConfig.texts.header}
-        headingStyle={{ textAlign: "center" }}
-        cardStyle={{ margin: "auto", minWidth: "408px" }}
-        className="loginFormStyleEmployee"
-        buttonStyle={{ maxWidth: "100%", width: "100%" ,backgroundColor:"#5a1166"}}
-      >
-        {/* <Header /> */}
-      </FormComposer>
-      {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
-      <div style={{ width: '100%', position: 'fixed', bottom: 0,backgroundColor:"white",textAlign:"center" }}>
-        <div style={{ display: 'flex', justifyContent: 'center', color:"black" }}>
-          {/* <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://www.digit.org/', '_blank').focus();}} >Powered by DIGIT</span>
-          <span style={{ margin: "0 10px" ,fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px"}}>|</span> */}
-          {/* <a style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a>
+          .primary-label-btn {
+            color: orange !important;
+          }
 
-          <span  className="upyog-copyright-footer" style={{ margin: "0 10px",fontSize:"12px" }} >|</span> */}
-          <span  className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
-          
-          {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
+          .submit-bar, .submit-bar-disabled {
+            background-color: orange !important;
+          }
+        `}
+      </style>
 
+      <Background>
+        <div className="employeeBackbuttonAlign">
+          <BackButton variant="white" style={{ borderBottom: "none" }} />
         </div>
-        <div className="upyog-copyright-footer-web">
-          <span className="" style={{ cursor: "pointer", fontSize:  window.Digit.Utils.browser.isMobile()?"14px":"16px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
+
+        <FormComposer 
+          onSubmit={onLogin}
+          isDisabled={isDisabled || disable}
+          noBoxShadow
+          inline
+          submitInForm
+          config={config}
+          label={propsConfig.texts.submitButtonLabel}
+          secondaryActionLabel={propsConfig.texts.secondaryButtonLabel}
+          onSecondayActionClick={onForgotPassword}
+          heading={propsConfig.texts.header}
+          headingStyle={{ textAlign: "center" }}
+          cardStyle={{ margin: "auto", minWidth: "408px", borderRadius: 10 }}
+          className="loginFormStyleEmployee"
+          buttonStyle={{ maxWidth: "100%", width: "100%"}}
+        >
+          {/* <Header /> */}
+        </FormComposer>
+        {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
+        <div style={{ width: '100%', position: 'fixed', bottom: 0,backgroundColor:"white",textAlign:"center" }}>
+          <div style={{ display: 'flex', justifyContent: 'center', color:"black" }}>
+            {/* <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://www.digit.org/', '_blank').focus();}} >Powered by DIGIT</span>
+            <span style={{ margin: "0 10px" ,fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px"}}>|</span> */}
+            {/* <a style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a>
+
+            <span  className="upyog-copyright-footer" style={{ margin: "0 10px",fontSize:"12px" }} >|</span> */}
+            <span  className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
+            
+            {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
+
           </div>
-      </div>
-    </Background>
+          <div className="upyog-copyright-footer-web">
+            <span className="" style={{ cursor: "pointer", fontSize:  window.Digit.Utils.browser.isMobile()?"14px":"16px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
+            </div>
+        </div>
+      </Background>
+    </React.Fragment>
   );
 };
 
