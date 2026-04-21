@@ -299,6 +299,7 @@ const getCommonFieldsCriteria = (tenantId, moduleCode, type) => ({
   },
 });
 
+
 const getPreFieldsCriteria = (tenantId, moduleCode, type) => ({
   type,
   details: {
