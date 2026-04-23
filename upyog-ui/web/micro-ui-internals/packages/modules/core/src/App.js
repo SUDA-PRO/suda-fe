@@ -67,16 +67,71 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
     initData,
   };
   return (
-    <Switch>
-      <Route path="/upyog-ui/employee">
-        <EmployeeApp {...commonProps} />
-      </Route>
-      <Route path="/upyog-ui/citizen">
-        <CitizenApp {...commonProps} />
-      </Route>
-      <Route>
-        <Redirect to="/upyog-ui/citizen" />
-      </Route>
-    </Switch>
+    <React.Fragment>
+      <style>
+        {`
+          .navbar {
+            font-family: monospace;
+            background: #1f45a4 !important;
+            padding: 5px;
+          }
+
+          .navbar .RightMostTopBarOptions .EventNotificationWrapper {
+            align-self: center;
+          }
+
+          .navbar .RightMostTopBarOptions .select-wrap svg path:first-child {
+            fill: transparent;
+          }
+
+          .primary-label-btn, .drawer-desktop .sidebar-list.active .menu-label, .link {
+            color: orange !important;
+          }
+
+          .submit-bar, .submit-bar-disabled {
+            background-color: orange !important;
+          }
+
+          .radio-wrap .radio-btn-wrap input:checked ~ .radio-btn-checkmark:after, .radio-wrap .radio-btn-wrap .checkbox-wrap .input-emp:checked ~ .radio-btn-checkmark:after, .checkbox-wrap .radio-wrap .radio-btn-wrap .input-emp:checked ~ .radio-btn-checkmark:after, .icon-banner-employee svg {
+            background-color: orange !important;
+          }
+
+          .radio-wrap .radio-btn-wrap input:checked ~ .radio-btn-checkmark, .radio-wrap .radio-btn-wrap .checkbox-wrap .input-emp:checked ~ .radio-btn-checkmark, .checkbox-wrap .radio-wrap .radio-btn-wrap .input-emp:checked ~ .radio-btn-checkmark, .drawer-desktop .sidebar-list.active {
+            border-color: orange !important;  
+          }
+
+          .CardBasedOptions .mainContent .CardBasedOptionsMainChildOption .ChildOptionImageWrapper svg, .drawer-desktop .sidebar-list.active .icon, .fill-path-primary-main path {
+            fill: orange !important;
+          }
+
+          ChildOptionImageWrapper svg path {
+            fill: orange !important;
+          }
+
+          .employee .topbar {
+            background: #1f45a4 !important;
+          }
+
+          svg path,
+          svg rect,
+          svg circle,
+          svg polygon,
+          svg ellipse {
+            fill: orange;
+          }
+        `}
+      </style>
+      <Switch>
+        <Route path="/upyog-ui/employee">
+          <EmployeeApp {...commonProps} />
+        </Route>
+        <Route path="/upyog-ui/citizen">
+          <CitizenApp {...commonProps} />
+        </Route>
+        <Route>
+          <Redirect to="/upyog-ui/citizen" />
+        </Route>
+      </Switch>
+    </React.Fragment>
   );
 };

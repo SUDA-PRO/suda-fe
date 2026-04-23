@@ -10,7 +10,7 @@ import LanguageSelection from "./LanguageSelection";
 import EmployeeLogin from "./Login";
 import UserProfile from "../citizen/Home/UserProfile";
 import ErrorComponent from "../../components/ErrorComponent";
-import { PrivateRoute } from "@upyog/digit-ui-react-components";
+import { PrivateRoute, TopBar } from "@upyog/digit-ui-react-components";
 
 const userScreensExempted = ["user/profile", "user/error"];
 
@@ -47,8 +47,8 @@ const EmployeeApp = ({
     <React.Fragment>
       <style>
         {`
-          .loginnn .navbar, .employeeChangePassword .submit-bar, .employeeForgotPassword button.submit-bar {
-            background: orange !important;
+          .navbar, .employeeChangePassword .submit-bar, .employeeForgotPassword button.submit-bar {
+            background: #002991 !important;
           }
 
           .employeeForgotPassword .employee-card-input {
@@ -61,6 +61,10 @@ const EmployeeApp = ({
 
           .employeeChangePassword .employeeCard .card-text-button {
             color: orange !important;
+          }
+
+          .RightMostTopBarOptions .EventNotificationWrapper {
+            align-self: center;
           }
         `}
       </style>
@@ -90,8 +94,7 @@ const EmployeeApp = ({
                   : { "--banner-url": `url(${stateInfo?.bannerUrl})`, padding: "0px" }
               }
             >
-
-              <div className="loginnn" style={{backgroundColor: '#ffa50017'}}>
+              <div className="loginnn">
                 {/* <picture>
                 <source media="(min-width: 760px)" src="https://i.postimg.cc/wxnnKGtG/Banner-18-10-22-1.png" style={{"position":"absolute","height":"100%","width":"100%"}}/>
                   <source media="(min-width: 400px)" srcset="https://i.postimg.cc/9Q7jT6Dd/Banner-Image-2.png" style={{"position":"absolute","height":"100%","width":"100%"}}/>
@@ -101,6 +104,8 @@ const EmployeeApp = ({
                   
                   </div>
                   </div>
+
+                <TopBar></TopBar>
                 {/* <picture>
                   <source id="backgroung-login" media="(min-width: 950px)" srcset="https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+(1920x1080).jpg" style={{"position":"absolute","height":"100%","width":"100%"}} />
                     <source media="(min-width: 250px)" srcset="https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+%28500x900%29.jpg" />

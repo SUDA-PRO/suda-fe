@@ -1,4 +1,4 @@
-import { BackButton, WhatsappIcon, Card, CitizenHomeCard, CitizenInfoLabel, PrivateRoute,AdvertisementModuleCard } from "@upyog/digit-ui-react-components";
+import { BackButton, WhatsappIcon, Card, CitizenHomeCard, CitizenInfoLabel, PrivateRoute,AdvertisementModuleCard, TopBar } from "@upyog/digit-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Route, Switch, useRouteMatch, useHistory, Link } from "react-router-dom";
@@ -126,50 +126,58 @@ const Home = ({
     return (
       <React.Fragment>
         <Route key={index} path={`${path}/${code.toLowerCase()}-home`}>
-          <div className="moduleLinkHomePage">
-            <img src={ "https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+%281920x500%29B+%282%29.jpg"||bannerImage || stateInfo?.bannerUrl} alt="noimagefound" />
-            <BackButton className="moduleLinkHomePageBackButton" />
-           {isMobile? <h4 style={{top: "calc(16vw + 40px)",left:"1.5rem",position:"absolute",color:"white"}}>{t("MODULE_" + code.toUpperCase())}</h4>:<h1>{t("MODULE_" + code.toUpperCase())}</h1>}
-            <div className="moduleLinkHomePageModuleLinks">
-              {mdmsDataObj && (
-                <CitizenHomeCard
-                  header={t(mdmsDataObj?.header)}
-                  links={mdmsDataObj?.links}
-                  Icon={() => <span />}
-                  Info={
-                    code === "OBPS"
-                      ? () => (
-                          <CitizenInfoLabel
-                            style={{ margin: "0px", padding: "10px" }}
-                            info={t("CS_FILE_APPLICATION_INFO_LABEL")}
-                            text={t(`BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL`)}
-                          />
-                        )
-                      : null
-                  }
-                  isInfo={code === "OBPS" ? true : false}
-                />
+          
+          <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
+            <div className="back-with-header">
+              <BackButton className="moduleLinkHomePageBackButton" />
+
+              {isMobile? <h4 style={{top: "calc(16vw + 40px)",left:"1.5rem",position:"absolute",color:"white"}}>{t("MODULE_" + code.toUpperCase())}</h4>:<h1>{t("MODULE_" + code.toUpperCase())}</h1>}
+            </div>
+
+            <div className="moduleLinkHomePage">
+              {/* <img src={ "https://nugp-assets.s3.ap-south-1.amazonaws.com/nugp+asset/Banner+UPYOG+%281920x500%29B+%282%29.jpg"||bannerImage || stateInfo?.bannerUrl} alt="noimagefound" /> */}
+              
+              <div className="moduleLinkHomePageModuleLinks">
+                {mdmsDataObj && (
+                  <CitizenHomeCard
+                    header={t(mdmsDataObj?.header)}
+                    links={mdmsDataObj?.links}
+                    Icon={() => <span />}
+                    Info={
+                      code === "OBPS"
+                        ? () => (
+                            <CitizenInfoLabel
+                              style={{ margin: "0px", padding: "10px" }}
+                              info={t("CS_FILE_APPLICATION_INFO_LABEL")}
+                              text={t(`BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL`)}
+                            />
+                          )
+                        : null
+                    }
+                    isInfo={code === "OBPS" ? true : false}
+                  />
+                )}
+                {/* <Links key={index} matchPath={`/upyog-ui/citizen/${code.toLowerCase()}`} userType={"citizen"} /> */}
+              </div>
+              {code?.toUpperCase()==="ADS" && (
+                <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
+                {Advertisement.map((ad) => (
+                  <AdvertisementModuleCard
+                    imageSrc={ad.imageSrc} 
+                    poleNo={ad.poleNo} 
+                    light={ad.light} 
+                    title={ad.title} 
+                    location={ad.location} 
+                    price={ad.price} 
+                    path={`${path}/${code.toLowerCase()}/`}
+                    adType={ad.adtype}
+                    faceArea={ad.faceArea}
+                  />
+                ))}
+              </div>
               )}
-              {/* <Links key={index} matchPath={`/upyog-ui/citizen/${code.toLowerCase()}`} userType={"citizen"} /> */}
+              <StaticDynamicCard moduleCode={code?.toUpperCase()}/>
             </div>
-            {code?.toUpperCase()==="ADS" && (
-              <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
-              {Advertisement.map((ad) => (
-                <AdvertisementModuleCard
-                  imageSrc={ad.imageSrc} 
-                  poleNo={ad.poleNo} 
-                  light={ad.light} 
-                  title={ad.title} 
-                  location={ad.location} 
-                  price={ad.price} 
-                  path={`${path}/${code.toLowerCase()}/`}
-                  adType={ad.adtype}
-                  faceArea={ad.faceArea}
-                />
-              ))}
-            </div>
-            )}
-            <StaticDynamicCard moduleCode={code?.toUpperCase()}/>
           </div>
         </Route>
         <Route key={"faq" + index} path={`${path}/${code.toLowerCase()}-faq`}>
@@ -184,13 +192,32 @@ const Home = ({
 
   return (
     <div className={classname}>
-              <style>
+          <style>
           {
             `
-            .citizen-card-input .citizen-card-input--front
-            {
-              height:40px !important;
-            }
+              .citizen-card-input .citizen-card-input--front
+              {
+                height:40px !important;
+              }
+
+              .back-with-header {
+                margin-bottom: 30px;
+                padding-left: 15px;
+              }
+
+              .CitizenHomeCard .links {
+                color: orange;
+              }
+
+              .citizen-home-container .back-with-header .moduleLinkHomePageBackButton svg path:first-child {
+                fill: transparent;
+              }
+
+              .citizen-home-container .back-with-header .moduleLinkHomePageBackButton h1 {
+                font-size: 40px;
+                color: #1f45a4;
+                font-weight: 500;
+              }
             `
           }
         </style>
@@ -208,6 +235,7 @@ const Home = ({
         islinkDataLoading={islinkDataLoading}
       />
 
+        {/* <TopBar></TopBar> */}
       <div className={`main center-container citizen-home-container mb-25`}>
         {hideSidebar ? null : (
           <div className="SideBarStatic">

@@ -34,13 +34,14 @@ const TopBar = ({
       <div className="center-container back-wrapper" style={{display:"flex",marginRight:"2rem",marginLeft:"2rem",justifyContent:"space-between"}}>
         <div className="hambuger-back-wrapper" style={{display:"flex"}}>
           {window.innerWidth <= 660  && <Hamburger handleClick={toggleSidebar} />}
-          <a href={window.location.href.includes("citizen")?"/upyog-ui/citizen":"/upyog-ui/employee"}><h2 style={{fontSize:30, color:'orange', fontWeight:'bold'}}>SUDA</h2>
+          <a href={window.location.href.includes("citizen")?"/upyog-ui/citizen":"/upyog-ui/employee"}><h2 style={{fontSize:30, color:'orange', fontWeight:'bold', fontFamily: 'monospace'}}>SUDA</h2>
           </a>
-          <h3>{cityOfCitizenShownBesideLogo}</h3>
+          <h3></h3>
+          <span>{cityOfCitizenShownBesideLogo}</span>
         </div>
 
         <div className="RightMostTopBarOptions">
-          {!hideNotificationIconOnSomeUrlsWhenNotLoggedIn ? changeLanguage : null}
+          <span>{!hideNotificationIconOnSomeUrlsWhenNotLoggedIn ? changeLanguage : null}</span>
           {!hideNotificationIconOnSomeUrlsWhenNotLoggedIn ? (
             <div className="EventNotificationWrapper" onClick={onNotificationIconClick}>
               {notificationCountLoaded && notificationCount ? (
@@ -59,7 +60,7 @@ const TopBar = ({
           alt="mSeva"
           style={{marginLeft:"10px"}}
         /> */}
-          <h2 style={{fontSize:30, color:'orange', fontWeight:'bold'}}>SUDA</h2>
+          <h2 style={{fontSize:30, color:'orange', fontWeight:'bold', fontFamily: 'monospace'}}>SUDA</h2>
         </div>
       </div>
     </div>

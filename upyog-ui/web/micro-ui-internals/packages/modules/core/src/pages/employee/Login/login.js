@@ -142,22 +142,6 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     <Loader />
   ) : (
     <React.Fragment>
-      <style>
-        {`
-          .loginFormStyleEmployee .employeeCard {
-            
-          }
-
-          .primary-label-btn {
-            color: orange !important;
-          }
-
-          .submit-bar, .submit-bar-disabled {
-            background-color: orange !important;
-          }
-        `}
-      </style>
-
       <Background>
         <div className="employeeBackbuttonAlign">
           <BackButton variant="white" style={{ borderBottom: "none" }} />

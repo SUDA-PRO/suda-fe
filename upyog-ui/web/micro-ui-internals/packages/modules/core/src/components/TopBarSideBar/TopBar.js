@@ -109,11 +109,11 @@ const TopBar = ({
     <div className="topbar">
       {mobileView ? <Hamburger handleClick={toggleSidebar} color="#9E9E9E" /> : null}
       {/* <img className="city" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" /> */}
-      <h2 style={{fontSize:30, color:'orange', fontWeight:'bold'}}>SUDA</h2>
+      <h2 style={{fontSize:30, color:'orange', fontWeight:'bold', fontFamily: "monospace"}}>SUDA</h2>
       <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
         {loggedin &&
           (cityDetails?.city?.ulbGrade ? (
-            <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block" } : { paddingLeft:15, borderLeft:"2px solid orange", marginLeft:14}}>
+            <p className="ulb" style={mobileView ? { fontFamily: "sans-serif", fontSize: "14px", display: "inline-block" } : { paddingLeft:15, borderLeft:"2px solid orange", marginLeft:14, color: "white"}}>
               {t(cityDetails?.i18nKey).toUpperCase()}
               {t(`ULBGRADE_${cityDetails?.city?.ulbGrade.toUpperCase().replace(" ", "_").replace(".", "_")}`).toUpperCase()}
             </p>
@@ -121,12 +121,13 @@ const TopBar = ({
             <img className="state" alt="logoUrl" src={logoUrl} />
           ))}
         {!loggedin && (
-          <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block" } : {}}>
+          <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block", color: "white"} : {color: "white"}}>
             {t(`MYCITY_${stateInfo?.code?.toUpperCase()}_LABEL`)} {t(`MYCITY_STATECODE_LABEL`)}
           </p>
         )}
         {!mobileView && (
-          <div className={mobileView ? "right" : "flex-right right w-80 column-gap-15"} style={!loggedin ? { width: "80%" } : {}}>
+          <div className={mobileView ? "right" : "flex-right right w-80 column-gap-15"} style={!loggedin ? { width: "80%" } : {}}
+          style={{color: "white", fontFamily: "sans-serif"}}>
             <div className="left">
               {!window.location.href.includes("employee/user/login") && !window.location.href.includes("employee/user/language-selection") && (
                 <ChangeCity dropdown={true} t={t} />
