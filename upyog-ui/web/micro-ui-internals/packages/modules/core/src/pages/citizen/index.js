@@ -213,7 +213,7 @@ const Home = ({
                 fill: transparent;
               }
 
-              .citizen-home-container .back-with-header .moduleLinkHomePageBackButton h1 {
+              .citizen-home-container .back-with-header h1 {
                 font-size: 40px;
                 color: #1f45a4;
                 font-weight: 500;
