@@ -1,0 +1,366 @@
+/* ═══════════════════════════════════════════════════════
+   SUDA Login – trigger button + modal overlay
+   ═══════════════════════════════════════════════════════ */
+
+/* ── Trigger button (shown on the banner page) ────────── */
+.suda-login-trigger {
+  position: fixed;
+  top: 50%;
+  right: 48px;
+  transform: translateY(-50%);
+  z-index: 200;
+  padding: 13px 36px;
+  background: #e07b00;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, 0.28);
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+
+  &:hover {
+    background: #c96d00;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.34);
+    transform: translateY(calc(-50% - 2px));
+  }
+
+  &:active {
+    background: #b56100;
+    transform: translateY(-50%);
+  }
+}
+
+/* ── Modal overlay ────────────────────────────────────── */
+.suda-modal__overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: suda-fade-in 0.18s ease;
+}
+
+@keyframes suda-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal card ───────────────────────────────────────── */
+.suda-modal__card {
+  position: relative;
+  background: #ffffff;
+  border-radius: 14px;
+  padding: 40px 44px 32px;
+  width: 100%;
+  max-width: 440px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+  animation: suda-slide-up 0.22s ease;
+
+  @media (max-width: 500px) {
+    padding: 28px 20px 24px;
+  }
+}
+
+@keyframes suda-slide-up {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* ── Close button ─────────────────────────────────────── */
+.suda-modal__close {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+
+  &:hover {
+    color: #333;
+    background: #f0f0f0;
+  }
+}
+
+/* ── Headings ─────────────────────────────────────────── */
+.suda-modal__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 6px;
+  line-height: 1.3;
+
+  &-accent {
+    color: #e07b00;
+  }
+}
+
+.suda-modal__subtitle {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 22px;
+  line-height: 1.5;
+}
+
+/* ── Radio pills ──────────────────────────────────────── */
+.suda-modal__radio-group {
+  display: flex;
+  gap: 18px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.suda-modal__radio-native {
+  display: none;
+}
+
+.suda-modal__radio-pill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #444;
+  font-weight: 400;
+  user-select: none;
+
+  &--active {
+    color: #e07b00;
+    font-weight: 600;
+  }
+}
+
+.suda-modal__radio-dot {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 2px solid #bbb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: border-color 0.18s;
+
+  &--active {
+    border-color: #e07b00;
+
+    &::after {
+      content: "";
+      display: block;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #e07b00;
+    }
+  }
+}
+
+/* ── Form fields ──────────────────────────────────────── */
+.suda-modal__field {
+  margin-bottom: 18px;
+}
+
+.suda-modal__label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 7px;
+}
+
+.suda-modal__req {
+  color: #d32f2f;
+}
+
+.suda-modal__input-wrap {
+  display: flex;
+  align-items: center;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 7px;
+  overflow: hidden;
+  background: #fff;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &:focus-within {
+    border-color: #e07b00;
+    box-shadow: 0 0 0 3px rgba(224, 123, 0, 0.12);
+  }
+}
+
+.suda-modal__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  padding: 11px 13px;
+  font-size: 14px;
+  color: #222;
+  background: transparent;
+  min-width: 0;
+
+  &::placeholder {
+    color: #b0b0b0;
+  }
+}
+
+/* ── Icon buttons ─────────────────────────────────────── */
+.suda-modal__icon-btn {
+  padding: 0 11px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #888;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: color 0.15s;
+
+  &:hover { color: #333; }
+}
+
+.suda-modal__icon-static {
+  padding: 0 11px;
+  color: #aaa;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Verify button ────────────────────────────────────── */
+.suda-modal__verify-btn {
+  padding: 11px 18px;
+  background: #e07b00;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: background 0.18s;
+
+  &:hover:not(:disabled) { background: #c96d00; }
+
+  &--done,
+  &:disabled {
+    background: #b0b0b0;
+    cursor: default;
+  }
+}
+
+/* ── Captcha ──────────────────────────────────────────── */
+.suda-modal__captcha-row {
+  display: flex;
+  align-items: stretch;
+  border: 1.5px solid #d8d8d8;
+  border-radius: 7px;
+  overflow: hidden;
+  transition: border-color 0.18s, box-shadow 0.18s;
+
+  &:focus-within {
+    border-color: #e07b00;
+    box-shadow: 0 0 0 3px rgba(224, 123, 0, 0.12);
+  }
+
+  .suda-modal__captcha-input {
+    border: none;
+    border-radius: 0;
+    flex: 1;
+  }
+}
+
+.suda-modal__captcha-img {
+  background: #f5f0e8;
+  border: none;
+  border-left: 1.5px solid #d8d8d8;
+  cursor: pointer;
+  padding: 3px 5px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  transition: background 0.15s;
+
+  &:hover { background: #ede4cf; }
+
+  canvas { display: block; }
+}
+
+/* ── Sub actions (resend / forgot) ───────────────────── */
+.suda-modal__row-end {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+}
+
+.suda-modal__text-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #e07b00;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0;
+
+  &:hover { text-decoration: underline; }
+}
+
+.suda-modal__timer {
+  font-size: 12px;
+  color: #888;
+}
+
+/* ── Submit button ────────────────────────────────────── */
+.suda-modal__submit {
+  width: 100%;
+  padding: 14px;
+  background: #e07b00;
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+  margin-bottom: 18px;
+  letter-spacing: 0.3px;
+  transition: background 0.18s, box-shadow 0.18s;
+
+  &:hover:not(:disabled) {
+    background: #c96d00;
+    box-shadow: 0 4px 14px rgba(224, 123, 0, 0.35);
+  }
+
+  &:disabled {
+    background: #c8c8c8;
+    cursor: default;
+  }
+}
+
+/* ── Footer text ──────────────────────────────────────── */
+.suda-modal__footer-text {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.suda-modal__register-link {
+  color: #e07b00;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover { text-decoration: underline; }
+}
+

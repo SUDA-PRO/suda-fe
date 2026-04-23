@@ -215,6 +215,14 @@ useEffect(() => {
                 background-blend-mode: normal !important;
                 background-size: cover !important;
               }
+
+              .ChildOptionImageWrapper svg path,
+              .ChildOptionImageWrapper svg rect,
+              .ChildOptionImageWrapper svg circle,
+              .ChildOptionImageWrapper svg polygon,
+              .ChildOptionImageWrapper svg ellipse {
+                fill: orange !important;
+              }
             `}
 
               

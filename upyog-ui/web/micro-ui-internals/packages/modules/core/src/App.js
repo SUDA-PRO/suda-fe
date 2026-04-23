@@ -72,6 +72,7 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
         {`
           .navbar {
             font-family: monospace;
+            postion: relative;
             background: #1f45a4 !important;
             padding: 5px;
           }
@@ -104,7 +105,7 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
             fill: orange !important;
           }
 
-          ChildOptionImageWrapper svg path {
+          .ChildOptionImageWrapper svg path {
             fill: orange !important;
           }
 
@@ -112,12 +113,13 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
             background: #1f45a4 !important;
           }
 
-          svg path,
-          svg rect,
-          svg circle,
-          svg polygon,
-          svg ellipse {
-            fill: orange;
+          .selector-button-primary, selector-button-primary-disabled {
+            background-color: orange;
+            border-radius: 20px;
+          }
+
+          .selector-button-border, selector-button-primary-disabled {
+            border-radius: 20px;
           }
         `}
       </style>
