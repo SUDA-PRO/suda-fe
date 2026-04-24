@@ -10,9 +10,6 @@ const STYLES = `
     top: 0 !important; left: 0 !important;
     width: 100vw !important; height: 100vh !important;
     z-index: 99999 !important;
-    display: flex !important;
-    align-items: center;
-    justify-content: center;
     animation: sudaFadeIn 0.18s ease;
   }
   @keyframes sudaFadeIn { from { opacity:0; } to { opacity:1; } }
@@ -83,7 +80,7 @@ const STYLES = `
     transition:background 0.15s;
   }
   .suda-verify-btn:hover:not(:disabled) { background:#2a2a5e; }
-  .suda-verify-btn:disabled { background:#4caf50; cursor:default; }
+  .suda-verify-btn:disabled { cursor:not-allowed; opacity:0.7; }
 
   .suda-icon-btn {
     background:none; border:none; cursor:pointer;
@@ -125,7 +122,7 @@ const STYLES = `
 const useGlobalStyles = (css) => {
   useEffect(() => {
     const existing = document.getElementById("suda-global-styles");
-    if (existing) return; /* already injected */
+    if (existing) return;
     const el = document.createElement("style");
     el.id = "suda-global-styles";
     el.textContent = css;
@@ -293,7 +290,7 @@ const SudaLoginCard = ({ onClose, position }) => {
     setLoading(true);
     try {
       if (isCitizen) {
-        if (!otpSent) { showErr("Please verify your mobile number first."); setLoading(false); return; }
+        // if (!otpSent) { showErr("Please verify your mobile number first."); setLoading(false); return; }
         if (!otp || otp.length < 4) { showErr("Please enter a valid OTP."); setLoading(false); return; }
         const { UserRequest: info, ...tokens } = await Digit.UserService.authenticate({
           username: mobile, password: otp, tenantId: stateCode, userType: "citizen", type: "otp",
@@ -323,7 +320,7 @@ const SudaLoginCard = ({ onClose, position }) => {
 
   return (
     <div className="suda-overlay" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className="suda-card" role="dialog" aria-modal="true" style={{ top: position.top, left: position.left }}>
+      <div className="suda-card" role="dialog" aria-modal="true" style={{ position: "fixed", top: position.top, left: position.left }}>
         <button type="button" className="suda-close" onClick={onClose} aria-label="Close">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
@@ -332,24 +329,28 @@ const SudaLoginCard = ({ onClose, position }) => {
         <h2 className="suda-title">Welcome to&nbsp;<span className="suda-title-accent">SUDA</span></h2>
         <p className="suda-subtitle">Login with your credentials to access your SUDA account</p>
         <div className="suda-pills" role="radiogroup">
-          {USER_TYPES.map(({ key, label }) => (
-            <label key={key} className={"suda-pill" + (userType === key ? " suda-pill--active" : "")}>
-              <input type="radio" name="suda-user-type" value={key} checked={userType === key}
-                onChange={() => { setUserType(key); setOtpSent(false); setMobile(""); setOtp(""); setPassword(""); }} />
-              <span className={"suda-dot" + (userType === key ? " suda-dot--active" : "")} />
-              {label}
-            </label>
-          ))}
+          {USER_TYPES.map(({ key, label }) => {
+            const disabled = key === "admin" || key === "guest";
+            return (
+              <label key={key} className={"suda-pill" + (userType === key ? " suda-pill--active" : "") + (disabled ? " suda-pill--disabled" : "")}
+                style={disabled ? { opacity: 0.4, cursor: "not-allowed", pointerEvents: "none" } : {}}>
+                <input type="radio" name="suda-user-type" value={key} checked={userType === key} disabled={disabled}
+                  onChange={() => { setUserType(key); setOtpSent(false); setMobile(""); setOtp(""); setPassword(""); }} />
+                <span className={"suda-dot" + (userType === key ? " suda-dot--active" : "")} />
+                {label}
+              </label>
+            );
+          })}
         </div>
         <form onSubmit={handleLogin} noValidate>
           <div className="suda-field">
-            <label className="suda-label">Mobile Number <span className="suda-req">*</span></label>
+            <label className="suda-label">{isCitizen ? "Mobile Number" : "Username"} <span className="suda-req">*</span></label>
             <div className="suda-input-wrap">
-              <input className="suda-input" type="tel" maxLength={10} placeholder="Enter Mobile Number"
-                value={mobile} onChange={(e) => { if (/^\d{0,10}$/.test(e.target.value)) setMobile(e.target.value); }} />
+              <input className="suda-input" type="text" maxLength={isCitizen ? 10 : undefined} placeholder={isCitizen ? "Enter Mobile Number" : "Enter Username"}
+                value={mobile} onChange={(e) => { setMobile(e.target.value); }} />
               {isCitizen ? (
-                <button type="button" className="suda-verify-btn" onClick={handleVerify} disabled={otpSent || otpLoading}>
-                  {otpLoading ? "Sending..." : otpSent ? "Sent" : "Verify"}
+                <button type="button" className="suda-verify-btn" disabled>
+                  Verify
                 </button>
               ) : <PhoneIcon />}
             </div>
@@ -401,12 +402,12 @@ const SudaLoginCard = ({ onClose, position }) => {
             {loading ? "Please wait..." : "Login"}
           </button>
         </form>
-        <p className="suda-footer">
+        {/* <p className="suda-footer">
           Don't have an account?&nbsp;
           <span className="suda-register-link" onClick={() => { onClose(); history.push("/upyog-ui/citizen/register"); }}>
             Register Now
           </span>
-        </p>
+        </p> */}
         {toast && <Toast error={toast.error} label={toast.label} onClose={() => setToast(null)} />}
       </div>
     </div>
@@ -416,7 +417,7 @@ const SudaLoginCard = ({ onClose, position }) => {
 /* ══════════════════════════════════════════════════════════════
    SudaLogin — self-contained trigger + portal modal
    ══════════════════════════════════════════════════════════════ */
-const SudaLogin = () => {
+const  SudaLogin = () => {
   const [open, setOpen] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const triggerRef = useRef(null);
@@ -454,26 +455,7 @@ const SudaLogin = () => {
       <button
         ref={triggerRef}
         type="button"
-        onClick={handleOpen}
-        style={{
-          display: "inline-flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#D4860B",
-          color: "#fff",
-          border: "none",
-          padding: "12px 36px",
-          fontSize: "15px",
-          fontWeight: "700",
-          cursor: "pointer",
-          borderRadius: "8px",
-          boxShadow: "0 4px 16px rgba(212,134,11,0.35)",
-          whiteSpace: "nowrap",
-          alignSelf: "center",
-          position: "relative",
-          zIndex: 10000,
-        }}
-      >
+        onClick={handleOpen}>
         Login
       </button>
 

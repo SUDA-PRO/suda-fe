@@ -8,7 +8,6 @@ import ChangePassword from "./ChangePassword";
 import ForgotPassword from "./ForgotPassword";
 import LanguageSelection from "./LanguageSelection";
 import EmployeeLogin from "./Login";
-import SudaLogin from "./Login/SudaLogin";
 import UserProfile from "../citizen/Home/UserProfile";
 import ErrorComponent from "../../components/ErrorComponent";
 import { PrivateRoute, TopBar } from "@upyog/digit-ui-react-components";
@@ -116,7 +115,6 @@ const EmployeeApp = ({
                 <Route path={`${path}/user/login`}>
                   <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: "24px", flexWrap: "wrap", padding: "40px 20px" }}>
                     <EmployeeLogin />
-                    {/* <SudaLogin /> */}
                   </div>
                 </Route>
                 <Route path={`${path}/user/forgot-password`}>
