@@ -176,21 +176,20 @@ export default function Dashboard() {
         marginTop: "8px",
       }}
     >
-      <style>{`
+      <style>
+        {`
             .select-wrap {
-margin-bottom:0px;
-}
+              margin-bottom:0px;
+            }
 
-
- 
             .employee-select-wrap {
-            margin-bottom:0px;
-        }
-    .navbar{
-        display:none !important;
-    }
-   
-     
+                margin-bottom:0px;
+            }
+
+            .navbar{
+                display:none !important;
+            }
+        
     `}</style>
 
       {/* ── TOP UTILITY BAR ── */}
@@ -357,12 +356,12 @@ margin-bottom:0px;
           </div>
 
 
-   {!isMobile && (
-          <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.4 }}>
-            {/* <span style={{ fontSize: 12.5, color: "black", textTransform: "uppercase", letterSpacing: "0.6px" }}>{t("LANDING_PAGE_GOV")}</span> */}
-            <span style={{ fontSize: 17.5, fontWeight: 700, color: "black", letterSpacing: "0.3px" }}>{t("LANDING_PAGE_TITLE")}</span>
-          </div>
-   )}
+          {!isMobile && (
+              <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.4 }}>
+                {/* <span style={{ fontSize: 12.5, color: "black", textTransform: "uppercase", letterSpacing: "0.6px" }}>{t("LANDING_PAGE_GOV")}</span> */}
+                <span style={{ fontSize: 17.5, fontWeight: 700, color: "black", letterSpacing: "0.3px" }}>{t("LANDING_PAGE_TITLE")}</span>
+              </div>
+          )}
 
 
         </div>
