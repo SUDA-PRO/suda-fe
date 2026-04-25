@@ -31,7 +31,7 @@ const EmployeeApp = ({
   initData,
 }) => {
   const history = useHistory();
-  const { t } = hen();
+  const { t } = useTranslation();
   const { path } = useRouteMatch();
   const location = useLocation();
   const showLanguageChange = location?.pathname?.includes("language-selection");
