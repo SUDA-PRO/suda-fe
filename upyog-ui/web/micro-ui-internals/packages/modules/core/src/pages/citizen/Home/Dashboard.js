@@ -23,9 +23,8 @@ import ChangeLanguage from "../../../components/ChangeLanguage";
 import { useTranslation } from "react-i18next";
 // import IndianFlag from './SvgStore/Inidan-Flag.svg';
 import { ReactComponent as IndianFlag } from "../../../assets/Inidan-Flag.svg";
-import vishnuSai from "../../../assets/vishnuSai.png";
-import ArunSao from "../../../assets/ArunSao.png";
-import CGLogo from "../../../assets/cglogo.png";
+// import vishnuSai from "../../../assets/vishnuSai.png";
+// import CGLogo from "../../../assets/cglogo.png";
 // import Banner from "../../../assets/banner.png";
 // import Banner from "./banner.png"
 // import NMC from "./NMC.png"
@@ -35,17 +34,20 @@ import CGLogo from "../../../assets/cglogo.png";
 // import thirdMajor from "./thirdMajor.png"
 // import fourthMajor from "./forthMajor.png"
 
-// const firstMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Mayor.png";
 const NMC = "https://media-upyog.nmc.gov.in/nmc-public-media/logo/NMC_logo.svg";
 const Nashik = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Nashik_city_outline.svg";
-const Banner = "https://media-upyog.nmc.gov.in/nmc-public-media/video/Landing-Video.mp4";
+// const Banner = "https://media-upyog.nmc.gov.in/nmc-public-media/video/Landing-Video.mp4";
+const Banner = "https://tfstatee8aog.blob.core.windows.net/filestore/banner.png";
+const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo.png";
+const vishnuSai = "https://tfstatee8aog.blob.core.windows.net/filestore/vishnuSai.png";
+const ArunSaoImg = "https://tfstatee8aog.blob.core.windows.net/filestore/ArunSao.png";
 const secondMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Deputy_Mayor.png";
 const thirdMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Commissioner.png";
 const fourthMajor = "";
 
 const officials = [
   { name: "COMMON_MAYOR_NAME", title: "COMMON_MAYOR_DESIG_LBL", img: vishnuSai },
-  { name: "COMMON_DEPUTY_MAYOR_NAME", title: "COMMON_DEPUTY_MAYOR_DESIG_LBL", img: ArunSao },
+  { name: "COMMON_DEPUTY_MAYOR_NAME", title: "COMMON_DEPUTY_MAYOR_DESIG_LBL", img: ArunSaoImg },
   // { name: "COMMON_COMMISSIONER_NAME", title: "COMMON_COMMISSIONER_DESIG_LBL", img: thirdMajor },
   //   { name: "Smt. Karishma Nair, I.A.S.", title: "Additional Commissioner", img: fourthMajor },
 ];
@@ -194,7 +196,8 @@ margin-bottom:0px;
       {/* ── TOP UTILITY BAR ── */}
       <div
       style={{
-        background: "#f5e6e6",
+        // background: "#0A1E64",
+        background: "linear-gradient(90deg,rgba(10, 30, 100, 1) 0%, rgba(163, 97, 14, 1) 100%, rgba(163, 97, 14, 1) 94%)",
         borderBottom: "1px solid #e8cccc",
         padding: isMobile ? "4px 10px" : "6px 20px",
         display: "flex",
@@ -489,8 +492,8 @@ margin-bottom:0px;
 
       {/* ── BANNER ── */}
       <div style={{ width: "100%", overflow: "hidden", position: "relative", marginTop: "96px" }}>
-        <video src={Banner} autoPlay muted loop playsInline style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} />
-        {/* <img src={Banner} alt="Banner" style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} /> */}
+        {/* <video src={Banner} autoPlay muted loop playsInline style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} /> */}
+        <img src={Banner} alt="Banner" style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} />
         <div
           style={{
             position: "absolute",
@@ -796,7 +799,7 @@ margin-bottom:0px;
 
       <footer
         style={{
-          background: "#f9ece9",
+          background: "#091E64",
           padding: isMobile ? "24px 16px" : "36px 48px 28px",
         }}
       >
@@ -836,7 +839,7 @@ margin-bottom:0px;
                   letterSpacing: "0.5px",
                 }}
               >
-                Government of Chhattisgarhs
+                Government of Chhattisgarh
               </div>
               <div
                 style={{
@@ -847,9 +850,7 @@ margin-bottom:0px;
                   marginTop: 3,
                 }}
               >
-                STATE URBUAN DEVELOPMENT
-                <br />
-                AGENCY (SUDA)
+                STATE URBUAN DEVELOPMENT AGENCY (SUDA)
               </div>
             </div>
           </div>
