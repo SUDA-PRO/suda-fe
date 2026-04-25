@@ -4,7 +4,6 @@ import React, { useEffect, useState } from "react";
 import { useHistory } from "react-router-dom";
 import Background from "../../../components/Background";
 import Header from "../../../components/Header";
-import SudaLogin from "./SudaLogin";
 
 /* set employee details to enable backward compatiable */
 const setEmployeeDetail = (userObject, token) => {
@@ -148,9 +147,6 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
           <BackButton variant="white" style={{ borderBottom: "none" }} />
         </div>
 
-        <div style={{ display: "flex", justifyContent: "center", marginBottom: "16px" }}>
-          <SudaLogin />
-        </div>
         <FormComposer 
           onSubmit={onLogin}
           isDisabled={isDisabled || disable}

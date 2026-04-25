@@ -49,11 +49,7 @@ export const UserService = {
     finally{
       window.localStorage.clear();
       window.sessionStorage.clear();
-      if (userType === "citizen") {
-        window.location.replace("/upyog-ui/citizen");
-      } else {
-        window.location.replace("/upyog-ui/employee/user/language-selection");
-      }
+      window.location.replace("/upyog-ui/login");
     }
   },
   sendOtp: (details, stateCode) =>

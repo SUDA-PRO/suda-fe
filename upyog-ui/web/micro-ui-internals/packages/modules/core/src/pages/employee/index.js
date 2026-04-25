@@ -31,7 +31,7 @@ const EmployeeApp = ({
   initData,
 }) => {
   const history = useHistory();
-  const { t } = useTranslation();
+  const { t } = hen();
   const { path } = useRouteMatch();
   const location = useLocation();
   const showLanguageChange = location?.pathname?.includes("language-selection");
@@ -113,9 +113,7 @@ const EmployeeApp = ({
 
               <Switch>
                 <Route path={`${path}/user/login`}>
-                  <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "center", gap: "24px", flexWrap: "wrap", padding: "40px 20px" }}>
-                    <EmployeeLogin />
-                  </div>
+                  <Redirect to="/upyog-ui/login" />
                 </Route>
                 <Route path={`${path}/user/forgot-password`}>
                   <ForgotPassword />

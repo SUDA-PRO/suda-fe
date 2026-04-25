@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { Redirect, Route, Switch, useHistory, useLocation } from "react-router-dom";
 import EmployeeApp from "./pages/employee";
 import CitizenApp from "./pages/citizen";
+import SudaLoginPage from "./pages/employee/Login/SudaLoginPage";
 
 export const DigitApp = ({ stateCode, modules, appTenants, logoUrl, initData }) => {
   const history = useHistory();
@@ -124,6 +125,9 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
         `}
       </style>
       <Switch>
+        <Route path="/upyog-ui/login" exact>
+          <SudaLoginPage />
+        </Route>
         <Route path="/upyog-ui/employee">
           <EmployeeApp {...commonProps} />
         </Route>
