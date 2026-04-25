@@ -25,15 +25,19 @@ import ChallanQRCode from "./ChallanQRCode";
 import { newConfig as newConfigEDCR } from "../../config/edcrConfig";
 import CreateAnonymousEDCR from "./Home/EDCR";
 import EDCRAcknowledgement from "./Home/EDCR/EDCRAcknowledgement";
+import { APPLICATION_PATH } from "./Home/EDCR/utils";
+import Dashboard from "./Home/Dashboard";
+
 const sidebarHiddenFor = [
   "upyog-ui/citizen/register/name",
   "/upyog-ui/citizen/select-language",
+  "/upyog-ui/citizen/dashboard",
   "/upyog-ui/citizen/select-location",
   "/upyog-ui/citizen/login",
   "/upyog-ui/citizen/register/otp",
   // "/upyog-ui/citizen/verificationsearch-home" // route for verificationsearch component
 ];
-import { APPLICATION_PATH } from "./Home/EDCR/utils";
+
 const getTenants = (codes, tenants) => {
   return tenants.filter((tenant) => codes.map((item) => item.code).includes(tenant.code));
 };
@@ -208,7 +212,8 @@ const Home = ({
         islinkDataLoading={islinkDataLoading}
       />
 
-      <div className={`main center-container citizen-home-container mb-25`}>
+      {/* <div className={`main center-container citizen-home-container mb-25`}> */}
+         <div>
         {hideSidebar ? null : (
           <div className="SideBarStatic">
             <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} />
@@ -260,6 +265,11 @@ const Home = ({
             <UserProfile stateCode={stateCode} userType={"citizen"} cityDetails={cityDetails} />
           </PrivateRoute>
 
+
+         <Route exact path={`${path}/dashboard`}>
+          <Dashboard />
+        </Route>
+
           <Route path={`${path}/Audit`}>
             <Search/>
           </Route>
@@ -281,6 +291,8 @@ const Home = ({
           <Route path={`${APPLICATION_PATH}/citizen/core/edcr/scrutiny/acknowledgement`}>
             <EDCRAcknowledgement />
           </Route>
+
+
 
           <ErrorBoundary initData={initData}>
             {appRoutes}
