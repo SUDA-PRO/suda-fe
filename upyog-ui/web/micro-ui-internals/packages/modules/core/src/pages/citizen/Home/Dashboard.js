@@ -203,7 +203,7 @@ export default function Dashboard() {
         alignItems: "center",
         justifyContent: "space-between",
         fontSize: isMobile ? 11 : 12,
-        color: "#444",
+        color: "#ffffff",
         position: "fixed",
         top: 0,
         left: 0,
@@ -231,7 +231,7 @@ export default function Dashboard() {
           <span
             style={{
               fontWeight: 500,
-              color: "#333",
+              color: "#e8e8e8",
               fontSize: isTablet ? 11.5 : 12,
               whiteSpace: "nowrap",
             }}
@@ -248,7 +248,7 @@ export default function Dashboard() {
           <a
             href="#main"
             style={{
-              color: "#555",
+              color: "#eaeaea",
               fontSize: 11.5,
               textDecoration: "none",
               padding: "0 12px",
@@ -377,7 +377,7 @@ export default function Dashboard() {
                 borderRadius: 6,
                 border: "1.5px solid #999",
                 background: "#fff",
-                color: "#333",
+                color: "#dfdfdf",
                 fontWeight: 600,
                 fontSize: 13,
                 cursor: "pointer",
@@ -390,7 +390,7 @@ export default function Dashboard() {
               {/* Login */}
               {t("CORE_COMMON_LOGIN")}
               <svg width="10" height="10" viewBox="0 0 10 6" fill="none">
-                <path d="M1 1l4 4 4-4" stroke="#666" strokeWidth="1.5" strokeLinecap="round" />
+                <path d="M1 1l4 4 4-4" stroke="#d3d3d3" strokeWidth="1.5" strokeLinecap="round" />
               </svg>
             </button>
 
@@ -833,7 +833,7 @@ export default function Dashboard() {
               <div
                 style={{
                   fontSize: 10,
-                  color: "#666",
+                  color: "#e4e4e4",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
                 }}
@@ -844,7 +844,7 @@ export default function Dashboard() {
                 style={{
                   fontSize: 14,
                   fontWeight: 700,
-                  color: "#222",
+                  color: "#e4e4e4",
                   lineHeight: 1.5,
                   marginTop: 3,
                 }}
@@ -860,8 +860,9 @@ export default function Dashboard() {
               style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: "#7A1E1C",
+                color: "#ffffff",
                 marginBottom: 16,
+                textTransform: "uppercase",
               }}
             >
               {t("CS_HOME_HEADER_CONTACT_US")}
@@ -879,7 +880,7 @@ export default function Dashboard() {
               <span
                 style={{
                   fontSize: 13,
-                  color: "#444",
+                  color: "#e4e4e4",
                   lineHeight: 1.6,
                 }}
               >
@@ -895,12 +896,12 @@ export default function Dashboard() {
                 justifyContent: isMobile ? "center" : "flex-start",
               }}
             >
-              <span style={{ fontSize: 13, color: "#444" }}>
+              <span style={{ fontSize: 13, color: "#e4e4e4" }}>
                 <span>📞</span> &ensp;
                 {pgrData?.[0]?.helpLineNumber ? pgrData?.[0]?.helpLineNumber : "1800 2677 953"} :- {t("GRIEVANCE_HELPLINE_NO_INFO_TXT")}
               </span>
 
-              <span style={{ fontSize: 13, color: "#444" }}>
+              <span style={{ fontSize: 13, color: "#e4e4e4" }}>
                 <span>📞</span> &ensp;
                 {pgrData?.[0]?.HelplineForSmartStreetLightComplaint ? pgrData?.[0]?.HelplineForSmartStreetLightComplaint : "1800 2677 953"} :-{" "}
                 {t("STREET_LIGHT_HELPLINE_NO_INFO_TXT")}
@@ -911,7 +912,7 @@ export default function Dashboard() {
           {/* Social Block */}
           <div>
             <div>
-              <h4 style={{ fontSize: 16, fontWeight: 700, color: "#7A1E1C", marginBottom: 16, marginTop: 0 }}>{t("LANDING_PAGE_FOLLOW_US")}</h4>
+              <h4 style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", marginBottom: 16, marginTop: 0 }}>{t("LANDING_PAGE_FOLLOW_US")}</h4>
               <div
                 style={{
                   display: "flex",
@@ -966,7 +967,7 @@ function ServiceCard({ svc, active, onClick2 }) {
       <div
         style={{
           fontSize: 12,
-          color: "#333",
+          color: "#e4e4e4",
           fontWeight: 500,
           whiteSpace: "pre-line",
           marginBottom: 8,
