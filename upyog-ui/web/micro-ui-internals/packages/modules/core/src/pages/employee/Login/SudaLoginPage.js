@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useHistory } from "react-router-dom";
 import { Toast } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
+import Header from "../../citizen/Home/Header";
+import Footer from "../../citizen/Home/Footer";
 
 /* ── captcha ──────────────────────────────────────────────── */
 const renderCaptcha = (text, canvasRef) => {
@@ -386,7 +388,9 @@ const SudaLoginPage = () => {
   };
 
   return (
-    <div className="suda-page-bg" style={{ backgroundImage: `url(${bannerUrl})` }}>
+    <div style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}>
+      <Header />
+      <div className="suda-page-bg" style={{ backgroundImage: `url(${bannerUrl})`, flex: 1, marginTop: "78px" }}>
       <div className="suda-page-card">
         <h2 className="suda-title">{t("WELCOME_TO")} <span className="suda-title-accent">SUDA</span></h2>
         <p className="suda-subtitle">{t("LOGIN_WITH_YOUR_CREDENTIALS_TO_ACCESS_YOUR_SUDA_ACCOUNT")}</p>
@@ -553,6 +557,8 @@ const SudaLoginPage = () => {
 
         {toast && <Toast error={toast.error} label={toast.label} onClose={() => setToast(null)} />}
       </div>
+      </div>
+      <Footer />
     </div>
   );
 };
