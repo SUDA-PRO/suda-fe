@@ -39,7 +39,7 @@ const Nashik = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Nashik_ci
 // const Banner = "https://media-upyog.nmc.gov.in/nmc-public-media/video/Landing-Video.mp4";
 const Banner = "https://tfstatee8aog.blob.core.windows.net/filestore/banner.png";
 const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo.png";
-const vishnuSai = "https://tfstatee8aog.blob.core.windows.net/filestore/vishnuSai.png";
+const vishnuSai = "https://tfstatee8aog.blob.core.windows.net/filestore/VishnuDeo.png";
 const ArunSaoImg = "https://tfstatee8aog.blob.core.windows.net/filestore/ArunSao.png";
 const secondMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Deputy_Mayor.png";
 const thirdMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Commissioner.png";
@@ -55,18 +55,13 @@ const officials = [
 const servicesRow1 = [
   {
     title: "COMMON_GRIEVANCE_REDRESSAL",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Grievance-Redressal.png",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/GrievanceImage.png",
     url: "/upyog-ui/citizen/login",
   },
-  {
-    title: "COMMON_MARRIAGE_REGISTRATION",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Marriage-Registration.png",
-    url: "/upyog-ui/comingsoon",
-  },
-  { title: "MODULE_TL", img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Trade-License.png", url: "/upyog-ui/comingsoon" },
+  { title: "MODULE_TL", img: "https://tfstatee8aog.blob.core.windows.net/filestore/TradeLicence.png", url: "/upyog-ui/comingsoon" },
   {
     title: "COMMON_HOARDING_PERMISSION",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Hoarding-Permission.png",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/hoardingPermission.png",
     url: "/upyog-ui/comingsoon",
   },
   {
@@ -75,8 +70,13 @@ const servicesRow1 = [
     url: "/upyog-ui/comingsoon",
   },
   {
+    title: "COMMON_ROAD_CUTTING",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/RoadCutting.png",
+    url: "/upyog-ui/comingsoon",
+  },
+  {
     title: "COMMON_NOC_ISSUANCE",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/NOC-Issuance.png",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/NocIssuance.png",
     url: "/upyog-ui/comingsoon",
   },
 ];
@@ -84,12 +84,7 @@ const servicesRow1 = [
 const servicesRow2 = [
   {
     title: "COMMON_WATER_SEWERAGE_CONNECTION",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Water-and-Sewer-Connection.png",
-    url: "/upyog-ui/comingsoon",
-  },
-  {
-    title: "ACTION_TEST_BIRTH_AND_DEATH",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Birth-and-Death-Registration.png",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/WaterSewerage.png",
     url: "/upyog-ui/comingsoon",
   },
   {
@@ -97,11 +92,7 @@ const servicesRow2 = [
     img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Accounting-and-Finance.png",
     url: "/upyog-ui/comingsoon",
   },
-  {
-    title: "COMMON_MISCELLANEOUS_COLLECTION",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Miscellaneous-Collection.png",
-    url: "/upyog-ui/comingsoon",
-  },
+
   {
     title: "COMMON_HEALTH_FACILITY_REGISTRATION",
     img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Health-Facility-Registration.png",
@@ -109,7 +100,12 @@ const servicesRow2 = [
   },
   {
     title: "SERVICEDEFS.PROPERTYTAX",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Property-Tax.png",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/PropertyTax.png",
+    url: "/upyog-ui/comingsoon",
+  },
+  {
+    title: "SERVICEDEFS.DESLUDGING",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/DesludgingServices.png",
     url: "/upyog-ui/comingsoon",
   },
 ];
@@ -769,7 +765,7 @@ export default function Dashboard() {
                   marginTop: 3,
                 }}
               >
-                STATE URBUAN DEVELOPMENT AGENCY (SUDA)
+                STATE URBAN DEVELOPMENT AGENCY (SUDA)
               </div>
             </div>
           </div>

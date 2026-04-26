@@ -112,7 +112,7 @@ const Footer = () => {
                   marginTop: 3,
                 }}
               >
-                STATE URBUAN DEVELOPMENT AGENCY (SUDA)
+                STATE URBAN DEVELOPMENT AGENCY (SUDA)
               </div>
             </div>
           </div>
