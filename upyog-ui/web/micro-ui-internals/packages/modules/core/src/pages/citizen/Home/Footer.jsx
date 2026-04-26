@@ -96,7 +96,7 @@ const Footer = () => {
               <div
                 style={{
                   fontSize: 10,
-                  color: "#666",
+                  color: "#d5d5d5",
                   textTransform: "uppercase",
                   letterSpacing: "0.5px",
                 }}
@@ -107,7 +107,7 @@ const Footer = () => {
                 style={{
                   fontSize: 14,
                   fontWeight: 700,
-                  color: "#222",
+                  color: "#d5d5d5",
                   lineHeight: 1.5,
                   marginTop: 3,
                 }}
@@ -123,7 +123,7 @@ const Footer = () => {
               style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: "#7A1E1C",
+                color: "#ffffff",
                 marginBottom: 16,
               }}
             >
@@ -142,7 +142,7 @@ const Footer = () => {
               <span
                 style={{
                   fontSize: 13,
-                  color: "#444",
+                  color: "#d5d5d5",
                   lineHeight: 1.6,
                 }}
               >
@@ -158,12 +158,12 @@ const Footer = () => {
                 justifyContent: isMobile ? "center" : "flex-start",
               }}
             >
-              <span style={{ fontSize: 13, color: "#444" }}>
+              <span style={{ fontSize: 13, color: "#d5d5d5" }}>
                 <span>📞</span> &ensp;
                 {pgrData?.[0]?.helpLineNumber ? pgrData?.[0]?.helpLineNumber : "1800 2677 953"} :- {t("GRIEVANCE_HELPLINE_NO_INFO_TXT")}
               </span>
 
-              <span style={{ fontSize: 13, color: "#444" }}>
+              <span style={{ fontSize: 13, color: "#d5d5d5" }}>
                 <span>📞</span> &ensp;
                 {pgrData?.[0]?.HelplineForSmartStreetLightComplaint ? pgrData?.[0]?.HelplineForSmartStreetLightComplaint : "1800 2677 953"} :-{" "}
                 {t("STREET_LIGHT_HELPLINE_NO_INFO_TXT")}
@@ -174,7 +174,7 @@ const Footer = () => {
           {/* Social Block */}
           <div>
             <div>
-              <h4 style={{ fontSize: 16, fontWeight: 700, color: "#7A1E1C", marginBottom: 16, marginTop: 0 }}>{t("LANDING_PAGE_FOLLOW_US")}</h4>
+              <h4 style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", marginBottom: 16, marginTop: 0 }}>{t("LANDING_PAGE_FOLLOW_US")}</h4>
               <div
                 style={{
                   display: "flex",

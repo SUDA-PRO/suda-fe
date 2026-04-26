@@ -15,6 +15,7 @@ const Header = () => {
     const { pathname } = useLocation();
     const isLoginRoute = pathname === "/upyog-ui/login";
     const [width, setWidth] = useState(window.innerWidth);
+    const [fontSize, setFontSize] = useState(16);
 
     useEffect(() => {
         function handleClick(e) {
@@ -63,6 +64,129 @@ const Header = () => {
     
 
   return (
+    <div>
+      {/* ── TOP UTILITY BAR ── */}
+      <div
+      style={{
+        // background: "#0A1E64",
+        background: "linear-gradient(90deg,rgba(10, 30, 100, 1) 0%, rgba(163, 97, 14, 1) 100%, rgba(163, 97, 14, 1) 94%)",
+        borderBottom: "1px solid #e8cccc",
+        padding: isMobile ? "4px 10px" : "4px 20px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        fontSize: isMobile ? 11 : 12,
+        color: "#ffffff",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        zIndex: 1000,
+        height: 36
+      }}
+    >
+      {/* LEFT SECTION */}
+      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+        {/* Flag */}
+        <div
+          style={{
+            width: isMobile ? 25 : 25,
+            height: isMobile ? 18 : 18,
+            borderRadius: 2,
+            overflow: "hidden",
+            border: "0.5px solid #ccc",
+          }}
+        >
+          <IndianFlag width="100%" height="100%" />
+        </div>
+
+        {/* Republic of India text (hide on mobile) */}
+        {!isMobile && (
+          <span
+            style={{
+              fontWeight: 500,
+              color: "#e8e8e8",
+              fontSize: isTablet ? 11.5 : 12,
+              whiteSpace: "nowrap",
+            }}
+          >
+            {t("LANDING_PAGE_REP_IND")}
+          </span>
+        )}
+      </div>
+
+      {/* RIGHT SECTION */}
+      <div style={{ display: "flex", alignItems: "center" }}>
+        {/* Skip to main (hide on mobile) */}
+        {/* {!isMobile && ( */}
+          <a
+            href="#main"
+            style={{
+              color: "#eaeaea",
+              fontSize: 11.5,
+              textDecoration: "none",
+              padding: "0 12px",
+              borderRight: "1px solid #ccc",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {t("LANDING_PAGE_SKIP_TO")}
+          </a>
+        {/* )} */}
+
+        {/* Font size controls (hide on mobile) */}
+        {/* {!isMobile && ( */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "0 12px",
+              borderRight: "1px solid #ccc",
+            }}
+          >
+            <button
+              onClick={() => setFontSize((f) => Math.min(f + 2, 22))}
+              style={fontBtnStyle(15)}
+            >
+              A<sup>+</sup>
+            </button>
+
+            <button
+              onClick={() => setFontSize(16)}
+              style={{
+                ...fontBtnStyle(13),
+                background: "#7A1E1C",
+                color: "#fff",
+                borderRadius: 2,
+                padding: "1px 6px",
+              }}
+            >
+              A
+            </button>
+
+            <button
+              onClick={() => setFontSize((f) => Math.max(f - 2, 12))}
+              style={fontBtnStyle(11)}
+            >
+              A<sup>-</sup>
+            </button>
+          </div>
+        {/* )} */}
+
+        {/* Language switcher (always visible) */}
+        <div
+          style={{
+            padding: isMobile ? "0 6px" : "0 12px",
+            cursor: "pointer",
+            fontSize: isMobile ? 11 : 11.5,
+            marginTop:26,
+          }}
+        >
+          <ChangeLanguage dropdown />
+        </div>
+      </div>
+    </div>
     <header
         style={{
           display: "flex",
@@ -239,6 +363,7 @@ const Header = () => {
           </button>
         </div>
       </header>
+    </div>
   )
 }
 
