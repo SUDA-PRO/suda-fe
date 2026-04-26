@@ -50,6 +50,12 @@ export const UserService = {
       window.localStorage.clear();
       window.sessionStorage.clear();
       window.location.replace("/upyog-ui/login");
+      if (userType === "citizen") {
+        window.location.replace("/upyog-ui/citizen/dashboard");
+      } else {
+        // window.location.replace("/upyog-ui/employee/user/language-selection");
+        window.location.replace("/upyog-ui/citizen/dashboard");
+      }
     }
   },
   sendOtp: (details, stateCode) =>

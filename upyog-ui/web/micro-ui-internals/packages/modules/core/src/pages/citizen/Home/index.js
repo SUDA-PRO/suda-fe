@@ -192,47 +192,22 @@ const Home = () => {
       <div className="HomePageWrapper">
         {
           <div className="BannerWithSearch">
-          {/* {isMobile ? <img src={"https://niuatt-filestore.s3.ap-south-1.amazonaws.com/pg/logo/Banner+UPYOG.jpg"} /> : <img src={"https://niuatt-filestore.s3.ap-south-1.amazonaws.com/pg/logo/Banner+UPYOG.jpg"} />} */}
-          {/* <div className="Search">
+            {isMobile ? (
+              <img src={"https://nmc.gov.in/assets/admin/upload/silder/Nashik_Mix.png"} />
+            ) : (
+              <img src={"https://nmc.gov.in/assets/admin/upload/silder/Nashik_Mix.png"} />
+            )}
+            {/* <div className="Search">
             <StandaloneSearchBar placeholder={t("CS_COMMON_SEARCH_PLACEHOLDER")} />
           </div> */}
-          <div className="ServicesSection" style={{marginTop:20}}>
-            <CardBasedOptions style={{marginTop:"-30px"}} {...allCitizenServicesProps} />
-            <CardBasedOptions style={isMobile ? {marginTop:"-30px"} : {marginTop:"-30px"}} {...allInfoAndUpdatesProps} />
-            
-          </div>
-          
-          <style>
-            {`
-              .citizen .ServicesSection .CardBasedOptions:nth-child(odd) .employeeCustomCard { 
-                background-image: none;
-                background-color: #716565;
-                background-blend-mode: normal !important;
-                background-size: cover !important;
-              }
-
-              .citizen .ServicesSection .CardBasedOptions:nth-child(even) .employeeCustomCard { 
-                background-image: none;
-                background-color: #716565;
-                background-blend-mode: normal !important;
-                background-size: cover !important;
-              }
-
-              .ChildOptionImageWrapper svg path,
-              .ChildOptionImageWrapper svg rect,
-              .ChildOptionImageWrapper svg circle,
-              .ChildOptionImageWrapper svg polygon,
-              .ChildOptionImageWrapper svg ellipse {
-                fill: orange !important;
-              }
-            `}
-
-              
-            </style>          
+            <div className="ServicesSection">
+              <CardBasedOptions style={{ marginTop: "-30px" }} {...allCitizenServicesProps} />
+              {/* <CardBasedOptions style={isMobile ? { marginTop: "-30px" } : { marginTop: "-30px" }} {...allInfoAndUpdatesProps} /> */}
+            </div>
           </div>
         }
 
-        {/* {(whatsAppBannerMobObj || whatsAppBannerWebObj) && (
+        {(whatsAppBannerMobObj || whatsAppBannerWebObj) && (
           <div className="WhatsAppBanner">
             {isMobile ? (
               <img
@@ -248,7 +223,7 @@ const Home = () => {
               />
             )}
           </div>
-        )} */}
+        )}
 
         {conditionsToDisableNotificationCountTrigger() ? (
           EventsDataLoading ? (
