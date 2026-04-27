@@ -249,7 +249,13 @@ const Home = ({
 
         <Switch>
           <Route exact path={path}>
-            <CitizenHome />
+            <AppHome
+              userType="citizen"
+              modules={modules}
+              getCitizenMenu={linkData}
+              fetchedCitizen={isLinkDataFetched}
+              isLoading={islinkDataLoading}
+            />
           </Route>
 
           <PrivateRoute path={`${path}/feedback`} component={CitizenFeedback}></PrivateRoute>
@@ -268,15 +274,6 @@ const Home = ({
               goToHome={() => {
                 history.push("/upyog-ui/citizen");
               }}
-            />
-          </Route>
-          <Route path={`${path}/all-services`}>
-            <AppHome
-              userType="citizen"
-              modules={modules}
-              getCitizenMenu={linkData}
-              fetchedCitizen={isLinkDataFetched}
-              isLoading={islinkDataLoading}
             />
           </Route>
 
