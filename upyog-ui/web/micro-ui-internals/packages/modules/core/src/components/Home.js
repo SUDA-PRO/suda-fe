@@ -276,15 +276,15 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                         display: "flex", alignItems: "center", gap: "6px", width: "100%",
                         justifyContent: "center", padding: "7px 12px", border: "none",
                         borderRadius: isExpanded ? "8px 8px 0 0" : "20px", cursor: "pointer",
-                        backgroundColor: isExpanded ? "#f47738" : "#e8f5e9",
-                        color: isExpanded ? "#ffffff" : "#2e7d32",
+                        backgroundColor: isExpanded ? "#f47738" : colors.circleBg,
+                        color: isExpanded ? "#ffffff" : colors.iconColor,
                         fontSize: "17px", fontWeight: "500", outline: "none",
                         transition: "background-color 0.2s",
                       }}
                     >
                       <span style={{
                         backgroundColor: "#ffffff",
-                        color: isExpanded ? "#f47738" : "#2e7d32",
+                        color: isExpanded ? "#f47738" : colors.iconColor,
                         borderRadius: "50%", width: "22px", height: "22px",
                         display: "flex", alignItems: "center", justifyContent: "center",
                         fontSize: "16px", fontWeight: "700", flexShrink: 0,

@@ -474,33 +474,11 @@ const Home = ({
             {ModuleLevelLinkHomePages}
           </ErrorBoundary>
         </Switch>
-      </div>
-
-      <div
-              style={{
-                background: "#04113c",
-                borderTop: "1px solid rgba(255,255,255,0.1)",
-                padding: isMobile ? "10px 16px" : "10px 48px",
-                display: "flex",
-                flexDirection: isMobile ? "column" : "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: isMobile ? 8 : 0,
-              }}
-            >
-              <span style={{ fontSize: 12, color: "#c8cfe8" }}>
-                © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
-              </span>
-              <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
-                  {t("LANDING_PAGE_TERMS_CONDITIONS")}
-                </a>
-                <span style={{ color: "#c8cfe8" }}>|</span>
-                <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
-                  {t("LANDING_PAGE_PRIVACY_POLICY")}
-                </a>
-              </div>
-            </div>
+        <div className="citizen-footer" style={{ left: hideSidebar ? 0 : 300 }}>
+          <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"14px":"16px", fontWeight: "400", color: "black"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright &copy; 2026 Urban Administration &amp; Department</span>
+        </div>
+        </div>{/* end citizen-content-wrap */}
+      </div>{/* end citizen-home-flex */}
     </div>
   );
 };

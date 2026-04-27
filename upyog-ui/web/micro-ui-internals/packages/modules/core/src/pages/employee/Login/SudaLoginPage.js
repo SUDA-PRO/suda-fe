@@ -410,7 +410,7 @@ const SudaLoginPage = () => {
             );
           })}
         </div>
-e
+
         <form onSubmit={handleLogin} noValidate>
           <div className="suda-field">
             <label className="suda-label">{isCitizen ? t("MOBILE_NUMBER") : t("USERNAME")} <span className="suda-req">*</span></label>
