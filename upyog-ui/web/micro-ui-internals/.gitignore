@@ -139,5 +139,5 @@ sketch
 
 # vs code
 .vscode/
-
+.info
 # End of https://www.toptal.com/developers/gitignore/api/node,react
