@@ -5,7 +5,7 @@ import { useHistory } from "react-router-dom";
 
 const Footer = () => {
     const { t } = useTranslation();
-    const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo.png";
+    const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo%201.png";
     const [loginOpen, setLoginOpen] = useState(false);
     const loginRef = useRef(null);
       const history = useHistory();
@@ -59,6 +59,8 @@ const Footer = () => {
 
 
   return (
+    <div>
+
     <footer
         style={{
           background: "#091E64",
@@ -84,11 +86,7 @@ const Footer = () => {
             }}
           >
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
-                alt="Emblem of India"
-                style={{ width: 36, height: 36 }}
-              />
+            
               <img src={CGLogo} alt="CG Logo" style={{ width: 35, height: 35 }} />
             </div>
 
@@ -206,6 +204,32 @@ const Footer = () => {
           </div>
         </div>
       </footer>
+      <div
+          style={{
+            background: "#04113c",
+            borderTop: "1px solid rgba(255,255,255,0.1)",
+            padding: isMobile ? "10px 16px" : "10px 48px",
+            display: "flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: isMobile ? 8 : 0,
+          }}
+        >
+          <span style={{ fontSize: 12, color: "#c8cfe8" }}>
+            © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
+          </span>
+          <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+            <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
+              {t("LANDING_PAGE_TERMS_CONDITIONS")}
+            </a>
+            <span style={{ color: "#c8cfe8" }}>|</span>
+            <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
+              {t("LANDING_PAGE_PRIVACY_POLICY")}
+            </a>
+          </div>
+        </div>
+    </div>
   )
 }
 function SocialIcon({ bg, label }) {

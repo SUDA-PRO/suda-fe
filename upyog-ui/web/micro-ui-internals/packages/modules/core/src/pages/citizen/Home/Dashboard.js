@@ -38,9 +38,9 @@ const NMC = "https://media-upyog.nmc.gov.in/nmc-public-media/logo/NMC_logo.svg";
 const Nashik = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Nashik_city_outline.svg";
 // const Banner = "https://media-upyog.nmc.gov.in/nmc-public-media/video/Landing-Video.mp4";
 const Banner = "https://tfstatee8aog.blob.core.windows.net/filestore/banner.png";
-const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo.png";
+const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo%201.png";
 const vishnuSai = "https://tfstatee8aog.blob.core.windows.net/filestore/VishnuDeo.png";
-const ArunSaoImg = "https://tfstatee8aog.blob.core.windows.net/filestore/ArunSao.png";
+const ArunSaoImg = "https://tfstatee8aog.blob.core.windows.net/filestore/ArunSao%201.png";
 const secondMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Deputy_Mayor.png";
 const thirdMajor = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Commissioner.png";
 const fourthMajor = "";
@@ -65,11 +65,6 @@ const servicesRow1 = [
     url: "/upyog-ui/comingsoon",
   },
   {
-    title: "COMMON_TREE_CUTTING_PERMISSION",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Tree-Cutting.png",
-    url: "/upyog-ui/comingsoon",
-  },
-  {
     title: "COMMON_ROAD_CUTTING",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/RoadCutting.png",
     url: "/upyog-ui/comingsoon",
@@ -89,15 +84,15 @@ const servicesRow2 = [
   },
   {
     title: "SERVICEDEFS.ACCOUNTING&FINANCE",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Accounting-and-Finance.png",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/AccountFinance.png",
+    url: "/upyog-ui/comingsoon",
+  },
+  {
+    title: "SERVICEDEFS.MISCELLANEOUS",
+    img: "https://tfstatee8aog.blob.core.windows.net/filestore/Miscellaneous.png",
     url: "/upyog-ui/comingsoon",
   },
 
-  {
-    title: "COMMON_HEALTH_FACILITY_REGISTRATION",
-    img: "https://media-upyog.nmc.gov.in/nmc-public-media/service_logo/Health-Facility-Registration.png",
-    url: "/upyog-ui/comingsoon",
-  },
   {
     title: "SERVICEDEFS.PROPERTYTAX",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/PropertyTax.png",
@@ -185,7 +180,11 @@ export default function Dashboard() {
             .navbar{
                 display:none !important;
             }
-        
+                /*
+            .lastFooter{
+                display:none !important;
+            }    
+        */
     `}</style>
 
       {/* ── TOP UTILITY BAR ── */}
@@ -328,11 +327,11 @@ export default function Dashboard() {
       >
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <img
+          {/* <img
             src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
             alt="Emblem of India"
             style={{ width: 44, height: 44 }}
-          />
+          /> */}
           <div
             style={{
               width: 46,
@@ -370,9 +369,9 @@ export default function Dashboard() {
             style={{
               padding: "8px 20px",
               borderRadius: 6,
-              border: "1.5px solid #999",
+              border: "1.7px solid #A3610E",
               background: "#fff",
-              color: "#333",
+              color: "#A3610E",
               fontWeight: 600,
               fontSize: 13,
               cursor: "pointer",
@@ -387,7 +386,7 @@ export default function Dashboard() {
               padding: "8px 22px",
               borderRadius: 6,
               border: "none",
-              background: "#7A1E1C",
+              background: "#A3610E",
               color: "#fff",
               fontWeight: 600,
               fontSize: 13,
@@ -408,13 +407,12 @@ export default function Dashboard() {
       {/* ── BANNER ── */}
       <div style={{ width: "100%", overflow: "hidden", position: "relative", marginTop: "96px" }}>
         {/* <video src={Banner} autoPlay muted loop playsInline style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} /> */}
-        <img src={Banner} alt="Banner" style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} />
+        <img src={Banner} alt="Banner" style={{ width: "100%", height: "500px", objectFit: "cover", display: "block" }} />
         <div
           style={{
-            position: "absolute",
-            inset: 0,
-            background: "linear-gradient(to bottom, rgba(0,0,0,0.08), rgba(0,0,0,0.28))",
-          }}
+            height:20,
+            width: "100%",
+            background: "linear-gradient(90deg,rgba(10, 30, 100, 1) 0%, rgba(163, 97, 14, 1) 100%, rgba(163, 97, 14, 1) 94%)"          }}
         />
       </div>
 
@@ -461,7 +459,7 @@ export default function Dashboard() {
         style={{
           scrollMarginTop: 90,
           padding: isMobile ? "24px 16px" : "36px 48px 20px",
-          background: "#fff",
+          background: "#ededed",
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
           gap: 32,
@@ -475,7 +473,7 @@ export default function Dashboard() {
             style={{
               fontSize: "clamp(18px, 2.5vw, 22px)",
               fontWeight: 700,
-              color: "#7A1E1C",
+              color: "#A3610E",
               marginBottom: 12,
               marginTop: 0,
             }}
@@ -514,9 +512,65 @@ export default function Dashboard() {
             justifyContent: isMobile ? "center" : "flex-end",
           }}
         >
-          {officials.map((off, i) => (
+
+
+
+ {/* <!-- CM Card --> */}
+   
             <div
-              key={i}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                width: isMobile ? 130 : 200,
+              }}
+            >
+              <div
+                style={{
+                  width: isMobile ? 120 : 230,
+                  height: isMobile ? 130 : 160,
+           
+                }}
+              >
+                <img
+                  src={vishnuSai}
+                  alt={t("COMMON_MAYOR_NAME")}
+                  style={{
+                    height:250,
+                    width:230,
+                    marginTop:-30
+                  }}
+                />
+              </div>
+
+              <div
+                style={{
+                  fontSize: 11.5,
+                  fontWeight: 700,
+                  color: "#A3610E",
+                  textAlign: "center",
+                  marginBottom: 4,
+                  marginTop: 8,
+                }}
+              >
+                {t("COMMON_MAYOR_NAME")}
+              </div>
+
+              <div
+                style={{
+                  fontSize: 11.5,
+                  color: "#555",
+                  textAlign: "center",
+                }}
+              >
+                {t("COMMON_MAYOR_DESIG_LBL")}
+              </div>
+            </div>
+
+                  {/* <!-- Deputy Mayor Card --> */}
+
+            <div
+
               style={{
                 display: "flex",
                 flexDirection: "column",
@@ -532,12 +586,10 @@ export default function Dashboard() {
                 }}
               >
                 <img
-                  src={off.img}
-                  alt={off.name}
+                  src={ArunSaoImg}
+                  alt={t("COMMON_DEPUTY_MAYOR_NAME")}
                   style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
+                    height:200
                   }}
                 />
               </div>
@@ -546,13 +598,13 @@ export default function Dashboard() {
                 style={{
                   fontSize: 11.5,
                   fontWeight: 700,
-                  color: "#7A1E1C",
+                  color: "#A3610E",
                   textAlign: "center",
                   marginBottom: 4,
                   marginTop: 8,
                 }}
               >
-                {t(off.name)}
+                {t("COMMON_DEPUTY_MAYOR_NAME")}
               </div>
 
               <div
@@ -562,17 +614,17 @@ export default function Dashboard() {
                   textAlign: "center",
                 }}
               >
-                {t(off.title)}
+                {t("COMMON_DEPUTY_MAYOR_DESIG_LBL")}
               </div>
             </div>
-          ))}
+    
         </div>
       </section>
 
       {/* ── SKYLINE SVG ── */}
-      <div style={{ padding: "4px 48px 14px", pointerEvents: "none" }}>
+      {/* <div style={{ padding: "4px 48px 14px", pointerEvents: "none" }}>
         <img src={Nashik} alt="Nashik Skyline" style={{ width: "100%", height: 200 }} />
-      </div>
+      </div> */}
 
       {/* ── SERVICES ROW 1 ── */}
       {/* <section style={{ padding: "0 40px 0" }}>
@@ -594,14 +646,20 @@ export default function Dashboard() {
 
       <section
         style={{
-          padding: "0 clamp(16px, 4vw, 40px)",
+          padding: "24px clamp(16px, 4vw, 40px) 0",
+          backgroundColor: "#ededed",
         }}
       >
+        <div>
+          <h3 style={{textAlign:"center", fontWeight: 700, fontSize:30, marginBottom:40}}>Our Citizen Centric Services</h3>
+
+        </div>
+
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-            gap: 14,
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : isTablet ? "repeat(3, 1fr)" : "repeat(5, 1fr)",
+            gap: 16,
           }}
         >
           {servicesRow1.map((svc, i) => (
@@ -612,14 +670,14 @@ export default function Dashboard() {
 
       <section
         style={{
-          padding: "14px clamp(16px, 4vw, 40px) 44px",
+          padding: "16px clamp(16px, 4vw, 40px) 44px",
         }}
       >
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
-            gap: 14,
+            gridTemplateColumns: isMobile ? "repeat(2, 1fr)" : isTablet ? "repeat(3, 1fr)" : "repeat(5, 1fr)",
+            gap: 16,
           }}
         >
           {servicesRow2.map((svc, i) => (
@@ -737,11 +795,11 @@ export default function Dashboard() {
             }}
           >
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <img
+              {/* <img
                 src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
                 alt="Emblem of India"
                 style={{ width: 36, height: 36 }}
-              />
+              /> */}
               <img src={CGLogo} alt="CG Logo" style={{ width: 35, height: 35 }} />
             </div>
 
@@ -776,7 +834,7 @@ export default function Dashboard() {
               style={{
                 fontSize: 16,
                 fontWeight: 700,
-                color: "#ffffff",
+                color: "#e6932cfc",
                 marginBottom: 16,
                 textTransform: "uppercase",
               }}
@@ -828,7 +886,7 @@ export default function Dashboard() {
           {/* Social Block */}
           <div>
             <div>
-              <h4 style={{ fontSize: 16, fontWeight: 700, color: "#ffffff", marginBottom: 16, marginTop: 0 }}>{t("LANDING_PAGE_FOLLOW_US")}</h4>
+              <h4 style={{ fontSize: 16, fontWeight: 700, color: "#e6932cfc", marginBottom: 16, marginTop: 0 }}>{t("LANDING_PAGE_FOLLOW_US")}</h4>
               <div
                 style={{
                   display: "flex",
@@ -837,19 +895,19 @@ export default function Dashboard() {
                   flexWrap: "wrap",
                 }}
               >
-                <a href="https://www.facebook.com/mynashikmc/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <SocialIcon bg="#1877F2" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/facebook.svg" />
                 </a>
 
-                <a href="https://x.com/my_nmc" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a href="https://x.com/" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <SocialIcon bg="#1DA1F2" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/twitter.svg" />
                 </a>
 
-                <a href="https://www.youtube.com/c/mynmc" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a href="https://www.youtube.com/c" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <SocialIcon bg="#FF0000" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/youtube.svg" />
                 </a>
 
-                <a href="https://www.instagram.com/my_nmci" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
+                <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
                   <SocialIcon
                     bg="linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)"
                     label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/instagram.svg"
@@ -860,6 +918,8 @@ export default function Dashboard() {
           </div>
         </div>
       </footer>
+      {/* ── BOTTOM COPYRIGHT BAR ── */}
+      
     </div>
   );
 }
@@ -867,33 +927,49 @@ export default function Dashboard() {
 function ServiceCard({ svc, active, onClick2 }) {
   const history = useHistory();
   const { t } = useTranslation();
+  const [hovered, setHovered] = React.useState(false);
   return (
     <div
       onClick={() => history.push(svc.url)}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
-        border: active ? "2px solid #7A1E1C" : "1.5px solid #ddd",
-        borderRadius: 10,
-        padding: "10px 10px 8px",
+        position: "relative",
+        borderRadius: 12,
+        overflow: "hidden",
         cursor: "pointer",
-        background: active ? "#fff8f8" : "#fff",
-        boxShadow: active ? "0 2px 10px rgba(183,28,28,0.1)" : "none",
-        transition: "all 0.18s",
+        boxShadow: hovered ? "0 8px 24px rgba(0,0,0,0.28)" : "0 2px 8px rgba(0,0,0,0.14)",
+        transform: hovered ? "translateY(-3px) scale(1.02)" : "none",
+        transition: "all 0.22s ease"
       }}
     >
+      <img
+        src={svc.img}
+        alt={t(svc.title)}
+        style={{
+          width: "100%",
+          height: 300,
+          objectFit: "cover",
+          display: "block",
+          transform: hovered ? "scale(1.06)" : "scale(1)",
+          transition: "transform 0.3s ease",
+        }}
+      />
       <div
         style={{
-          fontSize: 12,
-          color: "#e4e4e4",
-          fontWeight: 500,
-          whiteSpace: "pre-line",
-          marginBottom: 8,
-          lineHeight: 1.4,
+          position: "absolute",
+          bottom: 10,
+          left: 12,
+          right: 12,
+          fontSize: "clamp(11px, 1.1vw, 14px)",
+          fontWeight: 600,
+          color: "#ffffff",
+          lineHeight: 1.35,
+          textShadow: "0 1px 4px rgba(0,0,0,0.5)",
         }}
       >
-        {/* {svc.title} */}
         {t(svc.title)}
       </div>
-      <img src={svc.img} alt={svc.title} style={{ width: "100%", height: 80, objectFit: "cover", borderRadius: 6 }} />
     </div>
   );
 }
