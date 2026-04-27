@@ -189,7 +189,7 @@ const Home = () => {
       {/* <div className="SideBarStatic">
         <StaticCitizenSideBar />
       </div> */}
-      <div className="HomePageWrapper">
+      {/* <div className="HomePageWrapper">
         {
           <div className="BannerWithSearch">
             {isMobile ? (
@@ -197,12 +197,12 @@ const Home = () => {
             ) : (
               <img src={"https://nmc.gov.in/assets/admin/upload/silder/Nashik_Mix.png"} />
             )}
-            {/* <div className="Search">
+             <div className="Search">
             <StandaloneSearchBar placeholder={t("CS_COMMON_SEARCH_PLACEHOLDER")} />
-          </div> */}
+          </div> 
             <div className="ServicesSection">
               <CardBasedOptions style={{ marginTop: "-30px" }} {...allCitizenServicesProps} />
-              {/* <CardBasedOptions style={isMobile ? { marginTop: "-30px" } : { marginTop: "-30px" }} {...allInfoAndUpdatesProps} /> */}
+               <CardBasedOptions style={isMobile ? { marginTop: "-30px" } : { marginTop: "-30px" }} {...allInfoAndUpdatesProps} /> 
             </div>
           </div>
         }
@@ -238,8 +238,8 @@ const Home = () => {
             </div>
           )
         ) : null}
-        {/*<ChatBot />*/}
-      </div>
+        <ChatBot />
+      </div> */}
     </div>
   );
 };
