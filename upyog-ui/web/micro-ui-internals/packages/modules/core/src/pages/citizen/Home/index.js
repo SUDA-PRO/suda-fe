@@ -185,7 +185,7 @@ const Home = () => {
   return isLoading ? (
     <Loader />
   ) : (
-    <div className="HomePageContainer" style={{ width: "100%" }}>
+    <div className="HomePageContainer" style={{ flex: 1, minWidth: 0 }}>
       {/* <div className="SideBarStatic">
         <StaticCitizenSideBar />
       </div> */}

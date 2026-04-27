@@ -97,6 +97,7 @@ const Home = ({
   newConfig = newConfig?.EdcrConfig ? newConfig?.EdcrConfig : newConfigEDCR;
 
   const hideSidebar = sidebarHiddenFor.some((e) => window.location.href.includes(e));
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   const appRoutes = modules.map(({ code, tenants }, index) => {
 
     const Module = Digit.ComponentRegistryService.getComponent(`${code}Module`);
@@ -222,10 +223,121 @@ const Home = ({
                 color: #1f45a4;
                 font-weight: 500;
               }
+
+              .citizen-home-flex {
+                display: flex !important;
+                align-items: stretch;
+                min-height: calc(100vh - 56px);
+              }
+
+              .SideBarStatic {
+                width: 300px !important;
+                min-width: 300px !important;
+                flex-shrink: 0 !important;
+                background: #091E64 !important;
+                align-self: stretch;
+              }
+
+              .citizen-home-flex > .HomePageContainer,
+              .citizen-home-flex > div:not(.SideBarStatic) {
+                flex: 1 !important;
+                min-width: 0 !important;
+                width: auto !important;
+              }
+
+              .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+              }
+              .sidebar-overlay.mobile-open {
+                display: block;
+              }
+
+              @media (max-width: 780px) {
+                .SideBarStatic {
+                  position: fixed !important;
+                  top: 0;
+                  left: -300px;
+                  height: 100vh !important;
+                  z-index: 1000;
+                  transition: left 0.3s ease;
+                  display: block !important;
+                }
+                .SideBarStatic.mobile-open {
+                  left: 0;
+                }
+                .sidebar-hamburger {
+                  display: flex !important;
+                }
+                .citizen-home-flex > .HomePageContainer,
+                .citizen-home-flex > div:not(.SideBarStatic) {
+                  width: 100% !important;
+                }
+              }
+
+              .sidebar-hamburger {
+                display: none;
+                position: fixed;
+                top: 14px;
+                left: 14px;
+                z-index: 998;
+                background: #091E64;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 10px;
+                cursor: pointer;
+                flex-direction: column;
+                gap: 5px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+              }
+              .sidebar-hamburger span {
+                display: block;
+                width: 22px;
+                height: 2px;
+                background: white;
+                border-radius: 2px;
+              }
+              .sidebar-nav__close {
+                display: none;
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: none;
+                border: none;
+                color: rgba(255,255,255,0.7);
+                font-size: 28px;
+                cursor: pointer;
+                line-height: 1;
+                padding: 4px 8px;
+              }
+              @media (max-width: 780px) {
+                .sidebar-nav__close { display: block; }
+              }
+
+              .citizen-footer {
+                position: fixed;
+                bottom: 0;
+                left: 300px;
+                right: 0;
+                background: white;
+                text-align: center;
+                padding: 8px 0;
+                z-index: 100;
+                border-top: 1px solid #e8e8e8;
+              }
+              @media (max-width: 780px) {
+                .citizen-footer { left: 0; }
+              }
+              .citizen-content-wrap {
+                padding-bottom: 40px;
+              }
             `
           }
         </style>
-      <TopBarSideBar
+      {/* <TopBarSideBar
         t={t}
         stateInfo={stateInfo}
         userDetails={userDetails}
@@ -237,16 +349,25 @@ const Home = ({
         showSidebar={true}
         linkData={linkData}
         islinkDataLoading={islinkDataLoading}
-      />
+      /> */}
 
       {/* <div className={`main center-container citizen-home-container mb-25`}> */}
-         <div>
+         <div className="citizen-home-flex">
+        {!hideSidebar && (
+          <button className="sidebar-hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <span /><span /><span />
+          </button>
+        )}
+        {!hideSidebar && (
+          <div className={`sidebar-overlay${mobileOpen ? " mobile-open" : ""}`} onClick={() => setMobileOpen(false)} />
+        )}
         {hideSidebar ? null : (
-          <div className="SideBarStatic">
-            <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} />
+          <div className={`SideBarStatic${mobileOpen ? " mobile-open" : ""}`}>
+            <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} onClose={() => setMobileOpen(false)} />
           </div>
         )}
 
+        <div className="citizen-content-wrap" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
         <Switch>
           <Route exact path={path}>
             <CitizenHome />
@@ -295,7 +416,7 @@ const Home = ({
 
          <Route exact path={`${path}/dashboard`}>
           <Dashboard />
-        </Route>
+          </Route>
 
           <Route path={`${path}/Audit`}>
             <Search/>
@@ -326,21 +447,15 @@ const Home = ({
             {ModuleLevelLinkHomePages}
           </ErrorBoundary>
         </Switch>
-      </div>
-
-      <div style={{ width: '100%', position: 'fixed', bottom: 0,backgroundColor:"white",textAlign:"center" }}>
-        <div style={{ display: 'flex', justifyContent: 'center', color:"black" }}>
-          {/* <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://www.digit.org/', '_blank').focus();}} >Powered by DIGIT</span>
-          <span style={{ margin: "0 10px" ,fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px"}}>|</span> */}
-          
-          <span  className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
-          
-          {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
-
-        </div>
-        <div className="upyog-copyright-footer-web">
-          <span className="" style={{ cursor: "pointer", fontSize:  window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
+        <div className="citizen-footer">
+          <div style={{ display: 'flex', justifyContent: 'center', color: "black" }}>
+            <span className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
           </div>
+          <div className="upyog-copyright-footer-web">
+            <span className="" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
+          </div>
+        </div>
+        </div>
       </div>
     </div>
   );
