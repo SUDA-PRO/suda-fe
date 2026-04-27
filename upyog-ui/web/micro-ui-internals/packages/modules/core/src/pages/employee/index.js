@@ -51,6 +51,67 @@ const EmployeeApp = ({
             background: #002991 !important;
           }
 
+          /* ── Employee layout: sidebar full-height from top, topbar starts after sidebar ── */
+
+          /* Sidebar starts from very top, full height like citizen */
+          .employee .sidebar {
+            margin-top: 0 !important;
+            top: 0 !important;
+            height: 100vh !important;
+            background: #091E64 !important;
+            background-image: none !important;
+            z-index: 1000 !important;
+          }
+
+          /* Topbar sits to the right of the collapsed sidebar (55px) */
+          .employee .topbar {
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #091E64 !important;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
+            left: 55px !important;
+            width: calc(100% - 55px) !important;
+            top: 0 !important;
+          }
+
+          /* When sidebar is hovered/expanded (260px wide) shift topbar */
+          .employee .sidebar:hover ~ * .topbar,
+          .employee:has(.sidebar:hover) .topbar {
+            left: 260px !important;
+            width: calc(100% - 260px) !important;
+          }
+
+          /* Content area: shift right to not go under sidebar, down to not go under topbar */
+          .employee .main,
+          .employee .employee-app-wrapper {
+            padding-top: 56px !important;
+            margin-left: 55px !important;
+          }
+
+          /* Sidebar menu items: active = orange highlight, hover = subtle white */
+          .employee .sidebar .sidebar-link.active {
+            background-color: #F47738 !important;
+            border-right: none !important;
+            color: #ffffff !important;
+            border-radius: 6px;
+          }
+          .employee .sidebar .sidebar-link.active svg {
+            fill: #ffffff !important;
+          }
+          .employee .sidebar .sidebar-link:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            color: #ffffff !important;
+            border-radius: 6px;
+          }
+          .employee .sidebar .sidebar-link:hover svg {
+            fill: #ffffff !important;
+          }
+          .employee .sidebar .dropdown-link.active,
+          .employee .sidebar a.dropdown-link:hover {
+            background-color: rgba(255,255,255,0.1) !important;
+            color: #ffffff !important;
+          }
+
           .employeeForgotPassword .employee-card-input {
             height: 31px !important;
           }
@@ -173,28 +234,15 @@ const EmployeeApp = ({
               </div> */}
                <div
         style={{
-          background: "#04113c",
-          borderTop: "1px solid rgba(255,255,255,0.1)",
-          padding: isMobile ? "10px 16px" : "10px 48px",
-          display: "flex",
-          flexDirection: isMobile ? "column" : "row",
-          alignItems: "center",
-          justifyContent: "space-between",
-          gap: isMobile ? 8 : 0,
+          background: "#ffffff",
+          borderTop: "1px solid #e8e8e8",
+          padding: "8px 0",
+          textAlign: "center",
         }}
       >
-        <span style={{ fontSize: 12, color: "#c8cfe8" }}>
-          © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
+        <span style={{ cursor: "pointer", fontSize: mobileView ? "14px" : "16px", fontWeight: "400", color: "black" }} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus(); }}>
+          Copyright &copy; 2026 Urban Administration &amp; Department
         </span>
-        <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-          <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
-            {t("LANDING_PAGE_TERMS_CONDITIONS")}
-          </a>
-          <span style={{ color: "#c8cfe8" }}>|</span>
-          <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
-            {t("LANDING_PAGE_PRIVACY_POLICY")}
-          </a>
-        </div>
       </div>
             </div>
           </Route>

@@ -105,59 +105,46 @@ const TopBar = ({
     );
   }
   const loggedin = userDetails?.access_token ? true : false;
+  const userName = userDetails?.info?.name || userDetails?.info?.userInfo?.name || "Employee";
+  const initials = userName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
   return (
-    <div className="topbar">
+    <div className="topbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", height: "56px", background: "#ffffff", borderBottom: "1px solid #e8e8e8", boxShadow: "none" }}>
       {mobileView ? <Hamburger handleClick={toggleSidebar} color="#9E9E9E" /> : null}
-      {/* <img className="city" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" /> */}
-      <h2 style={{fontSize:30, color:'orange', fontWeight:'bold', fontFamily: "monospace"}}>SUDA</h2>
-      <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%" }}>
-        {loggedin &&
-          (cityDetails?.city?.ulbGrade ? (
-            <p className="ulb" style={mobileView ? { fontFamily: "sans-serif", fontSize: "14px", display: "inline-block" } : { paddingLeft:15, borderLeft:"2px solid orange", marginLeft:14, color: "white"}}>
-              {t(cityDetails?.i18nKey).toUpperCase()}
-              {t(`ULBGRADE_${cityDetails?.city?.ulbGrade.toUpperCase().replace(" ", "_").replace(".", "_")}`).toUpperCase()}
-            </p>
-          ) : (
-            <img className="state" alt="logoUrl" src={logoUrl} />
-          ))}
-        {!loggedin && (
-          <p className="ulb" style={mobileView ? { fontSize: "14px", display: "inline-block", color: "white"} : {color: "white"}}>
-            {t(`MYCITY_${stateInfo?.code?.toUpperCase()}_LABEL`)} {t(`MYCITY_STATECODE_LABEL`)}
-          </p>
+      <span style={{ fontSize: "22px", fontWeight: "700", color: "#091E64", flexShrink: 0 }}>
+        State Urban Development Agency (SUDA)
+      </span>
+      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+        {!mobileView && !window.location.href.includes("employee/user/login") && !window.location.href.includes("employee/user/language-selection") && (
+          <ChangeCity dropdown={true} t={t} />
         )}
-        {!mobileView && (
-          <div className={mobileView ? "right" : "flex-right right w-80 column-gap-15"} style={!loggedin ? { width: "80%" } : {}}
-          style={{color: "white", fontFamily: "sans-serif"}}>
-            <div className="left">
-              {!window.location.href.includes("employee/user/login") && !window.location.href.includes("employee/user/language-selection") && (
-                <ChangeCity dropdown={true} t={t} />
-              )}
+        {!mobileView && showLanguageChange && <ChangeLanguage dropdown={true} />}
+        {loggedin && (
+          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+            <Dropdown
+              option={userOptions}
+              optionKey={"name"}
+              select={handleUserDropdownSelection}
+              showArrow={false}
+              freeze={true}
+              style={{ right: 0 }}
+              optionCardStyles={{ overflow: "revert" }}
+              customSelector={
+                profilePic == null ? (
+                  <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "#091E64", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "16px", fontWeight: "700", cursor: "pointer", flexShrink: 0 }}>
+                    {initials || "E"}
+                  </div>
+                ) : (
+                  <img src={profilePic} alt="profilePic" style={{ height: "36px", width: "36px", borderRadius: "50%", cursor: "pointer" }} />
+                )
+              }
+            />
+            <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+              <span style={{ fontSize: "15px", fontWeight: "600", color: "#1a1a1a" }}>{userName}</span>
+              <span style={{ fontSize: "12px", color: "#888888" }}>Employee</span>
             </div>
-            <div className="left">{showLanguageChange && <ChangeLanguage dropdown={true} />}</div>
-            {userDetails?.access_token && (
-              <div className="left">
-                <Dropdown
-                  option={userOptions}
-                  optionKey={"name"}
-                  select={handleUserDropdownSelection}
-                  showArrow={true}
-                  freeze={true}
-                  style={mobileView ? { right: 0 } : {right:20}}
-                  optionCardStyles={{ overflow: "revert" }}
-                  customSelector={
-                    profilePic == null ? (
-                      <TextToImg name={userDetails?.info?.name || userDetails?.info?.userInfo?.name || "Employee"} />
-                    ) : (
-                      <img src={profilePic} alt="profilePic" style={{ height: "48px", width: "48px", borderRadius: "50%" }} />
-                    )
-                  }
-                />
-              </div>
-            )}
-            {/* <img className="state" alt="State" src="https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png" /> */}
           </div>
         )}
-      </span>
+      </div>
     </div>
   );
 };
