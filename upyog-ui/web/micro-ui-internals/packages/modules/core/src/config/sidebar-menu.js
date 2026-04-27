@@ -9,7 +9,7 @@ return [
     type: "link",
     element: "HOME",
     text: 'Dashboard',
-    link: isEmployee ? "/upyog-ui/employee" : "/upyog-ui/citizen/all-services",
+    link: isEmployee ? "/upyog-ui/employee" : "/upyog-ui/citizen",
     icon: "DashboardIcon",
     populators: {
       onClick: closeSidebar,

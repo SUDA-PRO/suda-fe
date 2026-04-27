@@ -41,7 +41,7 @@ const LocationSelection = () => {
       const redirectBackTo = location.state?.redirectBackTo;
       if (redirectBackTo) {
         history.replace(redirectBackTo);
-      } else history.push("/upyog-ui/citizen/all-services");
+      } else history.push("/upyog-ui/citizen");
     } else {
       setShowError(true);
     }

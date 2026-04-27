@@ -182,15 +182,15 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
   };
 
   return (
-    <div style={{ padding: "28px 36px", backgroundColor: "#ffffff", minHeight: "100%" }}>
+    <div style={{ padding: "28px 36px" }}>
       {/* Welcome Section */}
       <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", marginBottom: "28px" }}>
         <span style={{ fontSize: "32px", lineHeight: 1, marginTop: "2px" }}>👋</span>
         <div>
-          <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#1a1a1a", margin: "0 0 6px 0" }}>
+          <h2 style={{ fontSize: "30px", fontWeight: "700", color: "#1a1a1a", margin: "0 0 6px 0" }}>
             Welcome back, {firstName}
           </h2>
-          <p style={{ fontSize: "14px", color: "#555555", margin: 0, maxWidth: "700px", lineHeight: "1.5" }}>
+          <p style={{ fontSize: "17px", color: "#555555", margin: 0, maxWidth: "700px", lineHeight: "1.5" }}>
             Manage all municipal services conveniently in one place. Select the required service to continue. Proceed with online payment of municipal taxes and fees by choosing a payment type below.
           </p>
         </div>
@@ -207,8 +207,8 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
             marginBottom: "-2px", outline: "none",
           }}
         >
-          <span style={{ fontWeight: "700", fontSize: "15px", color: "#1a1a1a" }}>Services</span>
-          <span style={{ fontSize: "12px", color: "#666666" }}>Apply for municipal services</span>
+          <span style={{ fontWeight: "700", fontSize: "20px", color: "#1a1a1a" }}>Services</span>
+          <span style={{ fontSize: "15px", color: "#666666" }}>Apply for municipal services</span>
         </button>
         <button
           disabled
@@ -218,8 +218,8 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
             borderBottom: "3px solid transparent", marginBottom: "-2px", opacity: 0.45, outline: "none",
           }}
         >
-          <span style={{ fontWeight: "700", fontSize: "15px", color: "#1a1a1a" }}>Payments</span>
-          <span style={{ fontSize: "12px", color: "#666666" }}>Pay your municipal taxes and fees</span>
+          <span style={{ fontWeight: "700", fontSize: "20px", color: "#1a1a1a" }}>Payments</span>
+          <span style={{ fontSize: "15px", color: "#666666" }}>Pay your municipal taxes and fees</span>
         </button>
       </div>
 
@@ -265,7 +265,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                     </div>
 
                     {/* Module Title */}
-                    <div style={{ fontSize: "14px", fontWeight: "600", color: "#1a1a1a", marginBottom: "14px", minHeight: "38px", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                    <div style={{ fontSize: "17px", fontWeight: "600", color: "#1a1a1a", marginBottom: "14px", minHeight: "38px", display: "flex", alignItems: "center", justifyContent: "center" }}>
                       {t(mdmsDataObj.header)}
                     </div>
 
@@ -278,7 +278,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                         borderRadius: isExpanded ? "8px 8px 0 0" : "20px", cursor: "pointer",
                         backgroundColor: isExpanded ? "#f47738" : "#e8f5e9",
                         color: isExpanded ? "#ffffff" : "#2e7d32",
-                        fontSize: "13px", fontWeight: "500", outline: "none",
+                        fontSize: "17px", fontWeight: "500", outline: "none",
                         transition: "background-color 0.2s",
                       }}
                     >
@@ -287,12 +287,12 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                         color: isExpanded ? "#f47738" : "#2e7d32",
                         borderRadius: "50%", width: "22px", height: "22px",
                         display: "flex", alignItems: "center", justifyContent: "center",
-                        fontSize: "12px", fontWeight: "700", flexShrink: 0,
+                        fontSize: "16px", fontWeight: "700", flexShrink: 0,
                       }}>
                         {links.length}
                       </span>
                       <span>Services Available</span>
-                      <span style={{ marginLeft: "auto", fontSize: "16px", fontWeight: "700" }}>
+                      <span style={{ marginLeft: "auto", fontSize: "18px", fontWeight: "700" }}>
                         {isExpanded ? "▾" : "›"}
                       </span>
                     </button>
@@ -310,7 +310,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                           to={{ pathname: fixLink(link.link), state: link.state }}
                           style={{
                             display: "flex", alignItems: "center", gap: "8px",
-                            padding: "9px 16px", fontSize: "13px", color: "#1a1a1a",
+                            padding: "9px 16px", fontSize: "17px", color: "#1a1a1a",
                             textDecoration: "none",
                             borderBottom: i < links.length - 1 ? "1px solid #f0f0f0" : "none",
                             lineHeight: "1.4",
@@ -318,7 +318,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
                           onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = "#fff8f3"; e.currentTarget.style.color = "#f47738"; }}
                           onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = "transparent"; e.currentTarget.style.color = "#1a1a1a"; }}
                         >
-                          <span style={{ color: "#f47738", fontWeight: "700", fontSize: "15px", flexShrink: 0 }}>›</span>
+                          <span style={{ color: "#f47738", fontWeight: "700", fontSize: "20px", flexShrink: 0 }}>›</span>
                           {link.i18nKey}
                         </Link>
                       ))}

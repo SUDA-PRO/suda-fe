@@ -23,7 +23,7 @@ const BPACitizenHomeScreen = ({ parentRoute }) => {
   const [totalCount, setTotalCount] = useState("-");
 
   const closeToast = () => {
-    window.location.replace("/upyog-ui/citizen/all-services");
+    window.location.replace("/upyog-ui/citizen");
     setShowToast(null);
   };
 

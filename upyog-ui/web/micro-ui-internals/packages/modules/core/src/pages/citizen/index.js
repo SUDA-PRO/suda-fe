@@ -227,7 +227,7 @@ const Home = ({
               .citizen-home-flex {
                 display: flex !important;
                 align-items: stretch;
-                min-height: calc(100vh - 56px);
+                min-height: 100vh;
               }
 
               .SideBarStatic {
@@ -332,7 +332,7 @@ const Home = ({
                 .citizen-footer { left: 0; }
               }
               .citizen-content-wrap {
-                padding-bottom: 40px;
+                padding-bottom: 50px;
               }
             `
           }
@@ -367,7 +367,37 @@ const Home = ({
           </div>
         )}
 
-        <div className="citizen-content-wrap" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0 }}>
+        <div className="citizen-content-wrap" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "#ffffff" }}>
+        {!hideSidebar && (() => {
+          const userInfo = Digit.UserService.getUser()?.info;
+          const userName = userInfo?.name || userInfo?.userName || "";
+          const initials = userName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+          return (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "0 28px", height: "56px", background: "#ffffff",
+              borderBottom: "1px solid #e8e8e8", flexShrink: 0,
+            }}>
+              <span style={{ fontSize: "22px", fontWeight: "700", color: "#091E64" }}>
+                State Urban Development Agency (SUDA)
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{
+                  width: "36px", height: "36px", borderRadius: "50%",
+                  background: "#091E64", color: "#fff",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "18px", fontWeight: "700", flexShrink: 0,
+                }}>
+                  {initials || "U"}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                  <span style={{ fontSize: "17px", fontWeight: "600", color: "#1a1a1a" }}>{userName}</span>
+                  <span style={{ fontSize: "14px", color: "#888888" }}>Citizen</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
         <Switch>
           <Route exact path={path}>
             <AppHome
@@ -444,13 +474,8 @@ const Home = ({
             {ModuleLevelLinkHomePages}
           </ErrorBoundary>
         </Switch>
-        <div className="citizen-footer">
-          <div style={{ display: 'flex', justifyContent: 'center', color: "black" }}>
-            <span className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
-          </div>
-          <div className="upyog-copyright-footer-web">
-            <span className="" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"14px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
-          </div>
+        <div className="citizen-footer" style={{ left: hideSidebar ? 0 : 300 }}>
+          <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"14px":"16px", fontWeight: "400", color: "black"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright &copy; 2026 Urban Administration &amp; Department</span>
         </div>
         </div>
       </div>
