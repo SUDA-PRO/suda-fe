@@ -97,6 +97,7 @@ const Home = ({
   newConfig = newConfig?.EdcrConfig ? newConfig?.EdcrConfig : newConfigEDCR;
 
   const hideSidebar = sidebarHiddenFor.some((e) => window.location.href.includes(e));
+  const [mobileOpen, setMobileOpen] = React.useState(false);
   const appRoutes = modules.map(({ code, tenants }, index) => {
 
     const Module = Digit.ComponentRegistryService.getComponent(`${code}Module`);
@@ -222,10 +223,121 @@ const Home = ({
                 color: #1f45a4;
                 font-weight: 500;
               }
+
+              .citizen-home-flex {
+                display: flex !important;
+                align-items: stretch;
+                min-height: 100vh;
+              }
+
+              .SideBarStatic {
+                width: 300px !important;
+                min-width: 300px !important;
+                flex-shrink: 0 !important;
+                background: #091E64 !important;
+                align-self: stretch;
+              }
+
+              .citizen-home-flex > .HomePageContainer,
+              .citizen-home-flex > div:not(.SideBarStatic) {
+                flex: 1 !important;
+                min-width: 0 !important;
+                width: auto !important;
+              }
+
+              .sidebar-overlay {
+                display: none;
+                position: fixed;
+                inset: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 999;
+              }
+              .sidebar-overlay.mobile-open {
+                display: block;
+              }
+
+              @media (max-width: 780px) {
+                .SideBarStatic {
+                  position: fixed !important;
+                  top: 0;
+                  left: -300px;
+                  height: 100vh !important;
+                  z-index: 1000;
+                  transition: left 0.3s ease;
+                  display: block !important;
+                }
+                .SideBarStatic.mobile-open {
+                  left: 0;
+                }
+                .sidebar-hamburger {
+                  display: flex !important;
+                }
+                .citizen-home-flex > .HomePageContainer,
+                .citizen-home-flex > div:not(.SideBarStatic) {
+                  width: 100% !important;
+                }
+              }
+
+              .sidebar-hamburger {
+                display: none;
+                position: fixed;
+                top: 14px;
+                left: 14px;
+                z-index: 998;
+                background: #091E64;
+                border: none;
+                border-radius: 6px;
+                padding: 8px 10px;
+                cursor: pointer;
+                flex-direction: column;
+                gap: 5px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+              }
+              .sidebar-hamburger span {
+                display: block;
+                width: 22px;
+                height: 2px;
+                background: white;
+                border-radius: 2px;
+              }
+              .sidebar-nav__close {
+                display: none;
+                position: absolute;
+                top: 12px;
+                right: 12px;
+                background: none;
+                border: none;
+                color: rgba(255,255,255,0.7);
+                font-size: 28px;
+                cursor: pointer;
+                line-height: 1;
+                padding: 4px 8px;
+              }
+              @media (max-width: 780px) {
+                .sidebar-nav__close { display: block; }
+              }
+
+              .citizen-footer {
+                position: fixed;
+                bottom: 0;
+                left: 300px;
+                right: 0;
+                background: white;
+                text-align: center;
+                padding: 8px 0;
+                z-index: 100;
+                border-top: 1px solid #e8e8e8;
+              }
+              @media (max-width: 780px) {
+                .citizen-footer { left: 0; }
+              }
+              .citizen-content-wrap {
+                padding-bottom: 50px;
+              }
             `
           }
         </style>
-      <TopBarSideBar
+      {/* <TopBarSideBar
         t={t}
         stateInfo={stateInfo}
         userDetails={userDetails}
@@ -237,19 +349,64 @@ const Home = ({
         showSidebar={true}
         linkData={linkData}
         islinkDataLoading={islinkDataLoading}
-      />
+      /> */}
 
       {/* <div className={`main center-container citizen-home-container mb-25`}> */}
-         <div>
+         <div className="citizen-home-flex">
+        {!hideSidebar && (
+          <button className="sidebar-hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
+            <span /><span /><span />
+          </button>
+        )}
+        {!hideSidebar && (
+          <div className={`sidebar-overlay${mobileOpen ? " mobile-open" : ""}`} onClick={() => setMobileOpen(false)} />
+        )}
         {hideSidebar ? null : (
-          <div className="SideBarStatic">
-            <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} />
+          <div className={`SideBarStatic${mobileOpen ? " mobile-open" : ""}`}>
+            <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} onClose={() => setMobileOpen(false)} />
           </div>
         )}
 
+        <div className="citizen-content-wrap" style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, background: "#ffffff" }}>
+        {!hideSidebar && (() => {
+          const userInfo = Digit.UserService.getUser()?.info;
+          const userName = userInfo?.name || userInfo?.userName || "";
+          const initials = userName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
+          return (
+            <div style={{
+              display: "flex", alignItems: "center", justifyContent: "space-between",
+              padding: "0 28px", height: "56px", background: "#ffffff",
+              borderBottom: "1px solid #e8e8e8", flexShrink: 0,
+            }}>
+              <span style={{ fontSize: "22px", fontWeight: "700", color: "#091E64" }}>
+                State Urban Development Agency (SUDA)
+              </span>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{
+                  width: "36px", height: "36px", borderRadius: "50%",
+                  background: "#091E64", color: "#fff",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "18px", fontWeight: "700", flexShrink: 0,
+                }}>
+                  {initials || "U"}
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", lineHeight: 1.2 }}>
+                  <span style={{ fontSize: "17px", fontWeight: "600", color: "#1a1a1a" }}>{userName}</span>
+                  <span style={{ fontSize: "14px", color: "#888888" }}>Citizen</span>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
         <Switch>
           <Route exact path={path}>
-            <CitizenHome />
+            <AppHome
+              userType="citizen"
+              modules={modules}
+              getCitizenMenu={linkData}
+              fetchedCitizen={isLinkDataFetched}
+              isLoading={islinkDataLoading}
+            />
           </Route>
 
           <PrivateRoute path={`${path}/feedback`} component={CitizenFeedback}></PrivateRoute>
@@ -270,15 +427,6 @@ const Home = ({
               }}
             />
           </Route>
-          <Route path={`${path}/all-services`}>
-            <AppHome
-              userType="citizen"
-              modules={modules}
-              getCitizenMenu={linkData}
-              fetchedCitizen={isLinkDataFetched}
-              isLoading={islinkDataLoading}
-            />
-          </Route>
 
           <Route path={`${path}/login`}>
             <Login stateCode={stateCode} />
@@ -295,7 +443,7 @@ const Home = ({
 
          <Route exact path={`${path}/dashboard`}>
           <Dashboard />
-        </Route>
+          </Route>
 
           <Route path={`${path}/Audit`}>
             <Search/>
@@ -326,33 +474,11 @@ const Home = ({
             {ModuleLevelLinkHomePages}
           </ErrorBoundary>
         </Switch>
-      </div>
-
-      <div
-              style={{
-                background: "#04113c",
-                borderTop: "1px solid rgba(255,255,255,0.1)",
-                padding: isMobile ? "10px 16px" : "10px 48px",
-                display: "flex",
-                flexDirection: isMobile ? "column" : "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                gap: isMobile ? 8 : 0,
-              }}
-            >
-              <span style={{ fontSize: 12, color: "#c8cfe8" }}>
-                © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
-              </span>
-              <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
-                <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
-                  {t("LANDING_PAGE_TERMS_CONDITIONS")}
-                </a>
-                <span style={{ color: "#c8cfe8" }}>|</span>
-                <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
-                  {t("LANDING_PAGE_PRIVACY_POLICY")}
-                </a>
-              </div>
-            </div>
+        <div className="citizen-footer" style={{ left: hideSidebar ? 0 : 300 }}>
+          <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"14px":"16px", fontWeight: "400", color: "black"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright &copy; 2026 Urban Administration &amp; Department</span>
+        </div>
+        </div>{/* end citizen-content-wrap */}
+      </div>{/* end citizen-home-flex */}
     </div>
   );
 };

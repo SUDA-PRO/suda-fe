@@ -8,9 +8,9 @@ return [
   {
     type: "link",
     element: "HOME",
-    text: t("COMMON_BOTTOM_NAVIGATION_HOME"),
+    text: 'Dashboard',
     link: isEmployee ? "/upyog-ui/employee" : "/upyog-ui/citizen",
-    icon: "HomeIcon",
+    icon: "DashboardIcon",
     populators: {
       onClick: closeSidebar,
     },
