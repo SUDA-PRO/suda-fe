@@ -83,7 +83,7 @@ const servicesRow2 = [
     url: "/upyog-ui/comingsoon",
   },
   {
-    title: "SERVICEDEFS.ACCOUNTING&FINANCE",
+    title: "SERVICEDEFS.ACCOUNTING_FINANCE",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/AccountFinance.png",
     url: "/upyog-ui/comingsoon",
   },
@@ -872,14 +872,14 @@ export default function Dashboard() {
             >
               <span style={{ fontSize: 13, color: "#e4e4e4" }}>
                 <span>📞</span> &ensp;
-                {pgrData?.[0]?.helpLineNumber ? pgrData?.[0]?.helpLineNumber : "1800 2677 953"} :- {t("GRIEVANCE_HELPLINE_NO_INFO_TXT")}
+                {pgrData?.[0]?.helpLineNumber ? pgrData?.[0]?.helpLineNumber : "0253 - 2575631 / 2 / 3 / 4"}
               </span>
 
-              <span style={{ fontSize: 13, color: "#e4e4e4" }}>
+              {/* <span style={{ fontSize: 13, color: "#e4e4e4" }}>
                 <span>📞</span> &ensp;
                 {pgrData?.[0]?.HelplineForSmartStreetLightComplaint ? pgrData?.[0]?.HelplineForSmartStreetLightComplaint : "1800 2677 953"} :-{" "}
                 {t("STREET_LIGHT_HELPLINE_NO_INFO_TXT")}
-              </span>
+              </span> */}
             </div>
           </div>
 

@@ -156,16 +156,12 @@ const Footer = () => {
                 justifyContent: isMobile ? "center" : "flex-start",
               }}
             >
-              <span style={{ fontSize: 13, color: "#d5d5d5" }}>
+              <span style={{ fontSize: 13, color: "#e4e4e4" }}>
                 <span>📞</span> &ensp;
-                {pgrData?.[0]?.helpLineNumber ? pgrData?.[0]?.helpLineNumber : "1800 2677 953"} :- {t("GRIEVANCE_HELPLINE_NO_INFO_TXT")}
+                {pgrData?.[0]?.helpLineNumber ? pgrData?.[0]?.helpLineNumber : "0253 - 2575631 / 2 / 3 / 4"}
               </span>
 
-              <span style={{ fontSize: 13, color: "#d5d5d5" }}>
-                <span>📞</span> &ensp;
-                {pgrData?.[0]?.HelplineForSmartStreetLightComplaint ? pgrData?.[0]?.HelplineForSmartStreetLightComplaint : "1800 2677 953"} :-{" "}
-                {t("STREET_LIGHT_HELPLINE_NO_INFO_TXT")}
-              </span>
+          
             </div>
           </div>
 
