@@ -166,22 +166,31 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
           {/* <Header /> */}
         </FormComposer>
         {showToast && <Toast error={true} label={t(showToast)} onClose={closeToast} />}
-        <div style={{ width: '100%', position: 'fixed', bottom: 0,backgroundColor:"white",textAlign:"center" }}>
-          <div style={{ display: 'flex', justifyContent: 'center', color:"black" }}>
-            {/* <span style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://www.digit.org/', '_blank').focus();}} >Powered by DIGIT</span>
-            <span style={{ margin: "0 10px" ,fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px"}}>|</span> */}
-            {/* <a style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a>
-
-            <span  className="upyog-copyright-footer" style={{ margin: "0 10px",fontSize:"12px" }} >|</span> */}
-            <span  className="upyog-copyright-footer" style={{ cursor: "pointer", fontSize: window.Digit.Utils.browser.isMobile()?"12px":"12px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
-            
-            {/* <a style={{ cursor: "pointer", fontSize: "16px", fontWeight: "400"}} href="#" target='_blank'>UPYOG License</a> */}
-
-          </div>
-          <div className="upyog-copyright-footer-web">
-            <span className="" style={{ cursor: "pointer", fontSize:  window.Digit.Utils.browser.isMobile()?"14px":"16px", fontWeight: "400"}} onClick={() => { window.open('https://uad.cg.gov.in/', '_blank').focus();}} >Copyright © 2026 Urban Administration & Department</span>
-            </div>
-        </div>
+        <div
+                style={{
+                  background: "#04113c",
+                  borderTop: "1px solid rgba(255,255,255,0.1)",
+                  padding: isMobile ? "10px 16px" : "10px 48px",
+                  display: "flex",
+                  flexDirection: isMobile ? "column" : "row",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  gap: isMobile ? 8 : 0,
+                }}
+              >
+                <span style={{ fontSize: 12, color: "#c8cfe8" }}>
+                  © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
+                </span>
+                <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
+                  <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
+                    {t("LANDING_PAGE_TERMS_CONDITIONS")}
+                  </a>
+                  <span style={{ color: "#c8cfe8" }}>|</span>
+                  <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
+                    {t("LANDING_PAGE_PRIVACY_POLICY")}
+                  </a>
+                </div>
+              </div>
       </Background>
     </React.Fragment>
   );

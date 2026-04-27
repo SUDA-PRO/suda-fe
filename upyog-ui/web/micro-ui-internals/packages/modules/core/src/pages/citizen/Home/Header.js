@@ -205,11 +205,11 @@ const Header = () => {
       >
         {/* Logo */}
         <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
-          <img
+          {/* <img
             src="https://upload.wikimedia.org/wikipedia/commons/5/55/Emblem_of_India.svg"
             alt="Emblem of India"
             style={{ width: 44, height: 44 }}
-          />
+          /> */}
           <div
             style={{
               width: 46,
@@ -302,7 +302,7 @@ const Header = () => {
                   onMouseEnter={(e) => (e.currentTarget.style.background = "#fff5f5")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7A1E1C" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3610E" strokeWidth="2">
                     <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
                     <circle cx="12" cy="7" r="4" />
                   </svg>
@@ -327,7 +327,7 @@ const Header = () => {
                   onMouseEnter={(e) => (e.currentTarget.style.background = "#fff5f5")}
                   onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7A1E1C" strokeWidth="2">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#A3610E" strokeWidth="2">
                     <rect x="2" y="7" width="20" height="14" rx="2" />
                     <path d="M16 7V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v2" />
                     <line x1="12" y1="12" x2="12" y2="16" />
@@ -346,7 +346,7 @@ const Header = () => {
               padding: "8px 22px",
               borderRadius: 6,
               border: "none",
-              background: "#7A1E1C",
+              background: "#A3610E",
               color: "#fff",
               fontWeight: 600,
               fontSize: 13,
