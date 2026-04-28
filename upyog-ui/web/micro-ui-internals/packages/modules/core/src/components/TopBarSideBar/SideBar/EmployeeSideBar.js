@@ -1,6 +1,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import SubMenu from "./SubMenu";
-import { Loader, SearchIcon } from "@upyog/digit-ui-react-components";
+import { Loader, SearchIcon, LogoutIcon } from "@upyog/digit-ui-react-components";
+import LogoutDialog from "../../Dialog/LogoutDialog";
 import { useTranslation } from "react-i18next";
 import NavItem from "./NavItem";
 import _, { findIndex } from "lodash";
@@ -22,6 +23,10 @@ const EmployeeSideBar = () => {
   const { isLoading, data } = Digit.Hooks.useAccessControl();
   const [search, setSearch] = useState("");
   const { t } = useTranslation();
+  const [showDialog, setShowDialog] = useState(false);
+  const handleLogout = () => { setShowDialog(true); };
+  const handleOnSubmit = () => { Digit.UserService.logout(); setShowDialog(false); };
+  const handleOnCancel = () => { setShowDialog(false); };
   useEffect(() => {
     if (isLoading) {
       return <Loader />;
@@ -232,9 +237,26 @@ const EmployeeSideBar = () => {
         .employee .sidebar .search-icon-wrapper svg path {
           fill: rgba(255,255,255,0.7) !important;
         }
+        .employee .popup-module .card-text,
+        .employee .popup-module p,
+        .employee .popup-module span:not(.icon) {
+          color: #0B0C0C !important;
+        }
+        .employee .popup-module strong {
+          color: #0B0C0C !important;
+        }
       `}
       </style>
 
+      <div className="submenu-container" style={{ borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "16px" }}>
+        <div className="sidebar-link" onClick={handleLogout} style={{ cursor: "pointer" }}>
+          <div className="actions">
+            <LogoutIcon style={{ width: 20, height: 20, flexShrink: 0 }} />
+            <span style={{ marginLeft: "8px", whiteSpace: "nowrap" }}>{t("CORE_COMMON_LOGOUT")}</span>
+          </div>
+        </div>
+      </div>
+      {showDialog && <LogoutDialog onSelect={handleOnSubmit} onCancel={handleOnCancel} onDismiss={handleOnCancel} />}
     </div>
   );
 };
