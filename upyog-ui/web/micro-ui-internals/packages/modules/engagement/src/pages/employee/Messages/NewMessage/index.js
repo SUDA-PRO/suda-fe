@@ -38,7 +38,7 @@ const NewEvents = () => {
         }
       ]
     }
-    history.push("/upyog-ui/employee/engagement/messages/response", details)
+    history.push("/suda-ui/employee/engagement/messages/response", details)
   }
 
   return (

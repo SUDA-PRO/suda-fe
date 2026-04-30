@@ -92,7 +92,7 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
     if (state?.workflow?.action === "OPEN") {
       formData.units = formData.units.filter((unit) => unit.active);
     }
-    history.push("/upyog-ui/employee/pt/response", { Property: formData, key: "UPDATE", action: "SUBMIT" });
+    history.push("/suda-ui/employee/pt/response", { Property: formData, key: "UPDATE", action: "SUBMIT" });
 
   };
 

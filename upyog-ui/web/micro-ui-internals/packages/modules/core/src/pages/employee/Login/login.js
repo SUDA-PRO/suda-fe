@@ -41,20 +41,20 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
     if (user?.info?.roles?.length > 0) user.info.roles = filteredRoles;
     Digit.UserService.setUser(user);
     setEmployeeDetail(user?.info, user?.access_token);
-    let redirectPath = "/upyog-ui/employee";
+    let redirectPath = "/suda-ui/employee";
 
     /* logic to redirect back to same screen where we left off  */
     if (window?.location?.href?.includes("from=")) {
-      redirectPath = decodeURIComponent(window?.location?.href?.split("from=")?.[1]) || "/upyog-ui/employee";
+      redirectPath = decodeURIComponent(window?.location?.href?.split("from=")?.[1]) || "/suda-ui/employee";
     }
 
     /*  RAIN-6489 Logic to navigate to National DSS home incase user has only one role [NATADMIN]*/
     if (user?.info?.roles && user?.info?.roles?.length > 0 &&  user?.info?.roles?.every((e) => e.code === "NATADMIN")) {
-      redirectPath = "/upyog-ui/employee/dss/landing/NURT_DASHBOARD";
+      redirectPath = "/suda-ui/employee/dss/landing/NURT_DASHBOARD";
     }
     /*  RAIN-6489 Logic to navigate to National DSS home incase user has only one role [NATADMIN]*/
     if (user?.info?.roles && user?.info?.roles?.length > 0 && user?.info?.roles?.every((e) => e.code === "STADMIN")) {
-      redirectPath = "/upyog-ui/employee/dss/landing/home";
+      redirectPath = "/suda-ui/employee/dss/landing/home";
     }
 
     history.replace(redirectPath);
@@ -90,7 +90,7 @@ const Login = ({ config: propsConfig, t, isDisabled }) => {
 
   const onForgotPassword = () => {
     sessionStorage.getItem("User") && sessionStorage.removeItem("User")
-    history.push("/upyog-ui/employee/user/forgot-password");
+    history.push("/suda-ui/employee/user/forgot-password");
   };
 
   const [userId, password, city] = propsConfig.inputs;

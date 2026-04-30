@@ -174,7 +174,7 @@ const EmployeeApp = ({
 
               <Switch>
                 <Route path={`${path}/user/login`}>
-                  <Redirect to="/upyog-ui/login" />
+                  <Redirect to="/suda-ui/login" />
                 </Route>
                 <Route path={`${path}/user/forgot-password`}>
                   <ForgotPassword />
@@ -189,7 +189,7 @@ const EmployeeApp = ({
                   <ErrorComponent
                     initData={initData}
                     goToHome={() => {
-                      history.push("/upyog-ui/employee");
+                      history.push("/suda-ui/employee");
                     }}
                   />
                 </Route>

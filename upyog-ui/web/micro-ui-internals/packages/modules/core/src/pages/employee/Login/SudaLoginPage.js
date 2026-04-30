@@ -251,10 +251,20 @@ const PAGE_STYLES = `
 
 const SudaLoginPage = () => {
   const history = useHistory();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { data: cities } = Digit.Hooks.useTenants();
   const { data: storeData } = Digit.Hooks.useStore.getInitData();
   const stateCode = Digit.ULBService.getStateId();
+
+  useEffect(() => {
+    const locale = Digit.SessionStorage.get("locale") || "en_IN";
+    const tenantId = stateCode || process.env.REACT_APP_STATE_LEVEL_TENANT_ID || "pg";
+    Digit.LocalizationService.getLocale({
+      modules: ["rainmaker-common", `rainmaker-${tenantId.toLowerCase()}`, "rainmaker-pt"],
+      locale,
+      tenantId,
+    }).catch(() => {});
+  }, []);
   const bannerUrl = "https://tfstatee8aog.blob.core.windows.net/filestore/SudaLogin.svg";
 
   const [userType,     setUserType]     = useState("citizen");
@@ -369,7 +379,7 @@ const SudaLoginPage = () => {
         Digit.SessionStorage.set("citizen.userRequestObject", { info, ...tokens });
         Digit.UserService.setUser({ info, ...tokens });
         setCitizenDetail(info, tokens.access_token, stateCode);
-        history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/upyog-ui/citizen/select-location" : "/upyog-ui/citizen");
+        history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/suda-ui/citizen/select-location" : "/suda-ui/citizen");
       } else {
         const tenantId = cities?.[0]?.code || stateCode;
         const { UserRequest: info, ...tokens } = await Digit.UserService.authenticate({
@@ -379,7 +389,7 @@ const SudaLoginPage = () => {
         Digit.SessionStorage.set("citizen.userRequestObject", { info, ...tokens });
         Digit.UserService.setUser({ info, ...tokens });
         setEmployeeDetail(info, tokens.access_token);
-        let redirect = "/upyog-ui/employee";
+        let redirect = "/suda-ui/employee";
         if (window?.location?.href?.includes("from=")) redirect = decodeURIComponent(window.location.href.split("from=")[1]) || redirect;
         history.replace(redirect);
       }

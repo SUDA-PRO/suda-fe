@@ -76,13 +76,13 @@ const TopBar = ({
   };
 
   function onNotificationIconClick() {
-    history.push("/upyog-ui/citizen/engagement/notifications");
+    history.push("/suda-ui/citizen/engagement/notifications");
   }
 
   const urlsToDisableNotificationIcon = (pathname) =>
     !!Digit.UserService?.getUser()?.access_token
       ? false
-      : ["/upyog-ui/citizen/select-language", "/upyog-ui/citizen/select-location"].includes(pathname);
+      : ["/suda-ui/citizen/select-language", "/suda-ui/citizen/select-location"].includes(pathname);
 
   if (CITIZEN) {
     return (

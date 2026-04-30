@@ -111,11 +111,11 @@ const Inbox = ({ parentRoute }) => {
     headerText: "ACTION_TEST_EDCR_SCRUTINY",
     links: [
       {
-        link: `/upyog-ui/citizen/obps/edcrscrutiny/apply`,
+        link: `/suda-ui/citizen/obps/edcrscrutiny/apply`,
         text: t("BPA_PLAN_SCRUTINY_FOR_NEW_CONSTRUCTION_LABEL"),
       },
       {
-        link: `/upyog-ui/citizen/obps/edcrscrutiny/oc-apply`,
+        link: `/suda-ui/citizen/obps/edcrscrutiny/oc-apply`,
         text: t("BPA_OC_PLAN_SCRUTINY_FOR_NEW_CONSTRUCTION_LABEL"),
       },
     ],

@@ -23,7 +23,7 @@ const TopBar = ({
   const { pathname } = useLocation();
 
   // const showHaburgerorBackButton = () => {
-  //   if (pathname === "/upyog-ui/citizen" || pathname === "/upyog-ui/citizen/" || pathname === "/upyog-ui/citizen/select-language") {
+  //   if (pathname === "/suda-ui/citizen" || pathname === "/suda-ui/citizen/" || pathname === "/suda-ui/citizen/select-language") {
   //     return <Hamburger handleClick={toggleSidebar} />;
   //   } else {
   //     return <BackButton className="top-back-btn" />;
@@ -34,7 +34,7 @@ const TopBar = ({
       <div className="center-container back-wrapper" style={{display:"flex",marginRight:"2rem",marginLeft:"2rem",justifyContent:"space-between"}}>
         <div className="hambuger-back-wrapper" style={{display:"flex"}}>
           {window.innerWidth <= 660  && <Hamburger handleClick={toggleSidebar} />}
-          <a href={window.location.href.includes("citizen")?"/upyog-ui/citizen":"/upyog-ui/employee"}><h2 style={{fontSize:30, color:'orange', fontWeight:'bold', fontFamily: 'monospace'}}>SUDA</h2>
+          <a href={window.location.href.includes("citizen")?"/suda-ui/citizen":"/suda-ui/employee"}><h2 style={{fontSize:30, color:'orange', fontWeight:'bold', fontFamily: 'monospace'}}>SUDA</h2>
           </a>
           <h3></h3>
           <span>{cityOfCitizenShownBesideLogo}</span>

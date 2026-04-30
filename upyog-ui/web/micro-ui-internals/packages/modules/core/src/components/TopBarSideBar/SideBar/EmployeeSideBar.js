@@ -97,7 +97,7 @@ const EmployeeSideBar = () => {
       result.push({label : key,children, icon:children?.[0]?.icon, to:""});
       }
       else{
-        result.push({label: key, value, icon:value?.leftIcon, to: key === "Home" ? "/upyog-ui/employee" : value?.navigationURL});
+        result.push({label: key, value, icon:value?.leftIcon, to: key === "Home" ? "/suda-ui/employee" : value?.navigationURL});
       }
     }
 
@@ -109,7 +109,7 @@ const EmployeeSideBar = () => {
     for (let i = 0; i < keys.length; i++) {
       if (configEmployeeSideBar[keys[i]][0].path.indexOf(".") === -1) {
         if (configEmployeeSideBar[keys[i]][0].displayName === "Home") {
-          const homeURL = "/upyog-ui/employee";
+          const homeURL = "/suda-ui/employee";
           res.unshift({
             moduleName: keys[i].toUpperCase(),
             icon: configEmployeeSideBar[keys[i]][0],

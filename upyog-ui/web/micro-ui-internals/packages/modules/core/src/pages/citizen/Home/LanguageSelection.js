@@ -30,7 +30,7 @@ const LanguageSelection = () => {
   );
 
   function onSubmit() {
-    history.push(`/upyog-ui/citizen/select-location`);
+    history.push(`/suda-ui/citizen/select-location`);
   }
 
   return isLoading ? (

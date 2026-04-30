@@ -58,7 +58,7 @@ const ApplicationCitizenCard = ({
       </Card>
     );
   } else if (data && data?.length > 0) {
-    result = <DetailsCard data={data} serviceRequestIdKey={serviceRequestIdKey} linkPrefix={linkPrefix ? linkPrefix : "/upyog-ui/employee/bills"} />;
+    result = <DetailsCard data={data} serviceRequestIdKey={serviceRequestIdKey} linkPrefix={linkPrefix ? linkPrefix : "/suda-ui/employee/bills"} />;
   }
 
   return (

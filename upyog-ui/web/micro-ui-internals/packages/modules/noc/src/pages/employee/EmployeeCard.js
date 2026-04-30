@@ -46,7 +46,7 @@ const NOCEmployeeHomeCard = () => {
     </svg>
 
     useEffect(()=>{
-      if (location.pathname === "/upyog-ui/employee"){
+      if (location.pathname === "/suda-ui/employee"){
         Digit.SessionStorage.del("NOC.INBOX")
       }
     },[location.pathname])
@@ -58,22 +58,22 @@ const NOCEmployeeHomeCard = () => {
         {
             count: !isInboxLoading ? totalCount : "",
             label: t("TOTAL_FSM"),
-            link: `/upyog-ui/employee/obps/inbox`
+            link: `/suda-ui/employee/obps/inbox`
         },
         {   count:!isInboxLoading ?nearingSlaCount:"-",
             label: t("TOTAL_NEARING_SLA"),
-            link: `/upyog-ui/employee/obps/inbox`
+            link: `/suda-ui/employee/obps/inbox`
         }  
       ],
       links: [
         {
           count: totalCount ,
           label: t("ES_COMMON_INBOX"),
-          link: `/upyog-ui/employee/noc/inbox`
+          link: `/suda-ui/employee/noc/inbox`
         },
         {
           label: t("ES_COMMON_APPLICATION_SEARCH"),
-          link: `/upyog-ui/employee/noc/search`
+          link: `/suda-ui/employee/noc/search`
         }
       ]
     }),[isInboxLoading, totalCount]);

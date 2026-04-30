@@ -30,20 +30,20 @@ const PTCard = () => {
     {
       count: isLoading ? "-" : total?.totalCount,
       label: t("ES_COMMON_INBOX"),
-      link: `/upyog-ui/employee/pt/inbox`,
+      link: `/suda-ui/employee/pt/inbox`,
     },
     {
       label: t("ES_TITLE_NEW_REGISTRATION"),
-      link: `/upyog-ui/employee/pt/new-application`,
+      link: `/suda-ui/employee/pt/new-application`,
       role: "PT_CEMP"
     },
     {
       label: t("SEARCH_PROPERTY"),
-      link: `/upyog-ui/employee/pt/search`,
+      link: `/suda-ui/employee/pt/search`,
     },
     {
       label: t("ES_COMMON_APPLICATION_SEARCH"),
-      link: `/upyog-ui/employee/pt/application-search`,
+      link: `/suda-ui/employee/pt/application-search`,
     },
   ]
   const PT_CEMP = Digit.UserService.hasAccess(["PT_CEMP"]) || false;
@@ -54,13 +54,13 @@ const PTCard = () => {
       {
         count: total?.totalCount,
         label: t("ES_TITLE_INBOX"),
-        link: `/upyog-ui/employee/pt/inbox`,
+        link: `/suda-ui/employee/pt/inbox`,
       },
       {
         
         count: total?.nearingSlaCount,
         label: t("TOTAL_NEARING_SLA"),
-        link: `/upyog-ui/employee/pt/inbox`,
+        link: `/suda-ui/employee/pt/inbox`,
       }
     ],
     links:links.filter(link=>!link?.role||PT_CEMP),

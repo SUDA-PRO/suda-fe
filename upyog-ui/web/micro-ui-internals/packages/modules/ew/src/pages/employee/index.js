@@ -44,17 +44,17 @@ const EmployeeApp = ({ path }) => {
     
     const crumbs = [
       {
-        path: "/upyog-ui/employee",
+        path: "/suda-ui/employee",
         content: t("ES_COMMON_HOME"),
         show: true,
       },
       {
-        path: "/upyog-ui/employee/ew/inbox",
+        path: "/suda-ui/employee/ew/inbox",
         content: t("ES_TITLE_INBOX"),
         show: location.pathname.includes("ew/inbox"),
       },
       {
-        path: "/upyog-ui/employee/my-applications",
+        path: "/suda-ui/employee/my-applications",
         content: t("ES_COMMON_APPLICATION_SEARCH"),
         show: location.pathname.includes("/ew/my-applications") || location.pathname.includes("/ew/application-details"),
       },

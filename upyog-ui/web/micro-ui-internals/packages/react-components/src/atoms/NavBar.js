@@ -101,16 +101,17 @@ const NavBar = ({ open, toggleSidebar, profileItem, menuItems, onClose, Footer, 
       );
     }
     if (item.type === "link") {
-      if (item.link.indexOf("/digit-ui") === -1 && isEmployee) {
+      const resolvedLink = item.link?.replace("digit-ui", "suda-ui")?.replace("upyog-ui", "suda-ui");
+      if (resolvedLink.indexOf("/digit-ui") === -1 && resolvedLink.indexOf("/suda-ui") !== -1 && isEmployee) {
         const getOrigin = window.location.origin;
         return (
-          <a href={getOrigin + "/employee/" + item.link}>
+          <a href={getOrigin + "/employee/" + resolvedLink}>
             <Item />
           </a>
         );
       }
       return (
-        <Link to={item.link}>
+        <Link to={resolvedLink}>
           <Item />
         </Link>
       );

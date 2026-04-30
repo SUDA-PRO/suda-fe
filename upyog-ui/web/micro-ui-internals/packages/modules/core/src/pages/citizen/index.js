@@ -29,13 +29,13 @@ import { APPLICATION_PATH } from "./Home/EDCR/utils";
 import Dashboard from "./Home/Dashboard";
 
 const sidebarHiddenFor = [
-  "upyog-ui/citizen/register/name",
-  "/upyog-ui/citizen/select-language",
-  "/upyog-ui/citizen/dashboard",
-  "/upyog-ui/citizen/select-location",
-  "/upyog-ui/citizen/login",
-  "/upyog-ui/citizen/register/otp",
-  // "/upyog-ui/citizen/verificationsearch-home" // route for verificationsearch component
+  "suda-ui/citizen/register/name",
+  "/suda-ui/citizen/select-language",
+  "/suda-ui/citizen/dashboard",
+  "/suda-ui/citizen/select-location",
+  "/suda-ui/citizen/login",
+  "/suda-ui/citizen/register/otp",
+  // "/suda-ui/citizen/verificationsearch-home" // route for verificationsearch component
 ];
 
 const getTenants = (codes, tenants) => {
@@ -162,7 +162,7 @@ const Home = ({
                     isInfo={code === "OBPS" ? true : false}
                   />
                 )}
-                {/* <Links key={index} matchPath={`/upyog-ui/citizen/${code.toLowerCase()}`} userType={"citizen"} /> */}
+                {/* <Links key={index} matchPath={`/suda-ui/citizen/${code.toLowerCase()}`} userType={"citizen"} /> */}
               </div>
               {code?.toUpperCase()==="ADS" && (
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
@@ -423,7 +423,7 @@ const Home = ({
             <ErrorComponent
               initData={initData}
               goToHome={() => {
-                history.push("/upyog-ui/citizen");
+                history.push("/suda-ui/citizen");
               }}
             />
           </Route>

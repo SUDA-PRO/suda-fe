@@ -91,7 +91,7 @@ export const processLinkData = (newData, code, t) => {
     const roleBasedLoginRoutes = [
       {
         role: "FSM_DSO",
-        from: "/upyog-ui/citizen/fsm/dso-dashboard",
+        from: "/suda-ui/citizen/fsm/dso-dashboard",
         dashoardLink: "CS_LINK_DSO_DASHBOARD",
         loginLink: "CS_LINK_LOGIN_DSO",
       },
@@ -105,7 +105,7 @@ export const processLinkData = (newData, code, t) => {
         });
       else
         newObj?.links?.push({
-          link: `/upyog-ui/citizen/login`,
+          link: `/suda-ui/citizen/login`,
           state: { role: "FSM_DSO", from },
           i18nKey: t(loginLink),
         });
@@ -157,8 +157,8 @@ const moduleColorMap = {
   Bills:    { circleBg: "#fff3e0", iconColor: "#e65100" },
 };
 
-/* Mirror CitizenHomeCard's digit-ui → upyog-ui fix */
-const fixLink = (link) => (link ? link.replace("digit-ui", "upyog-ui") : link);
+/* Mirror CitizenHomeCard's digit-ui → suda-ui fix */
+const fixLink = (link) => (link ? link.replace("digit-ui", "suda-ui").replace("upyog-ui", "suda-ui") : link);
 
 const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => {
   const { t } = useTranslation();

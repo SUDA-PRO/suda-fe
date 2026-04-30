@@ -13,7 +13,7 @@ const Header = () => {
     const loginRef = useRef(null);
       const history = useHistory();
     const { pathname } = useLocation();
-    const isLoginRoute = pathname === "/upyog-ui/login";
+    const isLoginRoute = pathname === "/suda-ui/login";
     const [width, setWidth] = useState(window.innerWidth);
     const [fontSize, setFontSize] = useState(16);
 
@@ -287,7 +287,7 @@ const Header = () => {
                 <div
                   onClick={() => {
                     setLoginOpen(false);
-                    window.location.href = "/upyog-ui/citizen/login";
+                    window.location.href = "/suda-ui/citizen/login";
                   }}
                   style={{
                     padding: "12px 20px",
@@ -313,7 +313,7 @@ const Header = () => {
                 <div
                   onClick={() => {
                     setLoginOpen(false);
-                    window.location.href = "/upyog-ui/employee/user/login";
+                    window.location.href = "/suda-ui/employee/user/login";
                   }}
                   style={{
                     padding: "12px 20px",
@@ -355,7 +355,7 @@ const Header = () => {
             }}
             onClick={() => {
               // setLoginOpen(false);
-              window.location.href = "/upyog-ui/citizen/register/user";
+              window.location.href = "/suda-ui/citizen/register/user";
             }}
           >
             {" "}

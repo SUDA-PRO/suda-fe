@@ -181,7 +181,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
     }
     if (item.type === "link") {
       return (
-        <Link to={item?.link.replace("/digit-ui/","/upyog-ui/")}>
+        <Link to={item?.link.replace("/digit-ui/","/suda-ui/").replace("/upyog-ui/","/suda-ui/")}>
           <Item />
         </Link>
       );
@@ -224,12 +224,13 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
       },
     ];
   }
-  Object.keys(linkData)
+  Object.keys(linkData || {})
     ?.sort((x, y) => y.localeCompare(x))
     ?.map((key) => {
-      if (linkData[key][0]?.sidebar === "digit-ui-links") {
+      console.log("[Sidebar] key:", key, "sidebar:", linkData[key][0]?.sidebar, "sidebarURL:", linkData[key][0]?.sidebarURL);
+      if (linkData[key][0]?.sidebar === "digit-ui-links" || linkData[key][0]?.sidebar === "suda-ui-links") {
         menuItems.splice(1, 0, {
-          type: linkData[key][0]?.sidebarURL?.includes("digit-ui") ? "link" : "external-link",
+          type: (linkData[key][0]?.sidebarURL?.includes("digit-ui") || linkData[key][0]?.sidebarURL?.includes("upyog-ui") || linkData[key][0]?.sidebarURL?.includes("suda-ui")) ? "link" : "external-link",
           text: t(`ACTION_TEST_${Digit.Utils.locale.getTransformedLocale(key)}`),
           links: linkData[key],
           icon: linkData[key][0]?.leftIcon,
@@ -343,7 +344,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
         <OrgHeader stateInfo={stateInfo} t={t} onClose={onClose} />
         <div className="sidebar-nav__menu">
           {menuItems?.map((item, index) => {
-            const normalizedLink = item?.link?.replace("/digit-ui/", "/upyog-ui/");
+            const normalizedLink = item?.link?.replace("/digit-ui/", "/suda-ui/");
             const isActive = pathname === normalizedLink || pathname === item?.sidebarURL;
             return (
               <div
