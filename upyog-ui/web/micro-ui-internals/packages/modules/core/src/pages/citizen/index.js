@@ -501,6 +501,7 @@ const Home = ({
                 </a>
               </div>
             </div>
+        </div>    
     </div>
   );
 };
