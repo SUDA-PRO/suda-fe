@@ -59,31 +59,40 @@
 
 @media (min-width: 780px) {
   .SideBarStatic {
-    width: 219px;
-    background: #ffffff;
+    width: 300px;
+    background: #091E64;
     margin-top: -24px;
+    min-height: calc(100vh - 56px);
+    align-self: stretch;
   }
 }
 @media (max-width: 780px) {
   .SideBarStatic {
-    width: 219px;
-    background: #ffffff;
+    width: 300px;
+    background: #091E64;
     margin-top: -24px;
     display: none;
   }
 }
 
+.citizen-home-flex {
+  display: flex;
+  align-items: stretch;
+  min-height: calc(100vh - 56px);
+}
+
 .HomePageContainer {
   @media (min-width: 780px) {
     display: flex;
+    align-items: stretch;
     width: 100% !important;
-    height: calc(100%-30px);
+    min-height: calc(100vh - 56px);
   }
 }
 
 .moduleLinkHomePage {
   @media (min-width: 780px) {
-    width: calc(100% - 219px);
+    width: calc(100% - 300px);
   }
   margin-top: -25px;
   img {

@@ -20,7 +20,7 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
       return;
     }
     Digit.UserService.setUser(user);
-    const redirectPath = location.state?.from || "/upyog-ui/employee";
+    const redirectPath = location.state?.from || "/suda-ui/employee";
     history.replace(redirectPath);
   }, [user]);
 
@@ -43,7 +43,7 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
     };
     try {
       await Digit.UserService.sendOtp(requestData, data.city.code);
-      history.push(`/upyog-ui/employee/user/change-password?mobile_number=${data.mobileNumber}&tenantId=${data.city.code}`);
+      history.push(`/suda-ui/employee/user/change-password?mobile_number=${data.mobileNumber}&tenantId=${data.city.code}`);
     } catch (err) {
       setShowToast(err?.response?.data?.error?.fields?.[0]?.message || "Invalid login credentials!");
       setTimeout(closeToast, 5000);
@@ -51,7 +51,7 @@ const ForgotPassword = ({ config: propsConfig, t }) => {
   };
 
   const navigateToLogin = () => {
-    history.replace("/upyog-ui/employee/login");
+    history.replace("/suda-ui/employee/login");
   };
 
   const [userId, city] = propsConfig.inputs;

@@ -110,7 +110,7 @@ const Inbox = ({parentRoute}) => {
         headerText: "ACTION_TEST_NOC",
         links: [{
           text: t("ES_COMMON_APPLICATION_SEARCH"),
-          link: "/upyog-ui/employee/noc/search",
+          link: "/suda-ui/employee/noc/search",
         }]
     }
 

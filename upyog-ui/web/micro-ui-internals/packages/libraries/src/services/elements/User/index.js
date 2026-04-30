@@ -49,12 +49,12 @@ export const UserService = {
     finally{
       window.localStorage.clear();
       window.sessionStorage.clear();
-      window.location.replace("/upyog-ui/login");
+      window.location.replace("/suda-ui/login");
       if (userType === "citizen") {
-        window.location.replace("/upyog-ui/citizen/dashboard");
+        window.location.replace("/suda-ui/citizen/dashboard");
       } else {
-        // window.location.replace("/upyog-ui/employee/user/language-selection");
-        window.location.replace("/upyog-ui/citizen/dashboard");
+        // window.location.replace("/suda-ui/employee/user/language-selection");
+        window.location.replace("/suda-ui/citizen/dashboard");
       }
     }
   },

@@ -6,9 +6,9 @@ const CitizenHomeCard = ({ header, links = [], state, Icon, Info, isInfo = false
   function replaceDigitUiWithUpyogUi(data) {
     return data.map(item => ({
       ...item,
-      sidebarURL: item.sidebarURL ? item.sidebarURL.replace("digit-ui", "upyog-ui") : item.sidebarURL,
-      navigationURL: item.navigationURL ? item.navigationURL.replace("digit-ui", "upyog-ui") : item.navigationURL,
-      link: item.link ? item.link.replace("digit-ui", "upyog-ui") : item.link
+      sidebarURL: item.sidebarURL ? item.sidebarURL.replace("digit-ui", "suda-ui").replace("upyog-ui", "suda-ui") : item.sidebarURL,
+      navigationURL: item.navigationURL ? item.navigationURL.replace("digit-ui", "suda-ui").replace("upyog-ui", "suda-ui") : item.navigationURL,
+      link: item.link ? item.link.replace("digit-ui", "suda-ui").replace("upyog-ui", "suda-ui") : item.link
     }));
   }
   const updatedData = replaceDigitUiWithUpyogUi(links);

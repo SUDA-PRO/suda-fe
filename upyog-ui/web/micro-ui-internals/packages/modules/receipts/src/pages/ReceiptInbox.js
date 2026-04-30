@@ -125,7 +125,7 @@ const ReceiptInbox = ({ parentRoute, businessService = "receipts", initialStates
           searchParams={searchParams}
           sortParams={sortParams}
           totalRecords={totalRecords}
-          linkPrefix={'/upyog-ui/employee/receipts/details/'}
+          linkPrefix={'/suda-ui/employee/receipts/details/'}
           filterComponent={filterComponent}
         />
       );

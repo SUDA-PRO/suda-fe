@@ -3,7 +3,7 @@ import ErrorComponent from "./ErrorComponent";
 
 const Redircter = () => {
   console.log("Redircter")
-  const path = Digit.UserService.getType() === "employee" ? "/upyog-ui/employee/user/error" : "/upyog-ui/citizen/error";
+  const path = Digit.UserService.getType() === "employee" ? "/suda-ui/employee/user/error" : "/suda-ui/citizen/error";
   if (
     window.location.href.includes("employee/user/error") ||
     window.location.href.includes("citizen/error") ||

@@ -92,7 +92,7 @@ const StakeholderAcknowledgement = ({ data, onSuccess }) => {
           {mutation.isSuccess && !isOpenLinkFlow && (
             <Link
               to={{
-                pathname: `/upyog-ui/citizen/payment/collect/${mutation.data.Licenses[0].businessService}/${mutation.data.Licenses[0].applicationNumber}/${mutation.data.Licenses[0].tenantId}?tenantId=${mutation.data.Licenses[0].tenantId}`,
+                pathname: `/suda-ui/citizen/payment/collect/${mutation.data.Licenses[0].businessService}/${mutation.data.Licenses[0].applicationNumber}/${mutation.data.Licenses[0].tenantId}?tenantId=${mutation.data.Licenses[0].tenantId}`,
                 state: { tenantId: mutation.data.Licenses[0].tenantId },
               }}
             >
@@ -105,14 +105,14 @@ const StakeholderAcknowledgement = ({ data, onSuccess }) => {
               </div>
           )}
           {!isOpenLinkFlow && (
-            <Link to={`/upyog-ui/citizen`}>
+            <Link to={`/suda-ui/citizen`}>
               <LinkButton label={t("CORE_COMMON_GO_TO_HOME")} />
             </Link>
           )}
           {mutation.isSuccess && isOpenLinkFlow && (
             <Link
               to={{
-                pathname: `/upyog-ui/citizen`,
+                pathname: `/suda-ui/citizen`,
               }}
             >
               <SubmitBar label={t("BPA_COMMON_PROCEED_NEXT")} />

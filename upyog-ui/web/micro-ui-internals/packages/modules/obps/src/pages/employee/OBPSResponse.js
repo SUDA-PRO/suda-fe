@@ -59,7 +59,7 @@ const OBPSResponse = (props) => {
   };
 
   const onSubmit = () => {
-    history.push(`/upyog-ui/employee`);
+    history.push(`/suda-ui/employee`);
   }
 
   const getApplicationNoLabel = () => {
@@ -67,11 +67,11 @@ const OBPSResponse = (props) => {
   }
 
   const getPaymentURL = (isCitizen) => {
-    if (isCitizen == true) return `/upyog-ui/citizen/payment/collect/${getBusinessServices(applicationData?.businessService, applicationData?.status)}/${applicationData?.applicationNo}/${applicationData?.tenantId}?tenantId=${applicationData?.tenantId}`;
+    if (isCitizen == true) return `/suda-ui/citizen/payment/collect/${getBusinessServices(applicationData?.businessService, applicationData?.status)}/${applicationData?.applicationNo}/${applicationData?.tenantId}?tenantId=${applicationData?.tenantId}`;
   }
 
   const getPaymentURLEmployee = () => {
-    history.push(`/upyog-ui/employee/payment/collect/${getBusinessServices(applicationData?.businessService, applicationData?.status)}/${applicationData?.applicationNo}/${applicationData?.tenantId}?tenantId=${applicationData?.tenantId}`);
+    history.push(`/suda-ui/employee/payment/collect/${getBusinessServices(applicationData?.businessService, applicationData?.status)}/${applicationData?.applicationNo}/${applicationData?.tenantId}?tenantId=${applicationData?.tenantId}`);
   }
 
   let isWorkflowLoading = true, isPayButtonEnable = false;
@@ -111,11 +111,11 @@ const OBPSResponse = (props) => {
                     <Link to={{ pathname: getPaymentURL(true) }}>
                       <SubmitBar label={t("WF_BPA_PAY")} style={{ margin: "10px 0px 0px 0px" }} />
                     </Link>
-                    <Link to={`/upyog-ui/citizen`} >
+                    <Link to={`/suda-ui/citizen`} >
                       <LinkButton label={t("CORE_COMMON_GO_TO_HOME")} />
                     </Link>
                   </div> :
-                  <Link to={{ pathname: `/upyog-ui/citizen` }}>
+                  <Link to={{ pathname: `/suda-ui/citizen` }}>
                     <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} style={{ margin: "10px 10px 0px 0px" }} />
                   </Link>}
               </div>
@@ -129,7 +129,7 @@ const OBPSResponse = (props) => {
                         onSubmit={getPaymentURLEmployee}
                         style={{ margin: "10px 0px 0px 0px" }}
                       />
-                      <Link to={`/upyog-ui/employee`} >
+                      <Link to={`/suda-ui/employee`} >
                         {/* <LinkButton label={t("CORE_COMMON_GO_TO_HOME")} /> */}
                         <span style={{ color: "#a82227", margin: "0px 10px" }}>{t("CORE_COMMON_GO_TO_HOME")}</span>
                       </Link>
