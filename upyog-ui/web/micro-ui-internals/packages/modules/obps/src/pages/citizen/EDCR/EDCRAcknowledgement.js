@@ -25,7 +25,7 @@ const EDCRAcknowledgement = (props) => {
           style={{ width: "100%", padding: "10px" }}
         />
         <div style={{ padding: "10px", paddingBottom: "10px" }}>
-          <Link to={`/upyog-ui/citizen`} >
+          <Link to={`/suda-ui/citizen`} >
             <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
           </Link>
         </div>
@@ -84,10 +84,10 @@ const printReciept = () => {
 
   const routeToBPAScreen = async () => {
     history.push(
-      `/upyog-ui/citizen/obps/bpa/${edcrData?.appliactionType?.toLowerCase()}/${edcrData?.applicationSubType?.toLowerCase()}/docs-required`,
+      `/suda-ui/citizen/obps/bpa/${edcrData?.appliactionType?.toLowerCase()}/${edcrData?.applicationSubType?.toLowerCase()}/docs-required`,
       { edcrNumber: edcrData?.edcrNumber }
     );
-    // window.location.assign(`${window.location.origin}/upyog-ui/citizen/obps/new-building-permit/docs-required`);
+    // window.location.assign(`${window.location.origin}/suda-ui/citizen/obps/new-building-permit/docs-required`);
   }
 
   return (
@@ -111,12 +111,12 @@ const printReciept = () => {
             {t("EDCR_DOWNLOAD_SCRUTINY_REPORT_LABEL")}
           </div>
           <div style={{padding: "0px 10px"}}>
-            <Link to={{pathname: `/upyog-ui/citizen/obps/${bpaLinks?.linkData?.flow?.toLowerCase()}/${edcrData?.appliactionType?.toLowerCase()}/${edcrData?.applicationSubType?.toLowerCase()}/docs-required`, state: bpaLinks}} replace>
+            <Link to={{pathname: `/suda-ui/citizen/obps/${bpaLinks?.linkData?.flow?.toLowerCase()}/${edcrData?.appliactionType?.toLowerCase()}/${edcrData?.applicationSubType?.toLowerCase()}/docs-required`, state: bpaLinks}} replace>
               <SubmitBar label={t("BPA_APPLY_FOR_BPA_LABEL")} onSubmit={() => (sessionStorage.setItem("clickOnBPAApplyAfterEDCR",true))}/>
               <CardText className="button-sub-text"  style={{fontSize: "14px", lineHeight: "16px", textAlign: "center", margin: "0px", marginTop: "4px", fontWeight: "400", color: "#0B0C0C"}}>{t("BPA_FOR_NEW_CONSTRUCTION_LABEL")}</CardText>
             </Link>
             <div style={{marginTop: "12px", paddingBottom: "10px"}}>
-              <Link to={`/upyog-ui/citizen`} >
+              <Link to={`/suda-ui/citizen`} >
                 <LinkButton label={t("CORE_COMMON_GO_TO_HOME")} />
               </Link>
             </div>
@@ -141,7 +141,7 @@ const printReciept = () => {
             {t("EDCR_DOWNLOAD_SCRUTINY_REPORT_LABEL")}
           </div>
           <div style={{padding: "10px", paddingBottom: "10px"}}>
-            <Link to={`/upyog-ui/citizen`} >
+            <Link to={`/suda-ui/citizen`} >
               <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
             </Link>
           </div>

@@ -81,7 +81,7 @@ export const ApplicationCard = ({
       <DetailsCard
         data={data}
         serviceRequestIdKey={serviceRequestIdKey}
-        linkPrefix={linkPrefix ? linkPrefix :"/upyog-ui/employee/tl/application-details/"}
+        linkPrefix={linkPrefix ? linkPrefix :"/suda-ui/employee/tl/application-details/"}
       />
     );
   }

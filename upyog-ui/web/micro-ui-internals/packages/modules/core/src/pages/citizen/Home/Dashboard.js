@@ -56,23 +56,23 @@ const servicesRow1 = [
   {
     title: "COMMON_GRIEVANCE_REDRESSAL",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/GrievanceImage.png",
-    url: "/upyog-ui/citizen/login",
+    url: "/suda-ui/citizen/login",
   },
-  { title: "MODULE_TL", img: "https://tfstatee8aog.blob.core.windows.net/filestore/TradeLicence.png", url: "/upyog-ui/comingsoon" },
+  { title: "MODULE_TL", img: "https://tfstatee8aog.blob.core.windows.net/filestore/TradeLicence.png", url: "/suda-ui/comingsoon" },
   {
     title: "COMMON_HOARDING_PERMISSION",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/hoardingPermission.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
   {
     title: "COMMON_ROAD_CUTTING",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/RoadCutting.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
   {
     title: "COMMON_NOC_ISSUANCE",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/NocIssuance.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
 ];
 
@@ -80,28 +80,28 @@ const servicesRow2 = [
   {
     title: "COMMON_WATER_SEWERAGE_CONNECTION",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/WaterSewerage.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
   {
     title: "SERVICEDEFS.ACCOUNTING_FINANCE",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/AccountFinance.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
   {
     title: "SERVICEDEFS.MISCELLANEOUS",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/Miscellaneous.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
 
   {
     title: "SERVICEDEFS.PROPERTYTAX",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/PropertyTax.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
   {
     title: "SERVICEDEFS.DESLUDGING",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/DesludgingServices.png",
-    url: "/upyog-ui/comingsoon",
+    url: "/suda-ui/comingsoon",
   },
 ];
 
@@ -365,7 +365,7 @@ export default function Dashboard() {
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {/* Login Button */}
           <button
-            onClick={() => { window.location.href = "/upyog-ui/login"; }}
+            onClick={() => { window.location.href = "/suda-ui/login"; }}
             style={{
               padding: "8px 20px",
               borderRadius: 6,
@@ -395,7 +395,7 @@ export default function Dashboard() {
             }}
             onClick={() => {
               // setLoginOpen(false);
-              window.location.href = "/upyog-ui/citizen/register/user";
+              window.location.href = "/suda-ui/citizen/register/user";
             }}
           >
             {" "}

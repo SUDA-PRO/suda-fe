@@ -132,7 +132,7 @@
         </Card>
         {showToast && <Toast error={showToast.key === "error" ? true : false} label={error} onClose={closeToast} />}
         <ActionBar>
-          <Link to={`${props.parentRoute.includes("employee") ? "/upyog-ui/employee" : "/upyog-ui/citizen"}`}>
+          <Link to={`${props.parentRoute.includes("employee") ? "/suda-ui/employee" : "/suda-ui/citizen"}`}>
             <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
           </Link>
         </ActionBar>

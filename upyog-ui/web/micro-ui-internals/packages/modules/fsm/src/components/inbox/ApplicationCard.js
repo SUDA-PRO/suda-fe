@@ -102,7 +102,7 @@ export const ApplicationCard = ({
       <DetailsCard
         data={data}
         serviceRequestIdKey={serviceRequestIdKey}
-        linkPrefix={linkPrefix ? linkPrefix : DSO ? "/upyog-ui/employee/fsm/application-details/" : "/upyog-ui/employee/fsm/"}
+        linkPrefix={linkPrefix ? linkPrefix : DSO ? "/suda-ui/employee/fsm/application-details/" : "/suda-ui/employee/fsm/"}
       />
     );
   }

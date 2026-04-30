@@ -25,7 +25,7 @@ const ChangePasswordComponent = ({ config: propsConfig, t }) => {
       return;
     }
     Digit.UserService.setUser(user);
-    const redirectPath = location.state?.from || "/upyog-ui/employee";
+    const redirectPath = location.state?.from || "/suda-ui/employee";
     history.replace(redirectPath);
   }, [user]);
 
@@ -73,7 +73,7 @@ const ChangePasswordComponent = ({ config: propsConfig, t }) => {
   };
 
   const navigateToLogin = () => {
-    history.replace("/upyog-ui/employee/user/login");
+    history.replace("/suda-ui/employee/user/login");
   };
 
   const [username, password, confirmPassword] = propsConfig.inputs;

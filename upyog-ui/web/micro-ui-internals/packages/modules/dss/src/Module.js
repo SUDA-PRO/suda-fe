@@ -18,32 +18,32 @@ const DssBreadCrumb = ({ location }) => {
 
   const crumbs = [
     {
-      path: "/upyog-ui/employee",
+      path: "/suda-ui/employee",
       content: t("ES_COMMON_HOME"),
       show: true,
     },
     {
-      path: checkCurrentScreen() || window.location.href.includes("NURT_DASHBOARD") ? "/upyog-ui/employee/dss/landing/NURT_DASHBOARD" : "/upyog-ui/employee/dss/landing/home",
+      path: checkCurrentScreen() || window.location.href.includes("NURT_DASHBOARD") ? "/suda-ui/employee/dss/landing/NURT_DASHBOARD" : "/suda-ui/employee/dss/landing/home",
       content: t("ES_LANDING_PAGE"),
       show: true,
     },
     {
-      path: fromModule?`/upyog-ui/employee/dss/dashboard/${fromModule}`:`/upyog-ui/employee/dss/dashboard/${Digit.Utils.dss.getCurrentModuleName()}`,
+      path: fromModule?`/suda-ui/employee/dss/dashboard/${fromModule}`:`/suda-ui/employee/dss/dashboard/${Digit.Utils.dss.getCurrentModuleName()}`,
       content: t(`ES_COMMON_DSS_${Digit.Utils.locale.getTransformedLocale(fromModule?fromModule:moduleName)}`),
       show: location.pathname.includes("dashboard") ? true : false,
     },
     {
-      path: "/upyog-ui/employee/dss/drilldown",
+      path: "/suda-ui/employee/dss/drilldown",
       content:location.pathname.includes("drilldown")?t(title): t("ES_COMMON_DSS_DRILL"),
       show: location.pathname.includes("drilldown") ? true : false,
     },
     {
-      path: "/upyog-ui/employee/dss/national-faqs",
+      path: "/suda-ui/employee/dss/national-faqs",
       content: t("ES_COMMON_DSS_FAQS"),
       show: location.pathname.includes("national-faqs") ? true : false,
     } ,
     {
-      path: "/upyog-ui/employee/dss/national-about",
+      path: "/suda-ui/employee/dss/national-about",
       content: t("ES_COMMON_DSS_ABOUT"),
       show: location.pathname.includes("national-about") ? true : false,
     } 

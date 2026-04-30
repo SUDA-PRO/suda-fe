@@ -54,12 +54,12 @@ const SubMenu = ({ item }) => {
         <div className={`sidebar-link  ${pathname === item?.navigationURL ? "active" : ""}`}>
           <div className="actions">
             {leftIcon}
-            {item.navigationURL?.indexOf("/digit-ui")||item.navigationURL?.indexOf("/upyog-ui") === -1? (
+            {item.navigationURL?.indexOf("/digit-ui")||item.navigationURL?.indexOf("/suda-ui") === -1? (
               <a
                 data-tip="React-tooltip"
                 data-for={`jk-side-${getModuleName}`}
                 className="custom-link"
-                href={getOrigin + window.location.href.includes("/upyog-ui") && (item.navigationURL.includes("digit-ui") || item.navigationURL.includes("/workbench-ui"))? item.navigationURL.replace("digit-ui","upyog-ui") : item.navigationURL.includes("upyog-ui") ? item.navigationURL :"/employee/"+item.navigationURL}
+                href={item.navigationURL.includes("digit-ui") || item.navigationURL.includes("/workbench-ui") ? item.navigationURL.replace("digit-ui","suda-ui") : item.navigationURL.includes("upyog-ui") ? item.navigationURL.replace("upyog-ui","suda-ui") : item.navigationURL.includes("suda-ui") ? item.navigationURL : "/suda-ui/employee/" + item.navigationURL.replace(/^\//, "")}
               >
                 <span> {trimModuleName} </span>
 
@@ -124,13 +124,13 @@ const SubMenu = ({ item }) => {
               const appendTranslate = t(`ACTION_TEST_${getChildName}`);
               const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
 
-              if (item.navigationURL.indexOf("/upyog-ui") || item.navigationURL.indexOf("/digit-ui")=== -1) {
+              if (item.navigationURL.indexOf("/suda-ui") || item.navigationURL.indexOf("/digit-ui")=== -1) {
                 const getOrigin = window.location.origin;
                 return (
                   <a
                     key={index}
                     className={`dropdown-link ${pathname === item.link ? "active" : ""}`}
-                    href={getOrigin + window.location.href.includes("/upyog-ui") && item.navigationURL.includes("digit-ui") ? item.navigationURL.replace("digit-ui","upyog-ui") :item.navigationURL.includes("upyog-ui") ? item.navigationURL :"/employee/"+item.navigationURL}
+                    href={item.navigationURL.includes("digit-ui") ? item.navigationURL.replace("digit-ui","suda-ui") : item.navigationURL.includes("upyog-ui") ? item.navigationURL.replace("upyog-ui","suda-ui") : item.navigationURL.includes("suda-ui") ? item.navigationURL : "/suda-ui/employee/" + item.navigationURL.replace(/^\//, "")}
                   >
                     <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
                       <span> {trimModuleName} </span>

@@ -13,7 +13,7 @@
  * @param {string} path - The base route path for the search module.
  * 
  * @usage
- * <SearchApp path="/upyog-ui/employee/ptr/petservice/search" />
+ * <SearchApp path="/suda-ui/employee/ptr/petservice/search" />
  */
 
 import React, { useState } from "react"

@@ -127,7 +127,7 @@ const NewSurveys = () => {
         }
         else
         {
-          history.push("/upyog-ui/employee/engagement/surveys/create-response", details)
+          history.push("/suda-ui/employee/engagement/surveys/create-response", details)
         }
       })
     }
