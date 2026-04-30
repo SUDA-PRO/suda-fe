@@ -341,7 +341,7 @@ const Home = ({
               }}
             >
               <span style={{ fontSize: 12, color: "#c8cfe8" }}>
-                © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
+                © 2026 Copyright &nbsp;|&nbsp; {t("LANDING_PAGE_GOV_CG")} &nbsp;|&nbsp; {t("LANDING_PAGE_ALL_RIGHTS_RESERVED")}
               </span>
               <div style={{ display: "flex", gap: 16, alignItems: "center" }}>
                 <a href="#" style={{ fontSize: 12, color: "#c8cfe8", textDecoration: "none" }}>
