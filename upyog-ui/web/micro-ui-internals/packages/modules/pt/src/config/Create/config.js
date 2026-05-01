@@ -459,20 +459,20 @@ export const newConfig =[
               "type": "component",
               "route": "owner-ship-details@0",
               "isMandatory": true,
-              "component": "SelectOwnerShipDetails",
+              "component": "OwnershipDetailsPage",
               "texts": {
                   "headerCaption": "PT_PROPERTIES_OWNERSHIP",
                   "header": "PT_PROVIDE_OWNERSHIP_DETAILS",
                   "cardText": "PT_PROVIDE_OWNERSHI_DETAILS_SUB_TEXT",
                   "submitBarLabel": "PT_COMMON_NEXT"
               },
-              "key": "ownershipCategory",
+              "key": "ownershipAll",
               "withoutLabel": true,
               "nextStep": {
-                  "INSTITUTIONALPRIVATE": "inistitution-details",
-                  "INSTITUTIONALGOVERNMENT": "inistitution-details",
-                  "INDIVIDUAL.SINGLEOWNER": "owner-details",
-                  "INDIVIDUAL.MULTIPLEOWNERS": "owner-details"
+                  "INSTITUTIONALPRIVATE": "institutional-proof-of-identity",
+                  "INSTITUTIONALGOVERNMENT": "institutional-proof-of-identity",
+                  "INDIVIDUAL.SINGLEOWNER": "special-owner-category",
+                  "INDIVIDUAL.MULTIPLEOWNERS": "special-owner-category"
               }
           },
           {

@@ -214,6 +214,11 @@ const Home = ({
                 color: orange;  
               }
 
+              .moduleLinkHomePage {
+                width: 100%;
+              }
+
+
               .citizen-home-container .back-with-header .moduleLinkHomePageBackButton svg path:first-child {
                 fill: transparent;
               }

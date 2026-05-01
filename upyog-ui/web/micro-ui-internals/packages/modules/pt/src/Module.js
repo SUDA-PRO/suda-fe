@@ -76,6 +76,7 @@ import PTSelectLandmark from "./pageComponents/PTSelectLandmark";
 import PropertyStructureDetails from "./pageComponents/PropertyStructureDetails";
 //import PTCitizenFeedback from "@upyog/digit-ui-module-core/src/components/PTCitizenFeedback";
 
+import OwnershipDetailsPage from "./pageComponents/OwnershipDetailsPage";
 import EmployeeApp from "./pages/employee";
 import PTCard from "./components/PTCard";
 import InboxFilter from "./components/inbox/NewInboxFilter";
@@ -139,6 +140,7 @@ const componentsToRegister = {
   SelectAltContactNumber,
   SelectDocuments,
   PTEmployeeOwnershipDetails,
+  OwnershipDetailsPage,
   SearchPropertyCitizen,
   SearchResultCitizen,
   TransfererDetails,
