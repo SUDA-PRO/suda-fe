@@ -5,7 +5,7 @@ export const newConfig =[
           {
               "route": "map",
               "component": "PTSelectGeolocation",
-              "nextStep": "pincode",
+              "nextStep": "address-details",
               "hideInEmployee": true,
               "key": "address",
               "texts": {
@@ -14,6 +14,22 @@ export const newConfig =[
                   "nextText": "PT_COMMON_NEXT",
                   "skipAndContinueText": "CORE_COMMON_SKIP_CONTINUE"
               }
+          },
+          {
+              "type": "component",
+              "route": "address-details",
+              "isMandatory": true,
+              "component": "PTAllAddressDetails",
+              "withoutLabel": true,
+              "key": "address",
+              "texts": {
+                  "headerCaption": "PT_PROPERTY_LOCATION_CAPTION",
+                  "header": "CS_FILE_APPLICATION_PROPERTY_LOCATION_ADDRESS_TEXT",
+                  "cardText": "",
+                  "submitBarLabel": "PT_COMMON_NEXT"
+              },
+              "nextStep": "owner-ship-details@0",
+              "hideInEmployee": true
           },
           {
               "route": "pincode",
@@ -100,9 +116,29 @@ export const newConfig =[
           {
               "route": "info",
               "component": "PropertyTax",
-              "nextStep": "property-type",
+              "nextStep": "property-details",
               "hideInEmployee": true,
               "key": "Documents"
+          },
+          {
+              "type": "component",
+              "route": "property-details",
+              "isMandatory": true,
+              "component": "PTAllPropertyDetails",
+              "texts": {
+                  "headerCaption": "",
+                  "header": "PT_PROPERTY_DETAILS_HEADER",
+                  "cardText": "",
+                  "submitBarLabel": "PT_COMMON_NEXT"
+              },
+              "key": "allPropertyDetails",
+              "withoutLabel": true,
+              "hideInEmployee": true,
+              "nextStep": {
+                  "COMMON_PROPTYPE_BUILTUP_INDEPENDENTPROPERTY": "units/0",
+                  "COMMON_PROPTYPE_BUILTUP_SHAREDPROPERTY": "PtUnits",
+                  "COMMON_PROPTYPE_VACANT": "map"
+              }
           },
           {
               "type": "component",
@@ -471,9 +507,26 @@ export const newConfig =[
               "nextStep": {
                   "INSTITUTIONALPRIVATE": "inistitution-details",
                   "INSTITUTIONALGOVERNMENT": "inistitution-details",
-                  "INDIVIDUAL.SINGLEOWNER": "owner-details",
-                  "INDIVIDUAL.MULTIPLEOWNERS": "owner-details"
+                  "INDIVIDUAL.SINGLEOWNER": "owner-all-details",
+                  "INDIVIDUAL.MULTIPLEOWNERS": "owner-all-details"
               }
+          },
+          {
+              "type": "component",
+              "route": "owner-all-details",
+              "isMandatory": true,
+              "component": "PTAllOwnerDetails",
+              "withoutLabel": true,
+              "key": "allOwnerDetails",
+              "texts": {
+                  "headerCaption": "PT_PROPERTIES_OWNERSHIP",
+                  "header": "PT_OWNERSHIP_INFO_SUB_HEADER",
+                  "cardText": "PT_FORM3_HEADER_MESSAGE",
+                  "submitBarLabel": "PT_COMMON_NEXT",
+                  "addMultipleText": "PT_COMMON_ADD_APPLICANT_LABEL"
+              },
+              "nextStep": null,
+              "hideInEmployee": true
           },
           {
               "isMandatory": true,

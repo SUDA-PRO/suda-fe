@@ -21,7 +21,7 @@ const SelectOwnerDetails = ({ t, config, onSelect, userType, formData, ownerInde
     (formData.owners && formData.owners[index] && formData.owners[index].fatherOrHusbandName) || formData?.owners?.fatherOrHusbandName || ""
   );
   const [relationship, setRelationship] = useState(
-    (formData.owners && formData.owners[index] && formData.owners[index].relationship) || formData?.owners?.relationship || {}
+    (formData.owners && formData.owners[index] && formData.owners[index].relationship) || formData?.owners?.relationship || null
   );
   const isUpdateProperty = formData?.isUpdateProperty || false;
   let isEditProperty = formData?.isEditProperty || false;
@@ -243,7 +243,7 @@ const SelectOwnerDetails = ({ t, config, onSelect, userType, formData, ownerInde
       onSelect={goNext}
       onSkip={onSkip}
       t={t}
-      isDisabled={!name || !mobileNumber || !gender || !relationship || !fatherOrHusbandName}
+    isDisabled={!name || !mobileNumber || !gender || !relationship?.code || !fatherOrHusbandName || !!error}
     >
       <div>
         <CardLabel>{`${t("PT_OWNER_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
