@@ -164,17 +164,16 @@ const SelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onBlu
     <React.Fragment>
       {window.location.href.includes("/citizen/pt/property/property-mutation") ? <Timeline currentStep={1} flow="PT_MUTATE" /> : <Timeline currentStep={2} />}
       <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={!ownershipCategory}>
-        <div>
-          <RadioButtons
+        <div className="field">
+          <Dropdown
+            t={t}
             isMandatory={config.isMandatory}
-            options={getDropdwonForProperty(ownerShipdropDown) || []}
-            selectedOption={ownershipCategory}
-            optionsKey="i18nKey"
-            onSelect={selectedValue}
-            value={ownershipCategory}
-            labelKey="PT_OWNERSHIP"
-            isDependent={true}
-            disabled={isUpdateProperty || isEditProperty}
+            option={getDropdwonForProperty(ownerShipdropDown) || []}
+            selected={ownershipCategory}
+            optionKey="i18nKey"
+            select={selectedValue}
+            disable={isUpdateProperty || isEditProperty}
+            placeholder={t("PT_SELECT_PLACEHOLDER")}
           />
         </div>
       </FormStep>

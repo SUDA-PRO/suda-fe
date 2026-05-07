@@ -164,7 +164,7 @@ let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetai
       setParams({ ...params, ...propertyStructureDetails });
 
     } else if (key === "allPropertyDetails") {
-      const { isResdential, usageCategoryMajor, PropertyType, electricity, propertyStructureDetails, uid, landArea, noOofBasements, noOfFloors } = data;
+      const { isResdential, usageCategoryMajor, PropertyType, electricity, propertyStructureDetails, uid, landArea, noOofBasements, noOfFloors, units } = data;
       let newParams = { ...params };
       if (isResdential !== undefined) newParams.isResdential = isResdential;
       if (usageCategoryMajor !== undefined) newParams.usageCategoryMajor = usageCategoryMajor;
@@ -175,6 +175,7 @@ let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetai
       if (landArea !== undefined) newParams.landArea = landArea;
       if (noOofBasements !== undefined && noOofBasements !== null) newParams.noOofBasements = noOofBasements;
       if (noOfFloors !== undefined && noOfFloors !== null) newParams.noOfFloors = noOfFloors;
+      if (units !== undefined) newParams.units = units;
       setParams(newParams);
     } else if (key === "allOwnerDetails") {
       const { ownershipCategory, ownerData, ownerIndex, addNewOwnerIndex } = data;

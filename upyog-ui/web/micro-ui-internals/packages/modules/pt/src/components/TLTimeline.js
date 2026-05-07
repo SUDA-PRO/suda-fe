@@ -13,7 +13,7 @@ const getAction = (flow) => {
       actions = ["PT_OWNERSHIP_INFO_SUB_HEADER", "PT_MUTATION_DETAILS", "CE_DOCUMENT_DETAILS", "PT_COMMON_SUMMARY"];
       break;
     default:
-      actions = ["ES_NEW_APPLICATION_PROPERTY_DETAILS", "PT_OWNERSHIP_INFO_SUB_HEADER", "CE_DOCUMENT_DETAILS", "PT_COMMON_SUMMARY"];
+      actions = ["ES_NEW_APPLICATION_PROPERTY_DETAILS", "PT_OWNERSHIP_INFO_SUB_HEADER", "PT_COMMON_SUMMARY"];
   }
 };
 const Timeline = ({ currentStep = 1, flow = "" }) => {

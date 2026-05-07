@@ -27,19 +27,21 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   /* Build same dropdown as SelectOwnerShipDetails citizen flow */
   const buildOwnershipOptions = (sub, own) => {
-    if (!own || !sub) return [];
+    if (!own) return [];
     const subCategoriesInOwnersType = ["INDIVIDUAL"];
     const OwnerShipCategory = {};
     const SubOwnerShipCategory = {};
     own.forEach((c) => { OwnerShipCategory[c.code] = c; });
-    sub.forEach((c) => { SubOwnerShipCategory[c.code] = c; });
+    if (sub) sub.forEach((c) => { SubOwnerShipCategory[c.code] = c; });
     const result = [];
     Object.keys(OwnerShipCategory).forEach((category) => {
       const code = OwnerShipCategory[category].code;
       if (subCategoriesInOwnersType.includes(code)) {
-        Object.keys(SubOwnerShipCategory)
-          .filter((s) => SubOwnerShipCategory[s].ownerShipCategory === code)
-          .forEach((s) => {
+        const subKeys = Object.keys(SubOwnerShipCategory).filter(
+          (s) => SubOwnerShipCategory[s].ownerShipCategory === code
+        );
+        if (subKeys.length > 0) {
+          subKeys.forEach((s) => {
             const { name, code: subCode } = SubOwnerShipCategory[s];
             result.push({
               label: name,
@@ -48,6 +50,16 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
               i18nKey: `PT_OWNERSHIP_${subCode.split(".")[1] || subCode.split(".")[0]}`,
             });
           });
+        } else {
+          // sub-category data unavailable — add parent directly
+          const { name, code: catCode } = OwnerShipCategory[category];
+          result.push({
+            label: name,
+            value: catCode,
+            code: catCode,
+            i18nKey: `PT_OWNERSHIP_${catCode.split(".")[1] || catCode.split(".")[0]}`,
+          });
+        }
       } else {
         const { name, code: catCode } = OwnerShipCategory[category];
         result.push({
@@ -309,19 +321,20 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           {t("PT_PROVIDE_OWNERSHIP_DETAILS")}
           <span className="check-page-link-button"> *</span>
         </CardLabel>
-        <RadioButtons
-          isMandatory={true}
-          options={ownershipOptions}
-          selectedOption={ownershipCategory}
-          optionsKey="i18nKey"
-          onSelect={(val) => {
-            setOwnershipCategory(val);
-            sessionStorage.setItem("ownershipCategory", val?.value);
-          }}
-          value={ownershipCategory}
-          labelKey="PT_OWNERSHIP"
-          isDependent={true}
-        />
+        <div className="field">
+          <Dropdown
+            t={t}
+            isMandatory={true}
+            option={ownershipOptions}
+            selected={ownershipCategory}
+            optionKey="i18nKey"
+            select={(val) => {
+              setOwnershipCategory(val);
+              sessionStorage.setItem("ownershipCategory", val?.value);
+            }}
+            placeholder={t("PT_SELECT_PLACEHOLDER")}
+          />
+        </div>
 
         {/* ── Owner Name ── */}
         <CardLabel>
