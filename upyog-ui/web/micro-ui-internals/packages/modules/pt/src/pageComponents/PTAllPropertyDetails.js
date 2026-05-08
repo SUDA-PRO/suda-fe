@@ -259,7 +259,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       const allValid = floorUnits.every((unit) => {
         if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea) return false;
         if (unit.usageCategory?.code !== "RESIDENTIAL" && !unit.unitType) return false;
-        if (unit.occupancyType?.code === "RENTED" && (!unit.arv || !unit.rentedMonths)) return false;
+        if (unit.occupancyType?.code === "RENTED" && !unit.builtUpArea) return false;
         return true;
       });
       if (!allValid) return false;
@@ -296,8 +296,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             unit.occupancyType = field.occupancyType?.code;
             unit.constructionDetail = { builtUpArea: field.builtUpArea };
             if (field.occupancyType?.code === "RENTED") {
-              unit.arv = field.arv;
-              unit.rentedMonths = field.rentedMonths?.code;
+              // arv and rentedMonths removed
             }
             if (field.unitType?.code) unit.unitType = field.unitType.code;
             return unit;
@@ -582,39 +581,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 </div>
 
                 {unit.occupancyType?.code === "RENTED" && (
-                  <>
-                    <CardLabel>
-                      {t("PT_FORM2_TOTAL_ANNUAL_RENT")}
-                      <span className="check-page-link-button"> *</span>
-                    </CardLabel>
-                    <div className="field">
-                      <TextInput
-                        t={t}
-                        type="text"
-                        value={unit.arv || ""}
-                        onChange={(e) => updateUnit(idx, "arv", e.target.value)}
-                        style={{ background: "#FAFAFA" }}
-                        isRequired={true}
-                        pattern="[0-9]+"
-                        title={t("CORE_COMMON_REQUIRED_ERRMSG")}
-                      />
-                    </div>
-                    <CardLabel>
-                      {t("PT_FORM2_RENTED_MONTHS")}
-                      <span className="check-page-link-button"> *</span>
-                    </CardLabel>
-                    <div className="field form-pt-dropdown-only">
-                      <Dropdown
-                        t={t}
-                        optionKey="i18nKey"
-                        isMandatory={true}
-                        option={rentedMonthsList}
-                        selected={unit.rentedMonths}
-                        select={(val) => updateUnit(idx, "rentedMonths", val)}
-                        placeholder={t("PT_SELECT_PLACEHOLDER")}
-                      />
-                    </div>
-                  </>
+                  <></>
                 )}
 
                 <CardLabel>
