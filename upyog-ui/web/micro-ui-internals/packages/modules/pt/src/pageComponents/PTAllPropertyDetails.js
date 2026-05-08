@@ -250,7 +250,8 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!isResdential) return false;
     if (isNonResidential && !usageCategoryMajor) return false;
     if (!PropertyType) return false;
-    if (!electricity || electricity.length !== 10) return false;
+    if (!isVacant && (!electricity || electricity.length !== 10)) return false;
+    if (isVacant && electricity && electricity.length !== 10) return false;
     if (!propertyStructureDetails?.structureType) return false;
     if (!propertyStructureDetails?.ageOfProperty) return false;
     if ((isIndependent || isVacant) && !floorarea) return false;
@@ -394,7 +395,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         <LabelFieldPair>
           <CardLabel>
             {t("PT_ELECTRICITY_LABEL")}
-            <span className="check-page-link-button"> *</span>
+            {!isVacant && <span className="check-page-link-button"> *</span>}
           </CardLabel>
           <div className="field">
             <TextInput
