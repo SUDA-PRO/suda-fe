@@ -283,7 +283,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/property-type`} />}
           />
           <Row
-            label={t("PT_ASSESMENT1_ELECTRICITY_NUMBER")}
+            label={t("PT_BP_NUMBER")}
             text={`${t(checkForNA(electricity?.electricity))}`}
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/electricity-number`} />}
           />

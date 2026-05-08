@@ -233,7 +233,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (/^\d{0,10}$/.test(value)) {
       setElectricity(value);
       setElectricityError(
-        value.length > 0 && value.length !== 10 ? t("PT_ELECTRICITY_10_DIGIT_ERR") : ""
+        value.length > 0 && value.length !== 10 ? t("PT_BP_NUMBER_10_DIGIT_ERR") : ""
       );
     }
   };
@@ -258,7 +258,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (isIndependent && (noOofBasements === null || noOfFloors === null)) return false;
     if (isIndependent && floorUnits.length > 0) {
       const allValid = floorUnits.every((unit) => {
-        if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea) return false;
+        if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea) return false;  
         if (unit.usageCategory?.code !== "RESIDENTIAL" && !unit.unitType) return false;
         if (unit.occupancyType?.code === "RENTED" && !unit.builtUpArea) return false;
         return true;
@@ -391,10 +391,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
         </LabelFieldPair>
 
-        {/* Electricity Number */}
+        {/* BP Number */}
         <LabelFieldPair>
           <CardLabel>
-            {t("PT_ELECTRICITY_LABEL")}
+            {t("PT_BP_NUMBER")}
             {!isVacant && <span className="check-page-link-button"> *</span>}
           </CardLabel>
           <div className="field">
@@ -403,7 +403,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               type="text"
               value={electricity}
               onChange={handleElectricityChange}
-              placeholder={t("PT_ASSESMENT1_ELECTRICITY_NUMBER")}
+              placeholder={t("PT_BP_NUMBER")}
               maxLength={10}
             />
             {electricityError && (
