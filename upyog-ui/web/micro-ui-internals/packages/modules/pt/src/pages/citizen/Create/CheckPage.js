@@ -293,7 +293,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/landarea`} />}
           />}
           {PropertyType?.code === "VACANT" && (
-            <Row
+            <Row 
               label={t("PT_ASSESMENT1_PLOT_SIZE")}
               text={`${landarea?.floorarea}`}
               actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
