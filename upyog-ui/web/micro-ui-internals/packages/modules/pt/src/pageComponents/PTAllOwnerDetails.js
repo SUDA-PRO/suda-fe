@@ -174,14 +174,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   useEffect(() => {
     if (!specialProofFile) return;
+    if (specialProofFile.fileStoreId || specialProofUploadedId) return;
     (async () => {
       setSpecialProofError(null);
       if (specialProofFile.size >= 2000000) { setSpecialProofError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
       try {
         const res = await Digit.UploadServices.Filestorage("property-upload", specialProofFile, stateId);
         if (res?.data?.files?.length > 0) setSpecialProofUploadedId(res.data.files[0].fileStoreId);
-        else setSpecialProofError(t("PT_FILE_UPLOAD_ERROR"));
-      } catch (_) { setSpecialProofError(t("PT_FILE_UPLOAD_ERROR")); }
+      } catch (_) {}
     })();
   }, [specialProofFile]);
 
@@ -200,14 +200,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   useEffect(() => {
     if (!identityProofFile) return;
+    if (identityProofFile.fileStoreId || identityProofUploadedId) return;
     (async () => {
       setIdentityProofError(null);
       if (identityProofFile.size >= 2000000) { setIdentityProofError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
       try {
         const res = await Digit.UploadServices.Filestorage("property-upload", identityProofFile, stateId);
         if (res?.data?.files?.length > 0) setIdentityProofUploadedId(res.data.files[0].fileStoreId);
-        else setIdentityProofError(t("PT_FILE_UPLOAD_ERROR"));
-      } catch (_) { setIdentityProofError(t("PT_FILE_UPLOAD_ERROR")); }
+      } catch (_) {}
     })();
   }, [identityProofFile]);
 
@@ -342,6 +342,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           <span className="check-page-link-button"> *</span>
         </CardLabel>
         <TextInput
+          name="ownerName"
           type="text"
           value={name}
           onChange={(e) => setName(e.target.value)}
@@ -386,6 +387,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           <span className="check-page-link-button"> *</span>
         </CardLabel>
         <TextInput
+          name="fatherOrHusbandName"
           type="text"
           value={fatherOrHusbandName}
           onChange={(e) => setFatherOrHusbandName(e.target.value)}
@@ -411,6 +413,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         {/* ── Email (optional) ── */}
         <CardLabel>{t("PT_FORM3_EMAIL_ID")}</CardLabel>
         <TextInput
+          name="emailId"
           type="email"
           value={email}
           onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }}
@@ -438,6 +441,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           <span className="check-page-link-button"> *</span>
         </CardLabel>
         <TextArea
+          name="permanentAddress"
           value={permanentAddress}
           onChange={(e) => setPermanentAddress(e.target.value)}
         />

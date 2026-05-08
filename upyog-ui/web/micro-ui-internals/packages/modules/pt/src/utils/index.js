@@ -591,7 +591,6 @@ export const convertToProperty = (data = {}) => {
         basement2: basement2,
         unit:unitValues,
         electricity:data.electricity.electricity,
-        uid:data.uid.uid,
         ageOfProperty: data.propertyStructureDetails.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
         owners: data.owners,

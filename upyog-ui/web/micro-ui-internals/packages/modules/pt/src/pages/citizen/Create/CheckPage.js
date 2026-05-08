@@ -38,7 +38,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
     isResdential,
     PropertyType,
     electricity,
-    uid,
     noOfFloors,
     noOofBasements,
     additionalDetails,
@@ -288,11 +287,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             text={`${t(checkForNA(electricity?.electricity))}`}
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/electricity-number`} />}
           />
-          <Row
-            label={t("PT_ASSESMENT1_ELECTRICITY_UID")}
-            text={`${t(checkForNA(uid?.uid))}`}
-            actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/electricity-uid`} />}
-          />
           {PropertyType?.code !== "VACANT" &&<Row
             label={t("PT_ASSESMENT1_PLOT_SIZE")}
             text={`${landArea?.floorarea}`}
@@ -310,7 +304,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
               .sort((x, y) => x.floorNo - y.floorNo)
               .map((unit, unitIndex) => {
                 return (
-                  <div>
+                  <div key={unitIndex}>
                     {units.length > 1 && <CardSubHeader>{t(`PT_UNIT`)}-{unitIndex}</CardSubHeader>}
                     <Row
                       label={t("PT_BUILT_UP_AREA")}

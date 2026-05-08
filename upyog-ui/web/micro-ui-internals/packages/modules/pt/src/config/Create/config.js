@@ -121,6 +121,7 @@ export const newConfig = [
                 "withoutLabel": true,
                 "hideInEmployee": true,
                 "nextStep": {
+                    "COMMON_PROPTYPE_BUILTUP": "address-details",
                     "COMMON_PROPTYPE_BUILTUP_INDEPENDENTPROPERTY": "address-details",
                     "COMMON_PROPTYPE_BUILTUP_SHAREDPROPERTY": "PtUnits",
                     "COMMON_PROPTYPE_VACANT": "address-details"

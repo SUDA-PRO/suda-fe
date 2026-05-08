@@ -94,12 +94,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     formData?.propertyStructureDetails || { structureType: null, ageOfProperty: null }
   );
 
-  /* ── UID ── */
-  const [uid, setUid] = useState(
-    formData?.uid?.uid || formData?.additionalDetails?.uid || ""
-  );
-  const [uidError, setUidError] = useState("");
-
   /* ── Land Area (Independent & Vacant) ── */
   const [floorarea, setFloorarea] = useState(formData?.landArea?.floorarea || "");
 
@@ -244,16 +238,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   };
 
-  const handleUIDChange = (e) => {
-    const value = e.target.value;
-    if (/^[a-zA-Z0-9-]{0,15}$/.test(value)) {
-      setUid(value);
-      setUidError(
-        value.length > 0 && value.length !== 15 ? t("ERR_DEFAULT_INPUT_FIELD_MSG") : ""
-      );
-    }
-  };
-
   const handleAreaChange = (e) => {
     const regex = /^(|[1-9][0-9]{0,8}|)$/;
     if (regex.test(e.target.value) || e.target.value === "") {
@@ -269,7 +253,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!electricity || electricity.length !== 10) return false;
     if (!propertyStructureDetails?.structureType) return false;
     if (!propertyStructureDetails?.ageOfProperty) return false;
-    if (!uid || uid.length !== 15) return false;
     if ((isIndependent || isVacant) && !floorarea) return false;
     if (isIndependent && (noOofBasements === null || noOfFloors === null)) return false;
     if (isIndependent && floorUnits.length > 0) {
@@ -327,7 +310,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       PropertyType,
       electricity: { electricity },
       propertyStructureDetails,
-      uid: { uid },
       landArea: isIndependent || isVacant ? { floorarea } : undefined,
       noOofBasements: isIndependent ? noOofBasements : undefined,
       noOfFloors: isIndependent ? noOfFloors : undefined,
@@ -471,29 +453,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               }
               placeholder={t("PT_SELECT_AGE_OF_PROPERTY")}
             />
-          </div>
-        </LabelFieldPair>
-
-        {/* UID */}
-        <LabelFieldPair>
-          <CardLabel>
-            {t("PT_ELECTRICITY_UID")}
-            <span className="check-page-link-button"> *</span>
-          </CardLabel>
-          <div className="field">
-            <TextInput
-              t={t}
-              type="text"
-              value={uid}
-              onChange={handleUIDChange}
-              placeholder={t("PT_ASSESMENT1_ELECTRICITY_UID_NUMBER")}
-              maxLength={15}
-            />
-            {uidError && (
-              <CardLabelError style={{ fontSize: "12px", marginTop: "4px" }}>
-                {t(uidError)}
-              </CardLabelError>
-            )}
           </div>
         </LabelFieldPair>
 
