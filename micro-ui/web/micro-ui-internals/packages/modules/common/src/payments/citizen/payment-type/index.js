@@ -94,7 +94,7 @@ export const SelectPaymentType = (props) => {
     try {
       const data = await Digit.PaymentService.createCitizenReciept(billDetails?.tenantId, filterData);
       const redirectUrl = data?.Transaction?.redirectUrl;
-      if (d?.paymentType == "AXIS") {
+      if (d?.paymentType == "AXIS" || d?.paymentType == "MOCK") {
         window.location = redirectUrl;
       }
       else if (d?.paymentType == "NTTDATA") {
