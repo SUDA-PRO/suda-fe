@@ -68,7 +68,8 @@ export const SelectPaymentType = (props) => {
         billId: billDetails.id,
         consumerCode: consumerCode,
         productInfo: "Common Payment",
-        gateway: d?.paymentType || "AXIS",
+        // gateway: d?.paymentType || "AXIS",
+        gateway: d?.paymentType?.gateway || d?.paymentType || "AXIS",
         taxAndPayments: [
           {
             billId: billDetails.id,
@@ -94,10 +95,13 @@ export const SelectPaymentType = (props) => {
     try {
       const data = await Digit.PaymentService.createCitizenReciept(billDetails?.tenantId, filterData);
       const redirectUrl = data?.Transaction?.redirectUrl;
-      if (d?.paymentType == "AXIS" || d?.paymentType == "MOCK") {
+      // if (d?.paymentType == "AXIS" || d?.paymentType == "MOCK") {
+      const selectedGateway = d?.paymentType?.gateway || d?.paymentType;
+      if (selectedGateway == "AXIS" || selectedGateway == "MOCK") {
         window.location = redirectUrl;
       }
-      else if (d?.paymentType == "NTTDATA") {
+      // else if (d?.paymentType == "NTTDATA") {
+      else if (d?.paymentType == "NTTDATA" || selectedGateway == "NTTDATA") {
         let redirect= redirectUrl.split("returnURL=")
         let url=redirect[0].split("?")[1].split("&")
         const options = {
