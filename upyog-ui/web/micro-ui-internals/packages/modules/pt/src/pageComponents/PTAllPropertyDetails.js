@@ -1,15 +1,19 @@
-import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, useRef, Fragment } from "react";
 import {
   CardLabel,
-  LabelFieldPair,
+  CardLabelDesc,
   TextInput,
+  TextArea,
   Dropdown,
   CardLabelError,
   Loader,
+  RadioOrSelect,
+  UploadFile,
 } from "@upyog/digit-ui-react-components";
 import FormStep from "../../../../react-components/src/molecules/FormStep";
 import Timeline from "../components/TLTimeline";
 import { stringReplaceAll } from "../utils";
+import UploadFileDigiLocker from "../utils/UploadFile";
 
 const getUsageCategoryParsed = (code = "") => {
   const arr = code.split(".");
@@ -265,6 +269,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       });
       if (!allValid) return false;
     }
+    if (!selectedCity || !selectedLocality || !street || !doorNo || !proofDocType || !uploadedFileObj) return false;
     return true;
   };
 
@@ -314,15 +319,229 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       noOofBasements: isIndependent ? noOofBasements : undefined,
       noOfFloors: isIndependent ? noOfFloors : undefined,
       units: unitsData,
+      address: {
+        pincode,
+        city: selectedCity,
+        locality: selectedLocality,
+        street,
+        doorNo,
+        landmark,
+        documents: {
+          ...(formData?.address?.documents || {}),
+          ProofOfAddress: { documentType: proofDocType, fileStoreId: uploadedFile },
+        },
+      },
     });
   };
 
   const onSkip = () => onSelect();
 
+  /* ── Address state ── */
+  const allCities = Digit.Hooks.pt.useTenants();
+  const mountedRef = useRef(true);
+  useEffect(() => { return () => { mountedRef.current = false; }; }, []);
+  const [pincode, setPincode] = useState(formData?.address?.pincode || "");
+  const [cities, setCities] = useState(allCities || []);
+  const [selectedCity, setSelectedCity] = useState(formData?.address?.city || null);
+  const { data: fetchedLocalities } = Digit.Hooks.useBoundaryLocalities(
+    selectedCity?.code,
+    "revenue",
+    { enabled: !!selectedCity },
+    t
+  );
+  const [localities, setLocalities] = useState([]);
+  const [selectedLocality, setSelectedLocality] = useState(formData?.address?.locality || null);
+  const [street, setStreet] = useState(formData?.address?.street || "");
+  const [doorNo, setDoorNo] = useState(formData?.address?.doorNo || "");
+  const [landmark, setLandmark] = useState(formData?.address?.landmark || "");
+  const { data: Documentsob = {} } = Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "Documents");
+  const docs = Documentsob?.PropertyTax?.Documents;
+  const proofOfAddress = Array.isArray(docs) ? docs.filter((doc) => doc.code.includes("ADDRESSPROOF")) : [];
+  let dropdownData = [];
+  if (proofOfAddress.length > 0) {
+    dropdownData = proofOfAddress[0]?.dropdownData?.filter((doc) => doc?.active === true) || [];
+    dropdownData.forEach((d) => { d.i18nKey = stringReplaceAll(d.code, ".", "_"); });
+  }
+  const [digiLockerUpload, setDigiLockerUpload] = useState(false);
+  const [proofDocType, setProofDocType] = useState(formData?.address?.documents?.ProofOfAddress?.documentType || null);
+  const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
+  const [uploadedFileObj, setUploadedFileObj] = useState(formData?.address?.documents?.ProofOfAddress || null);
+  const [uploadError, setUploadError] = useState(null);
+
+  useEffect(() => {
+    if (!allCities?.length) return;
+    if (pincode) {
+      const filtered = allCities.filter((c) => c?.pincode?.some((p) => p == pincode));
+      const list = filtered.length > 0 ? filtered : allCities;
+      setCities(list);
+      if (list.length === 1) setSelectedCity(list[0]);
+    } else {
+      setCities(allCities);
+    }
+  }, [pincode, allCities]);
+
+  useEffect(() => {
+    if (!selectedCity) { setLocalities([]); setSelectedLocality(null); return; }
+    if (selectedCity && fetchedLocalities) {
+      let list = fetchedLocalities;
+      if (formData?.address?.locality) setSelectedLocality(formData.address.locality);
+      if (pincode) {
+        const filtered = list.filter((obj) => obj.pincode?.find((p) => p == pincode));
+        if (filtered.length > 0) { list = filtered; if (!formData?.address?.locality) setSelectedLocality(null); }
+      }
+      setLocalities(list);
+      if (list.length === 1) setSelectedLocality(list[0]);
+    }
+  }, [selectedCity, pincode, fetchedLocalities]);
+
+  useEffect(() => {
+    if (!uploadedFileObj || uploadedFileObj.fileStoreId || uploadedFile) return;
+    (async () => {
+      setUploadError(null);
+      if (uploadedFileObj.size >= 2000000) { setUploadError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
+      try {
+        const response = await Digit.UploadServices.Filestorage("property-upload", uploadedFileObj, Digit.ULBService.getStateId());
+        if (!mountedRef.current) return;
+        if (response?.data?.files?.length > 0) setUploadedFile(response.data.files[0].fileStoreId);
+      } catch (e) {}
+    })();
+  }, [uploadedFileObj]);
+
+  function selectCity(city) { setSelectedLocality(null); setLocalities([]); setSelectedCity(city); }
+  function selectLocality(locality) { setSelectedLocality(locality); }
+  function setTypeOfProofDoc(val) {
+    val?.digiLockerFetch === true ? setDigiLockerUpload(true) : setDigiLockerUpload(false);
+    setUploadedFile(null); setProofDocType(val);
+  }
+  function selectFile(e, newFile) {
+    if (newFile) { setUploadedFileObj(newFile); } else { setUploadedFileObj(e.target.files[0]); }
+  }
+
+  const formRef = useRef(null);
+
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, []);
+
   if (propTypeLoading || usageCatLoading) return <Loader />;
 
   return (
     <React.Fragment>
+      <style>{`
+        .pt-property-details-form .select,
+        .pt-property-details-form .select-active {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+        }
+        .pt-property-details-form .select:hover,
+        .pt-property-details-form .select-active:hover {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+        }
+        .pt-property-details-form .select-wrap,
+        .pt-property-details-form .employee-select-wrap {
+          max-width: none !important;
+          position: relative !important;
+          overflow: visible !important;
+        }
+        .pt-property-details-form .select-wrap .options-card,
+        .pt-property-details-form .employee-select-wrap .options-card {
+          position: absolute !important;
+          top: auto !important;
+          bottom: 100% !important;
+          margin-top: 0 !important;
+          margin-bottom: 4px !important;
+          max-height: 220px !important;
+          overflow-y: auto !important;
+          overscroll-behavior: contain !important;
+          z-index: 9999 !important;
+          width: 100% !important;
+          background: #fff !important;
+          border: 1px solid #b1b4b6 !important;
+          box-shadow: 0 -4px 12px rgba(0,0,0,0.15) !important;
+        }
+        .pt-property-details-form .text-input-width {
+          max-width: none !important;
+        }
+        .pt-property-details-form .citizen-card-input,
+        .pt-property-details-form .employee-card-input,
+        .pt-property-details-form .card-input,
+        .pt-property-details-form .card-input-error,
+        .pt-property-details-form .employee-card-input-error {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+          height: 40px !important;
+          line-height: 40px !important;
+        }
+        .pt-property-details-form .upload-file,
+        .pt-property-details-form .upload-file-max-width {
+          position: relative !important;
+          display: flex !important;
+          align-items: center !important;
+          width: 100% !important;
+          max-width: none !important;
+          min-height: 40px !important;
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+          background: #fff !important;
+          padding: 0 8px !important;
+          box-sizing: border-box !important;
+          overflow: hidden !important;
+        }
+        .pt-property-details-form .upload-file > div {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          width: 100% !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .pt-property-details-form .input-mirror-selector-button {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          opacity: 0 !important;
+          cursor: pointer !important;
+          z-index: 2 !important;
+          min-height: unset !important;
+          max-height: unset !important;
+          background: transparent !important;
+          border: none !important;
+        }
+        .pt-property-details-form .file-upload-status {
+          font-size: 14px !important;
+          color: #505a5f !important;
+          font-weight: normal !important;
+          margin: 0 !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+        }
+        .pt-property-details-form .selector-button-border {
+          position: relative !important;
+          z-index: 1 !important;
+          pointer-events: none !important;
+          height: 32px !important;
+          min-height: 32px !important;
+          width: 30% !important;
+          flex-shrink: 0 !important;
+          padding: 0 8px !important;
+          font-size: 14px !important;
+          white-space: nowrap !important;
+          border-radius: 6px !important;
+        }
+        .pt-property-details-form .file-upload-status {
+          flex: 1 !important;
+          min-width: 0 !important;
+        }
+        .pt-property-details-form .upload-file .tag-container {
+          width: 65% !important;
+        }
+      `}</style>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={1} /> : null}
       <FormStep
         config={config}
@@ -332,30 +551,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         isDisabled={!isFormValid()}
         showErrorBelowChildren={true}
       >
-        {/* Is Residential */}
-        <LabelFieldPair>
-          <CardLabel>
-            {t("PT_PROPERTY_DETAILS_RESIDENTIAL_PROPERTY_HEADER")}
-            <span className="check-page-link-button"> *</span>
-          </CardLabel>
-          <div className="field">
-            <Dropdown
-              t={t}
-              optionKey="i18nKey"
-              isMandatory={true}
-              option={isResOptions}
-              selected={isResdential}
-              select={setIsResdential}
-              placeholder={t("PT_SELECT_PLACEHOLDER")}
-            />
-          </div>
-        </LabelFieldPair>
-
-        {/* Usage Category Major – shown only for Non-residential */}
-        {isNonResidential && (
-          <LabelFieldPair>
+        <div className="pt-property-details-form" ref={formRef}>
+        {/* Row 1: Is Residential | Type of Property */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+          <div>
             <CardLabel>
-              {t("PT_ASSESMENT_INFO_USAGE_TYPE")}
+              {t("PT_PROPERTY_DETAILS_RESIDENTIAL_PROPERTY_HEADER")}
               <span className="check-page-link-button"> *</span>
             </CardLabel>
             <div className="field">
@@ -363,138 +564,165 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 t={t}
                 optionKey="i18nKey"
                 isMandatory={true}
-                option={usageCategoryOptions}
-                selected={usageCategoryMajor}
-                select={setUsageCategoryMajor}
+                option={isResOptions}
+                selected={isResdential}
+                select={setIsResdential}
                 placeholder={t("PT_SELECT_PLACEHOLDER")}
               />
             </div>
-          </LabelFieldPair>
-        )}
-
-        {/* Property Type */}
-        <LabelFieldPair>
-          <CardLabel>
-            {t("PT_ASSESMENT1_PROPERTY_TYPE")}
-            <span className="check-page-link-button"> *</span>
-          </CardLabel>
-          <div className="field">
-            <Dropdown
-              t={t}
-              optionKey="i18nKey"
-              isMandatory={true}
-              option={getPropertyTypeMenu()}
-              selected={PropertyType}
-              select={setPropertyType}
-              placeholder={t("PT_SELECT_PLACEHOLDER")}
-            />
           </div>
-        </LabelFieldPair>
-
-        {/* BP Number */}
-        <LabelFieldPair>
-          <CardLabel>
-            {t("PT_BP_NUMBER")}
-            {!isVacant && <span className="check-page-link-button"> *</span>}
-          </CardLabel>
-          <div className="field">
-            <TextInput
-              t={t}
-              type="text"
-              value={electricity}
-              onChange={handleElectricityChange}
-              placeholder={t("PT_BP_NUMBER")}
-              maxLength={10}
-            />
-            {electricityError && (
-              <CardLabelError style={{ fontSize: "12px", marginTop: "4px" }}>
-                {electricityError}
-              </CardLabelError>
-            )}
-          </div>
-        </LabelFieldPair>
-
-        {/* Structure Type */}
-        <LabelFieldPair>
-          <CardLabel>
-            {t("PT_STRUCTURE_TYPE")}
-            <span className="check-page-link-button"> *</span>
-          </CardLabel>
-          <div className="field">
-            <Dropdown
-              t={t}
-              optionKey="i18nKey"
-              isMandatory={true}
-              option={structureTypeOptions}
-              selected={propertyStructureDetails?.structureType}
-              select={(val) =>
-                setPropertyStructureDetails({ ...propertyStructureDetails, structureType: val })
-              }
-              placeholder={t("PT_SELECT_STRUCTURE_TYPE")}
-            />
-          </div>
-        </LabelFieldPair>
-
-        {/* Age of Property */}
-        <LabelFieldPair>
-          <CardLabel>
-            {t("PT_AGE_OF_PROPERTY")}
-            <span className="check-page-link-button"> *</span>
-          </CardLabel>
-          <div className="field">
-            <Dropdown
-              t={t}
-              optionKey="i18nKey"
-              isMandatory={true}
-              option={ageOfPropertyOptions}
-              selected={propertyStructureDetails?.ageOfProperty}
-              select={(val) =>
-                setPropertyStructureDetails({ ...propertyStructureDetails, ageOfProperty: val })
-              }
-              placeholder={t("PT_SELECT_AGE_OF_PROPERTY")}
-            />
-          </div>
-        </LabelFieldPair>
-
-        {/* Land Area – Independent & Vacant */}
-        {(isIndependent || isVacant) && (
-          <LabelFieldPair>
+          <div>
             <CardLabel>
-              {t("PT_PLOT_SIZE_SQUARE_FEET_LABEL")}
+              {t("PT_ASSESMENT1_PROPERTY_TYPE")}
               <span className="check-page-link-button"> *</span>
             </CardLabel>
-            <div className="field">
-              <TextInput
-                t={t}
-                type="number"
-                value={floorarea}
-                onChange={handleAreaChange}
-                placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")}
-              />
-            </div>
-          </LabelFieldPair>
-        )}
-
-        {/* Number of Basements – Independent only */}
-        {isIndependent && (
-          <LabelFieldPair>
-            <CardLabel>{t("PT_PROPERTY_DETAILS_NO_OF_BASEMENTS_HEADER")}</CardLabel>
             <div className="field">
               <Dropdown
                 t={t}
                 optionKey="i18nKey"
-                option={basementOptions}
-                selected={noOofBasements}
-                select={setNoOofBasements}
-                placeholder={t("PT_SELECT_NO_OF_BASEMENTS")}
+                isMandatory={true}
+                option={getPropertyTypeMenu()}
+                selected={PropertyType}
+                select={setPropertyType}
+                placeholder={t("PT_SELECT_PLACEHOLDER")}
               />
             </div>
-          </LabelFieldPair>
+          </div>
+        </div>
+
+        {/* Row 2: BP Number | [Usage Category] | Structure Type | Age of Property */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: isNonResidential ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr",
+            gap: "0 24px",
+          }}
+        >
+          <div>
+            <CardLabel>
+              {t("PT_BP_NUMBER")}
+              {!isVacant && <span className="check-page-link-button"> *</span>}
+            </CardLabel>
+            <div className="field">
+              <TextInput
+                t={t}
+                type="text"
+                value={electricity}
+                onChange={handleElectricityChange}
+                placeholder={t("PT_BP_NUMBER")}
+                maxLength={10}
+              />
+              {electricityError && (
+                <CardLabelError style={{ fontSize: "12px", marginTop: "4px" }}>
+                  {electricityError}
+                </CardLabelError>
+              )}
+            </div>
+          </div>
+          {isNonResidential && (
+            <div>
+              <CardLabel>
+                {t("PT_ASSESMENT_INFO_USAGE_TYPE")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <Dropdown
+                  t={t}
+                  optionKey="i18nKey"
+                  isMandatory={true}
+                  option={usageCategoryOptions}
+                  selected={usageCategoryMajor}
+                  select={setUsageCategoryMajor}
+                  placeholder={t("PT_SELECT_PLACEHOLDER")}
+                />
+              </div>
+            </div>
+          )}
+          <div>
+            <CardLabel>
+              {t("PT_STRUCTURE_TYPE")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <div className="field">
+              <Dropdown
+                t={t}
+                optionKey="i18nKey"
+                isMandatory={true}
+                option={structureTypeOptions}
+                selected={propertyStructureDetails?.structureType}
+                select={(val) =>
+                  setPropertyStructureDetails({ ...propertyStructureDetails, structureType: val })
+                }
+                placeholder={t("PT_SELECT_STRUCTURE_TYPE")}
+              />
+            </div>
+          </div>
+          <div>
+            <CardLabel>
+              {t("PT_AGE_OF_PROPERTY")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <div className="field">
+              <Dropdown
+                t={t}
+                optionKey="i18nKey"
+                isMandatory={true}
+                option={ageOfPropertyOptions}
+                selected={propertyStructureDetails?.ageOfProperty}
+                select={(val) =>
+                  setPropertyStructureDetails({ ...propertyStructureDetails, ageOfProperty: val })
+                }
+                placeholder={t("PT_SELECT_AGE_OF_PROPERTY")}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Row 3: Plot Size | No. of Basements (conditional) */}
+        {(isIndependent || isVacant) && (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: isIndependent ? "1fr 1fr" : "1fr 1fr",
+              gap: "0 24px",
+            }}
+          >
+            <div>
+              <CardLabel>
+                {t("PT_PLOT_SIZE_SQUARE_FEET_LABEL")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <TextInput
+                  t={t}
+                  type="number"
+                  value={floorarea}
+                  onChange={handleAreaChange}
+                  placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")}
+                />
+              </div>
+            </div>
+            {isIndependent && (
+              <div>
+                <CardLabel>{t("PT_PROPERTY_DETAILS_NO_OF_BASEMENTS_HEADER")}</CardLabel>
+                <div className="field">
+                  <Dropdown
+                    t={t}
+                    optionKey="i18nKey"
+                    option={basementOptions}
+                    selected={noOofBasements}
+                    select={setNoOofBasements}
+                    placeholder={t("PT_SELECT_NO_OF_BASEMENTS")}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         )}
 
-        {/* Number of Floors – Independent only */}
+        {/* Row 4: No. of Floors (full-width, Independent only) */}
         {isIndependent && (
-          <LabelFieldPair>
+          <div>
             <CardLabel>{t("BPA_SCRUTINY_DETAILS_NUMBER_OF_FLOORS_LABEL")}</CardLabel>
             <div className="field">
               <Dropdown
@@ -506,10 +734,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 placeholder={t("PT_SELECT_NO_OF_FLOORS")}
               />
             </div>
-          </LabelFieldPair>
+          </div>
         )}
 
-        {/* Floor Usage Details – shown at bottom after basement & floor are selected */}
+        {/* Floor Usage Details */}
         {isIndependent && noOofBasements !== null && noOfFloors !== null && floorUnits.length > 0 && (
           <div style={{ marginTop: "24px" }}>
             <CardLabel style={{ fontWeight: "bold", marginBottom: "8px" }}>
@@ -519,101 +747,281 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <div
                 key={`floor-unit-${idx}`}
                 style={{
-                  border: "1px solid #e0e0e0",
-                  borderRadius: "4px",
+                  border: "1px solid #b1b4b6",
+                  borderRadius: "8px",
                   padding: "16px",
                   marginBottom: "16px",
-                  background: "#FAFAFA",
+                  background: "#ffffff",
                 }}
               >
-                <CardLabel style={{ fontWeight: "600", marginBottom: "8px" }}>
-                  {t(`PROPERTYTAX_FLOOR_${unit.floorNo?.code}`)}
-                </CardLabel>
-                <CardLabel>
-                  {t("PT_FORM2_USAGE_TYPE")}
-                  <span className="check-page-link-button"> *</span>
-                </CardLabel>
-                <div className="field">
-                  <Dropdown
-                    t={t}
-                    optionKey="i18nKey"
-                    isMandatory={true}
-                    option={floorMdms?.UsageCategory || []}
-                    selected={unit.usageCategory}
-                    select={(val) => updateUnit(idx, "usageCategory", val)}
-                    placeholder={t("PT_SELECT_PLACEHOLDER")}
-                  />
+                <div style={{ borderBottom: "1px solid #b1b4b6", marginBottom: "16px", paddingBottom: "8px" }}>
+                  <CardLabel style={{ fontWeight: "700", marginBottom: "0", fontSize: "16px" }}>
+                    {t(`PROPERTYTAX_FLOOR_${unit.floorNo?.code}`)}
+                  </CardLabel>
                 </div>
 
-                {unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" && (
-                  <>
+                {/* Usage Type | Sub Usage Type */}
+                <div
+                  style={{
+                    display: "grid",
+                    gridTemplateColumns: unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" ? "1fr 1fr" : "1fr 1fr",
+                    gap: "0 24px",
+                  }}
+                >
+                  <div>
                     <CardLabel>
-                      {t("PT_FORM2_SUB_USAGE_TYPE")}
+                      {t("PT_FORM2_USAGE_TYPE")}
                       <span className="check-page-link-button"> *</span>
                     </CardLabel>
-                    <div className="field form-pt-dropdown-only">
+                    <div className="field">
                       <Dropdown
                         t={t}
                         optionKey="i18nKey"
                         isMandatory={true}
-                        option={floorMdms?.UsageSubCategory?.filter((cat) => cat.usageCategoryMinor === unit.usageCategory?.code) || []}
-                        selected={unit.unitType}
-                        select={(val) => updateUnit(idx, "unitType", val)}
+                        option={floorMdms?.UsageCategory || []}
+                        selected={unit.usageCategory}
+                        select={(val) => updateUnit(idx, "usageCategory", val)}
                         placeholder={t("PT_SELECT_PLACEHOLDER")}
                       />
                     </div>
-                  </>
-                )}
-
-                <CardLabel>
-                  {t("PT_FORM2_OCCUPANCY")}
-                  <span className="check-page-link-button"> *</span>
-                </CardLabel>
-                <div className="field form-pt-dropdown-only">
-                  <Dropdown
-                    t={t}
-                    optionKey="i18nKey"
-                    isMandatory={true}
-                    option={floorMdms?.OccupancyType || []}
-                    selected={unit.occupancyType}
-                    select={(val) => updateUnit(idx, "occupancyType", val)}
-                    placeholder={t("PT_SELECT_PLACEHOLDER")}
-                  />
+                  </div>
+                  {unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" ? (
+                    <div>
+                      <CardLabel>
+                        {t("PT_FORM2_SUB_USAGE_TYPE")}
+                        <span className="check-page-link-button"> *</span>
+                      </CardLabel>
+                    <div className="field">
+                        <Dropdown
+                          t={t}
+                          optionKey="i18nKey"
+                          isMandatory={true}
+                          option={floorMdms?.UsageSubCategory?.filter((cat) => cat.usageCategoryMinor === unit.usageCategory?.code) || []}
+                          selected={unit.unitType}
+                          select={(val) => updateUnit(idx, "unitType", val)}
+                          placeholder={t("PT_SELECT_PLACEHOLDER")}
+                        />
+                      </div>
+                    </div>
+                  ) : (
+                    <div />
+                  )}
                 </div>
 
-                {unit.occupancyType?.code === "RENTED" && (
-                  <></>
-                )}
-
-                <CardLabel>
-                  {t("PT_BUILT_UP_AREA_HEADER")}
-                  <span className="check-page-link-button"> *</span>
-                </CardLabel>
-                <div className="field">
-                  <TextInput
-                    t={t}
-                    type="text"
-                    value={unit.builtUpArea || ""}
-                    onChange={(e) => {
-                      const regex = /^(0|[1-9][0-9]{0,8}|)$/;
-                      if (regex.test(e.target.value) || e.target.value === " ") {
-                        if (floorarea && parseInt(e.target.value) > parseInt(floorarea)) {
-                          alert(t("PT_BUILTUPAREA_PLOTSIZE_ERROR_MSG"));
-                        } else {
-                          updateUnit(idx, "builtUpArea", e.target.value);
-                        }
-                      }
-                    }}
-                    style={{ background: "#FAFAFA" }}
-                    isRequired={true}
-                    pattern="[0-9]+"
-                    title={t("CORE_COMMON_REQUIRED_ERRMSG")}
-                  />
+                {/* Occupancy | Built-up Area */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+                  <div>
+                    <CardLabel>
+                      {t("PT_FORM2_OCCUPANCY")}
+                      <span className="check-page-link-button"> *</span>
+                    </CardLabel>
+                    <div className="field">
+                      <Dropdown
+                        t={t}
+                        optionKey="i18nKey"
+                        isMandatory={true}
+                        option={floorMdms?.OccupancyType || []}
+                        selected={unit.occupancyType}
+                        select={(val) => updateUnit(idx, "occupancyType", val)}
+                        placeholder={t("PT_SELECT_PLACEHOLDER")}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <CardLabel>
+                      {t("PT_BUILT_UP_AREA_HEADER")}
+                      <span className="check-page-link-button"> *</span>
+                    </CardLabel>
+                    <div className="field">
+                      <TextInput
+                        t={t}
+                        type="text"
+                        value={unit.builtUpArea || ""}
+                        onChange={(e) => {
+                          const regex = /^(0|[1-9][0-9]{0,8}|)$/;
+                          if (regex.test(e.target.value) || e.target.value === " ") {
+                            if (floorarea && parseInt(e.target.value) > parseInt(floorarea)) {
+                              alert(t("PT_BUILTUPAREA_PLOTSIZE_ERROR_MSG"));
+                            } else {
+                              updateUnit(idx, "builtUpArea", e.target.value);
+                            }
+                          }
+                        }}
+                        style={{ background: "#FAFAFA" }}
+                        isRequired={true}
+                        pattern="[0-9]+"
+                        title={t("CORE_COMMON_REQUIRED_ERRMSG")}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
         )}
+
+        {/* ── Address Details Section ── */}
+        <div style={{ marginTop: "32px", borderTop: "1px solid #D6D5D4", paddingTop: "24px", marginBottom: "32px" }}>
+          <CardLabel style={{ fontWeight: "700", fontSize: "18px", marginBottom: "16px" }}>
+            {t("CS_FILE_APPLICATION_PROPERTY_LOCATION_ADDRESS_TEXT")}
+          </CardLabel>
+
+          {/* Pincode | City */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+            <div>
+              <CardLabel>{t("PT_PROPERTY_ADDRESS_PINCODE")}</CardLabel>
+              <div className="field">
+                <TextInput
+                  name="pincode"
+                  type="text"
+                  value={pincode}
+                  onChange={(e) => setPincode(e.target.value)}
+                  maxLength={7}
+                  pattern="[0-9]+"
+                  placeholder={t("PT_PROPERTY_ADDRESS_PINCODE")}
+                />
+              </div>
+            </div>
+            <div>
+              <CardLabel>
+                {t("MYCITY_CODE_LABEL")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <RadioOrSelect
+                  options={cities.sort((a, b) => a.name.localeCompare(b.name))}
+                  selectedOption={selectedCity}
+                  optionKey="i18nKey"
+                  onSelect={selectCity}
+                  t={t}
+                  isPTFlow={true}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Locality */}
+          {selectedCity && localities && localities.length > 0 && (
+            <div>
+              <CardLabel>
+                {t("PT_LOCALITY_LABEL")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <RadioOrSelect
+                  options={localities.sort((a, b) => a.name.localeCompare(b.name))}
+                  selectedOption={selectedLocality}
+                  optionKey="i18nkey"
+                  onSelect={selectLocality}
+                  t={t}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Street Name | House No */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+            <div>
+              <CardLabel>
+                {t("PT_PROPERTY_ADDRESS_STREET_NAME")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <TextInput
+                  name="street"
+                  type="text"
+                  value={street}
+                  onChange={(e) => setStreet(e.target.value)}
+                  maxLength={64}
+                  placeholder={t("PT_PROPERTY_ADDRESS_STREET_NAME")}
+                />
+              </div>
+            </div>
+            <div>
+              <CardLabel>
+                {t("PT_PROPERTY_ADDRESS_HOUSE_NO")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <TextInput
+                  name="doorNo"
+                  type="text"
+                  value={doorNo}
+                  onChange={(e) => setDoorNo(e.target.value)}
+                  maxLength={64}
+                  placeholder={t("PT_PROPERTY_ADDRESS_HOUSE_NO")}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Landmark — full width */}
+          <div>
+            <CardLabel>{t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}</CardLabel>
+            <TextArea
+              name="landmark"
+              value={landmark}
+              onChange={(e) => setLandmark(e.target.value)}
+              maxLength={1024}
+              style={{ border: "1px solid #b1b4b6", borderRadius: "8px", width: "100%" }}
+            />
+          </div>
+
+          {/* Proof of Address */}
+          <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_TYPES")}</CardLabelDesc>
+          <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_SIZE")}</CardLabelDesc>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+            <div style={{ position: "relative" }}>
+              <CardLabel>
+                {t("PT_CATEGORY_DOCUMENT_TYPE")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field" id="pt-doc-type-dropdown">
+                <Dropdown
+                  t={t}
+                  isMandatory={false}
+                  option={dropdownData}
+                  selected={proofDocType}
+                  optionKey="i18nKey"
+                  select={setTypeOfProofDoc}
+                  placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
+                />
+              </div>
+            </div>
+            <div>
+              <CardLabel>
+                {t("PT_PROOF_OF_ADDRESS")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                {digiLockerUpload ? (
+                  <UploadFileDigiLocker
+                    id="pt-address-proof"
+                    extraStyleName="propertyCreate"
+                    accept=".jpg,.png,.pdf"
+                    onUpload={selectFile}
+                    onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }}
+                    message={uploadedFileObj ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
+                    error={uploadError}
+                  />
+                ) : (
+                  <UploadFile
+                    id="pt-address-proof"
+                    extraStyleName="propertyCreate"
+                    accept=".jpg,.png,.pdf"
+                    onUpload={selectFile}
+                    onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }}
+                    message={uploadedFileObj ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
+                    error={uploadError}
+                  />
+                )}
+              </div>
+              {uploadError && <div style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>{uploadError}</div>}
+            </div>
+          </div>
+        </div>
+
+        </div>{/* end pt-property-details-form */}
       </FormStep>
     </React.Fragment>
   );
