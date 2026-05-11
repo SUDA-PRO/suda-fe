@@ -60,6 +60,7 @@ export const SelectPaymentType = (props) => {
   sessionStorage.setItem("payerName", billDetails?.payerName)
 
   const onSubmit = async (d) => {
+    console.log("[PAY] onSubmit d.paymentType:", d?.paymentType, "type:", typeof d?.paymentType);
     const filterData = {
       Transaction: {
         tenantId: billDetails?.tenantId,
@@ -68,7 +69,8 @@ export const SelectPaymentType = (props) => {
         billId: billDetails.id,
         consumerCode: consumerCode,
         productInfo: "Common Payment",
-        gateway: d?.paymentType || "AXIS",
+        // gateway: d?.paymentType || "AXIS",
+        gateway: d?.paymentType?.gateway || d?.paymentType || "AXIS",
         taxAndPayments: [
           {
             billId: billDetails.id,
@@ -93,11 +95,17 @@ export const SelectPaymentType = (props) => {
 
     try {
       const data = await Digit.PaymentService.createCitizenReciept(billDetails?.tenantId, filterData);
+      console.log("[PAY] _create response Transaction:", data?.Transaction);
       const redirectUrl = data?.Transaction?.redirectUrl;
-      if (d?.paymentType == "AXIS") {
+      // if (d?.paymentType == "AXIS" || d?.paymentType == "MOCK") {
+      const selectedGateway = d?.paymentType?.gateway || d?.paymentType;
+      console.log("[PAY] redirectUrl:", redirectUrl);
+      console.log("[PAY] selectedGateway:", selectedGateway);
+      if (selectedGateway == "AXIS" || selectedGateway == "MOCK") {
         window.location = redirectUrl;
       }
-      else if (d?.paymentType == "NTTDATA") {
+      // else if (d?.paymentType == "NTTDATA") {
+      else if (d?.paymentType == "NTTDATA" || selectedGateway == "NTTDATA") {
         let redirect= redirectUrl.split("returnURL=")
         let url=redirect[0].split("?")[1].split("&")
         const options = {

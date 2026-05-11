@@ -746,12 +746,15 @@ export const getOrderedDocs = (docs) => {
 };
 
 export const showHidingLinksForStakeholder = (roles = []) => {
-  let userInfos = sessionStorage.getItem("Digit.citizen.userRequestObject");
-  const userInfo = userInfos ? JSON.parse(userInfos) : {};
+  // let userInfos = sessionStorage.getItem("Digit.citizen.userRequestObject");
+  // const userInfo = userInfos ? JSON.parse(userInfos) : {};
+    const userInfo = Digit.UserService.getUser();
   let checkedRoles = [];
   const rolearray = roles?.map((role) => {
-    userInfo?.value?.info?.roles?.map((item) => {
-      if (item.code === role.code && item.tenantId === role.tenantId) {
+    // userInfo?.value?.info?.roles?.map((item) => {
+    //   if (item.code === role.code && item.tenantId === role.tenantId) {
+        userInfo?.info?.roles?.map((item) => {
+      if (item.code === role.code && item.tenantId.startsWith(role.tenantId)) {
         checkedRoles.push(item);
       }
     });
