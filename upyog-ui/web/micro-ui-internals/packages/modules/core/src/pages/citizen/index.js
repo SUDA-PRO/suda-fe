@@ -129,8 +129,8 @@ const Home = ({
       });
     // }
     return (
-      <React.Fragment>
-        <Route key={index} path={`${path}/${code.toLowerCase()}-home`}>
+      <React.Fragment key={index}>
+        <Route path={`${path}/${code.toLowerCase()}-home`}>
           
           <div style={{ display: "flex", flexDirection: "column", width: "100%" }}>
             <div className="back-with-header">

@@ -16,6 +16,8 @@ import UploadFileDigiLocker from "../utils/UploadFile";
 const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) => {
   const allCities = Digit.Hooks.pt.useTenants();
   const stateId = Digit.ULBService.getStateId();
+  const mountedRef = React.useRef(true);
+  React.useEffect(() => { return () => { mountedRef.current = false; }; }, []);
 
   /* ── Pincode (not mandatory) ── */
   const [pincode, setPincode] = useState(formData?.address?.pincode || "");
@@ -99,6 +101,7 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
   /* file upload */
   useEffect(() => {
     if (!uploadedFileObj) return;
+    if (uploadedFileObj.fileStoreId || uploadedFile) return;
     (async () => {
       setUploadError(null);
       if (uploadedFileObj.size >= 2000000) {
@@ -111,14 +114,11 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
           uploadedFileObj,
           Digit.ULBService.getStateId()
         );
+        if (!mountedRef.current) return;
         if (response?.data?.files?.length > 0) {
           setUploadedFile(response.data.files[0].fileStoreId);
-        } else {
-          setUploadError(t("PT_FILE_UPLOAD_ERROR"));
         }
-      } catch (e) {
-        setUploadError(t("PT_FILE_UPLOAD_ERROR"));
-      }
+      } catch (e) {}
     })();
   }, [uploadedFileObj]);
 
@@ -154,8 +154,7 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
     street &&
     doorNo &&
     proofDocType &&
-    uploadedFileObj &&
-    !uploadError;
+    uploadedFileObj;
 
   /* ── Submit ── */
   const goNext = () => {
@@ -188,6 +187,7 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
         {/* Pincode — not mandatory */}
         <CardLabel>{t("PT_PROPERTY_ADDRESS_PINCODE")}</CardLabel>
         <TextInput
+          name="pincode"
           type="text"
           value={pincode}
           onChange={(e) => setPincode(e.target.value)}
@@ -237,6 +237,7 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
           <span className="check-page-link-button"> *</span>
         </CardLabel>
         <TextInput
+          name="street"
           type="text"
           value={street}
           onChange={(e) => setStreet(e.target.value)}
@@ -249,6 +250,7 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
           <span className="check-page-link-button"> *</span>
         </CardLabel>
         <TextInput
+          name="doorNo"
           type="text"
           value={doorNo}
           onChange={(e) => setDoorNo(e.target.value)}
@@ -258,6 +260,7 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
         {/* Landmark — not mandatory */}
         <CardLabel>{t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}</CardLabel>
         <TextArea
+          name="landmark"
           value={landmark}
           onChange={(e) => setLandmark(e.target.value)}
           maxLength={1024}

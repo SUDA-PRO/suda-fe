@@ -174,14 +174,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   useEffect(() => {
     if (!specialProofFile) return;
+    if (specialProofFile.fileStoreId || specialProofUploadedId) return;
     (async () => {
       setSpecialProofError(null);
       if (specialProofFile.size >= 2000000) { setSpecialProofError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
       try {
         const res = await Digit.UploadServices.Filestorage("property-upload", specialProofFile, stateId);
         if (res?.data?.files?.length > 0) setSpecialProofUploadedId(res.data.files[0].fileStoreId);
-        else setSpecialProofError(t("PT_FILE_UPLOAD_ERROR"));
-      } catch (_) { setSpecialProofError(t("PT_FILE_UPLOAD_ERROR")); }
+      } catch (_) {}
     })();
   }, [specialProofFile]);
 
@@ -200,14 +200,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   useEffect(() => {
     if (!identityProofFile) return;
+    if (identityProofFile.fileStoreId || identityProofUploadedId) return;
     (async () => {
       setIdentityProofError(null);
       if (identityProofFile.size >= 2000000) { setIdentityProofError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
       try {
         const res = await Digit.UploadServices.Filestorage("property-upload", identityProofFile, stateId);
         if (res?.data?.files?.length > 0) setIdentityProofUploadedId(res.data.files[0].fileStoreId);
-        else setIdentityProofError(t("PT_FILE_UPLOAD_ERROR"));
-      } catch (_) { setIdentityProofError(t("PT_FILE_UPLOAD_ERROR")); }
+      } catch (_) {}
     })();
   }, [identityProofFile]);
 
@@ -306,6 +306,125 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   return (
     <React.Fragment>
+      <style>{`
+        .pt-owner-details-form .select,
+        .pt-owner-details-form .select-active {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+        }
+        .pt-owner-details-form .select:hover,
+        .pt-owner-details-form .select-active:hover {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+        }
+        .pt-owner-details-form .select-wrap,
+        .pt-owner-details-form .employee-select-wrap {
+          max-width: none !important;
+          position: relative !important;
+          overflow: visible !important;
+        }
+        .pt-owner-details-form .select-wrap .options-card,
+        .pt-owner-details-form .employee-select-wrap .options-card {
+          position: absolute !important;
+          top: 100% !important;
+          bottom: auto !important;
+          margin-top: 4px !important;
+          margin-bottom: 0 !important;
+          max-height: 220px !important;
+          overflow-y: auto !important;
+          overscroll-behavior: contain !important;
+          z-index: 9999 !important;
+          width: 100% !important;
+          background: #fff !important;
+          border: 1px solid #b1b4b6 !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        #pt-identity-doc-dropdown .options-card,
+        #pt-special-doc-dropdown .options-card {
+          top: auto !important;
+          bottom: 100% !important;
+          margin-top: 0 !important;
+          margin-bottom: 4px !important;
+          box-shadow: 0 -4px 12px rgba(0,0,0,0.15) !important;
+        }
+        .pt-owner-details-form .text-input-width {
+          max-width: none !important;
+        }
+        .pt-owner-details-form .citizen-card-input,
+        .pt-owner-details-form .employee-card-input,
+        .pt-owner-details-form .card-input,
+        .pt-owner-details-form .card-input-error,
+        .pt-owner-details-form .employee-card-input-error {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+          height: 40px !important;
+          line-height: 40px !important;
+        }
+        .pt-owner-details-form .upload-file,
+        .pt-owner-details-form .upload-file-max-width {
+          position: relative !important;
+          display: flex !important;
+          align-items: center !important;
+          width: 100% !important;
+          max-width: none !important;
+          min-height: 40px !important;
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+          background: #fff !important;
+          padding: 0 8px !important;
+          box-sizing: border-box !important;
+          overflow: hidden !important;
+        }
+        .pt-owner-details-form .upload-file > div {
+          display: flex !important;
+          align-items: center !important;
+          gap: 8px !important;
+          width: 100% !important;
+          padding: 0 !important;
+          margin: 0 !important;
+        }
+        .pt-owner-details-form .input-mirror-selector-button {
+          position: absolute !important;
+          top: 0 !important;
+          left: 0 !important;
+          width: 100% !important;
+          height: 100% !important;
+          opacity: 0 !important;
+          cursor: pointer !important;
+          z-index: 2 !important;
+          min-height: unset !important;
+          max-height: unset !important;
+          background: transparent !important;
+          border: none !important;
+        }
+        .pt-owner-details-form .file-upload-status {
+          flex: 1 !important;
+          font-size: 14px !important;
+          color: #505a5f !important;
+          font-weight: normal !important;
+          margin: 0 !important;
+          white-space: nowrap !important;
+          overflow: hidden !important;
+          text-overflow: ellipsis !important;
+          min-width: 0 !important;
+        }
+        .pt-owner-details-form .selector-button-border {
+          position: relative !important;
+          z-index: 1 !important;
+          pointer-events: none !important;
+          height: 32px !important;
+          min-height: 32px !important;
+          width: 30% !important;
+          flex-shrink: 0 !important;
+          padding: 0 8px !important;
+          font-size: 14px !important;
+          white-space: nowrap !important;
+          border-radius: 6px !important;
+        }
+        .pt-owner-details-form .upload-file .tag-container {
+          width: 65% !important;
+        }
+      `}</style>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={2} /> : null}
       <FormStep
         config={config}
@@ -315,200 +434,257 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         onAdd={isMultipleOwners ? onAddOwner : null}
         isMultipleAllow={isMultipleOwners}
       >
+        <div className="pt-owner-details-form">
 
-        {/* ── Ownership Type ── */}
-        <CardLabel>
-          {t("PT_PROVIDE_OWNERSHIP_DETAILS")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <div className="field">
-          <Dropdown
-            t={t}
-            isMandatory={true}
-            option={ownershipOptions}
-            selected={ownershipCategory}
-            optionKey="i18nKey"
-            select={(val) => {
-              setOwnershipCategory(val);
-              sessionStorage.setItem("ownershipCategory", val?.value);
-            }}
-            placeholder={t("PT_SELECT_PLACEHOLDER")}
-          />
-        </div>
-
-        {/* ── Owner Name ── */}
-        <CardLabel>
-          {t("PT_OWNER_NAME")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <TextInput
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          pattern="^[a-zA-Z ]+$"
-          title={t("PT_NAME_ERROR_MESSAGE")}
-        />
-
-        {/* ── Gender ── */}
-        <CardLabel>
-          {t("PT_FORM3_GENDER")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <RadioButtons
-          t={t}
-          options={genderOptions}
-          optionsKey="code"
-          name="gender"
-          selectedOption={gender}
-          onSelect={setGender}
-          isDependent={true}
-          labelKey="PT_COMMON_GENDER"
-        />
-
-        {/* ── Mobile ── */}
-        <CardLabel>
-          {t("PT_FORM3_MOBILE_NUMBER")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <MobileNumber
-          value={mobileNumber}
-          name="mobileNumber"
-          onChange={(val) => setMobileNumber(val)}
-          required
-          pattern="[6-9]{1}[0-9]{9}"
-          type="tel"
-          title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
-        />
-
-        {/* ── Guardian Name ── */}
-        <CardLabel>
-          {t("PT_FORM3_GUARDIAN_NAME")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <TextInput
-          type="text"
-          value={fatherOrHusbandName}
-          onChange={(e) => setFatherOrHusbandName(e.target.value)}
-          pattern="^[a-zA-Z ]+$"
-          title={t("PT_NAME_ERROR_MESSAGE")}
-        />
-
-        {/* ── Relationship ── */}
-        <CardLabel>
-          {t("PT_FORM3_RELATIONSHIP")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <RadioButtons
-          t={t}
-          optionsKey="i18nKey"
-          options={GuardianOptions}
-          selectedOption={relationship}
-          onSelect={setRelationship}
-          isDependent={true}
-          labelKey="PT_RELATION"
-        />
-
-        {/* ── Email (optional) ── */}
-        <CardLabel>{t("PT_FORM3_EMAIL_ID")}</CardLabel>
-        <TextInput
-          type="email"
-          value={email}
-          onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }}
-        />
-        {emailError && <span style={{ color: "red", fontSize: "12px" }}>{emailError}</span>}
-
-        {/* ── Special Owner Category ── */}
-        <CardLabel>
-          {t("PT_SPECIAL_OWNER_CATEGORY")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <RadioButtons
-          t={t}
-          optionsKey="i18nKey"
-          options={sortedOwnerTypes}
-          selectedOption={ownerType}
-          onSelect={setOwnerType}
-          isDependent={true}
-          labelKey="PROPERTYTAX_OWNERTYPE"
-        />
-
-        {/* ── Owner Address ── */}
-        <CardLabel>
-          {t("PT_OWNERS_ADDRESS")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <TextArea
-          value={permanentAddress}
-          onChange={(e) => setPermanentAddress(e.target.value)}
-        />
-        <CheckBox
-          label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}
-          onChange={handleCorrespondenceAddress}
-          value={isCorrespondenceAddress}
-          checked={isCorrespondenceAddress || false}
-          style={{ paddingTop: "10px" }}
-        />
-
-        {/* ── Special Category Proof (only when ownerType ≠ NONE) ── */}
-        {needsSpecialProof && (
-          <React.Fragment>
+          {/* Row 1: Ownership Type — full width */}
+          <div>
             <CardLabel>
-              {t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}
+              {t("PT_PROVIDE_OWNERSHIP_DETAILS")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <div className="field">
+              <Dropdown
+                t={t}
+                isMandatory={true}
+                option={ownershipOptions}
+                selected={ownershipCategory}
+                optionKey="i18nKey"
+                select={(val) => {
+                  setOwnershipCategory(val);
+                  sessionStorage.setItem("ownershipCategory", val?.value);
+                }}
+                placeholder={t("PT_SELECT_PLACEHOLDER")}
+              />
+            </div>
+          </div>
+
+          {/* Row 2: Owner Name | Mobile Number */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+            <div>
+              <CardLabel>
+                {t("PT_OWNER_NAME")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <TextInput
+                  name="ownerName"
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  pattern="^[a-zA-Z ]+$"
+                  title={t("PT_NAME_ERROR_MESSAGE")}
+                />
+              </div>
+            </div>
+            <div>
+              <CardLabel>
+                {t("PT_FORM3_MOBILE_NUMBER")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <MobileNumber
+                  value={mobileNumber}
+                  name="mobileNumber"
+                  onChange={(val) => setMobileNumber(val)}
+                  required
+                  pattern="[6-9]{1}[0-9]{9}"
+                  type="tel"
+                  title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Row 3: Guardian Name | Email */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+            <div>
+              <CardLabel>
+                {t("PT_FORM3_GUARDIAN_NAME")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <TextInput
+                  name="fatherOrHusbandName"
+                  type="text"
+                  value={fatherOrHusbandName}
+                  onChange={(e) => setFatherOrHusbandName(e.target.value)}
+                  pattern="^[a-zA-Z ]+$"
+                  title={t("PT_NAME_ERROR_MESSAGE")}
+                />
+              </div>
+            </div>
+            <div>
+              <CardLabel>{t("PT_FORM3_EMAIL_ID")}</CardLabel>
+              <div className="field">
+                <TextInput
+                  name="emailId"
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }}
+                />
+              </div>
+              {emailError && <span style={{ color: "red", fontSize: "12px" }}>{emailError}</span>}
+            </div>
+          </div>
+
+          {/* Row 4: Gender — full width radio */}
+          <div>
+            <CardLabel>
+              {t("PT_FORM3_GENDER")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <RadioButtons
+              t={t}
+              options={genderOptions}
+              optionsKey="code"
+              name="gender"
+              selectedOption={gender}
+              onSelect={setGender}
+              isDependent={true}
+              labelKey="PT_COMMON_GENDER"
+            />
+          </div>
+
+          {/* Row 5: Relationship — full width radio */}
+          <div>
+            <CardLabel>
+              {t("PT_FORM3_RELATIONSHIP")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <RadioButtons
+              t={t}
+              optionsKey="i18nKey"
+              options={GuardianOptions}
+              selectedOption={relationship}
+              onSelect={setRelationship}
+              isDependent={true}
+              labelKey="PT_RELATION"
+            />
+          </div>
+
+          {/* Row 6: Special Owner Category — full width radio */}
+          <div>
+            <CardLabel>
+              {t("PT_SPECIAL_OWNER_CATEGORY")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <RadioButtons
+              t={t}
+              optionsKey="i18nKey"
+              options={sortedOwnerTypes}
+              selectedOption={ownerType}
+              onSelect={setOwnerType}
+              isDependent={true}
+              labelKey="PROPERTYTAX_OWNERTYPE"
+            />
+          </div>
+
+          {/* Row 7: Owner Address — full width */}
+          <div>
+            <CardLabel>
+              {t("PT_OWNERS_ADDRESS")}
+              <span className="check-page-link-button"> *</span>
+            </CardLabel>
+            <TextArea
+              name="permanentAddress"
+              value={permanentAddress}
+              onChange={(e) => setPermanentAddress(e.target.value)}
+              style={{ border: "1px solid #b1b4b6", borderRadius: "8px", width: "100%" }}
+            />
+            <CheckBox
+              label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}
+              onChange={handleCorrespondenceAddress}
+              value={isCorrespondenceAddress}
+              checked={isCorrespondenceAddress || false}
+              style={{ paddingTop: "10px" }}
+            />
+          </div>
+
+          {/* Special Category Proof (conditional) */}
+          {needsSpecialProof && (
+            <div style={{ marginTop: "16px" }}>
+              <CardLabel>
+                {t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_TYPES")}</CardLabelDesc>
+              <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_SIZE")}</CardLabelDesc>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+                <div style={{ position: "relative" }}>
+                  <CardLabel>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span className="check-page-link-button"> *</span></CardLabel>
+                  <div className="field" id="pt-special-doc-dropdown">
+                    <Dropdown
+                      t={t}
+                      isMandatory={false}
+                      option={specialProofOptions}
+                      selected={specialProofDocType}
+                      optionKey="i18nKey"
+                      select={setSpecialProofDocType}
+                      placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <CardLabel>{t("PT_PROOF_OF_ADDRESS")}<span className="check-page-link-button"> *</span></CardLabel>
+                  <div className="field">
+                    <UploadFile
+                      id="pt-special-proof"
+                      extraStyleName="propertyCreate"
+                      accept=".jpg,.png,.pdf"
+                      onUpload={(e) => setSpecialProofFile(e.target.files[0])}
+                      onDelete={() => { setSpecialProofUploadedId(null); setSpecialProofFile(null); }}
+                      message={specialProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
+                      error={specialProofError}
+                    />
+                  </div>
+                  {specialProofError && <div style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>{specialProofError}</div>}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Identity Proof */}
+          <div style={{ marginTop: "16px", marginBottom: "32px" }}>
+            <CardLabel>
+              {t("PT_PROOF_IDENTITY_HEADER")}
               <span className="check-page-link-button"> *</span>
             </CardLabel>
             <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_TYPES")}</CardLabelDesc>
             <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_SIZE")}</CardLabelDesc>
-            <CardLabel>{t("PT_CATEGORY_DOCUMENT_TYPE")}</CardLabel>
-            <Dropdown
-              t={t}
-              isMandatory={false}
-              option={specialProofOptions}
-              selected={specialProofDocType}
-              optionKey="i18nKey"
-              select={setSpecialProofDocType}
-              placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
-            />
-            <UploadFile
-              id="pt-special-proof"
-              extraStyleName="propertyCreate"
-              accept=".jpg,.png,.pdf"
-              onUpload={(e) => setSpecialProofFile(e.target.files[0])}
-              onDelete={() => { setSpecialProofUploadedId(null); setSpecialProofFile(null); }}
-              message={specialProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
-              error={specialProofError}
-            />
-            {specialProofError && <div style={{ color: "red", fontSize: "14px" }}>{specialProofError}</div>}
-          </React.Fragment>
-        )}
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
+              <div style={{ position: "relative" }}>
+                <CardLabel>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span className="check-page-link-button"> *</span></CardLabel>
+                <div className="field" id="pt-identity-doc-dropdown">
+                  <Dropdown
+                    t={t}
+                    isMandatory={false}
+                    option={identityProofOptions}
+                    selected={identityProofDocType}
+                    optionKey="i18nKey"
+                    select={setIdentityProofDocType}
+                    placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
+                  />
+                </div>
+              </div>
+              <div>
+                <CardLabel>{t("PT_PROOF_OF_ADDRESS")}<span className="check-page-link-button"> *</span></CardLabel>
+                <div className="field">
+                  <UploadFile
+                    id="pt-identity-proof"
+                    extraStyleName="propertyCreate"
+                    accept=".jpg,.png,.pdf"
+                    onUpload={(e) => setIdentityProofFile(e.target.files[0])}
+                    onDelete={() => { setIdentityProofUploadedId(null); setIdentityProofFile(null); }}
+                    message={identityProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
+                    error={identityProofError}
+                  />
+                </div>
+                {identityProofError && <div style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>{identityProofError}</div>}
+              </div>
+            </div>
+          </div>
 
-        {/* ── Identity Proof ── */}
-        <CardLabel>
-          {t("PT_PROOF_IDENTITY_HEADER")}
-          <span className="check-page-link-button"> *</span>
-        </CardLabel>
-        <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_TYPES")}</CardLabelDesc>
-        <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_SIZE")}</CardLabelDesc>
-        <CardLabel>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span className="check-page-link-button"> *</span></CardLabel>
-        <Dropdown
-          t={t}
-          isMandatory={false}
-          option={identityProofOptions}
-          selected={identityProofDocType}
-          optionKey="i18nKey"
-          select={setIdentityProofDocType}
-          placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
-        />
-        <UploadFile
-          id="pt-identity-proof"
-          extraStyleName="propertyCreate"
-          accept=".jpg,.png,.pdf"
-          onUpload={(e) => setIdentityProofFile(e.target.files[0])}
-          onDelete={() => { setIdentityProofUploadedId(null); setIdentityProofFile(null); }}
-          message={identityProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
-          error={identityProofError}
-        />
-        {identityProofError && <div style={{ color: "red", fontSize: "14px" }}>{identityProofError}</div>}
-
+        </div>{/* end pt-owner-details-form */}
       </FormStep>
     </React.Fragment>
   );

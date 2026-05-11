@@ -40,12 +40,8 @@ const UID = ({ t, config, onSelect, value, userType, formData, setError: setForm
 
   useEffect(() => {
     if (userType === "employee") {
-      if (uid !== "undefined" && uid?.length === 0) setFormError(config.key, { type: "required", message: t("CORE_COMMON_REQUIRED_ERRMSG") });
-      else if (uid !== "undefined" && (!/^[a-zA-Z0-9-]{0,15}$/.test(uid) || uid?.length !== 15)) setFormError(config.key, { type: "invalid", message: t("ERR_DEFAULT_INPUT_FIELD_MSG") });
-      else clearFormErrors(config.key);
-
+      clearFormErrors(config.key);
       onSelect(config.key, uid);
-
     }
   }, [uid]);
 
@@ -63,7 +59,6 @@ const UID = ({ t, config, onSelect, value, userType, formData, setError: setForm
       error: "ERR_HRMS_INVALID_ELECTRICITY_UID_NO",
       validation: {
         pattern: "/^[a-zA-Z0-9-]*$",
-        required: true,
         minLength: 15,
         maxLength: 15
       }
@@ -95,7 +90,7 @@ const UID = ({ t, config, onSelect, value, userType, formData, setError: setForm
       return (
         <React.Fragment>
           <LabelFieldPair key={index}>
-            <CardLabel className="card-label-smaller">{t(input.label)}<span className="check-page-link-button"> *</span></CardLabel>
+            <CardLabel className="card-label-smaller">{t(input.label)}</CardLabel>
             <div className="field">
 
               <TextInput
