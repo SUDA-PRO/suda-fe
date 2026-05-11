@@ -449,10 +449,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         .pt-property-details-form .select-wrap .options-card,
         .pt-property-details-form .employee-select-wrap .options-card {
           position: absolute !important;
-          top: auto !important;
-          bottom: 100% !important;
-          margin-top: 0 !important;
-          margin-bottom: 4px !important;
+          top: 100% !important;
+          bottom: auto !important;
+          margin-top: 4px !important;
+          margin-bottom: 0 !important;
           max-height: 220px !important;
           overflow-y: auto !important;
           overscroll-behavior: contain !important;
@@ -460,6 +460,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           width: 100% !important;
           background: #fff !important;
           border: 1px solid #b1b4b6 !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        #pt-doc-type-dropdown .options-card {
+          top: auto !important;
+          bottom: 100% !important;
+          margin-top: 0 !important;
+          margin-bottom: 4px !important;
           box-shadow: 0 -4px 12px rgba(0,0,0,0.15) !important;
         }
         .pt-property-details-form .text-input-width {
