@@ -15,7 +15,7 @@ const WNSMyBills = ({ template, header, actionButtonLabel }) => {
   let { tenantId } = Digit.UserService.getUser()?.info || location?.state || { tenantId: _tenantId } || {};
    tenantId = Digit.SessionStorage.get("CITIZEN.COMMON.HOME.CITY")?.code || Digit.UserService.getUser()?.info?.permanentCity || tenantId
   if (!tenantId && !location?.state?.fromSearchResults) {
-    history.replace(`/suda-ui/citizen/login`, { from: url });
+    history.replace(`/suda-ui/login`, { from: url });
   }
   let filters = {};
   const { mobileNumber } = Digit.UserService.getUser()?.info || {};

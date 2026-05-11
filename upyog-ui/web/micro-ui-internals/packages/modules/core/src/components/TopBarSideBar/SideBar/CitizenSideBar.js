@@ -104,7 +104,7 @@ export const CitizenSideBar = ({ isOpen, isMobile = false, toggleSidebar, onLogo
   const redirectToLoginPage = () => {
     // localStorage.clear();
     // sessionStorage.clear();
-    history.push(`${APPLICATION_PATH}/citizen/login`);
+    history.push(`${APPLICATION_PATH}/login`);
     closeSidebar();
   };
   // Function to redirect the user to the EDCR scrutiny page

@@ -379,7 +379,7 @@ const SudaLoginPage = () => {
         Digit.SessionStorage.set("citizen.userRequestObject", { info, ...tokens });
         Digit.UserService.setUser({ info, ...tokens });
         setCitizenDetail(info, tokens.access_token, stateCode);
-        history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/suda-ui/citizen/select-location" : "/suda-ui/citizen");
+        history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/suda-ui/citizen/select-location" : "/suda-ui/dashboard");
       } else {
         const tenantId = cities?.[0]?.code || stateCode;
         const { UserRequest: info, ...tokens } = await Digit.UserService.authenticate({

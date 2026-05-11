@@ -31,9 +31,9 @@ import Dashboard from "./Home/Dashboard";
 const sidebarHiddenFor = [
   "suda-ui/citizen/register/name",
   "/suda-ui/citizen/select-language",
-  "/suda-ui/citizen/dashboard",
+  "/suda-ui/dashboard",
   "/suda-ui/citizen/select-location",
-  "/suda-ui/citizen/login",
+  "/suda-ui/login",
   "/suda-ui/citizen/register/otp",
   // "/suda-ui/citizen/verificationsearch-home" // route for verificationsearch component
 ];
@@ -423,7 +423,7 @@ const Home = ({
             <ErrorComponent
               initData={initData}
               goToHome={() => {
-                history.push("/suda-ui/citizen");
+                history.push("/suda-ui/dashboard");
               }}
             />
           </Route>
@@ -443,6 +443,10 @@ const Home = ({
 
          <Route exact path={`${path}/dashboard`}>
           <Dashboard />
+          </Route>
+
+          <Route exact path="/suda-ui/dashboard">
+            <Dashboard />
           </Route>
 
           <Route path={`${path}/Audit`}>
