@@ -1,4 +1,4 @@
-import { CardLabel, FormStep, RadioOrSelect, TextInput, OpenLinkContainer, BackButton } from "@upyog/digit-ui-react-components";
+import { CardLabel, Dropdown, FormStep, RadioOrSelect, TextInput, OpenLinkContainer, BackButton } from "@upyog/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { stringReplaceAll } from "../utils";
 import Timeline from "../components/Timeline";
@@ -16,6 +16,14 @@ const LicenseType = ({ t, config, onSelect, userType, formData }) => {
   const stateId = Digit.ULBService.getStateId();
   const [LicenseType, setLicenseType] = useState(formData?.LicneseType?.LicenseType || formData?.formData?.LicneseType?.LicenseType || "");
   const [ArchitectNo, setArchitectNo] = useState(formData?.LicneseType?.ArchitectNo || formData?.formData?.LicneseType?.ArchitectNo || null);
+  const [selectedCity, setSelectedCity] = useState(formData?.LicneseType?.selectedCity || formData?.formData?.LicneseType?.selectedCity || null);
+
+  const allTenants = Digit.SessionStorage.get("OBPS_TENANTS") || [];
+  const cityTenants = allTenants.filter((t) => t?.code && t.code.includes(".")).map((t) => ({
+    code: t.code,
+    name: t.city?.name || t.name || t.code,
+    i18nKey: `TENANT_TENANTS_${t.code.replace(/\./g, "_").toUpperCase()}`,
+  }));
 
   const { data, isLoading } = Digit.Hooks.obps.useMDMS(stateId, "StakeholderRegistraition", "TradeTypetoRoleMapping");
   let isopenlink = window.location.href.includes("/openlink/");
@@ -52,21 +60,35 @@ const LicenseType = ({ t, config, onSelect, userType, formData }) => {
 
   function goNext() {
     if (!(formData?.result && formData?.result?.Licenses[0]?.id))
-      onSelect(config.key, { LicenseType, ArchitectNo });
+      onSelect(config.key, { LicenseType, ArchitectNo, selectedCity });
     else {
       let data = formData?.formData;
       data.LicneseType.LicenseType = LicenseType;
       data.LicneseType.ArchitectNo = ArchitectNo;
+      data.LicneseType.selectedCity = selectedCity;
       onSelect("", formData)
     }
   }
+
+  const isNextDisabled = !selectedCity || (LicenseType && LicenseType?.i18nKey.includes("ARCHITECT") ? !LicenseType || !ArchitectNo : !LicenseType);
+
   return (
     <div>
       <div className={isopenlink ? "OpenlinkContainer" : ""}>
 
         {isopenlink && <BackButton style={{ border: "none" }}>{t("CS_COMMON_BACK")}</BackButton>}
         <Timeline currentStep={1} flow="STAKEHOLDER" />
-        <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={LicenseType && LicenseType?.i18nKey.includes("ARCHITECT") ? !LicenseType || !ArchitectNo : !LicenseType}>
+        <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={isNextDisabled}>
+          <CardLabel>{t("BPA_CITY_LABEL")}*</CardLabel>
+          <Dropdown
+            t={t}
+            optionKey="name"
+            isMandatory={true}
+            option={cityTenants}
+            selected={selectedCity}
+            select={setSelectedCity}
+            placeholder={t("BPA_SELECT_CITY_PLACEHOLDER")}
+          />
           <CardLabel>{t("BPA_LICENSE_TYPE")}*</CardLabel>
           <div className={"form-pt-dropdown-only"}>
             {data && (

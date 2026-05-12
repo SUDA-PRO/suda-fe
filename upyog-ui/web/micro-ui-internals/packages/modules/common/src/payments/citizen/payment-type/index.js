@@ -97,8 +97,10 @@ export const SelectPaymentType = (props) => {
       if (d?.paymentType == "AXIS") {
         window.location = redirectUrl;
       }
-      else if (d?.paymentType == "NTTDATA") {
-        let redirect= redirectUrl.split("returnURL=")
+      else if (d?.paymentType == "MOCK") {
+        window.location = redirectUrl;
+      }
+      else if (d?.paymentType == "NTTDATA") {        let redirect= redirectUrl.split("returnURL=")
         let url=redirect[0].split("?")[1].split("&")
         const options = {
           "atomTokenId": url[0].split("=")[1],
