@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import SubMenu from "./SubMenu";
 import { Loader, SearchIcon, LogoutIcon } from "@upyog/digit-ui-react-components";
 import LogoutDialog from "../../Dialog/LogoutDialog";
@@ -27,33 +27,7 @@ const EmployeeSideBar = () => {
   const handleLogout = () => { setShowDialog(true); };
   const handleOnSubmit = () => { Digit.UserService.logout(); setShowDialog(false); };
   const handleOnCancel = () => { setShowDialog(false); };
-  useEffect(() => {
-    if (isLoading) {
-      return <Loader />;
-    }
-    sidebarRef.current.style.cursor = "pointer";
-    collapseNav();
-  }, [isLoading]);
 
-  const expandNav = () => {
-    sidebarRef.current.style.width = "260px";
-    sidebarRef.current.style.overflow = "auto";
-
-    sidebarRef.current.querySelectorAll(".dropdown-link").forEach((element) => {
-      element.style.display = "flex";
-    });
-  };
-  const collapseNav = () => {
-    sidebarRef.current.style.width = "55px";
-    sidebarRef.current.style.overflow = "hidden";
-
-    sidebarRef.current.querySelectorAll(".dropdown-link").forEach((element) => {
-      element.style.display = "none";
-    });
-    sidebarRef.current.querySelectorAll(".actions").forEach((element) => {
-      element.style.padding = "0";
-    });
-  };
 
   const configEmployeeSideBar = {};
 
@@ -164,19 +138,12 @@ const EmployeeSideBar = () => {
     });
   };
 
-  if (isLoading) {
-    return <Loader />;
-  }
-  if (!res) {
-    return "";
-  }
-
   const renderSearch = () => {
     return (
       <div className="submenu-container">
-        <div className="sidebar-link">
-          <div className="actions search-icon-wrapper">
-            <SearchIcon className="search-icon" />
+        <div className="sidebar-link" style={{ padding: "10px 16px" }}>
+          <div className="actions search-icon-wrapper" style={{ width: "100%", gap: "8px" }}>
+            <SearchIcon className="search-icon" style={{ flexShrink: 0 }} />
             <input
               className="employee-search-input"
               type="text"
@@ -184,6 +151,7 @@ const EmployeeSideBar = () => {
               name="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              style={{ flex: 1, minWidth: 0, width: "100%" }}
             />
           </div>
         </div>
@@ -192,10 +160,11 @@ const EmployeeSideBar = () => {
   };
 
   return (
-    <div className="sidebar" ref={sidebarRef} onMouseOver={expandNav} onMouseLeave={collapseNav} style={{display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
+    <div className="sidebar" ref={sidebarRef} style={{width:"320px",overflow:"auto",cursor:"pointer",display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
       <OrgHeader />
-      {renderSearch()}
-      {splitKeyValue()}
+      {isLoading ? <Loader /> : null}
+      {!isLoading && renderSearch()}
+      {!isLoading && splitKeyValue()}
       
       <style>
       {`
@@ -214,7 +183,7 @@ const EmployeeSideBar = () => {
         .employee .sidebar .submenu-container .sidebar-link svg path,
         .employee .sidebar .submenu-container .sidebar-link svg rect,
         .employee .sidebar .submenu-container .sidebar-link svg circle {
-          fill: #ffffff !important;
+          
         }
         .employee .sidebar .submenu-container .sidebar-link:hover,
         .employee .sidebar .dropdown-link:hover {
@@ -234,8 +203,21 @@ const EmployeeSideBar = () => {
         .employee .sidebar .employee-search-input::placeholder {
           color: rgba(255,255,255,0.6) !important;
         }
+        .employee .sidebar .search-icon-wrapper {
+          width: 100% !important;
+          display: flex !important;
+          align-items: center !important;
+        }
         .employee .sidebar .search-icon-wrapper svg path {
           fill: rgba(255,255,255,0.7) !important;
+        }
+        .employee .sidebar .employee-search-input {
+          width: 100% !important;
+        }
+        .employee .sidebar .logout-btn svg path,
+        .employee .sidebar .logout-btn svg rect,
+        .employee .sidebar .logout-btn svg circle {
+          fill: #ffffff !important;
         }
         .employee .popup-module .card-text,
         .employee .popup-module p,
@@ -249,7 +231,7 @@ const EmployeeSideBar = () => {
       </style>
 
       <div className="submenu-container" style={{ borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "16px" }}>
-        <div className="sidebar-link" onClick={handleLogout} style={{ cursor: "pointer" }}>
+        <div className="sidebar-link logout-btn" onClick={handleLogout} style={{ cursor: "pointer" }}>
           <div className="actions">
             <LogoutIcon style={{ width: 20, height: 20, flexShrink: 0 }} />
             <span style={{ marginLeft: "8px", whiteSpace: "nowrap" }}>{t("CORE_COMMON_LOGOUT")}</span>

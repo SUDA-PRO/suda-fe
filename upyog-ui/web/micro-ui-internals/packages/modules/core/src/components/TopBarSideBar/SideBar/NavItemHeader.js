@@ -46,14 +46,37 @@ const NavItemHeader = props => {
     edcr: <CollectionIcon />,
     collections: <CollectionIcon />,
   };
+  const moduleNameIconMap = {
+    HOME: <HomeIcon />,
+    COMPLAINTS: <ComplaintIcon />,
+    PGR: <ComplaintIcon />,
+    PGR_AI_MODULE: <ComplaintIcon />,
+    HRMS: <PersonIcon />,
+    EMPLOYEE_MANAGEMENT: <PersonIcon />,
+    PROPERTYTAX: <PropertyHouse />,
+    PROPERTY_TAX: <PropertyHouse />,
+    TRADE_LICENSE: <BPAHomeIcon />,
+    TRADELICENSE: <BPAHomeIcon />,
+    BPA: <BPAHomeIcon />,
+    BUILDING_PLAN: <BPAHomeIcon />,
+    SURVEY: <CaseIcon />,
+    SURVEYS: <CaseIcon />,
+    EVENTS: <ReceiptIcon />,
+    DOCUMENTS: <DocumentIconSolid />,
+    BILL_GENIE: <FinanceChartIcon />,
+    FINANCE: <FinanceChartIcon />,
+    WSS: <DropIcon />,
+    WATER: <DropIcon />,
+    PUBLIC_MESSAGE_BROADCAST: <CollectionsBookmarIcons />,
+  };
   const leftIconArray = icon?.split?.(":")?.[1];
-  const leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
+  const getModuleName = label?.replace(/[ -]/g, "_").toUpperCase();
+  let leftIcon = moduleNameIconMap[getModuleName] || IconsObject[leftIconArray] || IconsObject.collections;
   const iconArr=item?.icon?.leftIcon?.split?.(":")|| item?.leftIcon?.split?.(":");
   if(iconArr?.[0]=='dynamic'){
     var IconComp = require("@upyog/digit-ui-react-components")?.[iconArr?.[1]];
     leftIcon=IconComp?<IconComp/>:leftIcon;
   }
-  const getModuleName = label?.replace(/[ -]/g, "_").toUpperCase();
   const appendTranslate = t(`ACTION_TEST_${getModuleName.toUpperCase()}`);
   const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
 
@@ -69,7 +92,7 @@ const NavItemHeader = props => {
         onClick={onExpandChange}
         style={item?.elementStyle ? {...item?.elementStyle,display:"flex"}:{display:"flex"}}
       >
-         <div className={`sidebar-link ${expanded ? "active": ""}`} style={{width:item?.nested ?"240px":"260px",overflow:"auto"}}>{!item?.nested && leftIcon}
+         <div className={`sidebar-link ${expanded ? "active": ""}`} style={{width:item?.nested ?"300px":"320px",overflow:"auto"}}>{!item?.nested && leftIcon}
          <div className='actions' style={{padding:"0px",marginRight:"auto"}}>
          <div data-tip="React-tooltip" data-for={`jk-side-${getModuleName}`}>
         <span style={{color:expanded ? "#a82227":""}}>{trimModuleName}</span>

@@ -41,9 +41,32 @@ const SubMenu = ({ item }) => {
     edcr: <CollectionIcon />,
     collections: <CollectionIcon />,
   };
+  const moduleNameIconMap = {
+    HOME: <HomeIcon />,
+    COMPLAINTS: <ComplaintIcon />,
+    PGR: <ComplaintIcon />,
+    PGR_AI_MODULE: <ComplaintIcon />,
+    HRMS: <PersonIcon />,
+    EMPLOYEE_MANAGEMENT: <PersonIcon />,
+    PROPERTYTAX: <PropertyHouse />,
+    PROPERTY_TAX: <PropertyHouse />,
+    TRADE_LICENSE: <BPAHomeIcon />,
+    TRADELICENSE: <BPAHomeIcon />,
+    BPA: <BPAHomeIcon />,
+    BUILDING_PLAN: <BPAHomeIcon />,
+    SURVEY: <CaseIcon />,
+    SURVEYS: <CaseIcon />,
+    EVENTS: <ReceiptIcon />,
+    DOCUMENTS: <DocumentIconSolid />,
+    BILL_GENIE: <FinanceChartIcon />,
+    FINANCE: <FinanceChartIcon />,
+    WSS: <DropIcon />,
+    WATER: <DropIcon />,
+    PUBLIC_MESSAGE_BROADCAST: <CollectionsBookmarIcons />,
+  };
   const leftIconArray = item?.icon?.leftIcon?.split?.(":")?.[1] || item?.leftIcon?.split?.(":")[1];
-  const leftIcon = IconsObject[leftIconArray] || IconsObject.collections;
   const getModuleName = item?.moduleName?.replace(/[ -]/g, "_");
+  const leftIcon = moduleNameIconMap[getModuleName] || IconsObject[leftIconArray] || IconsObject.collections;
   const appendTranslate = t(`ACTION_TEST_${getModuleName}`);
   const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
 
