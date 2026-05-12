@@ -17,6 +17,7 @@ import WSConnectionHolder from "./pageComponents/WSConnectionHolder";
 import WSInfoLabel from "./pageComponents/WSInfoLabel";
 import WSActivationDetails from "./pageComponents/WSActivationDetails";
 import WSConnectionDetails from "./pageComponents/WSConnectionDetails";
+import WSConnectionStep from "./pageComponents/WSConnectionStep";
 import WSDocumentsRequired from "./pageComponents/WSDocumentsRequired";
 import WSPlumberDetails from "./pageComponents/WSPlumberDetails";
 import WSRoadCuttingDetails from "./pageComponents/WSRoadCuttingDetails";
@@ -171,6 +172,7 @@ const componentsToRegister = {
   WSInfoLabel,
   WSActivationDetails,
   WSConnectionDetails,
+  WSConnectionStep,
   WSDocumentsRequired,
   WSPlumberDetails,
   WSRoadCuttingDetails,
