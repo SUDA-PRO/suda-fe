@@ -122,7 +122,7 @@ const FSMLinks = ({ matchPath, userType }) => {
         });
       else
         links.push({
-          link: `/suda-ui/citizen/login`,
+          link: `/suda-ui/login`,
           state: { role: "FSM_DSO", from },
           i18nKey: t(loginLink),
         });

@@ -56,7 +56,7 @@ const servicesRow1 = [
   {
     title: "COMMON_GRIEVANCE_REDRESSAL",
     img: "https://tfstatee8aog.blob.core.windows.net/filestore/GrievanceImage.png",
-    url: "/suda-ui/citizen/login",
+    url: "/suda-ui/login",
   },
   { title: "MODULE_TL", img: "https://tfstatee8aog.blob.core.windows.net/filestore/TradeLicence.png", url: "/suda-ui/comingsoon" },
   {

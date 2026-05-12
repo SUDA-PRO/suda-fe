@@ -194,7 +194,7 @@ export const SelectPaymentType = (props) => {
   if (authorization === "true" && !userInfo.access_token) {
     localStorage.clear();
     sessionStorage.clear();
-    window.location.href = `/suda-ui/citizen/login?from=${encodeURIComponent(pathname + search)}`;
+    window.location.href = `/suda-ui/login?from=${encodeURIComponent(pathname + search)}`;
   }
 
   if (isLoading || paymentLoading) {

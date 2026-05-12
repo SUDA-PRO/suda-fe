@@ -13,7 +13,7 @@ export const PrivateRoute = ({ component: Component, roles, ...rest }) => {
             return "/suda-ui/employee/user/language-selection"
           }
           else{
-            return "/suda-ui/citizen/login"
+            return "/suda-ui/login"
           }
         }
         if (!user || !user.access_token) {

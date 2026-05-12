@@ -3,6 +3,7 @@ import { Redirect, Route, Switch, useHistory, useLocation } from "react-router-d
 import EmployeeApp from "./pages/employee";
 import CitizenApp from "./pages/citizen";
 import SudaLoginPage from "./pages/employee/Login/SudaLoginPage";
+import Dashboard from "./pages/citizen/Home/Dashboard";
 
 export const DigitApp = ({ stateCode, modules, appTenants, logoUrl, initData }) => {
   const history = useHistory();
@@ -36,7 +37,7 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
       Digit.SessionStorage.del("SEARCH_APPLICATION_DETAIL");
       Digit.SessionStorage.del("WS_EDIT_APPLICATION_DETAILS");
     }
-    if (pathname?.toString() === "/suda-ui/citizen" || pathname?.toString() === "/suda-ui/employee") {
+    if (pathname?.toString() === "/suda-ui/dashboard" || pathname?.toString() === "/suda-ui/citizen" || pathname?.toString() === "/suda-ui/employee") {
       Digit.SessionStorage.del("WS_DISCONNECTION");
     }
   }, [pathname]);
@@ -134,8 +135,11 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
         <Route path="/suda-ui/citizen">
           <CitizenApp {...commonProps} />
         </Route>
+        <Route path="/suda-ui/dashboard">
+          <Dashboard {...commonProps} />
+        </Route>
         <Route>
-          <Redirect to="/suda-ui/citizen" />
+          <Redirect to="/suda-ui/dashboard" />
         </Route>
       </Switch>
     </React.Fragment>

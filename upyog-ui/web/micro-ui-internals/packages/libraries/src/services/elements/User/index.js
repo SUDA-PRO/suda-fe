@@ -51,10 +51,10 @@ export const UserService = {
       window.sessionStorage.clear();
       window.location.replace("/suda-ui/login");
       if (userType === "citizen") {
-        window.location.replace("/suda-ui/citizen/dashboard");
+        window.location.replace("/suda-ui/dashboard");
       } else {
         // window.location.replace("/suda-ui/employee/user/language-selection");
-        window.location.replace("/suda-ui/citizen/dashboard");
+        window.location.replace("/suda-ui/dashboard");
       }
     }
   },

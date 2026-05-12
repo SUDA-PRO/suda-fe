@@ -32,7 +32,7 @@ const NotificationsAndWhatsNew = ({ variant, parentRoute }) => {
   const { data: EventsData, isLoading: EventsDataLoading } = Digit.Hooks.useEvents({ tenantId, variant });
 
   // if (!Digit.UserService?.getUser()?.access_token) {
-  //     return <Redirect to={{ pathname: `/suda-ui/citizen/login`, state: { from: location.pathname + location.search } }} />
+  //     return <Redirect to={{ pathname: `/suda-ui/login`, state: { from: location.pathname + location.search } }} />
   // }
 
   if (EventsDataLoading) return <Loader />;

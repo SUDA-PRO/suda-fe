@@ -24,7 +24,7 @@ const SelectOtp = ({ config, otp, onOtpChange, onResend, onSelect, t, error, use
     let TokenReq = {
       code_verifier: localStorage.getItem('code_verfier_register'),
       code: code, module: "SSO",
-      redirect_uri: "https://upyog-test.niua.org/suda-ui/citizen/login/otp",
+      redirect_uri: "https://upyog-test.niua.org/suda-ui/login/otp",
     }
    console.log("token",code,TokenReq,localStorage.getItem("code_verfier_register"))
     const data = await Digit.DigiLockerService.token({TokenReq })
@@ -91,7 +91,7 @@ if(authData){
   //     'grant_type': "authorization_code",
   //     'client_id': "YN77ADDADE",
   //     "client_secret": "71abd480b5811ab72277",
-  //     "redirect_uri": "https://upyog.niua.org/suda-ui/citizen/login/otp",
+  //     "redirect_uri": "https://upyog.niua.org/suda-ui/login/otp",
   //     "code_verifier": sessionStorage.getItem("code_verfier_register")
   //   })
   // }) .then(response =>

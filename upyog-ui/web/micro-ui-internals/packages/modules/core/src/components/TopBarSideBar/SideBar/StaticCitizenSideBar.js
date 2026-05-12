@@ -135,7 +135,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
   const redirectToLoginPage = () => {
     // localStorage.clear();
     // sessionStorage.clear();
-    history.push(`${APPLICATION_PATH}/citizen/login`);
+    history.push(`${APPLICATION_PATH}/login`);
   };
   // Function to redirect the user to the EDCR scrutiny page
   const redirectToScrutinyPage = () => {

@@ -17,7 +17,7 @@ Axios.interceptors.response.use(
           localStorage.clear();
           sessionStorage.clear();
           window.location.href =
-            (isEmployee ? "/suda-ui/employee/user/login" : "/suda-ui/citizen/login") +
+            (isEmployee ? "/suda-ui/employee/user/login" : "/suda-ui/login") +
             `?from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
         } else if (
           error?.message?.toLowerCase()?.includes("internal server error") ||
