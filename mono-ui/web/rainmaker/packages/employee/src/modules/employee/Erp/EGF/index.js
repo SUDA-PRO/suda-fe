@@ -29,6 +29,14 @@ class EGFFinance extends Component {
     finEnv = this.globalConfigExists() ? window.globalConfigs.getConfig("FIN_ENV") : process.env.REACT_APP_FIN_ENV;
     // Preparing finance subdomain url using the above environment name and the domain url
     subdomainurl = !!(finEnv) ? "-" + finEnv + "." + domainurl : "." + domainurl;
+    const employeeIndex = menuUrl.indexOf("/employee/");
+    if (employeeIndex > -1) {
+      menuUrl = menuUrl.substring(employeeIndex + "/employee".length);
+    }
+    if (!menuUrl.startsWith("/services/")) {
+      const servicesIndex = menuUrl.indexOf("/services/");
+      menuUrl = servicesIndex > -1 ? menuUrl.substring(servicesIndex) : `/services/EGF/inbox`;
+    }
     erp_url = loc.protocol + "//" + getTenantId().split(".")[1] + subdomainurl + menuUrl;
 
     return (
