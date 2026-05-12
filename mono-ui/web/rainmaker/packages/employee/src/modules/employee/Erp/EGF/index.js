@@ -16,19 +16,12 @@ class EGFFinance extends Component {
     locale = localStorage.getItem("locale"),
     menuUrl = this.props.location.pathname,
     loc = window.location,
-    subdomainurl,
-    domainurl,
-    finEnv,
-    hostname = loc.hostname,
     winheight = window.innerHeight - 100,
     erp_url,
     tenantId = getTenantId();
-    //Reading domain name from the request url
-    domainurl = hostname.substring(hostname.indexOf(".") + 1);
-    // Reading environment name (ex: dev, qa, uat, fin-uat etc) from the globalconfigs if exists else reading from the .env file
-    finEnv = this.globalConfigExists() ? window.globalConfigs.getConfig("FIN_ENV") : process.env.REACT_APP_FIN_ENV;
-    // Preparing finance subdomain url using the above environment name and the domain url
-    subdomainurl = !!(finEnv) ? "-" + finEnv + "." + domainurl : "." + domainurl;
+
+    // Finance is exposed on the same host under /services via ingress.
+    // Normalize routed UI path (/employee/services/...) to backend path (/services/...).
     const employeeIndex = menuUrl.indexOf("/employee/");
     if (employeeIndex > -1) {
       menuUrl = menuUrl.substring(employeeIndex + "/employee".length);
@@ -37,7 +30,15 @@ class EGFFinance extends Component {
       const servicesIndex = menuUrl.indexOf("/services/");
       menuUrl = servicesIndex > -1 ? menuUrl.substring(servicesIndex) : `/services/EGF/inbox`;
     }
-    erp_url = loc.protocol + "//" + getTenantId().split(".")[1] + subdomainurl + menuUrl;
+
+    const tenantCode = (tenantId || "").split(".")[1] || "";
+    const currentHost = loc.hostname || "";
+    const currentBaseDomain = currentHost.substring(currentHost.indexOf(".") + 1);
+    const configuredBaseDomain = this.globalConfigExists() ? window.globalConfigs.getConfig("FINANCE_BASE_DOMAIN") : "";
+    const financeBaseDomain = configuredBaseDomain || currentBaseDomain;
+    const financeHost = tenantCode ? `${tenantCode}.${financeBaseDomain}` : loc.host;
+
+    erp_url = `${loc.protocol}//${financeHost}${menuUrl}`;
 
     return (
       <div>
