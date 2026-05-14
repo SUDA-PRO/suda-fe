@@ -25,8 +25,9 @@ const convertMillisecondsToDays = (milliseconds) => {
 const useEmpBPAREGSearch = (tenantId, filters, params, config = {}) => {
   return useQuery(['BPA_REG_WORK_SEARCH', tenantId, filters, params], async () => {
     const response = await Digit.OBPSService.BPAREGSearch(tenantId, filters, params);
-    const businessIds = response?.Licenses.map(application => application.applicationNumber);
-    const workflowRes = await Digit.WorkflowService.getAllApplication(Digit.ULBService.getStateId(), { businessIds: businessIds.join()  });
+    const businessIds = response?.Licenses?.map(application => application.applicationNumber) || [];
+    if (!businessIds.length) return [];
+    const workflowRes = await Digit.WorkflowService.getAllApplication(tenantId, { businessIds: businessIds.join() });
     return combineResponse(response?.Licenses, workflowRes?.ProcessInstances, response?.Count);
   }, config);
 }

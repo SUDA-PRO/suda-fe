@@ -75,7 +75,7 @@ const CorrospondenceAddress = ({ t, config, onSelect, value, userType, formData 
             },
             "licenseType": "PERMANENT",
             "businessService": "BPAREG",
-            "tenantId": stateId,
+            "tenantId": formData?.LicneseType?.selectedCity?.code || formData?.formData?.LicneseType?.selectedCity?.code || tenantId,
             "action": "NOWORKFLOW"
           }
         ]

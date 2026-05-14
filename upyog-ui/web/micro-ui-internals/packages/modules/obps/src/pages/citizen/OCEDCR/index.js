@@ -38,7 +38,7 @@ const CreateOCEDCR = ({ parentRoute }) => {
         ts: "",
         action: "",
         did: "",
-        authToken: "",
+        authToken: loggedInuserInfo?.access_token || "",
         key: "",
         msgId: "",
         correlationId: "",

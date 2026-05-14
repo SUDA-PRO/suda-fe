@@ -287,7 +287,7 @@ const Header = () => {
                 <div
                   onClick={() => {
                     setLoginOpen(false);
-                    window.location.href = "/suda-ui/citizen/login";
+                    window.location.href = "/suda-ui/login";
                   }}
                   style={{
                     padding: "12px 20px",

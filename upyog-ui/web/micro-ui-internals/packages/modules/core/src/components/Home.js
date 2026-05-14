@@ -105,7 +105,7 @@ export const processLinkData = (newData, code, t) => {
         });
       else
         newObj?.links?.push({
-          link: `/suda-ui/citizen/login`,
+          link: `/suda-ui/login`,
           state: { role: "FSM_DSO", from },
           i18nKey: t(loginLink),
         });

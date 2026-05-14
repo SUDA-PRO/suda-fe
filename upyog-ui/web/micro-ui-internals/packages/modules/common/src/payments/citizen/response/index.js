@@ -219,7 +219,7 @@ export const convertEpochToDate = (dateEpoch) => {
           if(business_service=="WS" || business_service=="SW"){
             response = await Digit.PaymentService.generatePdf(state, { Payments: [{...paymentData}] }, generatePdfKeyForWs);
           }
-          else if(businessServ.includes("BPA")){
+          else if(businessServ.includes("BPA") && businessServ !== "BPAREG"){
             let queryObj = { applicationNo: payments.Payments[0].paymentDetails[0]?.bill?.consumerCode };
             let bpaResponse = await Digit.OBPSService.BPASearch( payments.Payments[0].tenantId, queryObj);
             const formattedStakeholderType=bpaResponse?.BPA[0]?.additionalDetails?.typeOfArchitect
