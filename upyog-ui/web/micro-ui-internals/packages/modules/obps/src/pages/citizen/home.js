@@ -7,6 +7,7 @@ const BPACitizenHomeScreen = ({ parentRoute }) => {
   const userInfo = Digit.UserService.getUser();
   const userRoles = userInfo?.info?.roles?.map((roleData) => roleData.code);
   const stateCode = Digit.ULBService.getStateId();
+  const ulbTenantId = userInfo?.info?.roles?.find(r => r.tenantId && r.tenantId !== stateCode)?.tenantId || stateCode;
   const [stakeHolderRoles, setStakeholderRoles] = useState(false);
   const { data: stakeHolderDetails, isLoading: stakeHolderDetailsLoading } = Digit.Hooks.obps.useMDMS(
     stateCode,
@@ -65,7 +66,7 @@ const BPACitizenHomeScreen = ({ parentRoute }) => {
     withEDCRData: false,
   });
   const { isLoading: isEDCRInboxLoading, data: { totalCount: edcrCount } = {} } = Digit.Hooks.obps.useEDCRInbox({
-    tenantId: stateCode,
+    tenantId: ulbTenantId,
     filters: { filterForm: {}, searchForm: {}, tableForm: { limit: 10, offset: 0 } },
   });
 
