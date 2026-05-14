@@ -26,6 +26,10 @@ const BasicDetails = ({ formData, onSelect, config }) => {
   const [isDisabled, setIsDisabled] = useState(formData?.data?.scrutinyNumber || formData?.selectedPlot?.drawingNo ? true : false);
   const { t } = useTranslation();
   const stateCode = Digit.ULBService.getStateId();
+  const _userInfo = Digit.UserService.getUser();
+  const tenantIdForEdcr = _userInfo?.info?.permanentCity ||
+    _userInfo?.info?.roles?.find(r => r.tenantId && r.tenantId !== stateCode)?.tenantId ||
+    Digit.ULBService.getCurrentTenantId();
   const isMobile = window.Digit.Utils.browser.isMobile();
   const { isMdmsLoading, data: mdmsData } = Digit.Hooks.obps.useMDMS(stateCode, "BPA", ["RiskTypeComputation"]);
   const riskType = Digit.Utils.obps.calculateRiskType(
@@ -39,7 +43,7 @@ const BasicDetails = ({ formData, onSelect, config }) => {
   const handleKeyPress = async (event) => {
     if (event.key === "Enter") {
       if (!scrutinyNumber?.edcrNumber) return;
-      const details = await scrutinyDetailsData(scrutinyNumber?.edcrNumber, stateCode);
+      const details = await scrutinyDetailsData(scrutinyNumber?.edcrNumber, tenantIdForEdcr);
       if (details?.type == "ERROR") {
         setShowToast({ message: details?.message });
         setBasicData(null);
@@ -56,7 +60,7 @@ const BasicDetails = ({ formData, onSelect, config }) => {
   };
 
   const handleSearch = async (event) => {
-    const details = await scrutinyDetailsData(scrutinyNumber?.edcrNumber, stateCode);
+    const details = await scrutinyDetailsData(scrutinyNumber?.edcrNumber, tenantIdForEdcr);
     if (details?.type == "ERROR") {
       setShowToast({ message: details?.message });
       setBasicData(null);
@@ -88,7 +92,7 @@ const BasicDetails = ({ formData, onSelect, config }) => {
   disableVlaue = disableVlaue?JSON.parse(disableVlaue):true;
 
   const getDetails = async () => {
-    const details = await scrutinyDetailsData(scrutinyNumber?.edcrNumber||scrutinyNumber, stateCode);
+    const details = await scrutinyDetailsData(scrutinyNumber?.edcrNumber||scrutinyNumber, tenantIdForEdcr);
     if (details?.type == "ERROR") {
       setShowToast({ message: details?.message });
       setBasicData(null);
