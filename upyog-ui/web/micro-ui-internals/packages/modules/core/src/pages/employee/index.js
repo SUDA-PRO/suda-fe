@@ -84,7 +84,7 @@ const EmployeeApp = ({
           .employee .main,
           .employee .employee-app-wrapper {
             padding-top: 20px !important;
-            margin-left: 205px !important;
+            margin-left: 175px !important;
           }
 
           /* Sidebar menu items: active = orange highlight, hover = subtle white */
