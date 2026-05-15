@@ -15,7 +15,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSDisconnection,
     const match = useRouteMatch();
     const value = Digit.SessionStorage.get("WS_DISCONNECTION");
     const [documents, setDocuments] = useState( value.WSDisconnectionForm.documents || []);
-    let routeLink = `/suda-ui/citizen/ws/restoration-application`;
+    let routeLink = `/suda-ui/citizen/ws/restore-application/restoration-application`;
     // if(window.location.href.includes("/edit-application/"))
     // routeLink=`/suda-ui/citizen/ws/edit-disconnect-application`
     const [error, setError] = useState(null);
@@ -138,7 +138,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSDisconnection,
   return(
     <React.Fragment>
     <Header styles={{fontSize:"32px"}}>{t("WS_COMMON_SUMMARY")}</Header>
-    <DisconnectTimeline currentStep={3} />
+    <DisconnectTimeline currentStep={3} flow="restoration" />
   
     <Card style={{paddingRight:"16px"}}>
       <div style={{display: "inline"}}>
@@ -146,7 +146,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSDisconnection,
       <LinkButton
         label={<EditIcon style={{ marginTop: "-20px", float: "right", position: "relative", bottom: "32px" }} />}
         style={{ width: "100px", display:"inline" }}
-        onClick={() => routeTo(`${routeLink}/application-form`)}
+        onClick={() => routeTo(routeLink)}
       />
       </div>
       <StatusTable>
@@ -157,7 +157,25 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSDisconnection,
     </Card>
  
     <Card style={{paddingRight:"16px"}}>
-   
+      <div style={{display: "inline"}}>
+        <CardHeader styles={{fontSize:"28px"}}>{t("WS_COMMON_DOCUMENT_DETAILS")}</CardHeader>
+          <LinkButton
+            label={<EditIcon style={{ marginTop: "-20px", float: "right", position: "relative", bottom: "32px" }} />}
+            style={{ width: "100px", display: "inline" }}
+            onClick={() => routeTo(`/suda-ui/citizen/ws/restore-application/documents-upload`)}
+          />
+          </div>
+        {documents && documents?.map((doc, index) => (
+          <div key={`doc-${index}`}>
+            <div>
+              <CardSectionHeader>{t(doc?.documentType?.split('.').slice(0,2).join('_'))}</CardSectionHeader>
+              <StatusTable>
+                <WSDocument value={{documents: value.WSDisconnectionForm}} Code={doc?.documentType} index={index} showFileName={true}/>
+                {documents?.length != index + 1 ? <hr style={{color:"#cccccc",backgroundColor:"#cccccc",height:"2px",marginTop:"20px",marginBottom:"20px"}}/> : null}
+              </StatusTable>
+            </div>
+          </div>
+        ))}
         <SubmitBar label={t("CS_COMMON_SUBMIT")} onSubmit={() => onSubmit(value?.WSDisconnectionForm)} />
       </Card>
       {error && <Toast error={error?.key === "error" ? true : false} label={t(error?.message)} onClose={() => setError(null)} />}

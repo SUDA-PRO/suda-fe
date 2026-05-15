@@ -221,7 +221,7 @@ console.log("disconnectionTypes",disconnectionTypes)
 if(userType === 'citizen') {
     return (
       <div>
-        {userType === "citizen" && (<DisconnectTimeline currentStep={1} />)}
+        {userType === "citizen" && (<DisconnectTimeline currentStep={1} flow="restoration" />)}
         <FormStep
           config={config}
           onSelect={handleSubmit}
@@ -248,7 +248,7 @@ if(userType === 'citizen') {
           </div>
 
             <LabelFieldPair>
-              <CardLabel className="card-label-smaller" style={{display: "inline"}}>{t("WS_DISCONNECTION_REASON")+ "*"}</CardLabel>              
+              <CardLabel className="card-label-smaller" style={{display: "inline"}}>{t("WS_RESTORATION_REASON")+ "*"}</CardLabel>              
                 <TextArea
                   isMandatory={false}
                   optionKey="i18nKey"
@@ -263,7 +263,7 @@ if(userType === 'citizen') {
               onSubmit={() => {
                 const appDate= new Date();
                 const proposedDate= format(addDays(appDate, slaData?.slaDays), 'yyyy-MM-dd').toString();
-                history.push(match.path.replace("restoration-application", "check"));
+                history.push(match.path.replace("restoration-application", "documents-upload"));
                 
               }}
               disabled={
