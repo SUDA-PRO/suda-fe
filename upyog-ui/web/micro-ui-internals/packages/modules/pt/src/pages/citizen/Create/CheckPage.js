@@ -288,11 +288,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             text={`${t(checkForNA(electricity?.electricity))}`}
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/electricity-number`} />}
           />
-          <Row
-            label={t("PT_ASSESMENT1_ELECTRICITY_UID")}
-            text={`${t(checkForNA(uid?.uid))}`}
-            actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/electricity-uid`} />}
-          />
           {PropertyType?.code !== "VACANT" &&<Row
             label={t("PT_ASSESMENT1_PLOT_SIZE")}
             text={`${landArea?.floorarea}`}
