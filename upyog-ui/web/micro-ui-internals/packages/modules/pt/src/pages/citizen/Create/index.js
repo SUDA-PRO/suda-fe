@@ -175,7 +175,7 @@ let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetai
       if (noOofBasements !== undefined && noOofBasements !== null) newParams.noOofBasements = noOofBasements;
       if (noOfFloors !== undefined && noOfFloors !== null) newParams.noOfFloors = noOfFloors;
       if (units !== undefined) newParams.units = units;
-      if (address !== undefined) newParams.address = { ...(newParams.address || {}), ...address };
+      if (address !== undefined) newParams.address = address;
       setParams(newParams);
     } else if (key === "allOwnerDetails") {
       const { ownershipCategory, ownerData, ownerIndex, addNewOwnerIndex } = data;
