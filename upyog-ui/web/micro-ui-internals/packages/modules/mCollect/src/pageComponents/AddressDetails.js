@@ -140,7 +140,26 @@ const OwnerForm1 = (_props) => {
   const { control, formState: localFormState, watch, setError: setLocalError, clearErrors: clearLocalErrors, setValue, trigger, getValues } = useForm();
   const formValue = watch();
   const { errors } = localFormState;
-  const isMobile = window.Digit.Utils.browser.isMobile();
+  const submitAttempted = sessionStorage.getItem("mcollectSubmitAttempted") === "true";
+const fieldGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+  columnGap: "32px",
+  rowGap: "24px",
+};
+
+const stackedPairStyle = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  width: "100%",
+};
+
+const labelStyle = {
+  marginBottom: "6px",
+  textAlign: "left",
+  width: "100%",
+};
 
   const selectedPincode = useWatch({control: control, name: "pincode", defaultValue:""});
 
@@ -179,6 +198,12 @@ const OwnerForm1 = (_props) => {
   }, []);
 
   useEffect(() => {
+    if (formState?.submitCount > 0 || formState?.isSubmitted) {
+      trigger();
+    }
+  }, [formState?.submitCount, formState?.isSubmitted]);
+
+  useEffect(() => {
     if(Object.entries(formValue).length>0){
     const keys = Object.keys(formValue);
     const part = {};
@@ -211,148 +236,170 @@ const OwnerForm1 = (_props) => {
 
   const errorStyle = { width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" };
   return (
-    <div style={isMobile?{}:{marginTop:"-50px"}}>
-      <div style={{ marginBottom: "16px"}}>
-        <div>
-          <CardLabelError style={errorStyle}>{localFormState.touched.mobileNumber ? errors?.mobileNumber?.message : ""}</CardLabelError>
-          <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_DOOR_NO_LABEL")} `}</CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={"doorNo"}
-                defaultValue={consumerdetail?.doorNo}
-                //rules={{ required: t("REQUIRED_FIELD"), validate: { pattern: (val) => (/^[-@.\/#&+\w\s]*$/.test(val) ? true : t("INVALID_NAME")) } }}
-                render={(props) => (
-                  <TextInput
-                    value={props.value}
-                    //autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "name"}
-                    //errorStyle={(localFormState.touched.tradeName && errors?.tradeName?.message) ? true : false}
-                    onChange={(e) => {
-                      props.onChange(e.target.value);
-                      setFocusIndex({ index: consumerdetail.key, type: "doorNo" });
-                    }}
-                    onBlur={(e) => {
-                      setFocusIndex({ index: -1 });
-                      props.onBlur(e);
-                    }}
-                    disable={isEdit}
-                  />
-                )}
-              />
-            </div>
-          </LabelFieldPair>
-          <LabelFieldPair>
-            <CardLabel className={isMobile?"card-label-APK":"card-label-smaller"}>{`${t("UC_BLDG_NAME_LABEL")} `}</CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={"building"}
-                defaultValue={consumerdetail?.building}
-                //rules={{ required: t("REQUIRED_FIELD"), validate: { pattern: (val) => (/^[-@.\/#&+\w\s]*$/.test(val) ? true : t("INVALID_NAME")) } }}
-                render={(props) => (
-                  <TextInput
-                    value={props.value}
-                    //autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "name"}
-                    //errorStyle={(localFormState.touched.tradeName && errors?.tradeName?.message) ? true : false}
-                    onChange={(e) => {
-                      props.onChange(e.target.value);
-                      setFocusIndex({ index: consumerdetail.key, type: "building" });
-                    }}
-                    onBlur={(e) => {
-                      setFocusIndex({ index: -1 });
-                      props.onBlur(e);
-                    }}
-                    disable={isEdit}
-                  />
-                )}
-              />
-            </div>
-          </LabelFieldPair>
-          <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_SRT_NAME_LABEL")} `}</CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={"streetName"}
-                defaultValue={consumerdetail?.streetName}
-                //rules={{ required: t("REQUIRED_FIELD"), validate: { pattern: (val) => (/^[-@.\/#&+\w\s]*$/.test(val) ? true : t("INVALID_NAME")) } }}
-                render={(props) => (
-                  <TextInput
-                    value={props.value}
-                    //autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "name"}
-                    //errorStyle={(localFormState.touched.tradeName && errors?.tradeName?.message) ? true : false}
-                    onChange={(e) => {
-                      props.onChange(e.target.value);
-                      setFocusIndex({ index: consumerdetail.key, type: "streetName" });
-                    }}
-                    onBlur={(e) => {
-                      setFocusIndex({ index: -1 });
-                      props.onBlur(e);
-                    }}
-                    disable={isEdit}
-                  />
-                )}
-              />
-            </div>
-          </LabelFieldPair>
-          <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_PINCODE_LABEL")} `}</CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={"pincode"}
-                defaultValue={consumerdetail?.pincode}
-                rules={{ validate: { pattern: (val) => (/^[1-9][0-9]{5}$|^$/.test(val) ? true : t("UC_PINCODE_INVALID")) } }}
-                render={(props) => (
-                  <TextInput
-                    value={props.value}
-                    autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "pincode"}
-                    errorStyle={(localFormState.touched.pincode && errors?.pincode?.message) ? true : false}
-                    onChange={(e) => {
-                      props.onChange(e.target.value);
-                      setPincode(e.target.value);
-                      setFocusIndex({ index: consumerdetail.key, type: "pincode" });
-                    }}
-                    onBlur={(e) => {
-                      setFocusIndex({ index: -1 });
-                      props.onBlur(e);
-                    }}
-                    disable={isEdit}
-                  />
-                )}
-              />
-            </div>
-          </LabelFieldPair>
-          <CardLabelError style={errorStyle}>{localFormState.touched.pincode ? errors?.pincode?.message : ""}</CardLabelError>
-          <LabelFieldPair>
-            <CardLabel  style={{paddingTop:"10px"}} className="card-label-smaller">{`${t("UC_MOHALLA_LABEL")} `}<span className="check-page-link-button"> *</span></CardLabel>
+  <div style={{ marginTop: "32px" }}>
+
+    <CardSectionHeader>{t("UC_ADDRESS_DETAILS")}</CardSectionHeader>
+
+    {/* ===== ROW 1 ===== */}
+    <div style={fieldGridStyle}>
+
+      {/* Door No */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_DOOR_NO_LABEL")}
+          </CardLabel>
+
+          <div style={{ width: "100%" }}>
+            <Controller
+              control={control}
+              name="doorNo"
+              defaultValue={consumerdetail?.doorNo}
+              render={(props) => (
+                <TextInput
+                  style={{ height: "44px" }}
+                  value={props.value}
+                  onChange={(e) => props.onChange(e.target.value)}
+                  disable={isEdit}
+                />
+              )}
+            />
+          </div>
+        </LabelFieldPair>
+      </div>
+
+      {/* Building */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_BLDG_NAME_LABEL")}
+          </CardLabel>
+
+          <div style={{ width: "100%" }}>
+            <Controller
+              control={control}
+              name="building"
+              defaultValue={consumerdetail?.building}
+              render={(props) => (
+                <TextInput
+                  style={{ height: "44px" }}
+                  value={props.value}
+                  onChange={(e) => props.onChange(e.target.value)}
+                  disable={isEdit}
+                />
+              )}
+            />
+          </div>
+        </LabelFieldPair>
+      </div>
+
+      {/* Street */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_SRT_NAME_LABEL")}
+          </CardLabel>
+
+          <div style={{ width: "100%" }}>
+            <Controller
+              control={control}
+              name="streetName"
+              defaultValue={consumerdetail?.streetName}
+              render={(props) => (
+                <TextInput
+                  style={{ height: "44px" }}
+                  value={props.value}
+                  onChange={(e) => props.onChange(e.target.value)}
+                  disable={isEdit}
+                />
+              )}
+            />
+          </div>
+        </LabelFieldPair>
+      </div>
+
+    </div>
+
+    {/* ===== ROW 2 ===== */}
+    <div style={{ ...fieldGridStyle, marginTop: "20px" }}>
+
+      {/* Pincode */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_PINCODE_LABEL")}
+          </CardLabel>
+
+          <div style={{ width: "100%" }}>
+            <Controller
+              control={control}
+              name="pincode"
+              defaultValue={consumerdetail?.pincode}
+              render={(props) => (
+                <TextInput
+                  style={{ height: "44px" }}
+                  value={props.value}
+                  onChange={(e) => {
+                    props.onChange(e.target.value);
+                    setPincode(e.target.value);
+                  }}
+                  disable={isEdit}
+                />
+              )}
+            />
+          </div>
+        </LabelFieldPair>
+
+        <CardLabelError style={{ fontSize: "12px" }}>
+          {(submitAttempted || formState?.submitCount > 0) &&
+            errors?.pincode?.message}
+        </CardLabelError>
+      </div>
+
+      {/* Mohalla */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_MOHALLA_LABEL")} <span style={{ color: "red" }}>*</span>
+          </CardLabel>
+
+          <div style={{ width: "100%" }}>
             <Controller
               name="mohalla"
-              rules={{ required: t("REQUIRED_FIELD") }}
-              defaultValue={consumerdetail?.mohalla}
               control={control}
+              rules={{ required: t("REQUIRED_FIELD") }}
               render={(props) => (
                 <Dropdown
-                  className="form-field"
+                  style={{ height: "44px" }}
                   selected={props.value}
-                  isMandatory={true}
-                  //errorStyle={(localFormState.touched.financialYear && errors?.financialYear?.message) ? true : false}
-                  // disable={financialYearOptions?.length === 1}
                   option={localities}
-                  select={props.onChange}
                   optionKey="i18nkey"
-                  onBlur={props.onBlur}
-                  disable={isEdit}
+                  select={props.onChange}
                   t={t}
                 />
               )}
             />
-          </LabelFieldPair>     
+          </div>
+        </LabelFieldPair>
+
+        <CardLabelError style={{ fontSize: "12px" }}>
+          {(submitAttempted || formState?.submitCount > 0) &&
+            errors?.mohalla?.message}
+        </CardLabelError>
       </div>
-      </div>
-       <hr style={{ width: "100%", border: "1px solid #D6D5D4", marginTop: "50px", marginBottom: "40px" }} />
+
     </div>
-  );
+
+    <hr
+      style={{
+        width: "100%",
+        border: "1px solid #D6D5D4",
+        marginTop: "40px",
+        marginBottom: "30px",
+      }}
+    />
+
+  </div>
+);
 };
 export default AddressDetails;

@@ -46,6 +46,20 @@ const getformDataforEdit = (ChallanData,fetchBillData) => {
 
 
 const NewChallan = ({ChallanData}) => {
+  if (typeof window !== "undefined") {
+    window.__MCOLLECT_NEWCHALLAN_SOURCE = "src/pages/employee/NewChallan/index.js";
+  }
+  const fieldLabelMap = {
+    ConsumerName: "Consumer Name",
+    mobileNumber: "Mobile Number",
+    city: "City",
+    mohalla: "Mohalla",
+    category: "Service Category",
+    categoryType: "Service Type",
+    fromDate: "From Date",
+    toDate: "To Date",
+  };
+
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const { t } = useTranslation();
   const { url } = useRouteMatch();
@@ -95,31 +109,150 @@ const NewChallan = ({ChallanData}) => {
     setError(null);
   };
 
+  const isNonEmptyObject = (value) => {
+    return !!value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0;
+  };
+
+  const getMissingMandatoryKeysFromPayload = (payload) => {
+    const missing = [];
+
+    if (!payload?.ConsumerName) missing.push("ConsumerName");
+    if (!payload?.mobileNumber) missing.push("mobileNumber");
+    if (!payload?.city?.code) missing.push("city");
+    if (!payload?.mohalla?.code) missing.push("mohalla");
+    if (!payload?.category?.code) missing.push("category");
+    if (!payload?.categoryType?.code) missing.push("categoryType");
+    if (!payload?.fromDate) missing.push("fromDate");
+    if (!payload?.toDate) missing.push("toDate");
+
+    return missing;
+  };
+
+  const getLikelyMissingFieldKeys = () => {
+    const snapshot = JSON.parse(sessionStorage.getItem("mcollectFormData") || "{}");
+    const missing = [];
+
+    if (!snapshot?.ConsumerName) missing.push("ConsumerName");
+    if (!snapshot?.mobileNumber) missing.push("mobileNumber");
+    if (!snapshot?.mohalla?.code) missing.push("mohalla");
+    if (!snapshot?.city?.code) missing.push("city");
+    if (!snapshot?.category?.code) missing.push("category");
+    if (!snapshot?.categoryType?.code) missing.push("categoryType");
+    if (!snapshot?.fromDate) missing.push("fromDate");
+    if (!snapshot?.toDate) missing.push("toDate");
+
+    return missing;
+  };
+
+  const collectRequiredFieldKeys = (node, fallbackKey, bag = new Set()) => {
+    if (!node || typeof node !== "object") return bag;
+
+    if (node?.type === "required") {
+      bag.add(node?.ref?.name || fallbackKey);
+    }
+
+    Object.entries(node).forEach(([key, value]) => {
+      const nextFallback = key === "type" || key === "message" || key === "ref" ? fallbackKey : key;
+      collectRequiredFieldKeys(value, nextFallback, bag);
+    });
+
+    return bag;
+  };
+
+  const onFormValidationError = (formErrors) => {
+    sessionStorage.setItem("mcollectSubmitAttempted", "true");
+    const requiredFromErrors = [...collectRequiredFieldKeys(formErrors, "")].filter(Boolean);
+    const requiredFromSnapshot = getLikelyMissingFieldKeys();
+    const requiredKeys = [...new Set([...requiredFromErrors, ...requiredFromSnapshot])];
+    const label = requiredKeys.length ? "fill all mandatory fields" : "Submit blocked due to invalid input. Please check highlighted fields.";
+
+    setShowToast({ key: "error", label });
+  };
+
   useEffect(() => {
     setMutationHappened(false);
     clearSuccessData();
   }, []);
 
+  useEffect(() => {
+    if (!showToast) return;
+    const timer = setTimeout(() => setShowToast(null), 5000);
+    return () => clearTimeout(timer);
+  }, [showToast]);
+
+  
   window.onunload = function () {
     sessionStorage.removeItem("mcollectFormData");
+    sessionStorage.removeItem("mcollectSubmitAttempted");
   }
   const onFormValueChange = (setValue, formData, formState) => {
+    if (!Object.keys(formState.errors || {}).length) {
+      sessionStorage.removeItem("mcollectSubmitAttempted");
+    }
     setSubmitValve(!Object.keys(formState.errors).length);
   };
 
   const onSubmit = (data) => {
-    let mcollectFormValue = JSON.parse(sessionStorage.getItem("mcollectFormData"));
-    data = mcollectFormValue? mcollectFormValue : data?.consomerDetails1?.[0];
-    let TaxHeadMasterKeys= data[`${data?.category?.code?.split(".")[0]}`] ? Object.keys(data[`${data?.category?.code?.split(".")[0]}`]) : [];
-    let TaxHeadMasterValues = data[`${data?.category?.code?.split(".")[0]}`] ? Object.values(data[`${data?.category?.code?.split(".")[0]}`]) : [];
+    sessionStorage.setItem("mcollectSubmitAttempted", "true");
+    if (typeof window !== "undefined") {
+      window.__MCOLLECT_ONSUBMIT_MARKER = "V4";
+    }
+
+    try {
+      let mcollectFormValue;
+      try {
+        const stored = sessionStorage.getItem("mcollectFormData");
+        mcollectFormValue = JSON.parse(stored);
+      } catch (parseErr) {
+        mcollectFormValue = null;
+      }
+      // consomerDetails1 is shared by all three form sections; each onSelect overwrites the
+      // previous, so search ALL elements of the array to find the one that holds citizen fields.
+      const consomerArray = Array.isArray(data?.consomerDetails1) ? data.consomerDetails1 : [];
+      const consumerFormData = consomerArray.find(
+        (item) => item && (item.ConsumerName || item.mobileNumber)
+      ) || {};
+      const submittedData = data?.consomerDetails1?.[0];
+      data = isNonEmptyObject(mcollectFormValue) ? mcollectFormValue : submittedData;
+      // Patch citizen fields from the raw form submission when sessionStorage is missing them
+      if (!data.ConsumerName && consumerFormData.ConsumerName) data.ConsumerName = consumerFormData.ConsumerName;
+      if (!data.mobileNumber && consumerFormData.mobileNumber) data.mobileNumber = consumerFormData.mobileNumber;
+      if (!data.emailId && consumerFormData.emailId) data.emailId = consumerFormData.emailId;
+      if (!data.workTitle && consumerFormData.workTitle) data.workTitle = consumerFormData.workTitle;
+
+      const missingMandatoryKeys = getMissingMandatoryKeysFromPayload(data);
+      if (!isNonEmptyObject(data) || missingMandatoryKeys.length > 0) {
+        const label = "fill all mandatory fields";
+
+        setShowToast({ key: "error", label });
+        return;
+      }
+
+
+    const categoryPrefix = data?.category?.code?.split(".")?.[0];
+    let TaxHeadMasterKeys = [];
+    let TaxHeadMasterValues = [];
+    if (categoryPrefix) {
+      if (data[categoryPrefix] && typeof data[categoryPrefix] === "object") {
+        // edit flow: data["CH"] = { "TAX_SUFFIX": "500", ... }
+        TaxHeadMasterKeys = Object.keys(data[categoryPrefix]);
+        TaxHeadMasterValues = Object.values(data[categoryPrefix]);
+      } else {
+        // new challan flow: flat keys stored as "CH.TAX_SUFFIX": "500"
+        const flatEntries = Object.entries(data).filter(([k]) => k.startsWith(categoryPrefix + "."));
+        TaxHeadMasterKeys = flatEntries.map(([k]) => k.slice(categoryPrefix.length + 1));
+        TaxHeadMasterValues = flatEntries.map(([, v]) => v);
+      }
+    }
     let Challan = {};
     if(!isEdit){
       let temp = data?.category?.code;
       Challan = {
         citizen: {
-          name: data.ConsumerName,
-          mobileNumber: data.mobileNumber,
-          emailId: data.emailId
+          name: data.ConsumerName || "",
+          workTitle: data.workTitle || "",
+          mobileNumber: data.mobileNumber || "",
+          emailId: data.emailId || "",
         },
         //businessService: selectedCategoryType ? temp + "." + humanized(selectedCategoryType.code, temp) : "",
         businessService:data?.categoryType?.code,
@@ -187,10 +320,12 @@ const NewChallan = ({ChallanData}) => {
         })
         .catch((e) => setShowToast({ key: "error", label: e?.response?.data?.Errors[0].message }));
     } else {
+
       Digit.MCollectService.create({ Challan: Challan }, tenantId)
         .then((result, err) => {
           if (result.challans && result.challans.length > 0) {
             const challan = result.challans[0];
+
             sessionStorage.removeItem("mcollectFormData");
             Digit.MCollectService.generateBill(challan.challanNo, tenantId, challan.businessService, "challan").then((response) => {
               if (response.Bill && response.Bill.length > 0) {
@@ -203,6 +338,10 @@ const NewChallan = ({ChallanData}) => {
           }
         })
         .catch((e) => {setShowToast({ key: "error", label: e?.response?.data?.Errors[0].message })});
+    }
+    } catch (error) {
+
+      setShowToast({ key: "error", label: `Form submission error: ${error.message}` });
     }
   };
   let configs = newConfig || [];
@@ -226,14 +365,24 @@ const NewChallan = ({ChallanData}) => {
   }
 
   return (
-    <div>
+    <div className="mcollect-challan-form">
+      <style>{`
+        .mcollect-challan-form .submit-bar {
+          width: 120px !important;
+          height: 40px !important;
+          box-shadow: none !important;
+          display: block !important;
+          margin-left: auto !important;
+          border-radius: 8px !important;
+        }
+      `}</style>
       <div style={isMobile?{}:{ marginLeft: "15px" }}>
         <Header>{isEdit ? t("UC_UPDATE_CHALLAN"):t("UC_COMMON_HEADER")}</Header>
       </div>
       {isEdit && !(JSON.parse(sessionStorage.getItem("mcollectEditObject"))) && !defaultUpdatedValue ? <Loader />
        :<FormComposer
         heading={t("")}
-        //isDisabled={!canSubmit}
+        isDisabled={false}
         label={t("ES_COMMON_APPLICATION_SUBMIT")}
         config={configs.map((config) => {
           return {
@@ -246,11 +395,13 @@ const NewChallan = ({ChallanData}) => {
         })}
         fieldStyle={{ marginRight: 0 }}
         onSubmit={onSubmit}
+          onFormValidationError={onFormValidationError}
         defaultValues={defaultValues}
         onFormValueChange={onFormValueChange}
         breaklineStyle={{ border: "0px" }}
+        submitInForm={true}
       />}
-      {showToast && <Toast error={showToast?.key === "error" ? true : false} label={showToast?.label} onClose={closeToast} />}
+      {showToast && <Toast error={showToast?.key === "error" ? true : false} isDleteBtn={true} label={showToast?.label} onClose={closeToast} style={showToast?.key === "error" ? { backgroundColor: "#C62828" } : {}} />}
     </div>
   );
 };

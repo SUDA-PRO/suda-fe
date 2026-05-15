@@ -57,13 +57,20 @@ const ChallanSearchResults = ({ template, header, actionButtonLabel }) => {
 
   return (
     <div style={{ marginTop: "16px" }}>
-      <div >
+      <div>
         {header && (
-          <Header style={{ marginLeft: "8px" }}>
-            {t(header)} ({searchResults?.length})
-          </Header>
+          <div style={{ marginBottom: "16px" }}>
+            <p style={{ margin: "0 0 4px", color: "#505A5F", fontSize: "14px" }}>
+              {t("CS_APPLICATIONS_FOR")}
+            </p>
+            <p style={{ margin: 0, fontSize: "22px", fontWeight: "600", color: "#0B0C0C" }}>
+              {t("CS_MISCELLANEOUS_APPLICATIONS")}
+            </p>
+          </div>
         )}
-        <ResponseComposer data={searchResults} template={template} actionButtonLabel={actionButtonLabel} onSubmit={onSubmit} />
+        {!searchResults || searchResults.length === 0 ? null : (
+          <ResponseComposer data={searchResults} template={template} actionButtonLabel={actionButtonLabel} onSubmit={onSubmit} />
+        )}
       </div>
     </div>
   );
