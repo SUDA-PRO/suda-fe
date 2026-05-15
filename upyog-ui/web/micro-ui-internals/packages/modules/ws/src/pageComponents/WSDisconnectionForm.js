@@ -112,6 +112,21 @@ const WSDisconnectionForm = ({ t, config, onSelect, userType }) => {
   }, [disconnectionReason]);
 
   useEffect(() => {
+    if (!disconnectionReasonList.length) return;
+    // If reason.value is already a proper option object, nothing to do
+    if (disconnectionData.reason?.value && typeof disconnectionData.reason.value === "object" && disconnectionData.reason.value.code) return;
+    // Derive the raw code — either it was stored as a string in form state, or fall back to applicationData
+    const rawReasonCode = typeof disconnectionData.reason?.value === "string"
+      ? disconnectionData.reason.value
+      : applicationData?.applicationData?.disconnectionReason;
+    if (!rawReasonCode) return;
+    const matchedOption = disconnectionReasonList.find((opt) => opt.code === rawReasonCode);
+    if (matchedOption) {
+      filedChange({ code: "reason", value: matchedOption });
+    }
+  }, [disconnectionReasonList]);
+
+  useEffect(() => {
     Digit.SessionStorage.set("WS_DISCONNECTION", {...applicationData, WSDisconnectionForm: disconnectionData});
   }, [disconnectionData]);
   const handleSubmit = () => onSelect(config.key, { WSDisConnectionForm: disconnectionData });
@@ -301,8 +316,7 @@ if(userType === 'citizen') {
                   optionKey="i18nKey"
                   t={t}
                   name={"reason"}
-                  value={disconnectionData.reason?.value?.code}
-                  selectedOption={disconnectionData.reason?.value}
+                  selected={disconnectionData.reason?.value}
                   labelKey="WS_DISCONNECTION_REASON"
                   select={(e) => filedChange({code:"reason" , value:e})}
                 />              
@@ -442,8 +456,7 @@ if(userType === 'citizen') {
                   optionKey="i18nKey"
                   t={t}
                   name={"reason"}
-                  value={disconnectionData.reason?.value?.code}
-                  selectedOption={disconnectionData.reason?.value}
+                  selected={disconnectionData.reason?.value}
                   select={(e) => filedChange({code:"reason" , value:e})}
                   labelKey="WS_DISCONNECTION_REASON"
                 />  

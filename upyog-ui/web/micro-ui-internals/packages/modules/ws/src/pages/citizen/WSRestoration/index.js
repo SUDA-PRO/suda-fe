@@ -33,7 +33,17 @@ let configNew = [{
   "key": "WSRestorationForm",
   "type": "component",
   "withoutLabel": true,
-  "nextStep": "check"
+  "nextStep": "documents-upload"
+},
+{
+  "route": "documents-upload",
+  "component": "WSDisconnectionDocumentsForm",
+  "key": "WSDisconnectionDocumentsForm",
+  "type": "component",
+  "isMandatory": true,
+  "withoutLabel": true,
+  "nextStep": "check",
+  "hideInEmployee": true
 },
 {
   "route": "check",
