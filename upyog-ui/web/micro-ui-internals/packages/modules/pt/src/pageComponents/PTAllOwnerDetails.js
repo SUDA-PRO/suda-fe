@@ -95,6 +95,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const [name, setName] = useState(existingOwner.name || "");
   const [gender, setGender] = useState(existingOwner.gender || null);
   const [mobileNumber, setMobileNumber] = useState(existingOwner.mobileNumber || "");
+  const [alternateMobileNumber, setAlternateMobileNumber] = useState(existingOwner.alternateMobileNumber || "");
   const [fatherOrHusbandName, setFatherOrHusbandName] = useState(existingOwner.fatherOrHusbandName || "");
   const [relationship, setRelationship] = useState(existingOwner.relationship || null);
   const [email, setEmail] = useState(existingOwner.emailId || "");
@@ -224,6 +225,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     setName(existing.name || "");
     setGender(existing.gender || null);
     setMobileNumber(existing.mobileNumber || "");
+    setAlternateMobileNumber(existing.alternateMobileNumber || "");
     setFatherOrHusbandName(existing.fatherOrHusbandName || "");
     setRelationship(existing.relationship || null);
     setEmail(existing.emailId || "");
@@ -271,6 +273,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
       name,
       gender,
       mobileNumber,
+      altContactNumber: alternateMobileNumber,
       fatherOrHusbandName,
       relationship,
       emailId: email,
@@ -495,21 +498,18 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
             </div>
           </div>
 
-          {/* Row 3: Guardian Name | Email */}
+          {/* Row 3: Alternate Mobile Number | Email */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
             <div>
-              <CardLabel>
-                {t("PT_FORM3_GUARDIAN_NAME")}
-                <span className="check-page-link-button"> *</span>
-              </CardLabel>
+              <CardLabel>{t("PT_FORM3_ALTERNATE_MOBILE_NUMBER")}</CardLabel>
               <div className="field">
-                <TextInput
-                  name="fatherOrHusbandName"
-                  type="text"
-                  value={fatherOrHusbandName}
-                  onChange={(e) => setFatherOrHusbandName(e.target.value)}
-                  pattern="^[a-zA-Z ]+$"
-                  title={t("PT_NAME_ERROR_MESSAGE")}
+                <MobileNumber
+                  value={alternateMobileNumber}
+                  name="alternateMobileNumber"
+                  onChange={(val) => setAlternateMobileNumber(val)}
+                  pattern="[6-9]{1}[0-9]{9}"
+                  type="tel"
+                  title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
                 />
               </div>
             </div>
@@ -545,21 +545,39 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
             />
           </div>
 
-          {/* Row 5: Relationship — full width radio */}
-          <div>
-            <CardLabel>
-              {t("PT_FORM3_RELATIONSHIP")}
-              <span className="check-page-link-button"> *</span>
-            </CardLabel>
-            <RadioButtons
-              t={t}
-              optionsKey="i18nKey"
-              options={GuardianOptions}
-              selectedOption={relationship}
-              onSelect={setRelationship}
-              isDependent={true}
-              labelKey="PT_RELATION"
-            />
+          {/* Row 5: Relationship (left) | Husband/Father's Name (right) */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px", alignItems: "start" }}>
+            <div>
+              <CardLabel>
+                {t("PT_FORM3_RELATIONSHIP")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <RadioButtons
+                t={t}
+                optionsKey="i18nKey"
+                options={GuardianOptions}
+                selectedOption={relationship}
+                onSelect={setRelationship}
+                isDependent={true}
+                labelKey="PT_RELATION"
+              />
+            </div>
+            <div>
+              <CardLabel>
+                {t("PT_FORM3_HUSBAND_FATHER_NAME")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <TextInput
+                  name="fatherOrHusbandName"
+                  type="text"
+                  value={fatherOrHusbandName}
+                  onChange={(e) => setFatherOrHusbandName(e.target.value)}
+                  pattern="^[a-zA-Z ]+$"
+                  title={t("PT_NAME_ERROR_MESSAGE")}
+                />
+              </div>
+            </div>
           </div>
 
           {/* Row 6: Special Owner Category — full width radio */}

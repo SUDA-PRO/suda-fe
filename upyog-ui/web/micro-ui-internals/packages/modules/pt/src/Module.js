@@ -203,7 +203,10 @@ export const PTModule = ({ stateCode, userType, tenants }) => {
 
   addComponentsToRegistry();
 
-  Digit.SessionStorage.set("PT_TENANTS", tenants);
+  useEffect(() => {
+    Digit.SessionStorage.set("PT_TENANTS", tenants);
+  }, [tenants]);
+
   useEffect(
     () =>
       userType === "employee" &&

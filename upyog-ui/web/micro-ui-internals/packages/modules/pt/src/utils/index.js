@@ -593,6 +593,7 @@ export const convertToProperty = (data = {}) => {
         electricity:data.electricity.electricity,
         ageOfProperty: data.propertyStructureDetails.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
+        isVacantLandRented: data?.isVacantLandRented?.code || null,
         owners: data.owners,
       },
 
@@ -797,6 +798,7 @@ export const convertToUpdateProperty = (data = {}, t) => {
         basement2: basement2,
         ageOfProperty: data.propertyStructureDetails.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
+        isVacantLandRented: data?.isVacantLandRented?.code || null,
       },
 
       creationReason: window.location.href.includes("edit-application")?"UPDATE":getCreationReason(data),

@@ -14,6 +14,7 @@ import FormStep from "../../../../react-components/src/molecules/FormStep";
 import Timeline from "../components/TLTimeline";
 import { stringReplaceAll } from "../utils";
 import UploadFileDigiLocker from "../utils/UploadFile";
+import PTMapPicker from "./PTMapPicker";
 
 const getUsageCategoryParsed = (code = "") => {
   const arr = code.split(".");
@@ -100,6 +101,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 
   /* ── Land Area (Independent & Vacant) ── */
   const [floorarea, setFloorarea] = useState(formData?.landArea?.floorarea || "");
+
+  /* ── Vacant Land Rented ── */
+  const vacantLandRentedOptions = [
+    { i18nKey: "PT_COMMON_YES", code: "YES" },
+    { i18nKey: "PT_COMMON_NO", code: "NO" },
+  ];
+  const [isVacantLandRented, setIsVacantLandRented] = useState(formData?.isVacantLandRented || null);
 
   /* ── Number of Basements (Independent) ── */
   const basementOptions = [
@@ -259,6 +267,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!propertyStructureDetails?.structureType) return false;
     if (!propertyStructureDetails?.ageOfProperty) return false;
     if ((isIndependent || isVacant) && !floorarea) return false;
+    if (isVacant && !isVacantLandRented) return false;
     if (isIndependent && (noOofBasements === null || noOfFloors === null)) return false;
     if (isIndependent && floorUnits.length > 0) {
       const allValid = floorUnits.every((unit) => {
@@ -316,6 +325,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       electricity: { electricity },
       propertyStructureDetails,
       landArea: isIndependent || isVacant ? { floorarea } : undefined,
+      isVacantLandRented: isVacant ? isVacantLandRented : undefined,
       noOofBasements: isIndependent ? noOofBasements : undefined,
       noOfFloors: isIndependent ? noOfFloors : undefined,
       units: unitsData,
@@ -326,6 +336,11 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         street,
         doorNo,
         landmark,
+        latitude: latitude || undefined,
+        longitude: longitude || undefined,
+        mapAddress: (mapAddress?.district || mapAddress?.tehsil || mapAddress?.zone || mapAddress?.ward)
+          ? mapAddress
+          : undefined,
         documents: {
           ...(formData?.address?.documents || {}),
           ProofOfAddress: { documentType: proofDocType, fileStoreId: uploadedFile },
@@ -367,6 +382,50 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
   const [uploadedFileObj, setUploadedFileObj] = useState(formData?.address?.documents?.ProofOfAddress || null);
   const [uploadError, setUploadError] = useState(null);
+
+  /* ── Map coordinates ── */
+  const [latitude, setLatitude] = useState(formData?.address?.latitude || null);
+  const [longitude, setLongitude] = useState(formData?.address?.longitude || null);
+
+  const handleLocationSelect = (lat, lng) => {
+    setLatitude(lat);
+    setLongitude(lng);
+  };
+
+  /* ── Map-resolved address attributes ── */
+  const [mapAddress, setMapAddress] = useState(
+    formData?.address?.mapAddress || { district: "", tehsil: "", zone: "", ward: "", state: "" }
+  );
+
+  const handleAddressResolve = (resolved) => {
+    setMapAddress({
+      district: resolved.district || "",
+      tehsil:   resolved.tehsil   || "",
+      zone:     resolved.zone     || "",
+      ward:     resolved.ward     || "",
+      state:    resolved.state    || "",
+    });
+    // Always update pincode from map (more accurate)
+    if (resolved.pincode) setPincode(resolved.pincode);
+    // Auto-populate street if currently empty
+    if (resolved.street && !street) setStreet(resolved.street);
+    // Match city from tenant list (case-insensitive) and auto-select
+    if (resolved.city && allCities?.length) {
+      const resolvedCity = resolved.city.toLowerCase();
+      const matched = allCities.find(
+        (c) =>
+          c.name?.toLowerCase() === resolvedCity ||
+          c.code?.toLowerCase() === resolvedCity ||
+          c.name?.toLowerCase().includes(resolvedCity) ||
+          resolvedCity.includes(c.name?.toLowerCase())
+      );
+      if (matched) {
+        setSelectedCity(matched);
+        setSelectedLocality(null);
+        setLocalities([]);
+      }
+    }
+  };
 
   useEffect(() => {
     if (!allCities?.length) return;
@@ -597,14 +656,39 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
         </div>
 
-        {/* Row 2: BP Number | [Usage Category] | Structure Type | Age of Property */}
+        {/* Row 2: Is Vacant Land Rented (when vacant) | BP Number | Usage Category (when non-res) */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: isNonResidential ? "1fr 1fr 1fr 1fr" : "1fr 1fr 1fr",
+            gridTemplateColumns: (() => {
+              const cols = [];
+              if (isVacant) cols.push("1fr");
+              cols.push("1fr");
+              if (isNonResidential) cols.push("1fr");
+              return cols.join(" ");
+            })(),
             gap: "0 24px",
           }}
         >
+          {isVacant && (
+            <div>
+              <CardLabel>
+                {t("PT_IS_VACANT_LAND_RENTED")}
+                <span className="check-page-link-button"> *</span>
+              </CardLabel>
+              <div className="field">
+                <Dropdown
+                  t={t}
+                  optionKey="i18nKey"
+                  isMandatory={true}
+                  option={vacantLandRentedOptions}
+                  selected={isVacantLandRented}
+                  select={setIsVacantLandRented}
+                  placeholder={t("PT_SELECT_PLACEHOLDER")}
+                />
+              </div>
+            </div>
+          )}
           <div>
             <CardLabel>
               {t("PT_BP_NUMBER")}
@@ -645,6 +729,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Row 3: Structure Type | Age of Property */}
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
           <div>
             <CardLabel>
               {t("PT_STRUCTURE_TYPE")}
@@ -685,7 +773,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
         </div>
 
-        {/* Row 3: Plot Size | No. of Basements (conditional) */}
+        {/* Row 4: Plot Size | No. of Basements (conditional) */}
         {(isIndependent || isVacant) && (
           <div
             style={{
@@ -727,7 +815,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
         )}
 
-        {/* Row 4: No. of Floors (full-width, Independent only) */}
+        {/* No. of Floors (full-width, Independent only) */}
         {isIndependent && (
           <div>
             <CardLabel>{t("BPA_SCRUTINY_DETAILS_NUMBER_OF_FLOORS_LABEL")}</CardLabel>
@@ -972,6 +1060,115 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               maxLength={1024}
               style={{ border: "1px solid #b1b4b6", borderRadius: "8px", width: "100%" }}
             />
+          </div>
+
+          {/* Map Location Picker */}
+          <div style={{ marginBottom: "24px" }}>
+            <CardLabel style={{ fontWeight: "700", fontSize: "16px", marginBottom: "4px" }}>
+              {t("PT_MAP_LOCATION_LABEL") || "Property Location on Map"}
+              <span style={{ fontSize: "13px", fontWeight: "400", color: "#505a5f", marginLeft: "8px" }}>
+                ({t("PT_MAP_OPTIONAL_LABEL") || "optional"})
+              </span>
+            </CardLabel>
+            <PTMapPicker
+              lat={latitude}
+              lng={longitude}
+              onLocationSelect={handleLocationSelect}
+              onAddressResolve={handleAddressResolve}
+              t={t}
+            />
+
+            {/* Auto-populated address attributes from map */}
+            {(mapAddress?.district || mapAddress?.tehsil || mapAddress?.zone || mapAddress?.ward || latitude || longitude) && (
+              <div
+                style={{
+                  marginTop: "12px",
+                  background: "#F0F7FF",
+                  border: "1px solid #C3DEF0",
+                  borderRadius: "8px",
+                  padding: "12px 16px",
+                }}
+              >
+                <div style={{ fontSize: "12px", fontWeight: "600", color: "#505a5f", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {t("PT_MAP_DETECTED_ADDRESS") || "Detected from Map Pin"}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px" }}>
+                  {[
+                    { label: t("PT_MAP_DISTRICT") || "District",  key: "district" },
+                    { label: t("PT_MAP_TEHSIL")   || "Tehsil",    key: "tehsil"   },
+                    { label: t("PT_MAP_ZONE")     || "Zone",      key: "zone"     },
+                    { label: t("PT_MAP_WARD")     || "Ward",      key: "ward"     },
+                  ].map(({ label, key }) => (
+                    <div key={key}>
+                      <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{label}</div>
+                      <input
+                        type="text"
+                        value={mapAddress[key] || ""}
+                        onChange={(e) => setMapAddress((prev) => ({ ...prev, [key]: e.target.value }))}
+                        placeholder={mapAddress[key] ? "" : "Not detected — enter manually"}
+                        style={{
+                          width: "100%",
+                          height: "36px",
+                          padding: "0 10px",
+                          border: "1px solid #b1b4b6",
+                          borderRadius: "6px",
+                          fontSize: "13px",
+                          background: mapAddress[key] ? "#fff" : "#fafafa",
+                          boxSizing: "border-box",
+                          color: mapAddress[key] ? "#1a1a1a" : "#888",
+                        }}
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LATITUDE") || "Latitude"}</div>
+                    <input
+                      type="text"
+                      value={latitude ?? ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLatitude(v === "" ? null : v);
+                      }}
+                      placeholder="e.g. 26.8467"
+                      style={{
+                        width: "100%",
+                        height: "36px",
+                        padding: "0 10px",
+                        border: "1px solid #b1b4b6",
+                        borderRadius: "6px",
+                        fontSize: "13px",
+                        background: latitude ? "#fff" : "#fafafa",
+                        boxSizing: "border-box",
+                        color: latitude ? "#1a1a1a" : "#888",
+                      }}
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LONGITUDE") || "Longitude"}</div>
+                    <input
+                      type="text"
+                      value={longitude ?? ""}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLongitude(v === "" ? null : v);
+                      }}
+                      placeholder="e.g. 80.9462"
+                      style={{
+                        width: "100%",
+                        height: "36px",
+                        padding: "0 10px",
+                        border: "1px solid #b1b4b6",
+                        borderRadius: "6px",
+                        fontSize: "13px",
+                        background: longitude ? "#fff" : "#fafafa",
+                        boxSizing: "border-box",
+                        color: longitude ? "#1a1a1a" : "#888",
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Proof of Address */}
