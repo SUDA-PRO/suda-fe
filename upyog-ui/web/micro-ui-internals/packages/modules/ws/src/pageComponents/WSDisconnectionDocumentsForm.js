@@ -38,7 +38,7 @@ function WSDisconnectionDocumentsForm({ t, config, onSelect, userType, formData 
 
   return (
     <div style={{ marginTop: "19px" }}>
-      {userType === "citizen" && (<DisconnectTimeline currentStep={2} />)}
+      {userType === "citizen" && (<DisconnectTimeline currentStep={2} flow={window.location.href.includes("restore-application") ? "restoration" : ""} />)}
       <FormStep
         t={t}
         config={config}

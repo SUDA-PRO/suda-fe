@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FormStep, TextArea, LabelFieldPair, CardLabel } from "@upyog/digit-ui-react-components";
+import { FormStep, TextInput, LabelFieldPair, CardLabel } from "@upyog/digit-ui-react-components";
 import Timeline from "../components/TLTimeline";
 
 const PTSelectLandmark = ({ t, config, onSelect, formData, userType }) => {
@@ -10,7 +10,7 @@ const PTSelectLandmark = ({ t, config, onSelect, formData, userType }) => {
   const inputs = [
     {
       label: "ES_NEW_APPLICATION_LOCATION_LANDMARK",
-      type: "textarea",
+      type: "text",
       name: "landmark",
       validation: {
         maxLength: 1024,
@@ -44,7 +44,7 @@ const PTSelectLandmark = ({ t, config, onSelect, formData, userType }) => {
             {t(input.label)}
             {config.isMandatory ? " * " : null}
           </CardLabel>
-          <TextArea className="form-field" id={input.name} value={landmark} onChange={onChange} name={input.name || ""} {...input.validation} />
+          <TextInput className="form-field" id={input.name} value={landmark} onChange={onChange} name={input.name || ""} type="text" {...input.validation} />
         </LabelFieldPair>
       );
     });

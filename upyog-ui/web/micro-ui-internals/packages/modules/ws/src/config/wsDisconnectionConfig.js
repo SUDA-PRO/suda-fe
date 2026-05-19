@@ -111,7 +111,7 @@ export const newConfig = [
         type: "component",
         isMandatory: true,
         withoutLabel: true,
-        nextStep: "resubmit-check",
+        nextStep: "check",
         hideInEmployee: true,
       },
       {

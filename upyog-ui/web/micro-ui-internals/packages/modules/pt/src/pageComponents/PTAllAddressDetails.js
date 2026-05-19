@@ -4,7 +4,6 @@ import {
   CardLabelDesc,
   Dropdown,
   TextInput,
-  TextArea,
   UploadFile,
   RadioOrSelect,
   FormStep,
@@ -259,8 +258,8 @@ const PTAllAddressDetails = ({ t, config, onSelect, userType, formData = {} }) =
 
         {/* Landmark — not mandatory */}
         <CardLabel>{t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}</CardLabel>
-        <TextArea
-          name="landmark"
+        <TextInput
+          type="text"
           value={landmark}
           onChange={(e) => setLandmark(e.target.value)}
           maxLength={1024}

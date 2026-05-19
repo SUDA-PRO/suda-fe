@@ -95,7 +95,6 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const [name, setName] = useState(existingOwner.name || "");
   const [gender, setGender] = useState(existingOwner.gender || null);
   const [mobileNumber, setMobileNumber] = useState(existingOwner.mobileNumber || "");
-  const [alternateMobileNumber, setAlternateMobileNumber] = useState(existingOwner.alternateMobileNumber || "");
   const [fatherOrHusbandName, setFatherOrHusbandName] = useState(existingOwner.fatherOrHusbandName || "");
   const [relationship, setRelationship] = useState(existingOwner.relationship || null);
   const [email, setEmail] = useState(existingOwner.emailId || "");
@@ -225,7 +224,6 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     setName(existing.name || "");
     setGender(existing.gender || null);
     setMobileNumber(existing.mobileNumber || "");
-    setAlternateMobileNumber(existing.alternateMobileNumber || "");
     setFatherOrHusbandName(existing.fatherOrHusbandName || "");
     setRelationship(existing.relationship || null);
     setEmail(existing.emailId || "");
@@ -273,7 +271,6 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
       name,
       gender,
       mobileNumber,
-      altContactNumber: alternateMobileNumber,
       fatherOrHusbandName,
       relationship,
       emailId: email,
@@ -429,281 +426,267 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         }
       `}</style>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={2} /> : null}
-      <FormStep
-        config={config}
-        onSelect={goNext}
-        t={t}
-        isDisabled={!isFormValid()}
-        onAdd={isMultipleOwners ? onAddOwner : null}
-        isMultipleAllow={isMultipleOwners}
-      >
-        <div className="pt-owner-details-form">
 
-          {/* Row 1: Ownership Type — full width */}
-          <div>
-            <CardLabel>
-              {t("PT_PROVIDE_OWNERSHIP_DETAILS")}
-              <span className="check-page-link-button"> *</span>
-            </CardLabel>
-            <div className="field">
-              <Dropdown
-                t={t}
-                isMandatory={true}
-                option={ownershipOptions}
-                selected={ownershipCategory}
-                optionKey="i18nKey"
-                select={(val) => {
-                  setOwnershipCategory(val);
-                  sessionStorage.setItem("ownershipCategory", val?.value);
-                }}
-                placeholder={t("PT_SELECT_PLACEHOLDER")}
-              />
-            </div>
-          </div>
+      {/* ── Hero Banner ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+        borderRadius: "12px",
+        padding: "28px 36px",
+        marginBottom: "24px",
+        color: "#fff",
+        display: "flex",
+        alignItems: "center",
+        gap: "20px",
+      }}>
+        <div style={{
+          width: "56px", height: "56px", borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+            <circle cx="12" cy="7" r="4"/>
+          </svg>
+        </div>
+        <div>
+          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 3 of 3</div>
+          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"}</h2>
+          <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>{t("PT_OWNER_DETAILS_SUBHEADER") || "Provide ownership and contact information"}</p>
+        </div>
+      </div>
 
-          {/* Row 2: Owner Name | Mobile Number */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
-            <div>
-              <CardLabel>
-                {t("PT_OWNER_NAME")}
-                <span className="check-page-link-button"> *</span>
-              </CardLabel>
-              <div className="field">
-                <TextInput
-                  name="ownerName"
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  pattern="^[a-zA-Z ]+$"
-                  title={t("PT_NAME_ERROR_MESSAGE")}
-                />
+      {/* ── Layout styles (same design as Property Details) ── */}
+      {(() => {
+        const cardStyle = {
+          background: "#ffffff",
+          borderRadius: "10px",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+          padding: "24px 28px",
+          marginBottom: "24px",
+          border: "1px solid #e8ecf0",
+        };
+        const sectionTitleStyle = {
+          fontSize: "15px",
+          fontWeight: "700",
+          color: "#1a2b49",
+          marginBottom: "20px",
+          paddingBottom: "10px",
+          borderBottom: "2px solid #f47738",
+          letterSpacing: "0.3px",
+        };
+        const rowStyle = {
+          display: "flex",
+          flexWrap: "wrap",
+          marginLeft: "-10px",
+          marginRight: "-10px",
+        };
+        const col3 = {
+          flex: "0 0 33.333%",
+          maxWidth: "33.333%",
+          padding: "0 10px",
+          marginBottom: "18px",
+          boxSizing: "border-box",
+        };
+        const col6 = {
+          flex: "0 0 50%",
+          maxWidth: "50%",
+          padding: "0 10px",
+          marginBottom: "18px",
+          boxSizing: "border-box",
+        };
+        const col12 = {
+          flex: "0 0 100%",
+          maxWidth: "100%",
+          padding: "0 10px",
+          marginBottom: "18px",
+          boxSizing: "border-box",
+        };
+        const labelStyle = {
+          display: "block",
+          fontWeight: "600",
+          fontSize: "13px",
+          color: "#3d4f6b",
+          marginBottom: "6px",
+          letterSpacing: "0.2px",
+        };
+        const requiredMark = { color: "#e54d42", marginLeft: "2px" };
+
+        return (
+          <FormStep
+            config={config}
+            onSelect={goNext}
+            t={t}
+            isDisabled={!isFormValid()}
+            onAdd={isMultipleOwners ? onAddOwner : null}
+            isMultipleAllow={isMultipleOwners}
+          >
+
+            {/* ══════════════════════════════════════
+                CARD 1 – Owner Basic Details
+            ══════════════════════════════════════ */}
+            <div style={cardStyle}>
+              <div style={sectionTitleStyle}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"}</div>
+              <div style={rowStyle}>
+
+                {/* Ownership Type */}
+                <div style={col6}>
+                  <label style={labelStyle}>{t("PT_PROVIDE_OWNERSHIP_DETAILS")}<span style={requiredMark}>*</span></label>
+                  <Dropdown t={t} isMandatory={true} option={ownershipOptions} selected={ownershipCategory} optionKey="i18nKey" select={(val) => { setOwnershipCategory(val); sessionStorage.setItem("ownershipCategory", val?.value); }} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                </div>
+
+                {/* Owner Name */}
+                <div style={col6}>
+                  <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
+                  <TextInput type="text" value={name} onChange={(e) => setName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                </div>
+
+                {/* Mobile Number */}
+                <div style={col3}>
+                  <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
+                  <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
+                </div>
+
+                {/* Email */}
+                <div style={col3}>
+                  <label style={labelStyle}>{t("PT_FORM3_EMAIL_ID")}</label>
+                  <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }} />
+                  {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
+                </div>
+
+                {/* Guardian Name */}
+                <div style={col3}>
+                  <label style={labelStyle}>{t("PT_FORM3_GUARDIAN_NAME")}<span style={requiredMark}>*</span></label>
+                  <TextInput type="text" value={fatherOrHusbandName} onChange={(e) => setFatherOrHusbandName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                </div>
+
+                {/* Gender */}
+                <div style={col6}>
+                  <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
+                  <RadioButtons t={t} options={genderOptions} optionsKey="code" name="gender" selectedOption={gender} onSelect={setGender} isDependent={true} labelKey="PT_COMMON_GENDER" />
+                </div>
+
+                {/* Relationship */}
+                <div style={col6}>
+                  <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
+                  <RadioButtons t={t} optionsKey="i18nKey" options={GuardianOptions} selectedOption={relationship} onSelect={setRelationship} isDependent={true} labelKey="PT_RELATION" />
+                </div>
+
               </div>
             </div>
-            <div>
-              <CardLabel>
-                {t("PT_FORM3_MOBILE_NUMBER")}
-                <span className="check-page-link-button"> *</span>
-              </CardLabel>
-              <div className="field">
-                <MobileNumber
-                  value={mobileNumber}
-                  name="mobileNumber"
-                  onChange={(val) => setMobileNumber(val)}
-                  required
-                  pattern="[6-9]{1}[0-9]{9}"
-                  type="tel"
-                  title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
-                />
+
+            {/* ══════════════════════════════════════
+                CARD 2 – Owner Type & Address
+            ══════════════════════════════════════ */}
+            <div style={cardStyle}>
+              <div style={sectionTitleStyle}>{t("PT_OWNER_TYPE_ADDRESS_HEADER") || "Owner Type & Address"}</div>
+              <div style={rowStyle}>
+
+                {/* Special Owner Category */}
+                <div style={col12}>
+                  <label style={labelStyle}>{t("PT_SPECIAL_OWNER_CATEGORY")}<span style={requiredMark}>*</span></label>
+                  <RadioButtons t={t} optionsKey="i18nKey" options={sortedOwnerTypes} selectedOption={ownerType} onSelect={setOwnerType} isDependent={true} labelKey="PROPERTYTAX_OWNERTYPE" />
+                </div>
+
+                {/* Owner Address */}
+                <div style={col12}>
+                  <label style={labelStyle}>{t("PT_OWNERS_ADDRESS")}<span style={requiredMark}>*</span></label>
+                  <TextArea value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
+                  <CheckBox label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")} onChange={handleCorrespondenceAddress} value={isCorrespondenceAddress} checked={isCorrespondenceAddress || false} style={{ paddingTop: "10px" }} />
+                </div>
+
               </div>
             </div>
-          </div>
 
-          {/* Row 3: Alternate Mobile Number | Email */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
-            <div>
-              <CardLabel>{t("PT_FORM3_ALTERNATE_MOBILE_NUMBER")}</CardLabel>
-              <div className="field">
-                <MobileNumber
-                  value={alternateMobileNumber}
-                  name="alternateMobileNumber"
-                  onChange={(val) => setAlternateMobileNumber(val)}
-                  pattern="[6-9]{1}[0-9]{9}"
-                  type="tel"
-                  title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
-                />
-              </div>
-            </div>
-            <div>
-              <CardLabel>{t("PT_FORM3_EMAIL_ID")}</CardLabel>
-              <div className="field">
-                <TextInput
-                  name="emailId"
-                  type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }}
-                />
-              </div>
-              {emailError && <span style={{ color: "red", fontSize: "12px" }}>{emailError}</span>}
-            </div>
-          </div>
-
-          {/* Row 4: Gender — full width radio */}
-          <div>
-            <CardLabel>
-              {t("PT_FORM3_GENDER")}
-              <span className="check-page-link-button"> *</span>
-            </CardLabel>
-            <RadioButtons
-              t={t}
-              options={genderOptions}
-              optionsKey="code"
-              name="gender"
-              selectedOption={gender}
-              onSelect={setGender}
-              isDependent={true}
-              labelKey="PT_COMMON_GENDER"
-            />
-          </div>
-
-          {/* Row 5: Relationship (left) | Husband/Father's Name (right) */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px", alignItems: "start" }}>
-            <div>
-              <CardLabel>
-                {t("PT_FORM3_RELATIONSHIP")}
-                <span className="check-page-link-button"> *</span>
-              </CardLabel>
-              <RadioButtons
-                t={t}
-                optionsKey="i18nKey"
-                options={GuardianOptions}
-                selectedOption={relationship}
-                onSelect={setRelationship}
-                isDependent={true}
-                labelKey="PT_RELATION"
-              />
-            </div>
-            <div>
-              <CardLabel>
-                {t("PT_FORM3_HUSBAND_FATHER_NAME")}
-                <span className="check-page-link-button"> *</span>
-              </CardLabel>
-              <div className="field">
-                <TextInput
-                  name="fatherOrHusbandName"
-                  type="text"
-                  value={fatherOrHusbandName}
-                  onChange={(e) => setFatherOrHusbandName(e.target.value)}
-                  pattern="^[a-zA-Z ]+$"
-                  title={t("PT_NAME_ERROR_MESSAGE")}
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Row 6: Special Owner Category — full width radio */}
-          <div>
-            <CardLabel>
-              {t("PT_SPECIAL_OWNER_CATEGORY")}
-              <span className="check-page-link-button"> *</span>
-            </CardLabel>
-            <RadioButtons
-              t={t}
-              optionsKey="i18nKey"
-              options={sortedOwnerTypes}
-              selectedOption={ownerType}
-              onSelect={setOwnerType}
-              isDependent={true}
-              labelKey="PROPERTYTAX_OWNERTYPE"
-            />
-          </div>
-
-          {/* Row 7: Owner Address — full width */}
-          <div>
-            <CardLabel>
-              {t("PT_OWNERS_ADDRESS")}
-              <span className="check-page-link-button"> *</span>
-            </CardLabel>
-            <TextArea
-              name="permanentAddress"
-              value={permanentAddress}
-              onChange={(e) => setPermanentAddress(e.target.value)}
-              style={{ border: "1px solid #b1b4b6", borderRadius: "8px", width: "100%" }}
-            />
-            <CheckBox
-              label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}
-              onChange={handleCorrespondenceAddress}
-              value={isCorrespondenceAddress}
-              checked={isCorrespondenceAddress || false}
-              style={{ paddingTop: "10px" }}
-            />
-          </div>
-
-          {/* Special Category Proof (conditional) */}
-          {needsSpecialProof && (
-            <div style={{ marginTop: "16px" }}>
-              <CardLabel>
-                {t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}
-                <span className="check-page-link-button"> *</span>
-              </CardLabel>
-              <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_TYPES")}</CardLabelDesc>
-              <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_SIZE")}</CardLabelDesc>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
-                <div style={{ position: "relative" }}>
-                  <CardLabel>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span className="check-page-link-button"> *</span></CardLabel>
-                  <div className="field" id="pt-special-doc-dropdown">
-                    <Dropdown
-                      t={t}
-                      isMandatory={false}
-                      option={specialProofOptions}
-                      selected={specialProofDocType}
-                      optionKey="i18nKey"
-                      select={setSpecialProofDocType}
-                      placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
-                    />
-                  </div>
+            {/* ══════════════════════════════════════
+                CARD 3 – Documents
+            ══════════════════════════════════════ */}
+            <div style={cardStyle}>
+              {/* Card header with icon */}
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "20px", paddingBottom: "14px", borderBottom: "2px solid #f47738" }}>
+                <div style={{ width: "38px", height: "38px", borderRadius: "8px", background: "linear-gradient(135deg, #1a2b49, #2d4a7a)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                    <polyline points="14 2 14 8 20 8"/>
+                  </svg>
                 </div>
                 <div>
-                  <CardLabel>{t("PT_PROOF_OF_ADDRESS")}<span className="check-page-link-button"> *</span></CardLabel>
-                  <div className="field">
-                    <UploadFile
-                      id="pt-special-proof"
-                      extraStyleName="propertyCreate"
-                      accept=".jpg,.png,.pdf"
-                      onUpload={(e) => setSpecialProofFile(e.target.files[0])}
-                      onDelete={() => { setSpecialProofUploadedId(null); setSpecialProofFile(null); }}
-                      message={specialProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
-                      error={specialProofError}
-                    />
+                  <div style={{ fontSize: "15px", fontWeight: "700", color: "#1a2b49" }}>{t("PT_DOCUMENTS_HEADER") || "Documents"}</div>
+                  <div style={{ fontSize: "12px", color: "#8a97a8", marginTop: "2px" }}>
+                    {t("PT_UPLOAD_RESTRICTIONS_TYPES")} &middot; {t("PT_UPLOAD_RESTRICTIONS_SIZE")}
                   </div>
-                  {specialProofError && <div style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>{specialProofError}</div>}
                 </div>
+              </div>
+
+              <div style={rowStyle}>
+
+                {/* Special Category Proof – conditional */}
+                {needsSpecialProof && (
+                  <div style={col12}>
+                    <div style={{ background: "#f8f9fe", border: "1px solid #e4e8f0", borderRadius: "10px", padding: "16px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+                        <div style={{ width: "28px", height: "28px", borderRadius: "6px", background: "#fff3ec", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                        </div>
+                        <label style={{ ...labelStyle, margin: 0, lineHeight: "1.2" }}>{t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}<span style={requiredMark}>*</span></label>
+                      </div>
+                      <div style={{ display: "flex", gap: "16px", alignItems: "center", width: "100%" }}>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <label style={{ ...labelStyle, fontWeight: "500", fontSize: "12px", color: "#5a6475" }}>{t("PT_CATEGORY_DOCUMENT_TYPE")}</label>
+                          <Dropdown t={t} isMandatory={false} option={specialProofOptions} selected={specialProofDocType} optionKey="i18nKey" select={setSpecialProofDocType} placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")} />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ border: "2px dashed #c8d0dc", borderRadius: "10px", background: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: "5px", flexShrink: 0 }}>
+                              <span style={{ fontSize: "18px", lineHeight: 1 }}>📎</span>
+                              <span style={{ fontSize: "10px", color: "#8a97a8", whiteSpace: "nowrap" }}>JPG &middot; PNG &middot; PDF | Max 5MB</span>
+                            </div>
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <UploadFile id="pt-special-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={(e) => setSpecialProofFile(e.target.files[0])} onDelete={() => { setSpecialProofUploadedId(null); setSpecialProofFile(null); }} message={specialProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={specialProofError} />
+                            </div>
+                          </div>
+                          {specialProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}><span>⚠</span> {specialProofError}</div>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Identity Proof */}
+                <div style={col12}>
+                  <div style={{ background: "#f8f9fe", border: "1px solid #e4e8f0", borderRadius: "10px", padding: "16px" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+                      <div style={{ width: "28px", height: "28px", borderRadius: "6px", background: "#e8f4e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                      </div>
+                      <label style={{ ...labelStyle, margin: 0, lineHeight: "1.2" }}>{t("PT_PROOF_IDENTITY_HEADER")}<span style={requiredMark}>*</span></label>
+                    </div>
+                    <div style={{ display: "flex", gap: "16px", alignItems: "center", width: "100%" }}>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <label style={{ ...labelStyle, fontWeight: "500", fontSize: "12px", color: "#5a6475" }}>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span style={requiredMark}>*</span></label>
+                        <Dropdown t={t} isMandatory={false} option={identityProofOptions} selected={identityProofDocType} optionKey="i18nKey" select={setIdentityProofDocType} placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")} />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ border: "2px dashed #c8d0dc", borderRadius: "10px", background: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
+                          <div style={{ display: "flex", alignItems: "center", gap: "5px", flexShrink: 0 }}>
+                            <span style={{ fontSize: "18px", lineHeight: 1 }}>📎</span>
+                            <span style={{ fontSize: "10px", color: "#8a97a8", whiteSpace: "nowrap" }}>JPG &middot; PNG &middot; PDF | Max 5MB</span>
+                          </div>
+                          <div style={{ flex: 1, minWidth: 0 }}>
+                            <UploadFile id="pt-identity-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={(e) => setIdentityProofFile(e.target.files[0])} onDelete={() => { setIdentityProofUploadedId(null); setIdentityProofFile(null); }} message={identityProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={identityProofError} />
+                          </div>
+                        </div>
+                        {identityProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}><span>⚠</span> {identityProofError}</div>}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
-          )}
 
-          {/* Identity Proof */}
-          <div style={{ marginTop: "16px", marginBottom: "32px" }}>
-            <CardLabel>
-              {t("PT_PROOF_IDENTITY_HEADER")}
-              <span className="check-page-link-button"> *</span>
-            </CardLabel>
-            <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_TYPES")}</CardLabelDesc>
-            <CardLabelDesc>{t("PT_UPLOAD_RESTRICTIONS_SIZE")}</CardLabelDesc>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0 24px" }}>
-              <div style={{ position: "relative" }}>
-                <CardLabel>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span className="check-page-link-button"> *</span></CardLabel>
-                <div className="field" id="pt-identity-doc-dropdown">
-                  <Dropdown
-                    t={t}
-                    isMandatory={false}
-                    option={identityProofOptions}
-                    selected={identityProofDocType}
-                    optionKey="i18nKey"
-                    select={setIdentityProofDocType}
-                    placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")}
-                  />
-                </div>
-              </div>
-              <div>
-                <CardLabel>{t("PT_PROOF_OF_ADDRESS")}<span className="check-page-link-button"> *</span></CardLabel>
-                <div className="field">
-                  <UploadFile
-                    id="pt-identity-proof"
-                    extraStyleName="propertyCreate"
-                    accept=".jpg,.png,.pdf"
-                    onUpload={(e) => setIdentityProofFile(e.target.files[0])}
-                    onDelete={() => { setIdentityProofUploadedId(null); setIdentityProofFile(null); }}
-                    message={identityProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")}
-                    error={identityProofError}
-                  />
-                </div>
-                {identityProofError && <div style={{ color: "red", fontSize: "12px", marginTop: "4px" }}>{identityProofError}</div>}
-              </div>
-            </div>
-          </div>
-
-        </div>{/* end pt-owner-details-form */}
-      </FormStep>
+          </FormStep>
+        );
+      })()}
     </React.Fragment>
   );
 };

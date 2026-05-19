@@ -188,51 +188,175 @@ function getItemWithExpiry(key) {
 
   return (
     <React.Fragment>
-      <Card>
-        <CardHeader>{!config.isMutation ? t("PT_DOC_REQ_SCREEN_HEADER") : t("PT_REQIURED_DOC_TRANSFER_OWNERSHIP")}</CardHeader>
-        <div>
-          <CardText className={"primaryColor"}>{t("PT_DOC_REQ_SCREEN_SUB_HEADER")}</CardText>
-          <CardText className={"primaryColor"}>{t("PT_DOC_REQ_SCREEN_TEXT")}</CardText>
-          <CardText className={"primaryColor"}>{t("PT_DOC_REQ_SCREEN_SUB_TEXT")}</CardText>
-          <CardSubHeader>{t("PT_DOC_REQ_SCREEN_LABEL")}</CardSubHeader>
-          <CardText className={"primaryColor"}>{t("PT_DOC_REQ_SCREEN_LABEL_TEXT")}</CardText>
+      {/* ── Page wrapper ── */}
+      <div style={{ maxWidth: "100%", fontFamily: "'Roboto', sans-serif" }}>
+
+        {/* ── Hero Banner ── */}
+        <div style={{
+          background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+          borderRadius: "12px",
+          padding: "32px 36px",
+          marginBottom: "24px",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          gap: "24px",
+        }}>
+          <div style={{
+            width: "64px", height: "64px", borderRadius: "50%",
+            background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+          </div>
           <div>
-            {isLoading && <Loader />}
-            {Array.isArray(docs)
-              ? config?.isMutation ?
-                  docs.map(({ code, dropdownData }, index) => (
-                    <div key={index}>
-                      <CardSubHeader>
-                        {index + 1}. {t(code)}
-                      </CardSubHeader>
-                      <CardText className={"primaryColor"}>
-                        {dropdownData.map((dropdownData) => (
-                          t(dropdownData?.code)
-                        )).join(', ')}
-                      </CardText>
-                      {/* <CardText>{t(`${code.split('.')[0]}.${code.split('.')[1]}.${code.split('.')[1]}_DESCRIPTION`)}</CardText> */}
-                    </div>
-                  )) :
-                  docs.map(({ code, dropdownData }, index) => (
-                    <div key={index}>
-                      <CardSubHeader>
-                        {index + 1}. {t("PROPERTYTAX_" + stringReplaceAll(code, ".", "_") + "_HEADING")}
-                      </CardSubHeader>
-                      {dropdownData.map((dropdownData) => (
-                        <CardText className={"primaryColor"}>{t("PROPERTYTAX_" + stringReplaceAll(dropdownData?.code, ".", "_") + "_LABEL")}</CardText>
-                      ))}
-                    </div>
-                  ))
-              : null}
+            <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "700", letterSpacing: "0.3px" }}>
+              {!config.isMutation ? t("PT_DOC_REQ_SCREEN_HEADER") : t("PT_REQIURED_DOC_TRANSFER_OWNERSHIP")}
+            </h2>
+            <p style={{ margin: "6px 0 0", fontSize: "14px", opacity: 0.88 }}>
+              {t("PT_DOC_REQ_SCREEN_SUB_HEADER")}
+            </p>
           </div>
         </div>
-        <span>
-          <SubmitBar label={t("PT_COMMON_NEXT")} onSubmit={onSelect} />
-        </span>
-        <span style={{marginTop:"10px"}}>
-          <SubmitBar label={t("PT_DIGILOCKER_CONSENT")} onSubmit={(e) => {onConcent(e)}} />
-        </span>
-      </Card>
+
+        {/* ── Info card ── */}
+        <div style={{
+          background: "#fff8f0",
+          border: "1px solid #f4d0b0",
+          borderLeft: "4px solid #f47738",
+          borderRadius: "8px",
+          padding: "16px 20px",
+          marginBottom: "24px",
+          display: "flex",
+          gap: "14px",
+          alignItems: "flex-start",
+        }}>
+          <span style={{ fontSize: "22px", lineHeight: 1 }}>ℹ️</span>
+          <div>
+            <p style={{ margin: 0, fontSize: "14px", color: "#5c3a1e", fontWeight: "600" }}>
+              {t("PT_DOC_REQ_SCREEN_TEXT")}
+            </p>
+            <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#7a5230" }}>
+              {t("PT_DOC_REQ_SCREEN_SUB_TEXT")}
+            </p>
+          </div>
+        </div>
+
+        {/* ── Documents checklist card ── */}
+        <div style={{
+          background: "#ffffff",
+          borderRadius: "10px",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+          padding: "24px 28px",
+          marginBottom: "24px",
+          border: "1px solid #e8ecf0",
+        }}>
+          <div style={{
+            fontSize: "15px", fontWeight: "700", color: "#1a2b49",
+            marginBottom: "20px", paddingBottom: "10px",
+            borderBottom: "2px solid #f47738", letterSpacing: "0.3px",
+          }}>
+            📋 {t("PT_DOC_REQ_SCREEN_LABEL")}
+          </div>
+
+          {isLoading && <Loader />}
+
+          {Array.isArray(docs) ? (
+            <div>
+              {(config?.isMutation
+                ? docs.map(({ code, dropdownData }, index) => ({
+                    heading: t(code),
+                    items: dropdownData.map((d) => t(d?.code)),
+                    index,
+                  }))
+                : docs.map(({ code, dropdownData }, index) => ({
+                    heading: t("PROPERTYTAX_" + stringReplaceAll(code, ".", "_") + "_HEADING"),
+                    items: dropdownData.map((d) => t("PROPERTYTAX_" + stringReplaceAll(d?.code, ".", "_") + "_LABEL")),
+                    index,
+                  }))
+              ).map(({ heading, items, index }) => (
+                <div key={index} style={{
+                  display: "flex", gap: "16px", marginBottom: "20px",
+                  paddingBottom: "20px",
+                  borderBottom: index < docs.length - 1 ? "1px dashed #e0e0e0" : "none",
+                }}>
+                  {/* Number badge */}
+                  <div style={{
+                    width: "36px", height: "36px", borderRadius: "50%",
+                    background: "#1a2b49", color: "#fff",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: "14px", fontWeight: "700", flexShrink: 0, marginTop: "2px",
+                  }}>
+                    {index + 1}
+                  </div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49", marginBottom: "10px" }}>
+                      {heading}
+                    </div>
+                    <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                      {items.map((item, i) => (
+                        <span key={i} style={{
+                          background: "#f0f4ff",
+                          border: "1px solid #c5d0f0",
+                          borderRadius: "20px",
+                          padding: "4px 14px",
+                          fontSize: "12px",
+                          color: "#3d4f6b",
+                          fontWeight: "500",
+                          display: "flex", alignItems: "center", gap: "5px",
+                        }}>
+                          <span style={{ color: "#f47738", fontWeight: "bold" }}>✓</span>
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
+
+        {/* ── Action buttons ── */}
+        <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
+          <button
+            onClick={onSelect}
+            style={{
+              flex: 1, minWidth: "180px",
+              background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
+              color: "#fff", border: "none",
+              borderRadius: "8px", padding: "14px 28px",
+              fontSize: "15px", fontWeight: "700",
+              cursor: "pointer", letterSpacing: "0.3px",
+              boxShadow: "0 4px 12px rgba(244,119,56,0.35)",
+              transition: "all 0.2s",
+            }}
+          >
+            {t("PT_COMMON_NEXT")} →
+          </button>
+          <button
+            onClick={(e) => { onConcent(e); }}
+            style={{
+              flex: 1, minWidth: "180px",
+              background: "#fff",
+              color: "#1a2b49", border: "2px solid #1a2b49",
+              borderRadius: "8px", padding: "14px 28px",
+              fontSize: "15px", fontWeight: "700",
+              cursor: "pointer", letterSpacing: "0.3px",
+              transition: "all 0.2s",
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+            }}
+          >
+            <span style={{ fontSize: "16px" }}>🔐</span>
+            {t("PT_DIGILOCKER_CONSENT")}
+          </button>
+        </div>
+
+      </div>
     </React.Fragment>
   );
 };

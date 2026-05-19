@@ -246,7 +246,7 @@ export const newConfig = [
                 },
                 "nextStep": {
                     "COMMON_PROPTYPE_BUILTUP_INDEPENDENTPROPERTY": "landarea",
-                    "COMMON_PROPTYPE_BUILTUP_SHAREDPROPERTY": "PtUnits",
+                    "COMMON_PROPTYPE_BUILTUP_SHAREDPROPERTY": "owner-all-details",
                     "COMMON_PROPTYPE_VACANT": "area"
                 },
                 "key": "uid",

@@ -6,6 +6,12 @@ let actions = [];
 
 const getAction = (flow) => {
  switch(flow){
+    case 'restoration': actions = [
+      'WS_COMMON_RECONNECTION_DETAIL',
+      'WS_COMMON_DOCUMENT_DETAILS',
+      'WS_COMMON_SUMMARY',
+    ]
+    break;
     default: actions = [
       'WS_COMMON_DISCONNECTION_DETAIL',
       'WS_COMMON_DOCUMENT_DETAILS',
