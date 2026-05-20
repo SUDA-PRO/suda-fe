@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Route, Switch, useRouteMatch, useHistory, Link } from "react-router-dom";
 import ErrorBoundary from "../../components/ErrorBoundaries";
 import { AppHome, processLinkData } from "../../components/Home";
+import ChangeLanguage from "../../components/ChangeLanguage";
 import TopBarSideBar from "../../components/TopBarSideBar";
 import StaticCitizenSideBar from "../../components/TopBarSideBar/SideBar/StaticCitizenSideBar";
 import CitizenHome from "./Home";
@@ -381,7 +382,8 @@ const Home = ({
               <span style={{ fontSize: "22px", fontWeight: "700", color: "#091E64" }}>
                 State Urban Development Agency (SUDA)
               </span>
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                <ChangeLanguage dropdown={true} />
                 <div style={{
                   width: "36px", height: "36px", borderRadius: "50%",
                   background: "#091E64", color: "#fff",

@@ -99,6 +99,8 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const [relationship, setRelationship] = useState(existingOwner.relationship || null);
   const [email, setEmail] = useState(existingOwner.emailId || "");
   const [emailError, setEmailError] = useState("");
+  const [alternateMobileNumber, setAlternateMobileNumber] = useState(existingOwner.alternatemobilenumber || "");
+  const [alternateMobileError, setAlternateMobileError] = useState("");
 
   /* ─── Gender MDMS ─── */
   const { data: GenderMenu } = Digit.Hooks.pt.useGenderMDMS(stateId, "common-masters", "GenderType");
@@ -228,6 +230,8 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     setRelationship(existing.relationship || null);
     setEmail(existing.emailId || "");
     setEmailError("");
+    setAlternateMobileNumber(existing.alternatemobilenumber || "");
+    setAlternateMobileError("");
     setOwnerType(existing.ownerType || null);
     setPermanentAddress(existing.permanentAddress || "");
     setIsCorrespondenceAddress(existing.isCorrespondenceAddress || false);
@@ -248,6 +252,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     if (!ownershipCategory) return false;
     if (!name || !mobileNumber || !gender?.code || !relationship?.code || !fatherOrHusbandName) return false;
     if (emailError) return false;
+    if (alternateMobileError) return false;
     if (!ownerType) return false;
     if (!permanentAddress) return false;
     if (needsSpecialProof && (!specialProofDocType || !specialProofFile)) return false;
@@ -271,6 +276,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
       name,
       gender,
       mobileNumber,
+      alternatemobilenumber: alternateMobileNumber || undefined,
       fatherOrHusbandName,
       relationship,
       emailId: email,
@@ -553,10 +559,33 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                   {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
                 </div>
 
-                {/* Guardian Name */}
+                {/* Father / Husband Name */}
                 <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_GUARDIAN_NAME")}<span style={requiredMark}>*</span></label>
+                  <label style={labelStyle}>{t("PT_FORM3_FATHER_HUSBAND_NAME") || "Father / Husband Name"}<span style={requiredMark}>*</span></label>
                   <TextInput type="text" value={fatherOrHusbandName} onChange={(e) => setFatherOrHusbandName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                </div>
+
+                {/* Alternate Mobile Number */}
+                <div style={col3}>
+                  <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
+                  <MobileNumber
+                    value={alternateMobileNumber}
+                    name="alternateMobileNumber"
+                    onChange={(val) => {
+                      setAlternateMobileNumber(val);
+                      if (val && !/^[6-9][0-9]{9}$/.test(val)) {
+                        setAlternateMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
+                      } else {
+                        setAlternateMobileError("");
+                      }
+                    }}
+                    pattern="[6-9]{1}[0-9]{9}"
+                    type="tel"
+                    title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
+                  />
+                  {alternateMobileError && (
+                    <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{alternateMobileError}</span>
+                  )}
                 </div>
 
                 {/* Gender */}
