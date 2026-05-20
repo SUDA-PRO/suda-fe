@@ -601,37 +601,9 @@ out tags;`;
         <div style={{ color: "#d4351c", fontSize: "12px", marginTop: "4px" }}>{geoError}</div>
       )}
 
-      {/* Coordinates display */}
-      {pinLabel && (
-        <div
-          style={{
-            marginTop: "8px",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "13px",
-            color: "#505a5f",
-          }}
-        >
-          <span style={{ fontWeight: "600", color: "#1a1a1a" }}>
-            {tMap("PT_MAP_SELECTED_COORDINATES")}
-          </span>
-          <span
-            style={{
-              background: "#F3F3F3",
-              border: "1px solid #D6D5D4",
-              borderRadius: "4px",
-              padding: "2px 8px",
-              fontFamily: "monospace",
-            }}
-          >
-            {pinLabel}
-          </span>
-          {reverseLoading && (
-            <span style={{ fontSize: "12px", color: "#505a5f", fontStyle: "italic" }}>
-              Detecting address...
-            </span>
-          )}
+      {reverseLoading && (
+        <div style={{ fontSize: "12px", color: "#505a5f", fontStyle: "italic", marginTop: "4px" }}>
+          Detecting address...
         </div>
       )}
     </div>
