@@ -19,15 +19,7 @@ import {
 } from "../../../utils";
 import Timeline from "../../../components/TLTimeline";
 
-const ActionButton = ({ jumpTo }) => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  function routeTo() {
-    history.push(jumpTo);
-  }
-
-  return <LinkButton label={t("CS_COMMON_CHANGE")} className="check-page-link-button" onClick={routeTo} />;
-};
+const ActionButton = ({ jumpTo }) => null;
 
 const CheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
