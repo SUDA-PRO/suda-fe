@@ -455,7 +455,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 3 of 3</div>
+          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 2 of 3</div>
           <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"}</h2>
           <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>{t("PT_OWNER_DETAILS_SUBHEADER") || "Provide ownership and contact information"}</p>
         </div>
