@@ -67,7 +67,8 @@ export const Request = async ({
   multipartFormData = false,
   multipartData = {},
   reqTimestamp = false,
-  plainAccessRequest = null
+  plainAccessRequest = null,
+  excludeRoles = []
 }) => {
   if (method.toUpperCase() === "POST") {
     const ts = new Date().getTime();
@@ -78,7 +79,11 @@ export const Request = async ({
       data.RequestInfo = { ...data.RequestInfo, ...requestInfo() };
     }
     if (userService) {
-      data.RequestInfo = { ...data.RequestInfo, ...userServiceData() };
+      const baseUserInfo = Digit.UserService.getUser()?.info;
+      const filteredUserInfo = excludeRoles.length && baseUserInfo?.roles
+        ? { ...baseUserInfo, roles: baseUserInfo.roles.filter((r) => !excludeRoles.includes(r.code)) }
+        : baseUserInfo;
+      data.RequestInfo = { ...data.RequestInfo, userInfo: filteredUserInfo };
     }
     if (locale) {
       data.RequestInfo = { ...data.RequestInfo, msgId: `${ts}|${Digit.StoreData.getCurrentLanguage()}` };

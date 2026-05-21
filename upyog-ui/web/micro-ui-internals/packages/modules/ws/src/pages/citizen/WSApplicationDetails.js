@@ -52,6 +52,7 @@ const WSApplicationDetails = () => {
 
   // const fetchBillParams = { consumerCode: data?.WaterConnection?.[0]?.connectionNo };
   const isReconnection = data?.WaterConnection?.[0]?.applicationType?.includes("RECONNECT") || data?.SewerageConnections?.[0]?.applicationType?.includes("RECONNECT");
+  const isSWApplication = applicationNobyData?.includes("SW");
   const fetchBillParams = { consumerCode: applicationNobyData?.includes("DC") ? (data?.WaterConnection?.[0]?.connectionNo || data?.SewerageConnections?.[0]?.connectionNo) : (data?.WaterConnection?.[0]?.applicationNo || data?.SewerageConnections?.[0]?.applicationNo) };
 
   const { data: generatePdfKey } = Digit.Hooks.useCommonMDMS(tenantId, "common-masters", "ReceiptKey", {
@@ -60,7 +61,7 @@ const WSApplicationDetails = () => {
   });
 
   const paymentDetails = Digit.Hooks.useFetchBillsForBuissnessService(
-    { businessService: isReconnection ? "WSReconnection" : (applicationNobyData?.includes("SW") ? (applicationNobyData?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (applicationNobyData?.includes("DC") ? "WS" : "WS.ONE_TIME_FEE")), ...fetchBillParams, tenantId: tenantId },
+    { businessService: isReconnection ? (isSWApplication ? "SWReconnection" : "WSReconnection") : (isSWApplication ? (applicationNobyData?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (applicationNobyData?.includes("DC") ? "WS" : "WS.ONE_TIME_FEE")), ...fetchBillParams, tenantId: tenantId },
     {
       enabled: data?.WaterConnection?.[0]?.applicationNo || data?.SewerageConnections?.[0]?.applicationNo ? true : false,
       retry: false,

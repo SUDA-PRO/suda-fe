@@ -37,7 +37,7 @@ import { ReactComponent as IndianFlag } from "../../../assets/Inidan-Flag.svg";
 const NMC = "https://media-upyog.nmc.gov.in/nmc-public-media/logo/NMC_logo.svg";
 const Nashik = "https://media-upyog.nmc.gov.in/nmc-public-media/banner/Nashik_city_outline.svg";
 // const Banner = "https://media-upyog.nmc.gov.in/nmc-public-media/video/Landing-Video.mp4";
-const Banner = "https://tfstatee8aog.blob.core.windows.net/filestore/banner.png";
+const Banner = "https://tfstatee8aog.blob.core.windows.net/filestore/home-images/41826c21c1036a64c75b1a50155249hoh213e50ee23.png";
 const CGLogo = "https://tfstatee8aog.blob.core.windows.net/filestore/cglogo%201.png";
 const vishnuSai = "https://tfstatee8aog.blob.core.windows.net/filestore/VishnuDeo.png";
 const ArunSaoImg = "https://tfstatee8aog.blob.core.windows.net/filestore/ArunSao%201.png";
@@ -109,11 +109,21 @@ export default function Dashboard() {
   const [searchVal, setSearchVal] = useState("");
   const [activeService, setActiveService] = useState(0);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [citizenCornerOpen, setCitizenCornerOpen] = useState(false);
+  const [miscOpen, setMiscOpen] = useState(false);
+  const [obpsOpen, setObpsOpen] = useState(false);
+  const [ptOpen, setPtOpen] = useState(false);
+  const [wsOpen, setWsOpen] = useState(false);
   const [fontSize, setFontSize] = useState(16);
   const [highContrast, setHighContrast] = useState(false);
   const loginRef = useRef(null);
+  const citizenCornerRef = useRef(null);
   const history = useHistory();
   const { t } = useTranslation();
+
+  const handleServiceClick = () => {
+    history.push("/suda-ui/login");
+  };
 
   const [width, setWidth] = useState(window.innerWidth);
 
@@ -123,11 +133,14 @@ export default function Dashboard() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const isMobile = width < 640;
-  const isTablet = width >= 640 && width < 1024;
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1024;
 
   useEffect(() => {
     function handleClick(e) {
+      if (citizenCornerRef.current && !citizenCornerRef.current.contains(e.target)) {
+        setCitizenCornerOpen(false);
+      }
       if (loginRef.current && !loginRef.current.contains(e.target)) {
         setLoginOpen(false);
       }
@@ -361,6 +374,397 @@ export default function Dashboard() {
 
         </div>
 
+        {!isMobile && (
+          <nav style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            {/* Home */}
+            <a
+              href="/suda-ui/dashboard"
+              style={{
+                padding: "6px 14px",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#A3610E",
+                textDecoration: "none",
+                borderBottom: "2px solid #A3610E",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("LANDING_PAGE_HOME") || "Home"}
+            </a>
+
+            {/* Citizen Corner dropdown */}
+            <div ref={citizenCornerRef} style={{ position: "relative" }}>
+              <button
+                onClick={() => setCitizenCornerOpen((o) => { if (o) setMiscOpen(false); return !o; })}
+                style={{
+                  padding: "6px 14px",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  color: "#333",
+                  background: "none",
+                  border: "none",
+                  borderBottom: "2px solid transparent",
+                  cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 5,
+                  whiteSpace: "nowrap",
+                }}
+              >
+                {t("LANDING_PAGE_CITIZEN_CORNER") || "Citizen Corner"}
+                <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
+                  <path d="M1 1l4 4 4-4" stroke="#666" strokeWidth="1.5" strokeLinecap="round" />
+                </svg>
+              </button>
+              {citizenCornerOpen && (
+                <div
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 4px)",
+                    left: 0,
+                    background: "#fff",
+                    border: "1px solid #e0e0e0",
+                    borderRadius: 8,
+                    boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
+                    minWidth: 220,
+                    zIndex: 200,
+                    overflow: "visible",
+                  }}
+                >
+                  {[
+                    { label: t("COMMON_NOC_ISSUANCE") !== "COMMON_NOC_ISSUANCE" ? t("COMMON_NOC_ISSUANCE") : "NOC Issuance", href: "/suda-ui/comingsoon" },
+                    { label: t("SERVICEDEFS.ACCOUNTING_FINANCE") !== "SERVICEDEFS.ACCOUNTING_FINANCE" ? t("SERVICEDEFS.ACCOUNTING_FINANCE") : "Accounting & Finance", href: "/suda-ui/comingsoon" },
+                  ].map((item) => (
+                    <a
+                      key={item.label}
+                      href="#"
+                      onClick={(e) => { e.preventDefault(); setCitizenCornerOpen(false); handleServiceClick(item.href); }}
+                      style={{
+                        display: "block",
+                        padding: "11px 20px",
+                        fontSize: 13,
+                        color: "#333",
+                        textDecoration: "none",
+                        borderBottom: "1px solid #f0f0f0",
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "#fff8f0")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                    >
+                      {item.label}
+                    </a>
+                  ))}
+
+                  {/* Miscellaneous with right flyout */}
+                  <div
+                    style={{ position: "relative" }}
+                    onMouseEnter={() => setMiscOpen(true)}
+                    onMouseLeave={() => setMiscOpen(false)}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "11px 20px",
+                        fontSize: 13,
+                        color: "#333",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f0f0f0",
+                        background: miscOpen ? "#fff8f0" : "#fff",
+                        borderRadius: miscOpen ? "0" : "0",
+                      }}
+                    >
+                      <span>{t("SERVICEDEFS.MISCELLANEOUS") !== "SERVICEDEFS.MISCELLANEOUS" ? t("SERVICEDEFS.MISCELLANEOUS") : "Miscellaneous"}</span>
+                      {/* Right arrow */}
+                      <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0 }}>
+                        <path d="M1 1l5 5-5 5" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    {miscOpen && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: "100%",
+                          background: "#fff",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: 8,
+                          boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
+                          minWidth: 200,
+                          zIndex: 300,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {[
+                          { label: t("MISC_SEARCH_AND_PAY") !== "MISC_SEARCH_AND_PAY" ? t("MISC_SEARCH_AND_PAY") : "Search and Pay", href: "/suda-ui/comingsoon" },
+                          { label: t("MISC_MY_CHALLANS") !== "MISC_MY_CHALLANS" ? t("MISC_MY_CHALLANS") : "My Challans", href: "/suda-ui/comingsoon" },
+                          { label: t("MISC_FAQ") !== "MISC_FAQ" ? t("MISC_FAQ") : "FAQ", href: "#faq" },
+                        ].map((sub) => (
+                          <a
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={(e) => { e.preventDefault(); setCitizenCornerOpen(false); setMiscOpen(false); handleServiceClick(sub.href); }}
+                            style={{
+                              display: "block",
+                              padding: "11px 20px",
+                              fontSize: 13,
+                              color: "#333",
+                              textDecoration: "none",
+                              borderBottom: "1px solid #f0f0f0",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#fff8f0")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                          >
+                            {sub.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* OBPS with right flyout */}
+                  <div
+                    style={{ position: "relative" }}
+                    onMouseEnter={() => setObpsOpen(true)}
+                    onMouseLeave={() => setObpsOpen(false)}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "11px 20px",
+                        fontSize: 13,
+                        color: "#333",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f0f0f0",
+                        background: obpsOpen ? "#fff8f0" : "#fff",
+                      }}
+                    >
+                      <span>OBPS</span>
+                      <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0 }}>
+                        <path d="M1 1l5 5-5 5" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    {obpsOpen && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: "100%",
+                          background: "#fff",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: 8,
+                          boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
+                          minWidth: 240,
+                          zIndex: 300,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {[
+                          { label: "View Application by Citizen", href: "/suda-ui/comingsoon" },
+                          { label: "Register as Stakeholder", href: "/suda-ui/comingsoon" },
+                          { label: "Registered Architect", href: "/suda-ui/comingsoon" },
+                          { label: "Apply for Pre-approved Plan", href: "/suda-ui/comingsoon" },
+                        ].map((sub) => (
+                          <a
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={(e) => { e.preventDefault(); setCitizenCornerOpen(false); setObpsOpen(false); handleServiceClick(sub.href); }}
+                            style={{
+                              display: "block",
+                              padding: "11px 20px",
+                              fontSize: 13,
+                              color: "#333",
+                              textDecoration: "none",
+                              borderBottom: "1px solid #f0f0f0",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#fff8f0")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                          >
+                            {sub.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* PT with right flyout */}
+                  <div
+                    style={{ position: "relative" }}
+                    onMouseEnter={() => setPtOpen(true)}
+                    onMouseLeave={() => setPtOpen(false)}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "11px 20px",
+                        fontSize: 13,
+                        color: "#333",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f0f0f0",
+                        background: ptOpen ? "#fff8f0" : "#fff",
+                      }}
+                    >
+                      <span>Property Tax (PT)</span>
+                      <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0 }}>
+                        <path d="M1 1l5 5-5 5" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    {ptOpen && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: "100%",
+                          background: "#fff",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: 8,
+                          boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
+                          minWidth: 240,
+                          zIndex: 300,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {[
+                          { label: "Search and Pay", href: "/suda-ui/comingsoon" },
+                          { label: "My Tax Bills", href: "/suda-ui/comingsoon" },
+                          { label: "Create Property", href: "/suda-ui/comingsoon" },
+                          { label: "My Properties", href: "/suda-ui/comingsoon" },
+                          { label: "My Applications", href: "/suda-ui/comingsoon" },
+                          { label: "Transfer Property Ownership", href: "/suda-ui/comingsoon" },
+                          { label: "My Payments", href: "/suda-ui/comingsoon" },
+                        ].map((sub) => (
+                          <a
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={(e) => { e.preventDefault(); setCitizenCornerOpen(false); setPtOpen(false); handleServiceClick(sub.href); }}
+                            style={{
+                              display: "block",
+                              padding: "11px 20px",
+                              fontSize: 13,
+                              color: "#333",
+                              textDecoration: "none",
+                              borderBottom: "1px solid #f0f0f0",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#fff8f0")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                          >
+                            {sub.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Water & Sewerage with right flyout */}
+                  <div
+                    style={{ position: "relative" }}
+                    onMouseEnter={() => setWsOpen(true)}
+                    onMouseLeave={() => setWsOpen(false)}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        padding: "11px 20px",
+                        fontSize: 13,
+                        color: "#333",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f0f0f0",
+                        background: wsOpen ? "#fff8f0" : "#fff",
+                      }}
+                    >
+                      <span>Water &amp; Sewerage</span>
+                      <svg width="7" height="12" viewBox="0 0 7 12" fill="none" style={{ flexShrink: 0 }}>
+                        <path d="M1 1l5 5-5 5" stroke="#888" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </div>
+                    {wsOpen && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          top: 0,
+                          left: "100%",
+                          background: "#fff",
+                          border: "1px solid #e0e0e0",
+                          borderRadius: 8,
+                          boxShadow: "0 6px 24px rgba(0,0,0,0.12)",
+                          minWidth: 240,
+                          zIndex: 300,
+                          overflow: "hidden",
+                        }}
+                      >
+                        {[
+                          { label: "Search and Pay", href: "/suda-ui/comingsoon" },
+                          { label: "My Bills", href: "/suda-ui/comingsoon" },
+                          { label: "Connection", href: "/suda-ui/comingsoon" },
+                          { label: "Apply for New Connection", href: "/suda-ui/comingsoon" },
+                          { label: "My Applications", href: "/suda-ui/comingsoon" },
+                          { label: "My Payments", href: "/suda-ui/comingsoon" },
+                        ].map((sub) => (
+                          <a
+                            key={sub.label}
+                            href={sub.href}
+                            onClick={(e) => { e.preventDefault(); setCitizenCornerOpen(false); setWsOpen(false); handleServiceClick(sub.href); }}
+                            style={{
+                              display: "block",
+                              padding: "11px 20px",
+                              fontSize: 13,
+                              color: "#333",
+                              textDecoration: "none",
+                              borderBottom: "1px solid #f0f0f0",
+                            }}
+                            onMouseEnter={(e) => (e.currentTarget.style.background = "#fff8f0")}
+                            onMouseLeave={(e) => (e.currentTarget.style.background = "#fff")}
+                          >
+                            {sub.label}
+                          </a>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Gallery */}
+            <a
+              href="#gallery"
+              style={{
+                padding: "6px 14px",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#333",
+                textDecoration: "none",
+                borderBottom: "2px solid transparent",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("LANDING_PAGE_GALLERY") || "Gallery"}
+            </a>
+
+            {/* Opportunities */}
+            <a
+              href="/suda-ui/opportunities"
+              style={{
+                padding: "6px 14px",
+                fontSize: 14,
+                fontWeight: 600,
+                color: "#333",
+                textDecoration: "none",
+                borderBottom: "2px solid transparent",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {t("LANDING_PAGE_OPPORTUNITIES") || "Opportunities"}
+            </a>
+          </nav>
+        )}
+
         {/* Login + Register */}
         <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
           {/* Login Button */}
@@ -405,16 +809,28 @@ export default function Dashboard() {
       </header>
 
       {/* ── BANNER ── */}
-      <div style={{ width: "100%", overflow: "hidden", position: "relative", marginTop: "96px" }}>
+      <div style={{ width: "100%", overflow: "visible", position: "relative", marginTop: "96px" }}>
         {/* <video src={Banner} autoPlay muted loop playsInline style={{ width: "100%", height: "400px", objectFit: "cover", display: "block" }} /> */}
         <img src={Banner} alt="Banner" style={{ width: "100%", height: "500px", objectFit: "cover", display: "block" }} />
+        {/* Dark solid container band at bottom of banner */}
         <div
           style={{
-            height:20,
-            width: "100%",
-            background: "linear-gradient(90deg,rgba(10, 30, 100, 1) 0%, rgba(163, 97, 14, 1) 100%, rgba(163, 97, 14, 1) 94%)"          }}
+            position: "absolute",
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: 130,
+            background: "linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.88) 55%, rgba(0,0,0,0) 100%)",
+            zIndex: 1,
+            pointerEvents: "none",
+          }}
         />
+        {/* ── INSIGHTS overlapping bottom of banner ── */}
+        <InsightsSection isMobile={isMobile} />
       </div>
+
+      {/* ── ANNOUNCEMENTS TICKER ── */}
+      <AnnouncementsTicker />
 
       {/* ── WELCOME + OFFICIALS ── */}
       {/* <section
@@ -459,37 +875,52 @@ export default function Dashboard() {
         style={{
           scrollMarginTop: 90,
           padding: isMobile ? "24px 16px" : "36px 48px 20px",
-          background: "#ededed",
+          marginTop: isMobile ? 8 : 12,
+          background: "#fff",
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
-          gap: 32,
-          justifyContent: "space-between",
+          gap: 80,
+          justifyContent: "flex-start",
           alignItems: isMobile ? "flex-start" : "center",
         }}
       >
         {/* LEFT CONTENT */}
-        <div style={{ flex: 1, maxWidth: isMobile ? "100%" : 420 }}>
+        <div style={{ flex: 1, width: "100%" }}>
           <h2
             style={{
-              fontSize: "clamp(18px, 2.5vw, 22px)",
+              fontSize: "clamp(20px, 2.5vw, 24px)",
               fontWeight: 700,
-              color: "#A3610E",
-              marginBottom: 12,
+              color: "#080501",
+              marginBottom: 18,
               marginTop: 0,
+            
             }}
           >
-            {t("LANDING_PAGE_WELCOME")}
+            {t("ABOUT_SUDA")}
           </h2>
 
           <div
             style={{
               display: "flex",
-              alignItems: "center",
+              alignItems: "flex-start",
+              gap: 16,
               width: "100%",
             }}
           >
+            <img
+              src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/b67bd657e60014cc769868fb668adad390436cdf.png"
+              alt="SUDA"
+              style={{
+                width: 120,
+                height: 120,
+                objectFit: "cover",
+                borderRadius: 8,
+                flexShrink: 0,
+              }}
+            />
             <h5
               style={{
+                flex: 1,
                 fontSize: "clamp(13px, 1.8vw, 15px)",
                 fontWeight: 400,
                 lineHeight: 1.6,
@@ -497,129 +928,92 @@ export default function Dashboard() {
                 color: "#444",
               }}
             >
-              {t("LANDING_PAGE_WELCOME_MESSAGE")}
+              {t("ABOUT_SUDA_MESSAGE")}
             </h5>
           </div>
         </div>
 
         {/* RIGHT OFFICIALS */}
-        <div
-          style={{
-            flex: 1.2,
-            display: "flex",
-            gap: 24,
-            flexWrap: "wrap",
-            justifyContent: isMobile ? "center" : "flex-end",
-          }}
-        >
 
-
-
- {/* <!-- CM Card --> */}
-   
-            <div
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                width: isMobile ? 130 : 200,
-              }}
-            >
-              <div
-                style={{
-                  width: isMobile ? 120 : 230,
-                  height: isMobile ? 130 : 160,
-           
-                }}
-              >
-                <img
-                  src={vishnuSai}
-                  alt={t("COMMON_MAYOR_NAME")}
-                  style={{
-                    height:250,
-                    width:230,
-                    marginTop:-30
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: "#A3610E",
-                  textAlign: "center",
-                  marginBottom: 4,
-                  marginTop: 8,
-                }}
-              >
-                {t("COMMON_MAYOR_NAME")}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 11.5,
-                  color: "#555",
-                  textAlign: "center",
-                }}
-              >
-                {t("COMMON_MAYOR_DESIG_LBL")}
-              </div>
-            </div>
-
-                  {/* <!-- Deputy Mayor Card --> */}
-
-            <div
-
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                width: isMobile ? 130 : 160,
-              }}
-            >
-              <div
-                style={{
-                  width: isMobile ? 120 : 148,
-                  height: isMobile ? 130 : 160,
-                  overflow: "hidden",
-                }}
-              >
-                <img
-                  src={ArunSaoImg}
-                  alt={t("COMMON_DEPUTY_MAYOR_NAME")}
-                  style={{
-                    height:200
-                  }}
-                />
-              </div>
-
-              <div
-                style={{
-                  fontSize: 11.5,
-                  fontWeight: 700,
-                  color: "#A3610E",
-                  textAlign: "center",
-                  marginBottom: 4,
-                  marginTop: 8,
-                }}
-              >
-                {t("COMMON_DEPUTY_MAYOR_NAME")}
-              </div>
-
-              <div
-                style={{
-                  fontSize: 11.5,
-                  color: "#555",
-                  textAlign: "center",
-                }}
-              >
-                {t("COMMON_DEPUTY_MAYOR_DESIG_LBL")}
-              </div>
-            </div>
+<div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
+    width: isMobile ? "100%" : "auto", // ✅ FIXED
+    marginLeft: isMobile ? 0 : "auto",
+  }}
+>
+  {/* Card 1 */}
+  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
     
-        </div>
-      </section>
+    <div style={{ width: 150, display: "flex", justifyContent: "center" }}>
+      <img
+        src={vishnuSai}
+        alt={t("COMMON_MAYOR_NAME")}
+        style={{
+          width: 150,
+          height: 150,
+          objectFit: "cover",
+          objectPosition: "top center",
+        }}
+      />
+    </div>
+
+    <div
+      style={{
+        width: "220px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+      }}
+    >
+      <div style={{ fontSize: 16, fontWeight: 700, color: "#A3610E" }}>
+        {t("COMMON_MAYOR_NAME")}
+      </div>
+      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+        {t("COMMON_MAYOR_DESIG_LBL")}
+      </div>
+    </div>
+  </div>
+
+  {/* Card 2 */}
+  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+    
+    <div style={{ width: 150, display: "flex", justifyContent: "center" }}>
+      <img
+        src={ArunSaoImg}
+        alt={t("COMMON_DEPUTY_MAYOR_NAME")}
+        style={{
+          width: 110,
+          height: 110,
+          objectFit: "cover",
+          objectPosition: "top center",
+        }}
+      />
+    </div>
+
+    <div
+      style={{
+        width: "220px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+      }}
+    >
+      <div style={{ fontSize: 16, fontWeight: 700, color: "#A3610E" }}>
+        {t("COMMON_DEPUTY_MAYOR_NAME")}
+      </div>
+      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+        {t("COMMON_DEPUTY_MAYOR_DESIG_LBL")}
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
+
+      {/* ── LATEST NEWS & EVENTS ── */}
+      <NewsEventsCarousel isMobile={isMobile} />
 
       {/* ── SKYLINE SVG ── */}
       {/* <div style={{ padding: "4px 48px 14px", pointerEvents: "none" }}>
@@ -647,7 +1041,7 @@ export default function Dashboard() {
       <section
         style={{
           padding: "24px clamp(16px, 4vw, 40px) 0",
-          backgroundColor: "#ededed",
+          backgroundColor: "#fff",
         }}
       >
         <div>
@@ -685,6 +1079,18 @@ export default function Dashboard() {
           ))}
         </div>
       </section>
+
+      {/* ── QUICK LINKS ── */}
+      <QuickLinksSection isMobile={isMobile} />
+
+      {/* ── FAQ ── */}
+      <FaqSection isMobile={isMobile} />
+
+      {/* ── CONNECT WITH SUDA ── */}
+      <ConnectWithSuda isMobile={isMobile} isTablet={isTablet} />
+
+      {/* ── GALLERY ── */}
+      <GallerySection isMobile={isMobile} />
 
       {/* ── FOOTER MAIN ── */}
       {/* <footer style={{ background: "#f9ece9", padding: "36px 48px 28px" }}>
@@ -924,10 +1330,152 @@ export default function Dashboard() {
   );
 }
 
+const insightStats = [
+  { value: "280+", label: "Urban Local Bodies", icon: null },
+  { value: "15+",  label: "Citizen Services",   icon: null },
+  { value: "50K+", label: "Applications",       icon: null },
+  { value: "1L+",  label: "Registered Citizens",icon: null },
+];
+
+const announcementItems = [
+  "Citizen Service Portal Now Live",
+  "Property Tax & Water Bill Payment Online",
+  "24×7 Civic Services Portal Available",
+  "New Scheme for Urban Poor Families Launched",
+];
+
+function AnnouncementsTicker() {
+  const { t } = useTranslation();
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        alignItems: "center",
+        background: "#fff",
+        width: "100%",
+        height: 38,
+        overflow: "hidden",
+      }}
+    >
+      {/* Label */}
+      <div
+        style={{
+          background: "#F59E0B",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: 13,
+          padding: "0 20px",
+          height: "100%",
+          display: "flex",
+          alignItems: "center",
+          whiteSpace: "nowrap",
+          flexShrink: 0,
+          letterSpacing: "0.3px",
+        }}
+      >
+        {t("ANNOUNCEMENTS_LABEL") !== "ANNOUNCEMENTS_LABEL" ? t("ANNOUNCEMENTS_LABEL") : "Announcements"}
+      </div>
+
+      {/* Static items */}
+      <div style={{ display: "flex", alignItems: "center", padding: "0 20px", gap: 24 }}>
+        {announcementItems.map((item, i) => (
+          <span key={i} style={{ fontSize: 13, color: "#333", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
+            <span style={{ color: "#F59E0B", fontWeight: 700, fontSize: 16 }}>•</span>
+            {item}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function InsightsSection({ isMobile }) {
+  const { t } = useTranslation();
+  return (
+    <div
+      style={{
+        position: "absolute",
+        bottom: 24,
+        left: 0,
+        right: 0,
+        zIndex: 10,
+        padding: isMobile ? "0 12px" : "0 48px",
+        display: "flex",
+        alignItems: "center",
+        gap: isMobile ? 8 : 14,
+        flexWrap: isMobile ? "wrap" : "nowrap",
+      }}
+    >
+      {/* Insights label */}
+      <div
+        style={{
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: isMobile ? 14 : 17,
+          letterSpacing: "0.5px",
+          textTransform: "uppercase",
+          flexShrink: 0,
+          textShadow: "0 2px 8px rgba(0,0,0,0.8)",
+          minWidth: isMobile ? "unset" : 80,
+        }}
+      >
+        {t("INSIGHTS_LABEL")}
+      </div>
+
+      {/* Stat cards */}
+      {insightStats.map((stat, i) => (
+        <div
+          key={i}
+          style={{
+            background: "#fff",
+            borderRadius: 10,
+            boxShadow: "0 6px 24px rgba(0,0,0,0.28)",
+            padding: isMobile ? "10px 12px" : "14px 22px",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+            gap: 4,
+            flex: 1,
+            minWidth: isMobile ? "calc(50% - 8px)" : 0,
+          }}
+        >
+          {stat.icon ? (
+            <div
+              style={{
+                width: 42,
+                height: 42,
+                borderRadius: "50%",
+                background: "#F59E0B",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden",
+              }}
+            >
+              <img src={stat.icon} alt="" style={{ width: 26, height: 26, objectFit: "contain" }} />
+            </div>
+          ) : (
+            <div style={{ fontSize: isMobile ? 18 : 24, fontWeight: 800, color: "#091E64", lineHeight: 1 }}>
+              {stat.value}
+            </div>
+          )}
+          <div style={{ fontSize: isMobile ? 10 : 11, color: "#666", fontWeight: 500, marginTop: 2 }}>
+            {stat.label}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 function ServiceCard({ svc, active, onClick2 }) {
   const history = useHistory();
   const { t } = useTranslation();
   const [hovered, setHovered] = React.useState(false);
+
   return (
     <div
       onClick={() => history.push(svc.url)}
@@ -938,39 +1486,392 @@ function ServiceCard({ svc, active, onClick2 }) {
         borderRadius: 12,
         overflow: "hidden",
         cursor: "pointer",
-        boxShadow: hovered ? "0 8px 24px rgba(0,0,0,0.28)" : "0 2px 8px rgba(0,0,0,0.14)",
+        height: 300,
+        background: "#000",
+        boxShadow: hovered
+          ? "0 10px 28px rgba(0,0,0,0.3)"
+          : "0 4px 12px rgba(0,0,0,0.15)",
         transform: hovered ? "translateY(-3px) scale(1.02)" : "none",
-        transition: "all 0.22s ease"
+        transition: "all 0.25s ease",
+        border: active ? "2px solid #A3610E" : "none",
       }}
     >
+      {/* Image */}
       <img
         src={svc.img}
         alt={t(svc.title)}
         style={{
+          position: "absolute",
+          inset: 0,
           width: "100%",
-          height: 300,
+          height: "100%",
           objectFit: "cover",
-          display: "block",
           transform: hovered ? "scale(1.06)" : "scale(1)",
           transition: "transform 0.3s ease",
         }}
       />
+
+      {/* Gradient */}
       <div
         style={{
           position: "absolute",
-          bottom: 10,
-          left: 12,
-          right: 12,
-          fontSize: "clamp(11px, 1.1vw, 14px)",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: "45%",
+          background: "linear-gradient(to top, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.4) 50%, rgba(0,0,0,0) 100%)",
+        }}
+      />
+
+      {/* Text */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: 16,
+          left: 16,
+          right: 16,
+          fontSize: "clamp(12px, 1.2vw, 15px)",
           fontWeight: 600,
-          color: "#ffffff",
-          lineHeight: 1.35,
-          textShadow: "0 1px 4px rgba(0,0,0,0.5)",
+          color: "#fff",
+          lineHeight: 1.4,
         }}
       >
         {t(svc.title)}
       </div>
     </div>
+  );
+}
+
+function ConnectWithSuda({ isMobile, isTablet }) {
+  const { t } = useTranslation();
+  return (
+    <section
+      style={{
+        position: "relative",
+        background: "#f5ece9",
+        backgroundImage: "url('https://tfstatee8aog.blob.core.windows.net/filestore/home-images/dd21920db1c31832196050888eb840655ce0fc3b.jpg')",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "right center",
+        backgroundSize: "cover",
+        backgroundBlendMode: "multiply",
+        padding: isMobile ? "24px 14px" : isTablet ? "32px 28px" : "44px 56px",
+        overflow: "hidden",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "stretch" : "center",
+          justifyContent: "center",
+          gap: isMobile ? 20 : 48,
+          maxWidth: 900,
+          margin: "0 auto",
+        }}
+      >
+        {/* LEFT — illustration */}
+        {!isMobile && (
+          <div style={{ flex: "0 0 auto" }}>
+            <img
+              src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/image%205.png"
+              alt="Connect"
+              style={{ width: isTablet ? 180 : 260, height: "auto", display: "block" }}
+              onError={(e) => { e.currentTarget.style.display = "none"; }}
+            />
+          </div>
+        )}
+
+        {/* RIGHT — content */}
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <h3
+            style={{
+              fontSize: isMobile ? 20 : "clamp(22px, 2.5vw, 32px)",
+              fontWeight: 500,
+              color: "#222",
+              marginBottom: isMobile ? 16 : 28,
+              marginTop: 0,
+              textAlign: isMobile ? "center" : "left",
+            }}
+          >
+            {t("CONNECT_WITH_SUDA")}
+          </h3>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(2, 1fr)",
+              gap: isMobile ? 10 : 12,
+            }}
+          >
+            {/* Toll Free */}
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 10,
+                padding: isMobile ? "10px 10px" : "10px 14px",
+                display: "flex",
+                alignItems: "center",
+                gap: isMobile ? 8 : 10,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
+              }}
+            >
+              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/OIP%20(4)%201.png" alt="Toll Free" style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: isMobile ? 9 : 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                  {t("CONNECT_TOLL_FREE_LABEL")}
+                </div>
+                <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: "#FF8E01", wordBreak: "break-all" }}>
+                  1800 123 8000
+                </div>
+              </div>
+            </div>
+
+            {/* Email */}
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 10,
+                padding: isMobile ? "10px 10px" : "10px 14px",
+                display: "flex",
+                alignItems: "center",
+                gap: isMobile ? 8 : 10,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
+              }}
+            >
+              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/download%201.png" alt="Email" style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: isMobile ? 9 : 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                  {t("CONNECT_EMAIL_LABEL")}
+                </div>
+                <div style={{ fontSize: isMobile ? 11 : 13, fontWeight: 700, color: "#FF8E01", wordBreak: "break-all" }}>
+                  suda@cg.gov.in
+                </div>
+              </div>
+            </div>
+
+            {/* WhatsApp */}
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 10,
+                padding: isMobile ? "10px 10px" : "10px 14px",
+                display: "flex",
+                alignItems: "center",
+                gap: isMobile ? 8 : 10,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
+              }}
+            >
+              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/OIP%20(2)%201.png" alt="WhatsApp" style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: isMobile ? 9 : 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                  {t("CONNECT_WHATSAPP_LABEL")}
+                </div>
+                <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: "#FF8E01" }}>
+                  9876543210
+                </div>
+              </div>
+            </div>
+
+            {/* Follow Us */}
+            <div
+              style={{
+                background: "#fff",
+                borderRadius: 10,
+                padding: isMobile ? "10px 10px" : "10px 14px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: isMobile ? "center" : "flex-start",
+                gap: isMobile ? 8 : 10,
+                boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
+              }}
+            >
+              <div style={{ fontSize: isMobile ? 9 : 11, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", flexShrink: 0 }}>
+                {t("LANDING_PAGE_FOLLOW_US") || "Follow Us"}
+              </div>
+              <div style={{ display: "flex", gap: isMobile ? 6 : 10, flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start" }}>
+                <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
+                  <SocialIcon bg="#1877F2" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/facebook.svg" />
+                </a>
+                <a href="https://x.com/" target="_blank" rel="noopener noreferrer">
+                  <SocialIcon bg="#1DA1F2" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/twitter.svg" />
+                </a>
+                <a href="https://www.youtube.com/" target="_blank" rel="noopener noreferrer">
+                  <SocialIcon bg="#FF0000" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/youtube.svg" />
+                </a>
+                <a href="https://www.instagram.com/" target="_blank" rel="noopener noreferrer">
+                  <SocialIcon bg="linear-gradient(45deg,#f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%)" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/instagram.svg" />
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+const galleryPhotos = [
+  "https://tfstatee8aog.blob.core.windows.net/filestore/home-images/74f6e4e8ecdf89599bd657f2561518466d5a0ae2.png",
+  "https://tfstatee8aog.blob.core.windows.net/filestore/home-images/eb654f719887ee880b4bf66f9e0a3aaf422d4cb0.png",
+];
+
+const galleryVideos = [
+  { thumb: "https://tfstatee8aog.blob.core.windows.net/filestore/home-images/Cards.png", url: "#" },
+  { thumb: "https://tfstatee8aog.blob.core.windows.net/filestore/home-images/Cards.png", url: "#" },
+];
+
+function GallerySection({ isMobile }) {
+  const { t } = useTranslation();
+  return (
+    <section
+      id="gallery"
+      style={{
+        scrollMarginTop: 90,
+        background: "#fff",
+        padding: isMobile ? "28px 16px" : "40px 56px",
+        borderTop: "1px solid #f0f0f0",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: isMobile ? 28 : 40,
+          alignItems: "flex-start",
+        }}
+      >
+        {/* PHOTO GALLERY */}
+        <div style={{ flex: "0 0 auto", width: isMobile ? "100%" : 280 }}>
+          <h3
+            style={{
+              fontSize: 17,
+              fontWeight: 700,
+              color: "#222",
+              marginTop: 0,
+              marginBottom: 14,
+            }}
+          >
+            {t("GALLERY_PHOTO_HEADING") }
+          </h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {galleryPhotos.map((src, i) => (
+              <div
+                key={i}
+                style={{
+                  borderRadius: 8,
+                  overflow: "hidden",
+                  height: 130,
+                  background: "#eee",
+                }}
+              >
+                <img
+                  src={src}
+                  alt=""
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    display: "block",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* VIDEO GALLERY */}
+<div style={{ flex: 1 }}>
+  {/* ✅ Heading ABOVE videos */}
+  <h3
+    style={{
+      fontSize: 17,
+      fontWeight: 700,
+      color: "#222",
+      marginTop: 0,
+      marginBottom: 16, // ✅ spacing from videos
+    }}
+  >
+    {t("GALLERY_VIDEO_HEADING") }
+  </h3>
+
+  {/* ✅ Video Cards */}
+  <div
+    style={{
+      display: "flex",
+      gap: 14,
+      flexDirection: isMobile ? "column" : "row",
+      flexWrap: "wrap", // ✅ helps alignment
+    }}
+  >
+    {galleryVideos.map((vid, i) => (
+      <a
+        key={i}
+        href={vid.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ textDecoration: "none", display: "block" }}
+      >
+        <div
+          style={{
+            borderRadius: 8,
+            overflow: "hidden",
+            background: "#3a3a3a",
+
+            // ✅ SIZE FIX (matches design)
+            width: isMobile ? "100%" : 360,
+            aspectRatio: "4 / 3",
+
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            position: "relative",
+          }}
+        >
+          {/* Thumbnail */}
+          {vid.thumb && (
+            <img
+              src={vid.thumb}
+              alt=""
+              style={{
+                position: "absolute",
+                inset: 0,
+                width: "100%",
+                height: "100%",
+                objectFit: "cover",
+                opacity: 0.5,
+              }}
+            />
+          )}
+
+          {/* Play button */}
+          <div
+            style={{
+              width: 56,
+              height: 56,
+              borderRadius: "50%",
+              background: "#F59E0B",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 1,
+            }}
+          >
+            <svg width="22" height="22" viewBox="0 0 20 20">
+              <polygon points="6,4 17,10 6,16" fill="#fff" />
+            </svg>
+          </div>
+        </div>
+      </a>
+    ))}
+  </div>
+</div>
+      </div>
+    </section>
   );
 }
 
@@ -995,5 +1896,353 @@ function SocialIcon({ bg, label }) {
 
       <img src={label} alt="facebook" />
     </div>
+  );
+}
+
+const quickLinks = [
+  { label: "QUICK_LINK_POLICY",    fallback: "Policy",      icon: "🗂" },
+  { label: "QUICK_LINK_NOTICES",   fallback: "Notices",     icon: "≡" },
+  { label: "QUICK_LINK_ACT_RULES", fallback: "Act & Rules", icon: "📋" },
+  { label: "QUICK_LINK_SCHEMES",   fallback: "Schemes",     icon: "📄" },
+  { label: "QUICK_LINK_ORDERS",    fallback: "Orders",      icon: "=✗" },
+  { label: "QUICK_LINK_TENDERS",   fallback: "Tenders",     icon: "📑" },
+];
+
+
+function QuickLinksSection({ isMobile }) {
+  const { t } = useTranslation();
+
+  return (
+   <section
+  style={{
+    position: "relative",
+
+    // ✅ Strong blue base
+    backgroundColor: "#091E64",
+
+    // ✅ Background image
+    backgroundImage:
+      "url('https://tfstatee8aog.blob.core.windows.net/filestore/home-images/a6348605a4074e8bbb1830a4a5f78bf5b38be6ce.png')",
+
+    // ✅ KEY: makes white icons pop more
+    backgroundBlendMode: "screen",   // ✅ BEST for white icons visibility
+
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+
+    padding: isMobile ? "40px 16px" : "60px 56px",
+    minHeight: isMobile ? 200 : 260,
+
+    display: "flex",
+    alignItems: "center",
+  }}
+>
+      {/* ✅ Correct deep blue overlay */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background:
+            "linear-gradient(rgba(9,30,100,0.92), rgba(9,30,100,0.92))",
+        }}
+      />
+
+      {/* ✅ Content */}
+      <div
+        style={{
+          position: "relative",
+          zIndex: 1,
+          display: "grid",
+          gridTemplateColumns: isMobile
+            ? "1fr"
+            : "repeat(3, 1fr)",
+          gap: isMobile ? 12 : 16,
+          maxWidth: 700,
+          width: "100%",
+          margin: "0 auto",
+        }}
+      >
+        {quickLinks.map((link, i) => (
+          <button
+            key={i}
+            style={{
+              background: "#fff",
+              border: "none",
+              borderRadius: 4,
+              padding: "10px 14px",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              cursor: "pointer",
+
+              // ✅ compact typography
+              fontSize: 12,
+              fontWeight: 600,
+              color: "#091E64",
+              letterSpacing: "0.4px",
+              textTransform: "uppercase",
+
+              minHeight: 36,
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) =>
+              (e.currentTarget.style.background = "#EEF2FF")
+            }
+            onMouseLeave={(e) =>
+              (e.currentTarget.style.background = "#fff")
+            }
+          >
+            <span style={{ fontSize: 14, flexShrink: 0 }}>
+              {link.icon}
+            </span>
+
+            {t(link.label) !== link.label
+              ? t(link.label)
+              : link.fallback}
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+
+const faqItems = [
+  { q: "FAQ_Q1", fallback: "What is SUDA ?" },
+  { q: "FAQ_Q2", fallback: "How can citizens apply for schemes/services?" },
+  { q: "FAQ_Q3", fallback: "Are the services available online?" },
+  { q: "FAQ_Q4", fallback: "How can I check my application or scheme status?" },
+  { q: "FAQ_Q5", fallback: "What documents are required for registration?" },
+  { q: "FAQ_Q6", fallback: "How do I raise a grievance on the portal?" },
+];
+
+function FaqSection({ isMobile }) {
+  const { t } = useTranslation();
+  const [openIndex, setOpenIndex] = React.useState(null);
+
+  const half = Math.ceil(faqItems.length / 2);
+  const col1 = faqItems.slice(0, half);
+  const col2 = faqItems.slice(half);
+
+  const FaqItem = ({ item, idx }) => {
+    const isOpen = openIndex === idx;
+    return (
+      <div
+        onClick={() => setOpenIndex(isOpen ? null : idx)}
+        style={{
+          border: "1px solid #e0e0e0",
+          borderRadius: 8,
+          padding: "12px 16px",
+          cursor: "pointer",
+          background: "#fff",
+          marginBottom: 10,
+          userSelect: "none",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
+          <span style={{ fontSize: 13.5, color: "#333", fontWeight: 500 }}>
+            {t(item.q) !== item.q ? t(item.q) : item.fallback}
+          </span>
+          <span style={{ fontSize: 16, color: "#888", flexShrink: 0, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
+        </div>
+        {isOpen && (
+          <p style={{ margin: "10px 0 0", fontSize: 13, color: "#555", lineHeight: 1.6 }}>
+            {t(item.q + "_ANS") !== item.q + "_ANS" ? t(item.q + "_ANS") : "Information will be updated soon."}
+          </p>
+        )}
+      </div>
+    );
+  };
+
+  return (
+    <section
+      style={{
+        position: "relative",
+        background: "#f9f7f4",
+        padding: isMobile ? "32px 16px" : "44px 48px",
+        overflow: "hidden",
+      }}
+    >
+      {/* Decorative question mark */}
+      <img
+        src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/Vector.png"
+        alt=""
+        style={{
+          position: "absolute",
+          right: isMobile ? -20 : 40,
+          top: "50%",
+          transform: "translateY(-50%)",
+          width: isMobile ? 140 : 220,
+          height: "auto",
+          opacity: 0.15,
+          pointerEvents: "none",
+          userSelect: "none",
+        }}
+      />
+
+      <h3 style={{ fontSize: "clamp(18px, 2.2vw, 24px)", fontWeight: 700, color: "#222", marginBottom: 28, marginTop: 0, textAlign: "center" }}>
+        {t("FAQ_HEADING") !== "FAQ_HEADING" ? t("FAQ_HEADING") : "Frequently Asked Questions"}
+      </h3>
+
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          gap: "0 32px",
+          position: "relative",
+          zIndex: 1,
+          maxWidth: 900,
+          margin: "0 auto",
+        }}
+      >
+        <div>{col1.map((item, i) => <FaqItem key={i} item={item} idx={i} />)}</div>
+        <div>{col2.map((item, i) => <FaqItem key={i + half} item={item} idx={i + half} />)}</div>
+      </div>
+    </section>
+  );
+}
+
+const newsItems = [
+  { type: "News",   text: "NEWS_ITEM_1" },
+  { type: "Events", text: "NEWS_ITEM_2" },
+  { type: "News",   text: "NEWS_ITEM_3" },
+  { type: "Events", text: "NEWS_ITEM_4" },
+  { type: "News",   text: "NEWS_ITEM_5" },
+  { type: "Events", text: "NEWS_ITEM_6" },
+];
+
+function NewsEventsCarousel({ isMobile }) {
+  const { t } = useTranslation();
+  const [current, setCurrent] = React.useState(0);
+  const [playing, setPlaying] = React.useState(true);
+  const visibleCount = isMobile ? 1 : 4;
+  const total = newsItems.length;
+
+  React.useEffect(() => {
+    if (!playing) return;
+    const timer = setInterval(() => {
+      setCurrent((c) => (c + 1) % (total - visibleCount + 1));
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [playing, total, visibleCount]);
+
+  const visible = newsItems.slice(current, current + visibleCount);
+
+  return (
+    <section
+      style={{
+        background: "#f5f0e8",
+        padding: isMobile ? "28px 16px" : "36px 48px",
+      }}
+    >
+      {/* Header row */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          marginBottom: 24,
+        }}
+      >
+        <h3
+          style={{
+            fontSize: "clamp(18px, 2vw, 22px)",
+            fontWeight: 700,
+            color: "#222",
+            margin: 0,
+          }}
+        >
+          {t("LATEST_NEWS_AND_EVENTS") || "Latest News and Events"}
+        </h3>
+
+        {/* Controls */}
+        <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+          <button
+            onClick={() => setPlaying((p) => !p)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontSize: 18,
+              color: "#555",
+              padding: "4px 6px",
+              lineHeight: 1,
+            }}
+            title={playing ? "Pause" : "Play"}
+          >
+            {playing ? "⏸" : "▶"}
+          </button>
+          <button
+            onClick={() =>
+              setCurrent((c) => Math.min(c + 1, total - visibleCount))
+            }
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              fontSize: 18,
+              color: "#555",
+              padding: "4px 6px",
+              lineHeight: 1,
+            }}
+          >
+            ▶
+          </button>
+        </div>
+      </div>
+
+      {/* Cards */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: `repeat(${visibleCount}, 1fr)`,
+          gap: 16,
+        }}
+      >
+        {visible.map((item, i) => (
+          <div
+            key={current + i}
+            style={{
+              background: "#fff",
+              borderRadius: 12,
+              padding: "20px 18px",
+              boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 12,
+            }}
+          >
+            {/* Tag */}
+            <span
+              style={{
+                display: "inline-block",
+                alignSelf: "flex-start",
+                padding: "4px 14px",
+                borderRadius: 20,
+                fontSize: 12,
+                fontWeight: 600,
+                color: "#fff",
+                background: item.type === "Events" ? "#F59E0B" : "#1a1a1a",
+              }}
+            >
+              {item.type}
+            </span>
+
+            {/* Text */}
+            <p
+              style={{
+                margin: 0,
+                fontSize: 13,
+                color: "#444",
+                lineHeight: 1.65,
+              }}
+            >
+              {t(item.text) !== item.text ? t(item.text) : item.text}
+            </p>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

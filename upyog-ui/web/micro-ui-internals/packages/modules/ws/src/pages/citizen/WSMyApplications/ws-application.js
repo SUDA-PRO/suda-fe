@@ -29,7 +29,8 @@ const WSApplication = ({ application }) => {
     { filters: { propertyIds: application?.propertyId }, privacy: Digit.Utils.getPrivacyObject() }
   );
   const isReconnection = application?.applicationType?.includes("RECONNECT");
-  const businessService = isReconnection ? "WSReconnection" : (application?.applicationNo?.includes("SW") ? (application?.applicationNo?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (application?.applicationNo?.includes("DC")? "WS" :"WS.ONE_TIME_FEE"))
+  const isSWApplication = application?.applicationNo?.includes("SW");
+  const businessService = isReconnection ? (isSWApplication ? "SWReconnection" : "WSReconnection") : (isSWApplication ? (application?.applicationNo?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (application?.applicationNo?.includes("DC")? "WS" :"WS.ONE_TIME_FEE"))
   const fetchBillParams = { consumerCode: application?.applicationNo?.includes("DC") ? application?.connectionNo : application?.connectionNo };
   if (isLoading) {
     return <Loader />;

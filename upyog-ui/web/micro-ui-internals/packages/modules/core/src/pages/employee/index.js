@@ -69,22 +69,29 @@ const EmployeeApp = ({
             z-index: 1000 !important;
           }
 
-          /* Topbar sits to the right of the fixed expanded sidebar (320px) */
+          /* Topbar sits to the right of the fixed expanded sidebar (300px) */
           .employee .topbar {
             background: #ffffff !important;
             background-color: #ffffff !important;
             color: #091E64 !important;
             box-shadow: 0 1px 4px rgba(0,0,0,0.08) !important;
-            left: 320px !important;
-            width: calc(100% - 320px) !important;
+            left: 300px !important;
+            width: calc(100% - 300px) !important;
             top: 0 !important;
           }
 
-          /* Content area: shift right to not go under sidebar, down to not go under topbar */
-          .employee .main,
-          .employee .employee-app-wrapper {
+          /* Content area: shift right to not go under sidebar (300px wide), down to not go under topbar */
+          .employee .main {
             padding-top: 20px !important;
-            margin-left: 175px !important;
+            margin-left: 300px !important;
+            width: calc(100% - 300px) !important;
+            box-sizing: border-box !important;
+          }
+          .employee .employee-app-wrapper {
+            padding-top: 0 !important;
+            margin-left: 0 !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
           }
 
           /* Sidebar menu items: active = orange highlight, hover = subtle white */
