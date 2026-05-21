@@ -79,6 +79,22 @@ export const propertyCardBodyStyle = {
 export const setAddressDetails = (data) => {
   let { address } = data;
 
+  // Build geoLocation from map picker's lat/lng fields
+  const geoLocation =
+    address?.latitude || address?.longitude
+      ? {
+          latitude: address.latitude ? parseFloat(address.latitude) : undefined,
+          longitude: address.longitude ? parseFloat(address.longitude) : undefined,
+        }
+      : address?.geoLocation || undefined;
+
+  // Merge mapAddress (district/tehsil/zone/ward from reverse geocode) into additionalDetails JSONB
+  const additionalDetails =
+    address?.mapAddress &&
+    (address.mapAddress.district || address.mapAddress.tehsil || address.mapAddress.zone || address.mapAddress.ward)
+      ? { ...(address.additionalDetails || {}), mapAddress: address.mapAddress }
+      : address?.additionalDetails || undefined;
+
   let propAddress = {
     ...address,
     pincode: address?.pincode,
@@ -90,6 +106,12 @@ export const setAddressDetails = (data) => {
       code: address?.locality?.code || "NA",
       area: address?.locality?.name,
     },
+    geoLocation,
+    additionalDetails,
+    // Remove the FE-only flat fields so they don't leak into the API payload
+    latitude: undefined,
+    longitude: undefined,
+    mapAddress: undefined,
   };
 
   data.address = propAddress;
@@ -149,6 +171,7 @@ export const setOwnerDetails = (data) => {
           gender: ownr?.gender?.value,
           isCorrespondenceAddress: ownr?.isCorrespondenceAddress,
           mobileNumber: ownr?.mobileNumber,
+          alternatemobilenumber: ownr?.alternatemobilenumber || undefined,
           name: ownr?.name,
           ownerType: ownr?.ownerType?.code || "NONE",
           permanentAddress: ownr?.permanentAddress,
@@ -594,6 +617,7 @@ export const convertToProperty = (data = {}) => {
         uid:data?.uid?.uid,
         ageOfProperty: data.propertyStructureDetails.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
+        isVacantLandRented: data?.isVacantLandRented?.code || null,
         owners: data.owners,
       },
 
@@ -798,6 +822,7 @@ export const convertToUpdateProperty = (data = {}, t) => {
         basement2: basement2,
         ageOfProperty: data.propertyStructureDetails.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
+        isVacantLandRented: data?.isVacantLandRented?.code || null,
       },
 
       creationReason: window.location.href.includes("edit-application")?"UPDATE":getCreationReason(data),
