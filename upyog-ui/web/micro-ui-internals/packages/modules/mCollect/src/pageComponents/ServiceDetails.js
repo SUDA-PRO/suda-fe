@@ -154,9 +154,9 @@ const labelStyle = {
 
   const fieldGridStyle = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
-  columnGap: "24px",
-  rowGap: "20px",
+  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 240px))",
+  columnGap: "16px",
+  rowGap: "16px",
 };
 
   const { control, formState: localFormState, watch, setError: setLocalError, clearErrors: clearLocalErrors, setValue, trigger, getValues } = useForm();

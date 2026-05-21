@@ -93,7 +93,7 @@ const MyChallanResult = ({ template, header, actionButtonLabel }) => {
           <React.Fragment>
             <div style={{ marginBottom: "16px" }}>
               <p style={{ margin: "0 0 4px", color: "#505A5F", fontSize: "14px" }}>
-                {t("CS_APPLICATIONS_FOR")}
+                {t("CS_APPLICATION_FOR")}
               </p>
               <p style={{ margin: 0, fontSize: "25px", fontWeight: "600", color: "#0B0C0C" }}>
                 {t("UC_COMMON_HEADER")}

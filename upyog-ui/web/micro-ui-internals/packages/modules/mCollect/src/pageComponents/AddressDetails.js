@@ -143,9 +143,9 @@ const OwnerForm1 = (_props) => {
   const submitAttempted = sessionStorage.getItem("mcollectSubmitAttempted") === "true";
 const fieldGridStyle = {
   display: "grid",
-  gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
-  columnGap: "32px",
-  rowGap: "24px",
+  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 240px))",
+  columnGap: "16px",
+  rowGap: "16px",
 };
 
 const stackedPairStyle = {

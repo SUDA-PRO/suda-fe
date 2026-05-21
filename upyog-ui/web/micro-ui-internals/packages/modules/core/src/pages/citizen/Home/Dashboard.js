@@ -133,8 +133,8 @@ export default function Dashboard() {
     return () => window.removeEventListener("resize", onResize);
   }, []);
 
-  const isMobile = width < 640;
-  const isTablet = width >= 640 && width < 1024;
+  const isMobile = width < 768;
+  const isTablet = width >= 768 && width < 1024;
 
   useEffect(() => {
     function handleClick(e) {
@@ -874,25 +874,26 @@ export default function Dashboard() {
         id="main"
         style={{
           scrollMarginTop: 90,
-          padding: isMobile ? "20px 14px" : isTablet ? "28px 24px 20px" : "36px 48px 20px",
+          padding: isMobile ? "24px 16px" : "36px 48px 20px",
           marginTop: isMobile ? 8 : 12,
           background: "#fff",
           display: "flex",
-          flexDirection: isMobile || isTablet ? "column" : "row",
-          gap: isMobile ? 24 : isTablet ? 32 : 48,
+          flexDirection: isMobile ? "column" : "row",
+          gap: 80,
           justifyContent: "flex-start",
-          alignItems: isMobile || isTablet ? "stretch" : "center",
+          alignItems: isMobile ? "flex-start" : "center",
         }}
       >
         {/* LEFT CONTENT */}
-        <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ flex: 1, width: "100%" }}>
           <h2
             style={{
-              fontSize: isMobile ? 18 : "clamp(20px, 2.5vw, 24px)",
+              fontSize: "clamp(20px, 2.5vw, 24px)",
               fontWeight: 700,
               color: "#080501",
-              marginBottom: 14,
+              marginBottom: 18,
               marginTop: 0,
+            
             }}
           >
             {t("ABOUT_SUDA")}
@@ -902,7 +903,7 @@ export default function Dashboard() {
             style={{
               display: "flex",
               alignItems: "flex-start",
-              gap: 12,
+              gap: 16,
               width: "100%",
             }}
           >
@@ -910,8 +911,8 @@ export default function Dashboard() {
               src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/b67bd657e60014cc769868fb668adad390436cdf.png"
               alt="SUDA"
               style={{
-                width: isMobile ? 80 : 120,
-                height: isMobile ? 80 : 120,
+                width: 120,
+                height: 120,
                 objectFit: "cover",
                 borderRadius: 8,
                 flexShrink: 0,
@@ -920,7 +921,7 @@ export default function Dashboard() {
             <h5
               style={{
                 flex: 1,
-                fontSize: isMobile ? 13 : "clamp(13px, 1.8vw, 15px)",
+                fontSize: "clamp(13px, 1.8vw, 15px)",
                 fontWeight: 400,
                 lineHeight: 1.6,
                 margin: 0,
@@ -933,84 +934,83 @@ export default function Dashboard() {
         </div>
 
         {/* RIGHT OFFICIALS */}
-        <div
-          style={{
-            flex: "0 0 auto",
-            display: "flex",
-            flexDirection: isMobile ? "row" : "column",
-            flexWrap: isMobile ? "wrap" : "nowrap",
-            gap: isMobile ? 12 : 0,
-            alignItems: isMobile ? "flex-start" : "flex-start",
-            alignSelf: "flex-start",
-            width: isMobile || isTablet ? "100%" : "auto",
-            justifyContent: isMobile ? "center" : "flex-start",
-          }}
-        >
-          {/* Card 1 */}
-          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 16, flex: isMobile ? "1 1 140px" : "none", minWidth: 0 }}>
-            <div style={{ flexShrink: 0, display: "flex", justifyContent: "center" }}>
-              <img
-                src={vishnuSai}
-                alt={t("COMMON_MAYOR_NAME")}
-                style={{
-                  width: isMobile ? 70 : 150,
-                  height: isMobile ? 70 : 150,
-                  objectFit: "cover",
-                  objectPosition: "top center",
-                }}
-              />
-            </div>
 
-            <div
-              style={{
-                minWidth: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: 4,
-              }}
-            >
-              <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#A3610E" }}>
-                {t("COMMON_MAYOR_NAME")}
-              </div>
-              <div style={{ fontSize: isMobile ? 11 : 12, color: "#555", lineHeight: 1.5 }}>
-                {t("COMMON_MAYOR_DESIG_LBL")}
-              </div>
-            </div>
-          </div>
+<div
+  style={{
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
+    width: isMobile ? "100%" : "auto", // ✅ FIXED
+    marginLeft: isMobile ? 0 : "auto",
+  }}
+>
+  {/* Card 1 */}
+  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+    
+    <div style={{ width: 150, display: "flex", justifyContent: "center" }}>
+      <img
+        src={vishnuSai}
+        alt={t("COMMON_MAYOR_NAME")}
+        style={{
+          width: 150,
+          height: 150,
+          objectFit: "cover",
+          objectPosition: "top center",
+        }}
+      />
+    </div>
 
-          {/* Card 2 */}
-          <div style={{ display: "flex", alignItems: "center", gap: isMobile ? 10 : 16, flex: isMobile ? "1 1 140px" : "none", minWidth: 0 }}>
-            <div style={{ flexShrink: 0, display: "flex", justifyContent: "center" }}>
-              <img
-                src={ArunSaoImg}
-                alt={t("COMMON_DEPUTY_MAYOR_NAME")}
-                style={{
-                  width: isMobile ? 70 : 110,
-                  height: isMobile ? 70 : 110,
-                  objectFit: "cover",
-                  objectPosition: "top center",
-                }}
-              />
-            </div>
+    <div
+      style={{
+        width: "220px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+      }}
+    >
+      <div style={{ fontSize: 16, fontWeight: 700, color: "#A3610E" }}>
+        {t("COMMON_MAYOR_NAME")}
+      </div>
+      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+        {t("COMMON_MAYOR_DESIG_LBL")}
+      </div>
+    </div>
+  </div>
 
-            <div
-              style={{
-                minWidth: 0,
-                display: "flex",
-                flexDirection: "column",
-                gap: 4,
-              }}
-            >
-              <div style={{ fontSize: isMobile ? 12 : 16, fontWeight: 700, color: "#A3610E" }}>
-                {t("COMMON_DEPUTY_MAYOR_NAME")}
-              </div>
-              <div style={{ fontSize: isMobile ? 11 : 12, color: "#555", lineHeight: 1.5 }}>
-                {t("COMMON_DEPUTY_MAYOR_DESIG_LBL")}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+  {/* Card 2 */}
+  <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+    
+    <div style={{ width: 150, display: "flex", justifyContent: "center" }}>
+      <img
+        src={ArunSaoImg}
+        alt={t("COMMON_DEPUTY_MAYOR_NAME")}
+        style={{
+          width: 110,
+          height: 110,
+          objectFit: "cover",
+          objectPosition: "top center",
+        }}
+      />
+    </div>
+
+    <div
+      style={{
+        width: "220px",
+        display: "flex",
+        flexDirection: "column",
+        gap: 6,
+      }}
+    >
+      <div style={{ fontSize: 16, fontWeight: 700, color: "#A3610E" }}>
+        {t("COMMON_DEPUTY_MAYOR_NAME")}
+      </div>
+      <div style={{ fontSize: 12, color: "#555", lineHeight: 1.6 }}>
+        {t("COMMON_DEPUTY_MAYOR_DESIG_LBL")}
+      </div>
+    </div>
+  </div>
+</div>
+  </section>
 
       {/* ── LATEST NEWS & EVENTS ── */}
       <NewsEventsCarousel isMobile={isMobile} />
@@ -1554,35 +1554,35 @@ function ConnectWithSuda({ isMobile, isTablet }) {
         backgroundPosition: "right center",
         backgroundSize: "cover",
         backgroundBlendMode: "multiply",
-        padding: isMobile ? "24px 12px" : isTablet ? "32px 24px" : "44px 56px",
+        padding: isMobile ? "24px 14px" : isTablet ? "32px 28px" : "44px 56px",
         overflow: "hidden",
       }}
     >
       <div
         style={{
           display: "flex",
-          flexDirection: isMobile || isTablet ? "column" : "row",
-          alignItems: isMobile || isTablet ? "stretch" : "center",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "stretch" : "center",
           justifyContent: "center",
-          gap: isMobile ? 20 : isTablet ? 28 : 48,
+          gap: isMobile ? 20 : 48,
           maxWidth: 900,
           margin: "0 auto",
         }}
       >
         {/* LEFT — illustration */}
-        {!isMobile && !isTablet && (
+        {!isMobile && (
           <div style={{ flex: "0 0 auto" }}>
             <img
               src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/image%205.png"
               alt="Connect"
-              style={{ width: 260, height: "auto", display: "block" }}
+              style={{ width: isTablet ? 180 : 260, height: "auto", display: "block" }}
               onError={(e) => { e.currentTarget.style.display = "none"; }}
             />
           </div>
         )}
 
         {/* RIGHT — content */}
-        <div style={{ flex: 1, minWidth: 0, width: "100%" }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <h3
             style={{
               fontSize: isMobile ? 20 : "clamp(22px, 2.5vw, 32px)",
@@ -1590,15 +1590,16 @@ function ConnectWithSuda({ isMobile, isTablet }) {
               color: "#222",
               marginBottom: isMobile ? 16 : 28,
               marginTop: 0,
+              textAlign: isMobile ? "center" : "left",
             }}
           >
-            {t("CONNECT_WITH_SUDA") }
+            {t("CONNECT_WITH_SUDA")}
           </h3>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: isMobile ? "1fr" : "repeat(2, 1fr)",
+              gridTemplateColumns: "repeat(2, 1fr)",
               gap: isMobile ? 10 : 12,
             }}
           >
@@ -1607,19 +1608,20 @@ function ConnectWithSuda({ isMobile, isTablet }) {
               style={{
                 background: "#fff",
                 borderRadius: 10,
-                padding: "10px 14px",
+                padding: isMobile ? "10px 10px" : "10px 14px",
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: isMobile ? 8 : 10,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
               }}
             >
-              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/OIP%20(4)%201.png" alt="Toll Free" style={{ width: 36, height: 36, objectFit: "contain", flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/OIP%20(4)%201.png" alt="Toll Free" style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: isMobile ? 9 : 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
                   {t("CONNECT_TOLL_FREE_LABEL")}
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#FF8E01" }}>
+                <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: "#FF8E01", wordBreak: "break-all" }}>
                   1800 123 8000
                 </div>
               </div>
@@ -1630,19 +1632,20 @@ function ConnectWithSuda({ isMobile, isTablet }) {
               style={{
                 background: "#fff",
                 borderRadius: 10,
-                padding: "10px 14px",
+                padding: isMobile ? "10px 10px" : "10px 14px",
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: isMobile ? 8 : 10,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
               }}
             >
-              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/download%201.png" alt="Email" style={{ width: 36, height: 36, objectFit: "contain", flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
-                  {t("CONNECT_EMAIL_LABEL") }
+              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/download%201.png" alt="Email" style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: isMobile ? 9 : 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+                  {t("CONNECT_EMAIL_LABEL")}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 700, color: "#FF8E01" }}>
+                <div style={{ fontSize: isMobile ? 11 : 13, fontWeight: 700, color: "#FF8E01", wordBreak: "break-all" }}>
                   suda@cg.gov.in
                 </div>
               </div>
@@ -1653,20 +1656,21 @@ function ConnectWithSuda({ isMobile, isTablet }) {
               style={{
                 background: "#fff",
                 borderRadius: 10,
-                padding: "10px 14px",
+                padding: isMobile ? "10px 10px" : "10px 14px",
                 display: "flex",
                 alignItems: "center",
-                gap: 10,
+                gap: isMobile ? 8 : 10,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
               }}
             >
-              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/OIP%20(2)%201.png" alt="WhatsApp" style={{ width: 36, height: 36, objectFit: "contain", flexShrink: 0 }} />
-              <div>
-                <div style={{ fontSize: 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
+              <img src="https://tfstatee8aog.blob.core.windows.net/filestore/home-images/OIP%20(2)%201.png" alt="WhatsApp" style={{ width: isMobile ? 28 : 36, height: isMobile ? 28 : 36, objectFit: "contain", flexShrink: 0 }} />
+              <div style={{ minWidth: 0 }}>
+                <div style={{ fontSize: isMobile ? 9 : 10, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: 2 }}>
                   {t("CONNECT_WHATSAPP_LABEL")}
                 </div>
-                <div style={{ fontSize: 14, fontWeight: 700, color: "#FF8E01" }}>
-                 9876543210
+                <div style={{ fontSize: isMobile ? 12 : 14, fontWeight: 700, color: "#FF8E01" }}>
+                  9876543210
                 </div>
               </div>
             </div>
@@ -1676,17 +1680,19 @@ function ConnectWithSuda({ isMobile, isTablet }) {
               style={{
                 background: "#fff",
                 borderRadius: 10,
-                padding: "10px 14px",
+                padding: isMobile ? "10px 10px" : "10px 14px",
                 display: "flex",
-                alignItems: "center",
-                gap: 10,
+                flexDirection: "column",
+                alignItems: isMobile ? "center" : "flex-start",
+                gap: isMobile ? 8 : 10,
                 boxShadow: "0 2px 8px rgba(0,0,0,0.07)",
+                minWidth: 0,
               }}
             >
-              <div style={{ fontSize: 11, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>
+              <div style={{ fontSize: isMobile ? 9 : 11, color: "#000000", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.5px", flexShrink: 0 }}>
                 {t("LANDING_PAGE_FOLLOW_US") || "Follow Us"}
               </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+              <div style={{ display: "flex", gap: isMobile ? 6 : 10, flexWrap: "wrap", justifyContent: isMobile ? "center" : "flex-start" }}>
                 <a href="https://www.facebook.com/" target="_blank" rel="noopener noreferrer">
                   <SocialIcon bg="#1877F2" label="https://media-upyog.nmc.gov.in/nmc-public-media/icon/facebook.svg" />
                 </a>

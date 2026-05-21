@@ -366,16 +366,6 @@ const NewChallan = ({ChallanData}) => {
 
   return (
     <div className="mcollect-challan-form">
-      <style>{`
-        .mcollect-challan-form .submit-bar {
-          width: 120px !important;
-          height: 40px !important;
-          box-shadow: none !important;
-          display: block !important;
-          margin-left: auto !important;
-          border-radius: 8px !important;
-        }
-      `}</style>
       <div style={isMobile?{}:{ marginLeft: "15px" }}>
         <Header>{isEdit ? t("UC_UPDATE_CHALLAN"):t("UC_COMMON_HEADER")}</Header>
       </div>
@@ -394,6 +384,8 @@ const NewChallan = ({ChallanData}) => {
           };
         })}
         fieldStyle={{ marginRight: 0 }}
+        cardStyle={{ margin: "0 24px 16px", padding: "20px 24px" }}
+        buttonStyle={{ width: "80px", height: "40px", display: "block", marginLeft: "auto", borderRadius: "8px", boxShadow: "none", fontSize: "20px", fontWeight: "600" }}
         onSubmit={onSubmit}
           onFormValidationError={onFormValidationError}
         defaultValues={defaultValues}
