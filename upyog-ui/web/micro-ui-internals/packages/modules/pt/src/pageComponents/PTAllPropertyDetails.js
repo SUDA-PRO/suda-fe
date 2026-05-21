@@ -14,6 +14,7 @@ import FormStep from "../../../../react-components/src/molecules/FormStep";
 import Timeline from "../components/TLTimeline";
 import { stringReplaceAll } from "../utils";
 import UploadFileDigiLocker from "../utils/UploadFile";
+import PTMapPicker from "./PTMapPicker";
 
 const getUsageCategoryParsed = (code = "") => {
   const arr = code.split(".");
@@ -131,7 +132,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
   const [uploadedFileObj, setUploadedFileObj] = useState(formData?.address?.documents?.ProofOfAddress || null);
   const [uploadError, setUploadError] = useState(null);
-
+  /* ── Map coordinates ── */
+  const [latitude, setLatitude] = useState(formData?.address?.latitude || null);
+  const [longitude, setLongitude] = useState(formData?.address?.longitude || null);
+  const [mapAddress, setMapAddress] = useState(
+    formData?.address?.mapAddress || { district: "", tehsil: "", zone: "", ward: "", state: "" }
+  );
   /* â”€â”€ Floor Usage MDMS â”€â”€ */
   const { data: floorMdms } = Digit.Hooks.useCommonMDMSV2(
     stateId,
@@ -388,7 +394,37 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       setUploadedFileObj(e.target.files[0]);
     }
   };
+  const handleLocationSelect = (lat, lng) => {
+    setLatitude(lat);
+    setLongitude(lng);
+  };
 
+  const handleAddressResolve = (resolved) => {
+    setMapAddress({
+      district: resolved.district || "",
+      tehsil:   resolved.tehsil   || "",
+      zone:     resolved.zone     || "",
+      ward:     resolved.ward     || "",
+      state:    resolved.state    || "",
+    });
+    if (resolved.pincode) setPincode(resolved.pincode);
+    if (resolved.street && !street) setStreet(resolved.street);
+    if (resolved.city && allCities?.length) {
+      const resolvedCity = resolved.city.toLowerCase();
+      const matched = allCities.find(
+        (c) =>
+          c.name?.toLowerCase() === resolvedCity ||
+          c.code?.toLowerCase() === resolvedCity ||
+          c.name?.toLowerCase().includes(resolvedCity) ||
+          resolvedCity.includes(c.name?.toLowerCase())
+      );
+      if (matched) {
+        setSelectedCity(matched);
+        setSelectedLocality(null);
+        setLocalities([]);
+      }
+    }
+  };
   /* â”€â”€ Validation â”€â”€ */
   const isFormValid = () => {
     if (!isResdential) return false;
@@ -489,6 +525,11 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       street,
       doorNo,
       landmark,
+      latitude: latitude || undefined,
+      longitude: longitude || undefined,
+      mapAddress: (mapAddress?.district || mapAddress?.tehsil || mapAddress?.zone || mapAddress?.ward)
+        ? mapAddress
+        : undefined,
       documents: {
         ProofOfAddress: {
           documentType: proofDocType,
@@ -768,7 +809,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 
             {/* Electricity Number */}
             <div style={col3}>
-              <label style={labelStyle}>{t("PT_ELECTRICITY_LABEL")}<span style={requiredMark}>*</span></label>
+              <label style={labelStyle}>{t("PT_ELECTRICITY_LABEL")}{!isVacant && <span style={requiredMark}>*</span>}</label>
               <TextInput t={t} type="text" value={electricity} onChange={handleElectricityChange} placeholder={t("PT_ASSESMENT1_ELECTRICITY_NUMBER")} maxLength={10} />
               {electricityError && <CardLabelError style={{ fontSize: "12px", marginTop: "4px" }}>{electricityError}</CardLabelError>}
             </div>
@@ -938,6 +979,67 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <TextInput type="text" value={landmark} onChange={(e) => setLandmark(e.target.value)} maxLength={1024} />
             </div>
 
+          </div>
+
+          {/* Map Location Picker */}
+          <div style={{ marginTop: "8px", marginBottom: "8px" }}>
+            <label style={{ ...labelStyle, marginBottom: "6px" }}>
+              {t("PT_MAP_LOCATION_LABEL") || "Property Location on Map"}
+              <span style={{ fontSize: "12px", fontWeight: "400", color: "#8a97a8", marginLeft: "6px" }}>({t("PT_MAP_OPTIONAL_LABEL") || "optional"})</span>
+            </label>
+            <PTMapPicker
+              lat={latitude}
+              lng={longitude}
+              onLocationSelect={handleLocationSelect}
+              onAddressResolve={handleAddressResolve}
+              t={t}
+            />
+            {(mapAddress?.district || mapAddress?.tehsil || mapAddress?.zone || mapAddress?.ward || latitude || longitude) && (
+              <div style={{ marginTop: "12px", background: "#F0F7FF", border: "1px solid #C3DEF0", borderRadius: "8px", padding: "12px 16px" }}>
+                <div style={{ fontSize: "12px", fontWeight: "600", color: "#505a5f", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+                  {t("PT_MAP_DETECTED_ADDRESS") || "Detected from Map Pin"}
+                </div>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px" }}>
+                  {[
+                    { label: t("PT_MAP_DISTRICT") || "District", key: "district" },
+                    { label: t("PT_MAP_TEHSIL")   || "Tehsil",   key: "tehsil"   },
+                    { label: t("PT_MAP_ZONE")     || "Zone",     key: "zone"     },
+                    { label: t("PT_MAP_WARD")     || "Ward",     key: "ward"     },
+                  ].map(({ label, key }) => (
+                    <div key={key}>
+                      <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{label}</div>
+                      <input
+                        type="text"
+                        value={mapAddress[key] || ""}
+                        onChange={(e) => setMapAddress((prev) => ({ ...prev, [key]: e.target.value }))}
+                        placeholder="Not detected — enter manually"
+                        style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: mapAddress[key] ? "#fff" : "#fafafa", boxSizing: "border-box", color: mapAddress[key] ? "#1a1a1a" : "#888" }}
+                      />
+                    </div>
+                  ))}
+                  <div>
+                    <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LATITUDE") || "Latitude"}</div>
+                    <input
+                      type="text"
+                      value={latitude ?? ""}
+                      onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLatitude(v === "" ? null : v); }}
+                      placeholder="e.g. 26.8467"
+                      style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: latitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: latitude ? "#1a1a1a" : "#888" }}
+                    />
+                  </div>
+                  <div>
+                    <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LONGITUDE") || "Longitude"}</div>
+                    <input
+                      type="text"
+                      value={longitude ?? ""}
+                      onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLongitude(v === "" ? null : v); }}
+                      placeholder="e.g. 80.9462"
+                      style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: longitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: longitude ? "#1a1a1a" : "#888" }}
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Proof of Address */}
