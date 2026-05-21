@@ -1,3 +1,26 @@
+/* mCollect Search Challan — force card to full screen width */
+.mcollect-search-card .card,
+.mcollect-search-card form .card {
+  width: calc(100% - 48px) !important;
+  max-width: none !important;
+  margin: 0 auto !important;
+}
+
+/* mCollect new-challan submit button — ground-container wraps all mCollect employee routes;
+   :not(.submit-bar-search) excludes the search-page submit button */
+.ground-container button.submit-bar:not(.submit-bar-search) {  width: 80px !important;
+  height: 40px !important;
+  display: block !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.ground-container button.submit-bar:not(.submit-bar-search) header {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
 .employee-card-input {
     margin-bottom: 18px !important;
     padding-left: 8px;

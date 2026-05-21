@@ -145,10 +145,23 @@ const OwnerForm1 = (_props) => {
     fetchedLocalities,
   } = _props;
 
+  
+const isMobile = window.Digit.Utils.browser.isMobile();
+const labelStyle = {
+  marginBottom: "6px",
+  whiteSpace:"nowrap",
+};
+
+  const fieldGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 240px))",
+  columnGap: "16px",
+  rowGap: "16px",
+};
+
   const { control, formState: localFormState, watch, setError: setLocalError, clearErrors: clearLocalErrors, setValue, trigger, getValues } = useForm();
   const formValue = watch();
   const { errors } = localFormState;
-  const isMobile = window.Digit.Utils.browser.isMobile();
 
   
   const selectedCategory = useWatch({control: control, name: "category", defaultValue:""});
@@ -162,11 +175,8 @@ const OwnerForm1 = (_props) => {
     setValue("categoryType","");
   },[selectedCategory])
 
-  useEffect(() => {
-    if(!isEdit){
-    setValue("mohalla","");
-    }
-  },[selectedPincode])
+  // Note: mohalla is not a field in ServiceDetails; resetting it here would
+  // contaminate the shared sessionStorage and wipe the locality selected in AddressDetails.
 
   useEffect(() => {
     if(isEdit)
@@ -213,6 +223,20 @@ const OwnerForm1 = (_props) => {
   }, []);
 
   useEffect(() => {
+    if (formState?.submitCount > 0 || formState?.isSubmitted) {
+      trigger();
+    }
+  }, [formState?.submitCount, formState?.isSubmitted]);
+
+  const stackedPairStyle = {
+  display: "flex",
+  flexDirection: "column",   // ✅ THIS FIXES LABEL POSITION
+  alignItems: "flex-start",
+  width: "100%",
+};
+
+
+  useEffect(() => {
     if(Object.entries(formValue).length>0){
     const keys = Object.keys(formValue);
     const part = {};
@@ -244,173 +268,205 @@ const OwnerForm1 = (_props) => {
   }, [errors]);
 
   const errorStyle = { width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" };
-  return (
-    <div  style={isMobile?{}:{marginTop:"-50px"}}>
-      <div style={{ marginBottom: "16px" }}>
+  
+return (
+    <div style={{ marginTop: isMobile ? "" : "-50px" }}>
+
+      <CardSectionHeader>{t("SERVICEDETAILS")}</CardSectionHeader>
+
+      {/* ===== ROW 1 ===== */}
+      <div style={fieldGridStyle}>
+
+        {/* City */}
         <div>
-        <CardSectionHeader>{t("SERVICEDETAILS")}</CardSectionHeader>
-      <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_CITY_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <Controller
-              name="city"
-              rules={{ required: t("REQUIRED_FIELD") }}
-              defaultValue={consumerdetail?.city}
-              control={control}
-              render={(props) => (
-                <Dropdown
-                  className="form-field"
-                  selected={props.value}
-                  id="city"
-                  freeze={true}
-                  disable={true}
-                  //errorStyle={(localFormState.touched.financialYear && errors?.financialYear?.message) ? true : false}
-                  // disable={financialYearOptions?.length === 1}
-                  option={getCities()}
-                  select={props.onChange}
-                  optionKey="i18nKey"
-                  onBlur={props.onBlur}
-                  //disable={isRenewal}
-                  t={t}
-                />
-              )}
-            />
-        </LabelFieldPair>
-        <LabelFieldPair>
-            <CardLabel className={isMobile?"card-label-APK":"card-label-smaller"}>{`${t("UC_SERVICE_CATEGORY_LABEL")} `}<span className="check-page-link-button"> *</span></CardLabel>
-            <Controller
-              name="category"
-              rules={{ required: t("REQUIRED_FIELD") }}
-              defaultValue={consumerdetail?.category}
-              control={control}
-              render={(props) => (
-                <Dropdown
-                  isMandatory
-                  className="form-field"
-                  selected={props.value}
-                  optionCardStyles={{maxHeight:"960%"}}
-                  //errorStyle={(localFormState.touched.financialYear && errors?.financialYear?.message) ? true : false}
-                  // disable={financialYearOptions?.length === 1}
-                  id="businessService"
-                  option={sortDropdownNames(categoires, "code", t)}
-                  //option={categoires}
-                  select={props.onChange}
-                  optionKey="i18nkey"
-                  onBlur={props.onBlur}
-                  disable={isEdit}
-                  t={t}
-                />
-              )}
-            />
+          <LabelFieldPair style={stackedPairStyle}>
+            <CardLabel style={labelStyle}>
+             {`${t("UC_CITY_LABEL")} *`}
+            </CardLabel>
+
+            <div style={{ width: "100%" }}>
+              <Controller
+                name="city"
+                control={control}
+                defaultValue={selectedCity || getCities()[0] || ""}
+                render={(props) => (
+                  <Dropdown
+                    selected={props.value || selectedCity || getCities()[0]}
+                    option={getCities()}
+                    optionKey="i18nKey"
+                    select={props.onChange}
+                    disable
+                    t={t}
+                  />
+                )}
+              />
+            </div>
           </LabelFieldPair>
-          <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_SERVICE_TYPE_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <Controller
-              name="categoryType"
-              rules={{ required: t("REQUIRED_FIELD") }}
-              defaultValue={consumerdetail?.categoryType}
-              control={control}
-              render={(props) => (
-                <Dropdown
-                  isMandatory
-                  className="form-field"
-                  selected={props.value}
-                  //errorStyle={(localFormState.touched.financialYear && errors?.financialYear?.message) ? true : false}
-                  // disable={financialYearOptions?.length === 1}
-                  id="businessService"
-                  option={sortDropdownNames(categoiresType, "code", t)}
-                  //option={categoires}
-                  select={props.onChange}
-                  optionKey="i18nkey"
-                  onBlur={props.onBlur}
-                  disable={isEdit}
-                  t={t}
-                />
-              )}
-            />
+        </div>
+
+        {/* Category */}
+        <div>
+          <LabelFieldPair style={stackedPairStyle}>
+            <CardLabel style={labelStyle}>
+  {t("UC_SERVICE_CATEGORY_LABEL")}
+  <span style={{ marginLeft: "4px", display: "inline", color: "red" }}>*</span>
+</CardLabel>
+
+           
+            <div style={{ width: "100%" }}>
+              <Controller
+                name="category"
+                control={control}
+                rules={{ required: t("REQUIRED_FIELD") }}
+                render={(props) => (
+                  <Dropdown
+                    selected={props.value}
+                    option={sortDropdownNames(categoires, "code", t)}
+                    optionKey="i18nkey"
+                    select={props.onChange}
+                    t={t}
+                  />
+                )}
+              />
+            </div>
           </LabelFieldPair>
-          <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_FROM_DATE_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <div className="field">
+          <CardLabelError style={{ fontSize: "12px" }}>
+            {formState?.submitCount > 0 && errors?.category?.message}
+          </CardLabelError>
+        </div>
+
+        {/* Category Type */}
+        <div>
+          <LabelFieldPair style={stackedPairStyle}>
+            <CardLabel style={labelStyle}>
+  {t("UC_SERVICE_TYPE_LABEL")}
+  <span style={{ marginLeft: "4px", display: "inline", color: "red" }}>*</span>
+</CardLabel>
+
+           
+            <div style={{ width: "100%" }}>
+              <Controller
+                name="categoryType"
+                control={control}
+                rules={{ required: t("REQUIRED_FIELD") }}
+                render={(props) => (
+                  <Dropdown
+                    selected={props.value}
+                    option={sortDropdownNames(categoiresType, "code", t)}
+                    optionKey="i18nkey"
+                    select={props.onChange}
+                    t={t}
+                  />
+                )}
+              />
+            </div>
+          </LabelFieldPair>
+          <CardLabelError style={{ fontSize: "12px" }}>
+            {formState?.submitCount > 0 && errors?.categoryType?.message}
+          </CardLabelError>
+        </div>
+
+      </div>
+
+      {/* ===== ROW 2 ===== */}
+<div style={{ ...fieldGridStyle, marginTop: "20px" }}>
+        {/* From Date */}
+        <div>
+          <LabelFieldPair style={stackedPairStyle}>
+            <CardLabel style={labelStyle}>
+  {t("UC_FROM_DATE_LABEL")}
+  <span style={{ marginLeft: "4px", display: "inline", color: "red" }}>*</span>
+</CardLabel>
+
+           
+            <div style={{ width: "100%" }}>
               <Controller
                 name="fromDate"
-                rules={{ required: t("REQUIRED_FIELD") }}
-                isMandatory={true}
-                defaultValue={consumerdetail?.fromDate}
                 control={control}
+                rules={{ required: t("REQUIRED_FIELD") }}
                 render={(props) => (
-                  <DatePicker
-                    date={props.value}
-                    // date={CommencementDate} 
-                    name="fromDate"
-                    onChange={props.onChange}
-                    //disabled={isRenewal}
-                  />
+                  <DatePicker date={props.value} onChange={props.onChange} />
                 )}
               />
             </div>
           </LabelFieldPair>
-          <LabelFieldPair>
-            <CardLabel className="card-label-smaller">{`${t("UC_TO_DATE_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <div className="field">
+          <CardLabelError style={{ fontSize: "12px" }}>
+            {formState?.submitCount > 0 && errors?.fromDate?.message}
+          </CardLabelError>
+        </div>
+
+        {/* To Date */}
+        <div>
+          <LabelFieldPair style={stackedPairStyle}>
+            <CardLabel style={labelStyle}>
+  {t("UC_TO_DATE_LABEL")}
+  <span style={{ marginLeft: "4px", display: "inline", color: "red" }}>*</span>
+</CardLabel>
+
+           
+            <div style={{ width: "100%" }}>
               <Controller
                 name="toDate"
-                rules={{ required: t("REQUIRED_FIELD") }}
-                isMandatory={true}
-                defaultValue={consumerdetail?.toDate}
                 control={control}
+                rules={{ required: t("REQUIRED_FIELD") }}
                 render={(props) => (
-                  <DatePicker
-                    date={props.value}
-                    // date={CommencementDate} 
-                    name="toDate"
-                    onChange={props.onChange}
-                    //disabled={isRenewal}
-                  />
+                  <DatePicker date={props.value} onChange={props.onChange} />
                 )}
               />
             </div>
           </LabelFieldPair>
-          {TaxHeadMasterFields && TaxHeadMasterFields.length>0 && TaxHeadMasterFields.map((tax) => 
-          <div>
-          <LabelFieldPair>
-            <CardLabel className={isMobile?"card-label-APK":"card-label-smaller"}>{`${t(stringReplaceAll(tax?.name,".","_"))} * `}</CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={tax?.code}
-                defaultValue={consumerdetail[tax?.code]}
-                isMandatory={tax.isRequired}
-                componentInFront={<div className="employee-card-input employee-card-input--front">₹</div>}
-                rules={tax.isRequired?{ required: t("REQUIRED_FIELD")}:"" }
-                render={(props) => (
-                  <div style={{display:"flex"}}>
-                  <div className="employee-card-input employee-card-input--front">₹</div>
-                  <TextInput
-                    value={props.value}
-                    //className="employee-card-input employee-card-input--front"
-                    componentInFront={<div className="employee-card-input employee-card-input--front">₹</div>}
-                    autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "name"}
-                    //errorStyle={(localFormState.touched.tradeName && errors?.tradeName?.message) ? true : false}
-                    onChange={(e) => {
-                      props.onChange(e.target.value);
-                      setFocusIndex({ index: consumerdetail.key, type: tax?.code });
-                    }}
-                    onBlur={(e) => {
-                      setFocusIndex({ index: -1 });
-                      props.onBlur(e);
-                    }}
-                    //disable={isRenewal}
-                  />
-                  </div>
-                )}
-              />
-            </div>
-          </LabelFieldPair> 
-          </div>)}
+          <CardLabelError style={{ fontSize: "12px" }}>
+            {formState?.submitCount > 0 && errors?.toDate?.message}
+          </CardLabelError>
         </div>
-    </div>
+
+      </div>
+
+      {/* ===== Dynamic Tax / Fee Fields ===== */}
+      {TaxHeadMasterFields && TaxHeadMasterFields.length > 0 && (
+        <div style={{ ...fieldGridStyle, marginTop: "20px" }}>
+          {TaxHeadMasterFields.map((tax) => (
+            <div key={tax.code}>
+              <LabelFieldPair style={stackedPairStyle}>
+                <CardLabel style={labelStyle}>
+                  {`${t(stringReplaceAll(tax?.name, ".", "_"))}`}
+                  {tax.isRequired && <span style={{ marginLeft: "4px", display: "inline", color: "red" }}>*</span>}
+                </CardLabel>
+                <div style={{ width: "100%", display: "flex" }}>
+                  <div className="employee-card-input employee-card-input--front">₹</div>
+                  <Controller
+                    control={control}
+                    name={tax?.code}
+                    defaultValue={consumerdetail?.[tax?.code] || ""}
+                    rules={tax.isRequired ? { required: t("REQUIRED_FIELD") } : {}}
+                    render={(props) => (
+                      <TextInput
+                        value={props.value}
+                        onChange={(e) => {
+                          props.onChange(e.target.value);
+                          setFocusIndex({ index: consumerdetail.key, type: tax?.code });
+                        }}
+                        onBlur={(e) => {
+                          setFocusIndex({ index: -1 });
+                          props.onBlur(e);
+                        }}
+                        autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === tax?.code}
+                      />
+                    )}
+                  />
+                </div>
+              </LabelFieldPair>
+              <CardLabelError style={{ fontSize: "12px" }}>
+                {formState?.submitCount > 0 && errors?.[tax?.code]?.message}
+              </CardLabelError>
+            </div>
+          ))}
+        </div>
+      )}
+
     </div>
   );
 };
+
 
 export default ServiceDetails;

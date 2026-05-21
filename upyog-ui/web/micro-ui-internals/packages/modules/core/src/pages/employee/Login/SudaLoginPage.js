@@ -157,6 +157,16 @@ const PAGE_STYLES = `
     flex:1; border:none; outline:none;
     padding:11px 14px; font-size:14px; color:#222; background:transparent;
   }
+  .suda-select {
+    flex:1; border:none; outline:none;
+    padding:11px 14px; font-size:14px; color:#222; background:transparent;
+    appearance:none; -webkit-appearance:none; cursor:pointer;
+  }
+  .suda-select:invalid, .suda-select option[value=""] { color:#aaa; }
+  .suda-select-arrow {
+    pointer-events:none; padding:0 12px; color:#888;
+    display:flex; align-items:center; flex-shrink:0;
+  }
   .suda-input::placeholder { color:#aaa; }
   .suda-verify-btn {
     flex-shrink:0; background:#1a1a3e; color:#fff;
@@ -284,6 +294,7 @@ const SudaLoginPage = () => {
   const [isNewUser,    setIsNewUser]    = useState(false);
   const [regName,      setRegName]      = useState("");
   const [regDob,       setRegDob]       = useState("");
+  const [selectedCity,     setSelectedCity]     = useState(null);
   const [privacyAccepted,  setPrivacyAccepted]  = useState(false);
   const [showPrivacyModal, setShowPrivacyModal] = useState(false);
   const canvasRef = useRef(null);
@@ -381,9 +392,9 @@ const SudaLoginPage = () => {
         setCitizenDetail(info, tokens.access_token, stateCode);
         history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/suda-ui/citizen/select-location" : "/suda-ui/dashboard");
       } else {
-        const tenantId = cities?.[0]?.code || stateCode;
+        if (!selectedCity) { showErr(t("PLEASE_SELECT_CITY")); setLoading(false); return; }
         const { UserRequest: info, ...tokens } = await Digit.UserService.authenticate({
-          username: mobile, password, tenantId, userType: "EMPLOYEE",
+          username: mobile, password, tenantId: selectedCity.code, userType: "EMPLOYEE",
         });
         Digit.SessionStorage.set("Employee.tenantId", info?.tenantId);
         Digit.SessionStorage.set("citizen.userRequestObject", { info, ...tokens });
@@ -413,7 +424,7 @@ const SudaLoginPage = () => {
                 className={"suda-pill" + (userType === key ? " suda-pill--active" : "")}
                 style={disabled ? { opacity: 0.4, cursor: "not-allowed", pointerEvents: "none" } : {}}>
                 <input type="radio" name="suda-user-type" value={key} checked={userType === key} disabled={disabled}
-                  onChange={() => { setUserType(key); setPhase("mobile"); setIsNewUser(false); setOtpSent(false); setMobile(""); setOtp(""); setPassword(""); setRegName(""); setRegDob(""); }} />
+                  onChange={() => { setUserType(key); setPhase("mobile"); setIsNewUser(false); setOtpSent(false); setMobile(""); setOtp(""); setPassword(""); setRegName(""); setRegDob(""); setSelectedCity(null); }} />
                 <span className={"suda-dot" + (userType === key ? " suda-dot--active" : "")} />
                 {t(label)}
               </label>
@@ -422,6 +433,33 @@ const SudaLoginPage = () => {
         </div>
 
         <form onSubmit={handleLogin} noValidate>
+          {!isCitizen && (
+            <div className="suda-field">
+              <label className="suda-label">{t("CORE_COMMON_CITY")} <span className="suda-req">*</span></label>
+              <div className="suda-input-wrap">
+                <select
+                  className="suda-select"
+                  value={selectedCity?.code || ""}
+                  onChange={(e) => {
+                    const found = cities?.find((c) => c.code === e.target.value) || null;
+                    setSelectedCity(found);
+                  }}
+                >
+                  <option value="" disabled>{t("SELECT_CITY")}</option>
+                  {(cities || []).map((city) => (
+                    <option key={city.code} value={city.code}>
+                      {city.name}
+                    </option>
+                  ))}
+                </select>
+                <span className="suda-select-arrow">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </span>
+              </div>
+            </div>
+          )}
           <div className="suda-field">
             <label className="suda-label">{isCitizen ? t("MOBILE_NUMBER") : t("USERNAME")} <span className="suda-req">*</span></label>
             <div className="suda-input-wrap">
