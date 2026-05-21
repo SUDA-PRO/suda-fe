@@ -20,6 +20,7 @@ export const MCollectService = {
       params: { tenantId },
       auth: true,
       userService: true,
+      excludeRoles: ["WS_CEMP", "SW_CEMP"],
     }),
   generateBill: (consumerCode, tenantId, businessService, operation) =>
     Request({
@@ -50,6 +51,7 @@ export const MCollectService = {
       //params: { tenantId },
       auth: true,
       userService: true,
+      excludeRoles: ["WS_CEMP", "SW_CEMP"],
     }),
   downloadPdf: (challanNo, tenantId) =>
     Request({

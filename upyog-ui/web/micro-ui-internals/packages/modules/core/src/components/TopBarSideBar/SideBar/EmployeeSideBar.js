@@ -160,7 +160,7 @@ const EmployeeSideBar = () => {
   };
 
   return (
-    <div className="sidebar" ref={sidebarRef} style={{width:"320px",overflow:"auto",cursor:"pointer",display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
+    <div className="sidebar" ref={sidebarRef} style={{width:"300px",overflow:"auto",cursor:"pointer",display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
       <OrgHeader />
       {isLoading ? <Loader /> : null}
       {!isLoading && renderSearch()}

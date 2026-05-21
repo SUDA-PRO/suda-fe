@@ -177,7 +177,7 @@ const Inbox = ({
         name: "challanNo",
       },
       {
-        label: t("UC_MOBILE_NUMBER_LABEL"),
+        label: t("UC_MOBILE_NUMBER"),
         name: "mobileNumber",
         maxlength: 10,
         pattern: "[6-9][0-9]{9}",
@@ -215,7 +215,7 @@ const Inbox = ({
     } else {
       return (
         <div>
-          {isInbox && <Header>{t("UC_SEARCH_MCOLLECT_HEADER")}</Header>}
+          {isInbox && <Header>{t("UC_COMMON_HEADER")}</Header>}
           <DesktopInbox
             businessService={businessService}
             data={formedData}
