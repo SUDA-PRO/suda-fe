@@ -1,5 +1,5 @@
 import React from "react";
-import { Header, ResponseComposer, Loader } from "@upyog/digit-ui-react-components";
+import { Header, ResponseComposer, Loader, Card } from "@upyog/digit-ui-react-components";
 import PropTypes from "prop-types";
 import Axios from "axios";
 import { useHistory, Link } from "react-router-dom";
@@ -56,14 +56,38 @@ const ChallanSearchResults = ({ template, header, actionButtonLabel }) => {
   });
 
   return (
-    <div style={{ marginTop: "16px" }}>
-      <div >
+    <div style={{ marginTop: "16px", width: "100%", boxSizing: "border-box" }}>
+      <div style={{ width: "100%" }}>
         {header && (
-          <Header style={{ marginLeft: "8px" }}>
-            {t(header)} ({searchResults?.length})
-          </Header>
+          <div style={{ marginBottom: "16px" }}>
+            <p style={{ margin: "0 0 4px", color: "#505A5F", fontSize: "14px" }}>
+              {t("CS_APPLICATIONS_FOR")}
+            </p>
+            <p style={{ margin: 0, fontSize: "22px", fontWeight: "600", color: "#0B0C0C" }}>
+              {t("CS_MISCELLANEOUS_APPLICATIONS")}
+            </p>
+          </div>
         )}
-        <ResponseComposer data={searchResults} template={template} actionButtonLabel={actionButtonLabel} onSubmit={onSubmit} />
+        {!searchResults || searchResults.length === 0 ? (
+          <Card style={{ marginTop: 20, padding: 0, overflow: "hidden", width: "100%", boxSizing: "border-box" }}>
+            <div style={{ padding: "16px 24px 12px" }}>
+              <p style={{ margin: 0, fontSize: "20px", fontWeight: "700", color: "#0B0C0C" }}>
+                {t("CS_SEARCH_RESULTS_HEADING")} <span style={{ fontWeight: "700" }}>(0)</span>
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#505A5F" }}>
+                {t("CS_SEARCHED_RESULTS_LABEL")}
+              </p>
+            </div>
+            <hr style={{ margin: 0, border: "none", borderTop: "1px solid #e0e0e0" }} />
+            <div style={{ padding: "28px 24px", textAlign: "center" }}>
+              <p style={{ margin: 0, color: "#7B5E2A", fontSize: "15px" }}>
+                {t("CS_MYAPPLICATIONS_NO_APPLICATION")}
+              </p>
+            </div>
+          </Card>
+        ) : (
+          <ResponseComposer data={searchResults} template={template} actionButtonLabel={actionButtonLabel} onSubmit={onSubmit} />
+        )}
       </div>
     </div>
   );

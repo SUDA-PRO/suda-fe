@@ -50,6 +50,16 @@ import { Link } from "react-router-dom";
 //   );
 // };
 const EmployeeModuleCard = ({ Icon, moduleName, kpis = [], links = [], isCitizen = false, className, styles, FsmHideCount }) => {
+  const normalizeEmployeeLink = (link) => {
+    if (!link) return link;
+    if (/^https?:\/\//i.test(link)) return link;
+    if (link.includes("digit-ui")) return link.replace("digit-ui", "suda-ui");
+    if (link.includes("upyog-ui")) return link.replace("upyog-ui", "suda-ui");
+    if (link.startsWith("/suda-ui/")) return link;
+    if (link.startsWith("/employee/") || link.startsWith("/citizen/")) return `/suda-ui${link}`;
+    return `/suda-ui/employee/${link.replace(/^\/+/, "")}`;
+  };
+
   return (
     <div className={className ? "employeeCard card-home customEmployeeCard" : "employeeCard card-home customEmployeeCard"} style={className ? {} : styles}>
       <div className="employeeCustomCard" style={{ width: "100%", height: "85%", position: "relative" }}>
@@ -91,7 +101,7 @@ const EmployeeModuleCard = ({ Icon, moduleName, kpis = [], links = [], isCitizen
             <div className="links-wrapper" style={{ width: "100%", display: "flex", fontSize: "0.8rem", paddingLeft: "10px", flexWrap:"wrap",flexDirection:"row",paddingTop:"10px"}}>
               {links.map(({ count, label, link }, index) => (
                 <div className="link" key={index} style={{ paddingLeft: "5px", color: "#a1a5b7",display:"flex" }}>
-                  {link ? <div style={{display:"flex"}}> <Link to={link}> {label} </Link>  <span>|</span> </div>: null}
+                  {link ? <div style={{display:"flex"}}> <Link to={normalizeEmployeeLink(link)}> {label} </Link>  <span>|</span> </div>: null}
                 </div>
 
               ))}

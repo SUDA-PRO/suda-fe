@@ -6,7 +6,7 @@ const useMCollectCategory = (tenantId, filter, config = {}) => {
 let Categories = [];
 data?.MdmsRes?.BillingService?.BusinessService.map((ob) => {
   let found = Categories.length>0? Categories?.some(el => el?.code.split(".")[0] === ob.code.split(".")[0]) : false;  
-  if(!found) Categories.push({...ob, i18nkey:`BILLINGSERVICE_BUSINESSSERVICE_${(ob.code.split(".")[0]).toUpperCase()}`})
+  if(!found) Categories.push({...ob, i18nkey: ob.businessService ? ob.businessService.split(".")[0] : ob.code.split(".")[0]})
 })
 
 return {Categories, data};

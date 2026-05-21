@@ -62,11 +62,19 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                 </span>
               </div>
             )}
-            <div className={"complaint-input-container for-pt " + (!(type === "desktop" && !mobileView ) ? "for-search" : "")} style={{ width: "100%",display:"grid" }}>
+            <div
+              className={"complaint-input-container for-pt " + (!(type === "desktop" && !mobileView ) ? "for-search" : "")}
+              style={{
+                width: "100%",
+                display: "grid",
+                gridTemplateColumns: (type === "desktop" && !mobileView) ? "1fr 1fr 1fr" : "1fr 1fr 1fr 1fr",
+                gap: "8px 16px",
+              }}
+            >
               {searchFields
                 ?.filter((e) => true)
                 ?.map((input, index) => (
-                  <div key={input.name} className="input-fields">
+                  <div key={input.name} className="input-fields" style={{ minWidth: 0 }}>
                   <span key={index} className={"complaint-input"}>  {/* //{index === 0 ? "complaint-input" : "mobile-input"} */}
                     <Label>{input.label}</Label>
                     {input.type !== "date" ? (
@@ -95,7 +103,7 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                   </div>
                 )}
                 {type === "desktop" && !mobileView &&
-              <div style={{ maxWidth: "unset", marginLeft: "unset" }} className="search-submit-wrapper">
+              <div style={{ maxWidth: "unset", marginLeft: "unset", gridColumn: "3 / 4" }} className="search-submit-wrapper">
                 <SubmitBar
                   className="submit-bar-search"
                   label={t("UC_SEARCH_LABEL")}
