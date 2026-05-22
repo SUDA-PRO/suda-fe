@@ -1051,7 +1051,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LATITUDE") || "Latitude"}</div>
                     <input
                       type="text"
-                      value={latitude ?? ""}
+                      value={latitude !== null && latitude !== undefined ? latitude : ""}
                       onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLatitude(v === "" ? null : v); }}
                       placeholder="e.g. 26.8467"
                       style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: latitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: latitude ? "#1a1a1a" : "#888" }}
@@ -1061,7 +1061,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LONGITUDE") || "Longitude"}</div>
                     <input
                       type="text"
-                      value={longitude ?? ""}
+                      value={longitude !== null && longitude !== undefined ? longitude : ""}
                       onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLongitude(v === "" ? null : v); }}
                       placeholder="e.g. 80.9462"
                       style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: longitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: longitude ? "#1a1a1a" : "#888" }}
