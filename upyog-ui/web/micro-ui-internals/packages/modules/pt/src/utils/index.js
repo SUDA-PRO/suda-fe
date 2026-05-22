@@ -495,7 +495,7 @@ export const setPropertyDetails = (data) => {
   if (data?.PropertyType?.code?.includes("VACANT")) {
     propertyDetails = {
       units: [],
-      landArea: parseInt(data?.landarea?.floorarea),
+      landArea: parseInt(data?.landArea?.floorarea || data?.landarea?.floorarea),
       propertyType: data?.PropertyType?.code,
       noOfFloors: 0,
       usageCategory: data?.propertyStructureDetails?.usageCategory?.code,
