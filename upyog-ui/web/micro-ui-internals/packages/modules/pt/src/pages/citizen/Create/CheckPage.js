@@ -94,7 +94,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
           />
           <Row
             label={t("PT_PROOF_OF_ADDRESS_SUB_HEADER")}
-            text={`${(address?.documents?.ProofOfAddress?.name && getFixedFilename(address.documents.ProofOfAddress.name)) || "na"}`}
+            text={address?.documents?.ProofOfAddress?.documentType?.i18nKey ? t(address.documents.ProofOfAddress.documentType.i18nKey) : t("CS_NA")}
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/proof`} />}
           />
         </StatusTable>
@@ -184,7 +184,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                       />
                       <Row
                         label={t("PT_PROOF_IDENTITY_HEADER")}
-                        text={`${(owner?.documents["proofIdentity"]?.name && getFixedFilename(owner.documents["proofIdentity"].name)) || "na"}`}
+                        text={owner?.documents["proofIdentity"]?.documentType?.i18nKey ? t(owner.documents["proofIdentity"].documentType.i18nKey) : t("CS_NA")}
                         actionButton={
                           <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/institutional-proof-of-identity/`}${index}`} />
                         }
@@ -210,7 +210,12 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                         actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
                       <Row
-                        label={t("PT_FORM3_GUARDIAN_NAME")}
+                        label={t("PT_FORM3_ALT_MOBILE_NUMBER")}
+                        text={`${t(checkForNA(owner?.alternatemobilenumber))}`}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                      />
+                      <Row
+                        label={t("PT_FORM3_FATHER_HUSBAND_NAME")}
                         text={`${t(checkForNA(owner?.fatherOrHusbandName))}`}
                         actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
@@ -241,9 +246,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                       {owner?.ownerType?.code !== "NONE" ? (
                         <Row
                           label={t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}
-                          text={`${
-                            (owner?.documents["specialProofIdentity"]?.name && getFixedFilename(owner.documents["specialProofIdentity"].name)) || "na"
-                          }`}
+                          text={owner?.documents["specialProofIdentity"]?.documentType?.i18nKey ? t(owner.documents["specialProofIdentity"].documentType.i18nKey) : t("CS_NA")}
                           actionButton={
                             <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/special-owner-category-proof/`}${index}`} />
                           }
@@ -253,7 +256,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                       )}
                       <Row
                         label={t("PT_PROOF_IDENTITY_HEADER")}
-                        text={`${(owner?.documents["proofIdentity"]?.name && getFixedFilename(owner.documents["proofIdentity"].name)) || "na"}`}
+                        text={owner?.documents["proofIdentity"]?.documentType?.i18nKey ? t(owner.documents["proofIdentity"].documentType.i18nKey) : t("CS_NA")}
                         actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/proof-of-identity/`}${index}`} />}
                       />
                     </StatusTable>
@@ -287,7 +290,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
           {PropertyType?.code === "VACANT" && (
             <Row 
               label={t("PT_ASSESMENT1_PLOT_SIZE")}
-              text={`${landarea?.floorarea}`}
+              text={`${landArea?.floorarea || landarea?.floorarea}`}
               actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
             />
           )}
