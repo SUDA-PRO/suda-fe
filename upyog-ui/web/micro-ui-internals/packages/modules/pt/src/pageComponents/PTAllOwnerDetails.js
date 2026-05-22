@@ -262,7 +262,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   /* ─── Build owner object and submit ─── */
   function buildOwnerData() {
-    const documents = [];
+    const documents = {};
     if (identityProofFile) {
       const f = { ...identityProofFile, documentType: identityProofDocType, fileStoreId: identityProofUploadedId || null };
       documents["proofIdentity"] = f;
