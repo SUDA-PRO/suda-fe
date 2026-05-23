@@ -846,7 +846,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             {/* Area (sq ft) – all property types */}
             <div style={col3}>
               <label style={labelStyle}>{t("PT_PLOT_SIZE_SQUARE_FEET_LABEL")}<span style={requiredMark}>*</span></label>
-              <TextInput t={t} type="text" isMandatory={true} value={floorarea} onChange={handleAreaChange} placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+              <TextInput t={t} type="text" value={floorarea} onChange={handleAreaChange} placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")} maxLength={10} />
             </div>
 
             {/* No. of Basements â€“ Independent only */}
@@ -970,18 +970,34 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             {/* City */}
             <div style={col3}>
               <label style={labelStyle}>{t("MYCITY_CODE_LABEL")}<span style={requiredMark}>*</span></label>
-              <span className="form-pt-dropdown-only">
-                <RadioOrSelect options={cities.sort((a, b) => a.name.localeCompare(b.name))} selectedOption={selectedCity} optionKey="i18nKey" onSelect={handleSelectCity} t={t} isPTFlow={true} />
-              </span>
+              <div style={{ position: "relative" }}>
+                <RadioOrSelect
+                  options={cities.sort((a, b) => a.name.localeCompare(b.name))}
+                  selectedOption={selectedCity}
+                  optionKey="i18nKey"
+                  onSelect={handleSelectCity}
+                  t={t}
+                  isPTFlow={true}
+                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                />
+              </div>
             </div>
 
             {/* Locality */}
-            {selectedCity && localities && localities.length > 0 && (
+            {selectedCity && (
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
-                <span className="form-pt-dropdown-only">
-                  <RadioOrSelect dropdownStyle={{ paddingBottom: "20px" }} options={localities.sort((a, b) => a.name.localeCompare(b.name))} selectedOption={selectedLocality} optionKey="i18nkey" onSelect={setSelectedLocality} t={t} />
-                </span>
+                <div style={{ position: "relative" }}>
+                  <RadioOrSelect
+                    dropdownStyle={{ paddingBottom: "20px" }}
+                    options={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
+                    selectedOption={selectedLocality}
+                    optionKey="i18nkey"
+                    onSelect={setSelectedLocality}
+                    t={t}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                  />
+                </div>
               </div>
             )}
 
@@ -1051,7 +1067,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LATITUDE") || "Latitude"}</div>
                     <input
                       type="text"
-                      value={latitude ?? ""}
+                      value={latitude !== null && latitude !== undefined ? latitude : ""}
                       onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLatitude(v === "" ? null : v); }}
                       placeholder="e.g. 26.8467"
                       style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: latitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: latitude ? "#1a1a1a" : "#888" }}
@@ -1061,7 +1077,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LONGITUDE") || "Longitude"}</div>
                     <input
                       type="text"
-                      value={longitude ?? ""}
+                      value={longitude !== null && longitude !== undefined ? longitude : ""}
                       onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLongitude(v === "" ? null : v); }}
                       placeholder="e.g. 80.9462"
                       style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: longitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: longitude ? "#1a1a1a" : "#888" }}

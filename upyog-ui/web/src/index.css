@@ -42,3 +42,145 @@
     color: #0b0c0c;
     color: rgba(11, 12, 12, var(--text-opacity));
   }
+
+/* ── PT / UPYOG UI Overrides ── */
+
+/* Full-width card */
+.app-container form .card { max-width: 100% !important; }
+.app-container form .card .field-container { max-width: 100% !important; }
+.card { max-width: 100% !important; }
+
+/* Submit / Next button */
+button.submit-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #f47738 0%, #e05a1a 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0 40px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(244, 119, 56, 0.40) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  min-width: 160px !important;
+  line-height: 1 !important;
+}
+button.submit-bar:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(244, 119, 56, 0.55) !important;
+}
+button.submit-bar:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(244, 119, 56, 0.35) !important;
+}
+button.submit-bar header {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  color: #ffffff !important;
+  pointer-events: none !important;
+}
+
+/* Submit button disabled */
+button.submit-bar-disabled {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #d0d5dd !important;
+  color: #8a97a8 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0 40px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  min-width: 160px !important;
+  line-height: 1 !important;
+}
+button.submit-bar-disabled header {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  color: #8a97a8 !important;
+  pointer-events: none !important;
+}
+
+/* Upload File widget */
+.upload-file {
+  border-radius: 8px !important;
+  overflow: visible !important;
+}
+.upload-file button.selector-button-border,
+div.upload-file .selector-button-border {
+  background: #C6C6C6 !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 8px !important;
+  padding: 10px 22px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  min-width: 130px !important;
+  width: auto !important;
+  max-width: 100% !important;
+  margin: 0 !important;
+  display: inline-block !important;
+  transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease !important;
+  box-shadow: 0 2px 8px rgba(198, 198, 198, 0.40) !important;
+}
+.upload-file button.selector-button-border:hover,
+div.upload-file .selector-button-border:hover {
+  background: #b0b0b0 !important;
+  box-shadow: 0 4px 12px rgba(198, 198, 198, 0.6) !important;
+}
+.upload-file button.selector-button-border:active,
+div.upload-file .selector-button-border:active {
+  transform: scale(0.96) !important;
+  box-shadow: 0 1px 4px rgba(198, 198, 198, 0.3) !important;
+}
+.file-upload-status {
+  font-size: 12px !important;
+  color: #9aa4b2 !important;
+  margin: 0 !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  white-space: nowrap !important;
+}
+.upload-file .tag {
+  background: #e8f4e8 !important;
+  border: 1px solid #a8d8aa !important;
+  border-radius: 8px !important;
+  padding: 6px 12px !important;
+  font-size: 12px !important;
+  color: #2e7d32 !important;
+  font-weight: 500 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin: 4px auto !important;
+  width: auto !important;
+  max-width: 100% !important;
+}
+.upload-file .tag .text {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 180px !important;
+  color: #2e7d32 !important;
+  font-size: 12px !important;
+}
