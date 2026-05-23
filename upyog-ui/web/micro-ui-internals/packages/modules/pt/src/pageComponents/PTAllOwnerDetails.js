@@ -128,7 +128,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     const menu = [...OwnerTypeMenu];
     menu.forEach((d, i) => { d.order = d.code === "NONE" ? 0 : i + 1; });
     menu.sort((a, b) => a.order - b.order);
-    return menu;
+    return menu.map((d) => ({ ...d, i18nKey: `PROPERTYTAX_OWNERTYPE_${d.code}` }));
   })();
 
   const [ownerType, setOwnerType] = useState(existingOwner.ownerType || null);
@@ -262,7 +262,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   /* ─── Build owner object and submit ─── */
   function buildOwnerData() {
-    const documents = [];
+    const documents = {};
     if (identityProofFile) {
       const f = { ...identityProofFile, documentType: identityProofDocType, fileStoreId: identityProofUploadedId || null };
       documents["proofIdentity"] = f;
@@ -455,7 +455,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 3 of 3</div>
+          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 2 of 3</div>
           <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"}</h2>
           <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>{t("PT_OWNER_DETAILS_SUBHEADER") || "Provide ownership and contact information"}</p>
         </div>
@@ -589,15 +589,15 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                 </div>
 
                 {/* Gender */}
-                <div style={col6}>
+                <div style={col3}>
                   <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
-                  <RadioButtons t={t} options={genderOptions} optionsKey="code" name="gender" selectedOption={gender} onSelect={setGender} isDependent={true} labelKey="PT_COMMON_GENDER" />
+                  <Dropdown t={t} option={genderOptions} optionKey="i18nKey" selected={gender} select={setGender} isMandatory={true} placeholder={t("PT_SELECT_PLACEHOLDER")} />
                 </div>
 
                 {/* Relationship */}
-                <div style={col6}>
+                <div style={col3}>
                   <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
-                  <RadioButtons t={t} optionsKey="i18nKey" options={GuardianOptions} selectedOption={relationship} onSelect={setRelationship} isDependent={true} labelKey="PT_RELATION" />
+                  <Dropdown t={t} option={GuardianOptions} optionKey="i18nKey" selected={relationship} select={setRelationship} isMandatory={true} placeholder={t("PT_SELECT_PLACEHOLDER")} />
                 </div>
 
               </div>
@@ -611,9 +611,9 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
               <div style={rowStyle}>
 
                 {/* Special Owner Category */}
-                <div style={col12}>
+                <div style={col3}>
                   <label style={labelStyle}>{t("PT_SPECIAL_OWNER_CATEGORY")}<span style={requiredMark}>*</span></label>
-                  <RadioButtons t={t} optionsKey="i18nKey" options={sortedOwnerTypes} selectedOption={ownerType} onSelect={setOwnerType} isDependent={true} labelKey="PROPERTYTAX_OWNERTYPE" />
+                  <Dropdown t={t} option={sortedOwnerTypes} optionKey="i18nKey" selected={ownerType} select={setOwnerType} isMandatory={true} placeholder={t("PT_SELECT_PLACEHOLDER")} />
                 </div>
 
                 {/* Owner Address */}

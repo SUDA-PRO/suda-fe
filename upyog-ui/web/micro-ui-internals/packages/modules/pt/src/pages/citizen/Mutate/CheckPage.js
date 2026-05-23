@@ -22,15 +22,7 @@ import {
 import Timeline from "../../../components/TLTimeline";
 import PropertyDocument from "../../../pageComponents/PropertyDocument";
 
-const ActionButton = ({ jumpTo }) => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  function routeTo() {
-    history.push(jumpTo);
-  }
-
-  return <LinkButton label={t("CS_COMMON_CHANGE")} className="check-page-link-button" onClick={routeTo} />;
-};
+const ActionButton = ({ jumpTo }) => null;
 
 const CheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
@@ -156,10 +148,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
       </div>
       <div style={{display:"flex",justifyContent:"space-between"}}> 
         <CardSubHeader style={getCardSubHeadrStyles()}>{t("PT_MUTATION_TRANSFEREE_DETAILS")}</CardSubHeader>
-        <LinkButton
-          label={<EditIcon/>}
-          onClick={() => routeTo(`/suda-ui/citizen/pt/property/property-mutation/owner-ship-details@0`)}
-        />
       </div>
       {
         ownershipCategory?.code?.includes("INSTITUTIONAL") ? (
@@ -217,10 +205,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
       }
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <CardSubHeader style={getCardSubHeadrStyles()}>{t("PT_MUTATION_DETAILS")}</CardSubHeader>
-        <LinkButton
-          label={<EditIcon/>}
-          onClick={() => routeTo(`/suda-ui/citizen/pt/property/property-mutation/is-mutatation-pending`)}
-        />
       </div>
       <div>
         <StatusTable>
@@ -240,10 +224,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
       </div>
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <CardSubHeader style={getCardSubHeadrStyles()}>{t("PT_REGISTRATION_DETAILS")}</CardSubHeader>
-        <LinkButton
-          label={<EditIcon/>}
-          onClick={() => routeTo(`/suda-ui/citizen/pt/property/property-mutation/reason`)}
-        />
       </div>
       <StatusTable>
         <Row
@@ -259,10 +239,6 @@ const CheckPage = ({ onSubmit, value = {} }) => {
       </StatusTable>
       <div style={{display:"flex",justifyContent:"space-between"}}>
         <CardSubHeader style={getCardSubHeadrStyles()}>{t("PT_COMMON_DOCS")}</CardSubHeader>
-        <LinkButton
-          label={<EditIcon/>}
-          onClick={() => routeTo(`/suda-ui/citizen/pt/property/property-mutation/transfer-reason-doc`)}
-        />
       </div>
       <div style={{marginTop:"0 important"}}>
         {Array.isArray(property?.documents) ? (

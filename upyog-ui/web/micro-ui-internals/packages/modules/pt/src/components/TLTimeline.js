@@ -22,6 +22,7 @@ const Timeline = ({ currentStep = 1, flow = "" }) => {
   getAction(flow);
   return (
     <div className="timeline-container" style={isMobile ? {} : { maxWidth: "960px", minWidth: "640px", marginRight: "auto" }}>
+      <style>{".timeline-container .active { background-color: #FF6600 !important; border-color: #FF6600 !important; }"}</style>
       {actions.map((action, index, arr) => (
         <div className="timeline-checkpoint" key={index}>
           <div className="timeline-content">

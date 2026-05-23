@@ -1,0 +1,63 @@
+// PT Module - Rounded corners for all input boxes and select/dropdown components
+
+.pt-citizen,
+.pt-employee,
+.PropertySearchForm {
+  // Text inputs
+  .card-input,
+  .card-input-error,
+  .employee-card-input,
+  .employee-card-input-error,
+  .citizen-card-input {
+    border-radius: 6px !important;
+  }
+
+  // Textareas
+  .card-textarea,
+  .employee-card-textarea {
+    border-radius: 6px !important;
+  }
+
+  // Dropdown (select wrap) - outer container and inner elements
+  .employee-select-wrap {
+    .select,
+    .select-active {
+      border-radius: 6px !important;
+    }
+
+    .options-card {
+      border-radius: 6px !important;
+    }
+  }
+
+  // Date input wrappers
+  .date-wrap {
+    input {
+      border-radius: 6px !important;
+    }
+  }
+
+  // MultiSelect dropdown
+  .multi-select-dropdown {
+    border-radius: 6px !important;
+
+    .multi-select-dropdown__control {
+      border-radius: 6px !important;
+    }
+  }
+
+  // Native select elements
+  select {
+    border-radius: 6px !important;
+  }
+
+  // Generic input elements not covered by class names
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="date"],
+  input[type="search"] {
+    border-radius: 6px !important;
+  }
+}

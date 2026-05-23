@@ -102,6 +102,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     { i18nKey: "PT_GROUND_PLUS_TWO_OPTION", code: 2 },
   ];
   const [noOfFloors, setNoOfFloors] = useState(formData?.noOfFloors || null);
+  const [builtUpBlurred, setBuiltUpBlurred] = useState(false);
 
   /* â”€â”€ Property Address State â”€â”€ */
   const allCities = Digit.Hooks.pt.useTenants();
@@ -262,6 +263,17 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const isShared = PropertyType?.code === "BUILTUP.SHAREDPROPERTY";
   const isVacant = PropertyType?.code === "VACANT";
   const isNonResidential = isResdential?.i18nKey === "PT_COMMON_NO";
+
+  /* -- Compute sum of all built-up areas -- */
+  const builtUpAreaSum = (() => {
+    if (isIndependent) {
+      return floorUnits.reduce((sum, u) => sum + (parseFloat(u.builtUpArea) || 0), 0);
+    }
+    if (isShared) {
+      return flatUnits.reduce((sum, u) => sum + (parseFloat(u.builtUpArea) || 0), 0);
+    }
+    return null;
+  })();
 
   /* â”€â”€ Regenerate floor units when basement/floor selection changes â”€â”€ */
   useEffect(() => {
@@ -454,6 +466,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       });
       if (!allValid) return false;
     }
+    /* area vs built-up sum validation */
+    if (!isVacant && builtUpAreaSum !== null && floorarea) {
+      if (parseFloat(floorarea) !== builtUpAreaSum) return false;
+    }
     /* address validation */
     if (!selectedCity) return false;
     if (!selectedLocality) return false;
@@ -462,6 +478,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!proofDocType) return false;
     if (!uploadedFileObj) return false;
     if (uploadError) return false;
+    if (!latitude || !longitude) return false;
     return true;
   };
 
@@ -765,7 +782,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 2 of 3</div>
+          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>Step 1 of 3</div>
           <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("PT_PROPERTY_DETAILS_HEADER") || "Property Details"}</h2>
           <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>{t("PT_PROPERTY_DETAILS_SUBHEADER") || "Fill in the property information below"}</p>
         </div>
@@ -829,7 +846,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             {/* Area (sq ft) – all property types */}
             <div style={col3}>
               <label style={labelStyle}>{t("PT_PLOT_SIZE_SQUARE_FEET_LABEL")}<span style={requiredMark}>*</span></label>
-              <TextInput t={t} type="text" isMandatory={true} value={floorarea} onChange={handleAreaChange} placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+              <TextInput t={t} type="text" value={floorarea} onChange={handleAreaChange} placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")} maxLength={10} />
             </div>
 
             {/* No. of Basements â€“ Independent only */}
@@ -879,11 +896,18 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                   </div>
                   <div style={col3}>
                     <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
-                    <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { if (floorarea && parseInt(e.target.value) > parseInt(floorarea)) { alert(t("PT_BUILTUPAREA_PLOTSIZE_ERROR_MSG")); } else { updateUnit(idx, "builtUpArea", e.target.value); } } }} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                    <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
                   </div>
                 </div>
               </div>
             ))}
+            {/* Area vs built-up sum summary */}
+            {builtUpBlurred && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
+              <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
+                <span style={{ fontSize: "16px" }}>⚠</span>
+                <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
+              </div>
+            )}
           </div>
         )}
 
@@ -915,7 +939,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                   </div>
                   <div style={col3}>
                     <label style={labelStyle}>{t("PT_FORM2_BUILT_UP_AREA")}<span style={requiredMark}>*</span></label>
-                    <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === "") { updateFlatUnit(idx, "builtUpArea", e.target.value); } }} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                    <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === "") { updateFlatUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
                   </div>
                   <div style={col3}>
                     <label style={labelStyle}>{t("PT_FORM2_SELECT_FLOOR")}<span style={requiredMark}>*</span></label>
@@ -927,6 +951,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             <button type="button" onClick={handleAddFlatUnit} style={{ background: "none", border: "none", cursor: "pointer", color: "#f47738", fontWeight: "700", fontSize: "14px", padding: "4px 0", marginTop: "4px" }}>
               + {t("PT_ADD_UNIT")}
             </button>
+            {builtUpBlurred && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
+              <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
+                <span style={{ fontSize: "16px" }}>⚠</span>
+                <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
+              </div>
+            )}
           </div>
         )}
 
@@ -940,18 +970,34 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             {/* City */}
             <div style={col3}>
               <label style={labelStyle}>{t("MYCITY_CODE_LABEL")}<span style={requiredMark}>*</span></label>
-              <span className="form-pt-dropdown-only">
-                <RadioOrSelect options={cities.sort((a, b) => a.name.localeCompare(b.name))} selectedOption={selectedCity} optionKey="i18nKey" onSelect={handleSelectCity} t={t} isPTFlow={true} />
-              </span>
+              <div style={{ position: "relative" }}>
+                <RadioOrSelect
+                  options={cities.sort((a, b) => a.name.localeCompare(b.name))}
+                  selectedOption={selectedCity}
+                  optionKey="i18nKey"
+                  onSelect={handleSelectCity}
+                  t={t}
+                  isPTFlow={true}
+                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                />
+              </div>
             </div>
 
             {/* Locality */}
-            {selectedCity && localities && localities.length > 0 && (
+            {selectedCity && (
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
-                <span className="form-pt-dropdown-only">
-                  <RadioOrSelect dropdownStyle={{ paddingBottom: "20px" }} options={localities.sort((a, b) => a.name.localeCompare(b.name))} selectedOption={selectedLocality} optionKey="i18nkey" onSelect={setSelectedLocality} t={t} />
-                </span>
+                <div style={{ position: "relative" }}>
+                  <RadioOrSelect
+                    dropdownStyle={{ paddingBottom: "20px" }}
+                    options={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
+                    selectedOption={selectedLocality}
+                    optionKey="i18nkey"
+                    onSelect={setSelectedLocality}
+                    t={t}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                  />
+                </div>
               </div>
             )}
 
@@ -985,7 +1031,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           <div style={{ marginTop: "8px", marginBottom: "8px" }}>
             <label style={{ ...labelStyle, marginBottom: "6px" }}>
               {t("PT_MAP_LOCATION_LABEL") || "Property Location on Map"}
-              <span style={{ fontSize: "12px", fontWeight: "400", color: "#8a97a8", marginLeft: "6px" }}>({t("PT_MAP_OPTIONAL_LABEL") || "optional"})</span>
+              <span style={requiredMark}>*</span>
             </label>
             <PTMapPicker
               lat={latitude}
@@ -1021,7 +1067,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LATITUDE") || "Latitude"}</div>
                     <input
                       type="text"
-                      value={latitude ?? ""}
+                      value={latitude !== null && latitude !== undefined ? latitude : ""}
                       onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLatitude(v === "" ? null : v); }}
                       placeholder="e.g. 26.8467"
                       style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: latitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: latitude ? "#1a1a1a" : "#888" }}
@@ -1031,7 +1077,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LONGITUDE") || "Longitude"}</div>
                     <input
                       type="text"
-                      value={longitude ?? ""}
+                      value={longitude !== null && longitude !== undefined ? longitude : ""}
                       onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLongitude(v === "" ? null : v); }}
                       placeholder="e.g. 80.9462"
                       style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: longitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: longitude ? "#1a1a1a" : "#888" }}
