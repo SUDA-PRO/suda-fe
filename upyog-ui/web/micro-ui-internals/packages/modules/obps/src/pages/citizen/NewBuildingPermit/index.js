@@ -57,7 +57,26 @@ const NewBuildingPermit = () => {
     else setParams({ ...params, ...{ [key]: { ...params[key], ...data }}});
     goNext(skipStep);
   };
-  const handleSkip = () => {};
+  const handleSkip = () => {
+    const currentPath = pathname.split("/").pop();
+    const currentConfig = newConfig1.find((routeObj) => routeObj.route === currentPath);
+    
+    console.log("handleSkip called - currentPath:", currentPath);
+    console.log("handleSkip - match.path:", match.path);
+    console.log("handleSkip - match.params:", match.params);
+    
+    if (currentPath === "search-property") {
+      // Clear PT session storage when skipping property search
+      sessionStorage.removeItem("Digit_OBPS_PT");
+      const targetPath = `${getPath(match.path, match.params)}/location`;
+      console.log("handleSkip - Navigating to:", targetPath);
+      setTimeout(() => history.push(targetPath), 0);
+    } else if (currentConfig && currentConfig.nextStep) {
+      const targetPath = `${getPath(match.path, match.params)}/${currentConfig.nextStep}`;
+      console.log("handleSkip - Navigating to:", targetPath);
+      setTimeout(() => history.push(targetPath), 0);
+    }
+  };
 
   // const state = tenantId.split(".")[0];
   let config = [];

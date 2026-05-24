@@ -15,7 +15,7 @@ export const newConfig1=[
         "route": "plot-details",
         "component": "PlotDetails",
         "key": "data",
-        "nextStep": "scrutiny-details",
+        "nextStep": "search-property",
         "texts": {
             "headerCaption": "BPA_SCRUTINY_DETAILS",
             "header": "BPA_PLOT_DETAILS_TITLE",
@@ -37,20 +37,6 @@ export const newConfig1=[
                 "name": "registrationDetails"
             }
         ]
-    },
-    {
-        "route": "scrutiny-details",
-        "component": "ScrutinyDetails",
-        "nextStep": "search-property",
-        "hideInEmployee": true,
-        "key": "subOccupancy",
-        "texts": {
-            "headerCaption": "BPA_STEPPER_SCRUTINY_DETAILS_HEADER",
-            "header": "BPA_STEPPER_SCRUTINY_DETAILS_HEADER",
-            "cardText": "",
-            "submitBarLabel": "CS_COMMON_NEXT",
-            "skipText": "CORE_COMMON_SKIP_CONTINUE"
-        }
     },
     {
     "type": "component",
@@ -95,7 +81,7 @@ export const newConfig1=[
     {
         "route": "location",
         "component": "LocationDetails",
-        "nextStep": "owner-details",
+        "nextStep": "scrutiny-details",
         "hideInEmployee": true,
         "key": "address",
         "texts": {
@@ -104,6 +90,20 @@ export const newConfig1=[
             "cardText": "",
             "submitBarLabel": "CS_COMMON_NEXT",
             "skipAndContinueText": ""
+        }
+    },
+    {
+        "route": "scrutiny-details",
+        "component": "ScrutinyDetails",
+        "nextStep": "owner-details",
+        "hideInEmployee": true,
+        "key": "subOccupancy",
+        "texts": {
+            "headerCaption": "BPA_STEPPER_SCRUTINY_DETAILS_HEADER",
+            "header": "BPA_STEPPER_SCRUTINY_DETAILS_HEADER",
+            "cardText": "",
+            "submitBarLabel": "CS_COMMON_NEXT",
+            "skipText": "CORE_COMMON_SKIP_CONTINUE"
         }
     },
     {
