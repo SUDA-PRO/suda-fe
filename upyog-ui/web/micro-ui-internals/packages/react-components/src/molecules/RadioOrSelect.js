@@ -21,7 +21,7 @@ const RadioOrSelect = ({
 }) => {
   return (
     <React.Fragment>
-      {options?.length < 5 && !isDropDown ? (
+      {options?.length > 0 && options?.length < 5 && !isDropDown ? (
         <RadioButtons
           selectedOption={selectedOption}
           options={options}

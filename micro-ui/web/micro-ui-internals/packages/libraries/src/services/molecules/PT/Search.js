@@ -1,4 +1,4 @@
-import { getPropertySubtypeLocale, getPropertyTypeLocale } from "../../../utils/pt";
+import { getPropertySubtypeLocale, getPropertyTypeLocale, stringReplaceAll } from "../../../utils/pt";
 import { PTService } from "../../elements/PT";
 
 export const PTSearch = {
@@ -85,101 +85,82 @@ export const PTSearch = {
       ],
     };
     const ownersSequences=property?.owners?.additionalDetails!==null ? property?.owners?.sort((a,b)=>a?.additionalDetails?.ownerSequence-b?.additionalDetails?.ownerSequence): property?.owners
+    const isInstitutional = property?.ownershipCategory === "INSTITUTIONALPRIVATE" || property?.ownershipCategory === "INSTITUTIONALGOVERNMENT";
     const ownerdetails = {
-      title: "PT_OWNERSHIP_INFO_SUB_HEADER",
+      title: isInstitutional ? "PT_INSTITUTION_DETAILS_HEADER" : "PT_OWNERSHIP_INFO_SUB_HEADER",
       additionalDetails: {
         owners: ownersSequences
           ?.filter((owner) => owner.status === "ACTIVE")
           .map((owner, index) => {
+            const institutionalValues = [
+              { title: "PT_INSTITUTION_NAME", value: property?.institution?.name },
+              { title: "PT_INSTITUTION_TYPE", value: property?.institution?.type ? `COMMON_MASTERS_OWNERSHIPCATEGORY_${stringReplaceAll(property.institution.type, ".", "_")}` : "NA" },
+              { title: "PT_OWNER_NAME", value: owner?.name },
+              { title: "PT_COMMON_AUTHORISED_PERSON_DESIGNATION", value: property?.institution?.designation },
+              { title: "PT_LANDLINE_NUMBER_FLOATING_LABEL", value: owner?.altContactNumber },
+              {
+                title: "PT_OWNERSHIP_INFO_MOBILE_NO",
+                value: owner?.mobileNumber,
+                privacy: { uuid: owner?.uuid, fieldName: "mobileNumber", model: "User", showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].mobileNumber", isArray: false } },
+              },
+              {
+                title: "PT_OWNERSHIP_INFO_EMAIL_ID",
+                value: owner?.emailId,
+                privacy: { uuid: owner?.uuid, fieldName: "emailId", model: "User", hide: !(owner?.emailId && owner?.emailId !== "NA"), showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].emailId", isArray: false } },
+              },
+              { title: "PT_FORM3_OWNERSHIP_TYPE", value: property?.ownershipCategory },
+              {
+                title: "PT_OWNERSHIP_INFO_CORR_ADDR",
+                value: owner?.permanentAddress || owner?.correspondenceAddress,
+                privacy: { uuid: owner?.uuid, fieldName: owner?.permanentAddress ? "permanentAddress" : "correspondenceAddress", model: "User",
+                  hide: !(owner?.permanentAddress || owner?.correspondenceAddress), showValue: false,
+                  loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: owner?.permanentAddress ? "Properties[0].owners[0].permanentAddress" : "Properties[0].owners[0].correspondenceAddress", isArray: false } },
+              },
+            ];
+            const individualValues = [
+              { title: "PT_OWNERSHIP_INFO_NAME", value: owner?.name, privacy: { uuid: owner?.uuid, fieldName: "name", model: "User",showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].name", isArray: false } } },
+              { title: "PT_OWNERSHIP_INFO_GENDER", value: owner?.gender, privacy: { uuid: owner?.uuid, fieldName: "gender", model: "User",showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].gender", isArray: false } } },
+              {
+                title: "PT_OWNERSHIP_INFO_MOBILE_NO",
+                value: owner?.mobileNumber,
+                privacy: { uuid: owner?.uuid, fieldName: "mobileNumber", model: "User",showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].mobileNumber", isArray: false } },
+              },
+              {
+                title: "PT_OWNERSHIP_INFO_USER_CATEGORY",
+                value: `COMMON_MASTERS_OWNERTYPE_${owner?.ownerType}` || "NA",
+                privacy: { uuid: owner?.uuid, fieldName: "ownerType", model: "User",showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].ownerType", isArray: false } },
+              },
+              {
+                title: "PT_SEARCHPROPERTY_TABEL_GUARDIANNAME",
+                value: owner?.fatherOrHusbandName,
+                privacy: { uuid: owner?.uuid, fieldName: "guardian", model: "User",showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].fatherOrHusbandName", isArray: false } },
+              },
+              { title: "PT_FORM3_OWNERSHIP_TYPE", value: property?.ownershipCategory },
+              {
+                title: "PT_OWNERSHIP_INFO_EMAIL_ID",
+                value: owner?.emailId,
+                privacy: { uuid: owner?.uuid, fieldName: "emailId", model: "User", hide: !(owner?.emailId && owner?.emailId !== "NA"),showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: "Properties[0].owners[0].emailId", isArray: false } },
+              },
+              {
+                title: "PT_OWNERSHIP_INFO_CORR_ADDR",
+                value: owner?.permanentAddress || owner?.correspondenceAddress,
+                privacy: { uuid: owner?.uuid, fieldName: owner?.permanentAddress ? "permanentAddress" : "correspondenceAddress", model: "User",
+                  hide: !(owner?.permanentAddress || owner?.correspondenceAddress), showValue: false,
+                  loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId, propertyIds }, jsonPath: owner?.permanentAddress ? "Properties[0].owners[0].permanentAddress" : "Properties[0].owners[0].correspondenceAddress", isArray: false } },
+              },
+            ];
             return {
               status: owner.status,
               title: "ES_OWNER",
-              values: [
-                { title: "PT_OWNERSHIP_INFO_NAME", value: owner?.name, privacy: { uuid: owner?.uuid, fieldName: "name", model: "User",showValue: false,
-                loadData: {
-                  serviceName: "/property-services/property/_search",
-                  requestBody: {},
-                  requestParam: { tenantId, propertyIds },
-                  jsonPath: "Properties[0].owners[0].name",
-                  isArray: false,
-                }, } },
-                { title: "PT_OWNERSHIP_INFO_GENDER", value: owner?.gender, privacy: { uuid: owner?.uuid, fieldName: "gender", model: "User",showValue: false,
-                loadData: {
-                  serviceName: "/property-services/property/_search",
-                  requestBody: {},
-                  requestParam: { tenantId, propertyIds },
-                  jsonPath: "Properties[0].owners[0].gender",
-                  isArray: false,
-                }, }  },
-                {
-                  title: "PT_OWNERSHIP_INFO_MOBILE_NO",
-                  value: owner?.mobileNumber,
-                  privacy: { uuid: owner?.uuid, fieldName: "mobileNumber", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId, propertyIds },
-                    jsonPath: "Properties[0].owners[0].mobileNumber",
-                    isArray: false,
-                  }, },
-                },
-                {
-                  title: "PT_OWNERSHIP_INFO_USER_CATEGORY",
-                  value: `COMMON_MASTERS_OWNERTYPE_${owner?.ownerType}` || "NA",
-                  privacy: { uuid: owner?.uuid, fieldName: "ownerType", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId, propertyIds },
-                    jsonPath: "Properties[0].owners[0].ownerType",
-                    //function needed here for localisation
-                    isArray: false,
-                  }, },
-                },
-                {
-                  title: "PT_SEARCHPROPERTY_TABEL_GUARDIANNAME",
-                  value: owner?.fatherOrHusbandName,
-                  privacy: { uuid: owner?.uuid, fieldName: "guardian", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId, propertyIds },
-                    jsonPath: "Properties[0].owners[0].fatherOrHusbandName",
-                    isArray: false,
-                  }, },
-                },
-                { title: "PT_FORM3_OWNERSHIP_TYPE", value: property?.ownershipCategory },
-                {
-                  title: "PT_OWNERSHIP_INFO_EMAIL_ID",
-                  value: owner?.emailId,
-                  privacy: { uuid: owner?.uuid, fieldName: "emailId", model: "User", hide: !(owner?.emailId && owner?.emailId !== "NA"),showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId, propertyIds },
-                    jsonPath: "Properties[0].owners[0].emailId",
-                    isArray: false,
-                  }, },
-                },
-                {
-                  title: "PT_OWNERSHIP_INFO_CORR_ADDR",
-                  value: owner?.permanentAddress || owner?.correspondenceAddress,
-                  privacy: {
-                    uuid: owner?.uuid,
-                    fieldName: owner?.permanentAddress ? "permanentAddress" : "correspondenceAddress",
-                    model: "User",
-                    hide: !(owner?.permanentAddress || owner?.correspondenceAddress),
-                    showValue: false,
-                loadData: {
-                  serviceName: "/property-services/property/_search",
-                  requestBody: {},
-                  requestParam: { tenantId, propertyIds },
-                  jsonPath: owner?.permanentAddress ? "Properties[0].owners[0].permanentAddress" :"Properties[0].owners[0].correspondenceAddress",
-                  isArray: false,
-                },
-                  },
-                },
-              ],
+              values: isInstitutional ? institutionalValues : individualValues,
             };
           }),
       },
@@ -293,97 +274,126 @@ export const PTSearch = {
         title: "PT_OWNERSHIP_INFO_SUB_HEADER",
         additionalDetails: {
           owners: response?.owners?.map((owner, index) => {
+            const isInstitutional = response?.ownershipCategory === "INSTITUTIONALPRIVATE" || response?.ownershipCategory === "INSTITUTIONALGOVERNMENT";
+            const institutionalValues = [
+              { title: "PT_INSTITUTION_NAME", value: response?.institution?.name },
+              { title: "PT_INSTITUTION_TYPE", value: response?.institution?.type ? `COMMON_MASTERS_OWNERSHIPCATEGORY_${stringReplaceAll(response.institution.type, ".", "_")}` : "NA" },
+              { title: "PT_OWNER_NAME", value: owner?.name },
+              { title: "PT_COMMON_AUTHORISED_PERSON_DESIGNATION", value: response?.institution?.designation },
+              { title: "PT_LANDLINE_NUMBER_FLOATING_LABEL", value: owner?.altContactNumber },
+              {
+                title: "PT_OWNERSHIP_INFO_MOBILE_NO",
+                value: owner?.mobileNumber,
+                privacy: { uuid: owner?.uuid, fieldName: "mobileNumber", model: "User", showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId }, jsonPath: "Properties[0].owners[0].mobileNumber", isArray: false } },
+              },
+              {
+                title: "PT_OWNERSHIP_INFO_EMAIL_ID",
+                value: owner?.emailId,
+                privacy: { uuid: owner?.uuid, fieldName: "emailId", model: "User", hide: !(owner?.emailId && owner?.emailId !== "NA"), showValue: false,
+                loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId }, jsonPath: "Properties[0].owners[0].emailId", isArray: false } },
+              },
+              { title: "PT_FORM3_OWNERSHIP_TYPE", value: response?.ownershipCategory },
+              {
+                title: "PT_OWNERSHIP_INFO_CORR_ADDR",
+                value: owner?.correspondenceAddress || owner?.permanentAddress,
+                privacy: { uuid: owner?.uuid, fieldName: owner?.permanentAddress ? "permanentAddress" : "correspondenceAddress", model: "User",
+                  hide: !(owner?.permanentAddress || owner?.correspondenceAddress), showValue: false,
+                  loadData: { serviceName: "/property-services/property/_search", requestBody: {}, requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId }, jsonPath: owner?.permanentAddress ? "Properties[0].owners[0].permanentAddress" : "Properties[0].owners[0].correspondenceAddress", isArray: false } },
+              },
+            ];
+            const individualValues = [
+              {
+                title: "PT_OWNERSHIP_INFO_NAME",
+                value: owner?.name,
+                /* 
+                Feature :: Privacy
+                
+                Desc :: if field requires a demasking option then privacy object has to set with uuid, fieldName, model
+                */
+                // privacy: { uuid: owner?.uuid, fieldName: "name", model: "User" },
+              },
+              { title: "PT_OWNERSHIP_INFO_GENDER", value: owner?.gender, privacy: { uuid: owner?.uuid, fieldName: "gender", model: "User",showValue: false,
+                loadData: {
+                  serviceName: "/property-services/property/_search",
+                  requestBody: {},
+                  requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
+                  jsonPath: "Properties[0].owners[0].gender",
+                  isArray: false,
+                }, } },
+              {
+                title: "PT_OWNERSHIP_INFO_MOBILE_NO",
+                value: owner?.mobileNumber,
+                privacy: { uuid: owner?.uuid, fieldName: "mobileNumber", model: "User",showValue: false,
+                loadData: {
+                  serviceName: "/property-services/property/_search",
+                  requestBody: {},
+                  requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
+                  jsonPath: "Properties[0].owners[0].mobileNumber",
+                  isArray: false,
+                }, },
+              },
+              {
+                title: "PT_OWNERSHIP_INFO_USER_CATEGORY",
+                value: `COMMON_MASTERS_OWNERTYPE_${owner?.ownerType}` || "NA",
+                privacy: { uuid: owner?.uuid, fieldName: "ownerType", model: "User",showValue: false,
+                loadData: {
+                  serviceName: "/property-services/property/_search",
+                  requestBody: {},
+                  requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
+                  //function needed here for localisation
+                  jsonPath: "Properties[0].owners[0].ownerType",
+                  isArray: false,
+                }, },
+              },
+              {
+                title: "PT_SEARCHPROPERTY_TABEL_GUARDIANNAME",
+                value: owner?.fatherOrHusbandName,
+                privacy: { uuid: owner?.uuid, fieldName: "guardian", model: "User",showValue: false,
+                loadData: {
+                  serviceName: "/property-services/property/_search",
+                  requestBody: {},
+                  requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
+                  jsonPath: "Properties[0].owners[0].fatherOrHusbandName",
+                  isArray: false,
+                }, },
+              },
+              { title: "PT_FORM3_OWNERSHIP_TYPE", value: response?.ownershipCategory },
+              {
+                title: "PT_OWNERSHIP_INFO_EMAIL_ID",
+                value: owner?.emailId,
+                privacy: { uuid: owner?.uuid, fieldName: "emailId", model: "User", hide: !(owner?.emailId && owner?.emailId !== "NA"),showValue: false,
+                loadData: {
+                  serviceName: "/property-services/property/_search",
+                  requestBody: {},
+                  requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
+                  jsonPath: "Properties[0].owners[0].emailId",
+                  isArray: false,
+                }, },
+              },
+              {
+                title: "PT_OWNERSHIP_INFO_CORR_ADDR",
+                value: owner?.correspondenceAddress || owner?.permanentAddress,
+                privacy: {
+                  uuid: owner?.uuid,
+                  fieldName: owner?.permanentAddress ? "permanentAddress" : "correspondenceAddress",
+                  model: "User",
+                  hide: !(owner?.permanentAddress || owner?.correspondenceAddress),
+                  showValue: false,
+                  loadData: {
+                    serviceName: "/property-services/property/_search",
+                    requestBody: {},
+                    requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
+                    jsonPath: owner?.permanentAddress ? "Properties[0].owners[0].permanentAddress" : "Properties[0].owners[0].correspondenceAddress",
+                    isArray: false,
+                  },
+                },
+              },
+            ];
             return {
               status: owner.status,
               title: "ES_OWNER",
-              values: [
-                {
-                  title: "PT_OWNERSHIP_INFO_NAME",
-                  value: owner?.name,
-                  /* 
-                  Feature :: Privacy
-                  
-                  Desc :: if field requires a demasking option then privacy object has to set with uuid, fieldName, model
-                  */
-                  // privacy: { uuid: owner?.uuid, fieldName: "name", model: "User" },
-                },
-                { title: "PT_OWNERSHIP_INFO_GENDER", value: owner?.gender, privacy: { uuid: owner?.uuid, fieldName: "gender", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
-                    jsonPath: "Properties[0].owners[0].gender",
-                    isArray: false,
-                  }, } },
-                {
-                  title: "PT_OWNERSHIP_INFO_MOBILE_NO",
-                  value: owner?.mobileNumber,
-                  privacy: { uuid: owner?.uuid, fieldName: "mobileNumber", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
-                    jsonPath: "Properties[0].owners[0].mobileNumber",
-                    isArray: false,
-                  }, },
-                },
-                {
-                  title: "PT_OWNERSHIP_INFO_USER_CATEGORY",
-                  value: `COMMON_MASTERS_OWNERTYPE_${owner?.ownerType}` || "NA",
-                  privacy: { uuid: owner?.uuid, fieldName: "ownerType", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
-                    //function needed here for localisation
-                    jsonPath: "Properties[0].owners[0].ownerType",
-                    isArray: false,
-                  }, },
-                },
-                {
-                  title: "PT_SEARCHPROPERTY_TABEL_GUARDIANNAME",
-                  value: owner?.fatherOrHusbandName,
-                  privacy: { uuid: owner?.uuid, fieldName: "guardian", model: "User",showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
-                    jsonPath: "Properties[0].owners[0].fatherOrHusbandName",
-                    isArray: false,
-                  }, },
-                },
-                { title: "PT_FORM3_OWNERSHIP_TYPE", value: response?.ownershipCategory },
-                {
-                  title: "PT_OWNERSHIP_INFO_EMAIL_ID",
-                  value: owner?.emailId,
-                  privacy: { uuid: owner?.uuid, fieldName: "emailId", model: "User", hide: !(owner?.emailId && owner?.emailId !== "NA"),showValue: false,
-                  loadData: {
-                    serviceName: "/property-services/property/_search",
-                    requestBody: {},
-                    requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
-                    jsonPath: "Properties[0].owners[0].emailId",
-                    isArray: false,
-                  }, },
-                },
-                {
-                  title: "PT_OWNERSHIP_INFO_CORR_ADDR",
-                  value: owner?.correspondenceAddress || owner?.permanentAddress,
-                  privacy: {
-                    uuid: owner?.uuid,
-                    fieldName: owner?.permanentAddress ? "permanentAddress" : "correspondenceAddress",
-                    model: "User",
-                    hide: !(owner?.permanentAddress || owner?.correspondenceAddress),
-                    showValue: false,
-                    loadData: {
-                      serviceName: "/property-services/property/_search",
-                      requestBody: {},
-                      requestParam: { tenantId:response?.tenantId, propertyIds:response?.propertyId },
-                      jsonPath: owner?.permanentAddress ? "Properties[0].owners[0].permanentAddress" : "Properties[0].owners[0].correspondenceAddress",
-                      isArray: false,
-                    },
-                  },
-                },
-              ],
+              values: isInstitutional ? institutionalValues : individualValues,
             };
           }),
           documents: [

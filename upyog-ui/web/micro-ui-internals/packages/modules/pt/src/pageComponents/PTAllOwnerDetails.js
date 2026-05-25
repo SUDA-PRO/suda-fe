@@ -102,6 +102,13 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const [alternateMobileNumber, setAlternateMobileNumber] = useState(existingOwner.alternatemobilenumber || "");
   const [alternateMobileError, setAlternateMobileError] = useState("");
 
+  /* ─── Institution-specific state ─── */
+  const [institutionName, setInstitutionName] = useState(existingOwner.inistitutionName || "");
+  const [institutionType, setInstitutionType] = useState(existingOwner.inistitutetype || null);
+  const [designation, setDesignation] = useState(existingOwner.designation || "");
+  const [landlineNumber, setLandlineNumber] = useState(existingOwner.altContactNumber || "");
+  const [landlineError, setLandlineError] = useState("");
+
   /* ─── Gender MDMS ─── */
   const { data: GenderMenu } = Digit.Hooks.pt.useGenderMDMS(stateId, "common-masters", "GenderType");
   const genderOptions = (GenderMenu || []).map((g) => ({
@@ -114,6 +121,23 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     { name: "HUSBAND", code: "HUSBAND", i18nKey: "PT_RELATION_HUSBAND" },
     { name: "Father", code: "FATHER", i18nKey: "PT_RELATION_FATHER" },
   ];
+
+  /* ─── Institutional flag & type options ─── */
+  const isInstitutional =
+    ownershipCategory?.value === "INSTITUTIONALPRIVATE" ||
+    ownershipCategory?.value === "INSTITUTIONALGOVERNMENT";
+
+  const institutionTypeOptions = React.useMemo(() => {
+    if (!SubOwnerShipCategoryOb || !ownershipCategory?.value) return [];
+    return SubOwnerShipCategoryOb
+      .filter((c) => c.ownerShipCategory === ownershipCategory.value)
+      .map((c) => ({
+        label: c.name,
+        value: c.code,
+        code: c.code,
+        i18nKey: `PROPERTYTAX_BILLING_SLAB_${c.code.replace(/\./g, "_")}`,
+      }));
+  }, [SubOwnerShipCategoryOb, ownershipCategory?.value]);
 
   const validateEmail = (value) => {
     if (!value) { setEmailError(""); return; }
@@ -128,7 +152,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     const menu = [...OwnerTypeMenu];
     menu.forEach((d, i) => { d.order = d.code === "NONE" ? 0 : i + 1; });
     menu.sort((a, b) => a.order - b.order);
-    return menu.map((d) => ({ ...d, i18nKey: `PROPERTYTAX_OWNERTYPE_${d.code}` }));
+    return menu;
   })();
 
   const [ownerType, setOwnerType] = useState(existingOwner.ownerType || null);
@@ -232,6 +256,11 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     setEmailError("");
     setAlternateMobileNumber(existing.alternatemobilenumber || "");
     setAlternateMobileError("");
+    setInstitutionName(existing.inistitutionName || "");
+    setInstitutionType(existing.inistitutetype || null);
+    setDesignation(existing.designation || "");
+    setLandlineNumber(existing.altContactNumber || "");
+    setLandlineError("");
     setOwnerType(existing.ownerType || null);
     setPermanentAddress(existing.permanentAddress || "");
     setIsCorrespondenceAddress(existing.isCorrespondenceAddress || false);
@@ -250,6 +279,12 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   const isFormValid = () => {
     if (!ownershipCategory) return false;
+    if (isInstitutional) {
+      if (!institutionName || !institutionType || !name || !designation || !mobileNumber || !permanentAddress) return false;
+      if (emailError || landlineError) return false;
+      if (!identityProofDocType || !identityProofFile) return false;
+      return true;
+    }
     if (!name || !mobileNumber || !gender?.code || !relationship?.code || !fatherOrHusbandName) return false;
     if (emailError) return false;
     if (alternateMobileError) return false;
@@ -266,6 +301,21 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     if (identityProofFile) {
       const f = { ...identityProofFile, documentType: identityProofDocType, fileStoreId: identityProofUploadedId || null };
       documents["proofIdentity"] = f;
+    }
+    if (isInstitutional) {
+      return {
+        ...(formData?.owners?.[index] || {}),
+        inistitutionName: institutionName,
+        inistitutetype: institutionType,
+        name,
+        designation,
+        altContactNumber: landlineNumber || undefined,
+        mobileNumber,
+        emailId: email,
+        permanentAddress,
+        isCorrespondenceAddress,
+        documents,
+      };
     }
     if (needsSpecialProof && specialProofFile) {
       const f = { ...specialProofFile, documentType: specialProofDocType, fileStoreId: specialProofUploadedId || null };
@@ -534,86 +584,155 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
               <div style={sectionTitleStyle}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"}</div>
               <div style={rowStyle}>
 
-                {/* Ownership Type */}
+                {/* Ownership Type – always visible */}
                 <div style={col6}>
                   <label style={labelStyle}>{t("PT_PROVIDE_OWNERSHIP_DETAILS")}<span style={requiredMark}>*</span></label>
                   <Dropdown t={t} isMandatory={true} option={ownershipOptions} selected={ownershipCategory} optionKey="i18nKey" select={(val) => { setOwnershipCategory(val); sessionStorage.setItem("ownershipCategory", val?.value); }} placeholder={t("PT_SELECT_PLACEHOLDER")} />
                 </div>
 
-                {/* Owner Name */}
-                <div style={col6}>
-                  <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
-                  <TextInput type="text" value={name} onChange={(e) => setName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
-                </div>
+                {isInstitutional ? (
+                  <React.Fragment>
+                    {/* Institution Name */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_INSTITUTION_NAME")}<span style={requiredMark}>*</span></label>
+                      <TextInput type="text" value={institutionName} onChange={(e) => setInstitutionName(e.target.value)} pattern="^[a-zA-Z_@./()#&+- ]*$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                    </div>
+                    {/* Institution Type */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_INSTITUTION_TYPE")}<span style={requiredMark}>*</span></label>
+                      <Dropdown t={t} isMandatory={true} option={institutionTypeOptions} selected={institutionType} optionKey="i18nKey" select={setInstitutionType} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                    </div>
+                    {/* Authorised Person sub-header */}
+                    <div style={{ ...col12, paddingTop: "8px", paddingBottom: "0" }}>
+                      <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49", borderBottom: "1px solid #f47738", paddingBottom: "6px", marginBottom: "4px" }}>
+                        {t("PT_AUTH_PERSON_DETAILS") || "Authorised Person Details"}
+                      </div>
+                    </div>
+                    {/* Authorised Person Name */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
+                      <TextInput type="text" value={name} onChange={(e) => setName(e.target.value)} pattern="^[a-zA-Z ]*$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                    </div>
+                    {/* Designation */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_COMMON_AUTHORISED_PERSON_DESIGNATION")}<span style={requiredMark}>*</span></label>
+                      <TextInput type="text" value={designation} onChange={(e) => setDesignation(e.target.value)} pattern="^[a-zA-Z ]*$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                    </div>
+                    {/* Mobile Number */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
+                      <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
+                    </div>
+                    {/* Landline Number */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_LANDLINE_NUMBER_FLOATING_LABEL") || "Landline Number"}</label>
+                      <TextInput
+                        type="tel"
+                        value={landlineNumber}
+                        onChange={(e) => {
+                          const v = e.target.value;
+                          setLandlineNumber(v);
+                          if (v && !/^[0-9]{11}$/.test(v)) setLandlineError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
+                          else setLandlineError("");
+                        }}
+                        maxLength={11}
+                        pattern="^[0-9]{11}$"
+                        title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
+                      />
+                      {landlineError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{landlineError}</span>}
+                    </div>
+                    {/* Email */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_EMAIL_ID")}</label>
+                      <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }} />
+                      {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
+                    </div>
+                    {/* Correspondence Address */}
+                    <div style={col12}>
+                      <label style={labelStyle}>{t("PT_OWNERS_ADDRESS")}<span style={requiredMark}>*</span></label>
+                      <TextArea value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
+                      <CheckBox label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")} onChange={handleCorrespondenceAddress} value={isCorrespondenceAddress} checked={isCorrespondenceAddress || false} style={{ paddingTop: "10px" }} />
+                    </div>
+                  </React.Fragment>
+                ) : (
+                  <React.Fragment>
+                    {/* Owner Name */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
+                      <TextInput type="text" value={name} onChange={(e) => setName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                    </div>
 
-                {/* Mobile Number */}
-                <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
-                  <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
-                </div>
+                    {/* Mobile Number */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
+                      <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
+                    </div>
 
-                {/* Email */}
-                <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_EMAIL_ID")}</label>
-                  <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }} />
-                  {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
-                </div>
+                    {/* Email */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_EMAIL_ID")}</label>
+                      <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }} />
+                      {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
+                    </div>
 
-                {/* Father / Husband Name */}
-                <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_FATHER_HUSBAND_NAME") || "Father / Husband Name"}<span style={requiredMark}>*</span></label>
-                  <TextInput type="text" value={fatherOrHusbandName} onChange={(e) => setFatherOrHusbandName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
-                </div>
+                    {/* Father / Husband Name */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_FATHER_HUSBAND_NAME") || "Father / Husband Name"}<span style={requiredMark}>*</span></label>
+                      <TextInput type="text" value={fatherOrHusbandName} onChange={(e) => setFatherOrHusbandName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
+                    </div>
 
-                {/* Alternate Mobile Number */}
-                <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
-                  <MobileNumber
-                    value={alternateMobileNumber}
-                    name="alternateMobileNumber"
-                    onChange={(val) => {
-                      setAlternateMobileNumber(val);
-                      if (val && !/^[6-9][0-9]{9}$/.test(val)) {
-                        setAlternateMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
-                      } else {
-                        setAlternateMobileError("");
-                      }
-                    }}
-                    pattern="[6-9]{1}[0-9]{9}"
-                    type="tel"
-                    title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
-                  />
-                  {alternateMobileError && (
-                    <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{alternateMobileError}</span>
-                  )}
-                </div>
+                    {/* Alternate Mobile Number */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
+                      <MobileNumber
+                        value={alternateMobileNumber}
+                        name="alternateMobileNumber"
+                        onChange={(val) => {
+                          setAlternateMobileNumber(val);
+                          if (val && !/^[6-9][0-9]{9}$/.test(val)) {
+                            setAlternateMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
+                          } else {
+                            setAlternateMobileError("");
+                          }
+                        }}
+                        pattern="[6-9]{1}[0-9]{9}"
+                        type="tel"
+                        title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
+                      />
+                      {alternateMobileError && (
+                        <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{alternateMobileError}</span>
+                      )}
+                    </div>
 
-                {/* Gender */}
-                <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
-                  <Dropdown t={t} option={genderOptions} optionKey="i18nKey" selected={gender} select={setGender} isMandatory={true} placeholder={t("PT_SELECT_PLACEHOLDER")} />
-                </div>
+                    {/* Gender */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
+                      <RadioButtons t={t} options={genderOptions} optionsKey="code" name="gender" selectedOption={gender} onSelect={setGender} isDependent={true} labelKey="PT_COMMON_GENDER" />
+                    </div>
 
-                {/* Relationship */}
-                <div style={col3}>
-                  <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
-                  <Dropdown t={t} option={GuardianOptions} optionKey="i18nKey" selected={relationship} select={setRelationship} isMandatory={true} placeholder={t("PT_SELECT_PLACEHOLDER")} />
-                </div>
+                    {/* Relationship */}
+                    <div style={col6}>
+                      <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
+                      <RadioButtons t={t} optionsKey="i18nKey" options={GuardianOptions} selectedOption={relationship} onSelect={setRelationship} isDependent={true} labelKey="PT_RELATION" />
+                    </div>
+                  </React.Fragment>
+                )}
 
               </div>
             </div>
 
             {/* ══════════════════════════════════════
-                CARD 2 – Owner Type & Address
+                CARD 2 – Owner Type & Address (individual only)
             ══════════════════════════════════════ */}
+            {!isInstitutional && (
             <div style={cardStyle}>
               <div style={sectionTitleStyle}>{t("PT_OWNER_TYPE_ADDRESS_HEADER") || "Owner Type & Address"}</div>
               <div style={rowStyle}>
 
                 {/* Special Owner Category */}
-                <div style={col3}>
+                <div style={col12}>
                   <label style={labelStyle}>{t("PT_SPECIAL_OWNER_CATEGORY")}<span style={requiredMark}>*</span></label>
-                  <Dropdown t={t} option={sortedOwnerTypes} optionKey="i18nKey" selected={ownerType} select={setOwnerType} isMandatory={true} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                  <RadioButtons t={t} optionsKey="i18nKey" options={sortedOwnerTypes} selectedOption={ownerType} onSelect={setOwnerType} isDependent={true} labelKey="PROPERTYTAX_OWNERTYPE" />
                 </div>
 
                 {/* Owner Address */}
@@ -625,6 +744,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
               </div>
             </div>
+            )}
 
             {/* ══════════════════════════════════════
                 CARD 3 – Documents
