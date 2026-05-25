@@ -72,7 +72,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const structureTypeOptions = [
     { i18nKey: "Permanent", code: "permanent" },
     { i18nKey: "Temporary", code: "temporary" },
-    { i18nKey: "SEMI_PERMANENT", code: "semi permanent" },
+    { i18nKey: "Semi Permanent", code: "semi permanent" },
     { i18nKey: "RCC", code: "RCC" },
   ];
   const ageOfPropertyOptions = [
@@ -131,7 +131,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [digiLockerUpload, setDigiLockerUpload] = useState(false);
   const [proofDocType, setProofDocType] = useState(formData?.address?.documents?.ProofOfAddress?.documentType || null);
   const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
-  const [uploadedFileObj, setUploadedFileObj] = useState(formData?.address?.documents?.ProofOfAddress || null);
+  const [uploadedFileObj, setUploadedFileObj] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   /* ── Map coordinates ── */
   const [latitude, setLatitude] = useState(formData?.address?.latitude || null);
@@ -467,16 +467,16 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       if (!allValid) return false;
     }
     /* area vs built-up sum validation */
-    if (!isVacant && builtUpAreaSum !== null && floorarea) {
-      if (parseFloat(floorarea) !== builtUpAreaSum) return false;
-    }
+    // if (!isVacant && builtUpAreaSum !== null && floorarea) {
+    //   if (parseFloat(floorarea) !== builtUpAreaSum) return false;
+    // }
     /* address validation */
     if (!selectedCity) return false;
     if (!selectedLocality) return false;
     if (!street) return false;
     if (!doorNo) return false;
     if (!proofDocType) return false;
-    if (!uploadedFileObj) return false;
+    if (!uploadedFile) return false;
     if (uploadError) return false;
     if (!latitude || !longitude) return false;
     return true;
@@ -988,13 +988,14 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
                 <div style={{ position: "relative" }}>
-                  <RadioOrSelect
-                    dropdownStyle={{ paddingBottom: "20px" }}
-                    options={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
-                    selectedOption={selectedLocality}
+                  <Dropdown
+                    isMandatory={true}
+                    selected={selectedLocality}
+                    option={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
+                    select={setSelectedLocality}
                     optionKey="i18nkey"
-                    onSelect={setSelectedLocality}
                     t={t}
+                    placeholder={t("PT_SELECT_LOCALITY_PLACEHOLDER") || "Select Locality"}
                     optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
                   />
                 </div>
@@ -1115,9 +1116,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {digiLockerUpload ? (
-                      <UploadFileDigiLocker id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFileObj ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
+                      <UploadFileDigiLocker id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
                     ) : (
-                      <UploadFile id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFileObj ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
+                      <UploadFile id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
                     )}
                   </div>
                 </div>
