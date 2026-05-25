@@ -4,7 +4,7 @@ import { Route, Switch, useRouteMatch, useLocation } from "react-router-dom";
 import { config } from "./config";
 import SearchPropertyComponent from "./searchProperty";
 
-const SearchProperty = ({ onSelect }) => {
+const SearchProperty = ({ onSelect, onSkip }) => {
   const { t } = useTranslation();
   const { path } = useRouteMatch();
   
@@ -27,7 +27,7 @@ const SearchProperty = ({ onSelect }) => {
   return (
     <Switch>
       <Route path={`${path}`} exact>
-        <SearchPropertyComponent config={params[0]} onSelect={onSelect} redirectToUrl={redirectToUrl} />
+        <SearchPropertyComponent config={params[0]} onSelect={onSelect} onSkip={onSkip} redirectToUrl={redirectToUrl} />
       </Route>
     </Switch>
   );

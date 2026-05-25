@@ -17,12 +17,17 @@ const description = {
   },
 };
 
-const SearchProperty = ({ config: propsConfig, onSelect, redirectToUrl }) => {
+const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const { action = 0 } = Digit.Hooks.useQueryParams();
   const [searchData, setSearchData] = useState({});
   const [showToast, setShowToast] = useState(null);
+  
+  // Debug: Log if onSkip is provided
+  console.log("SearchProperty - onSkip prop:", onSkip ? "Provided" : "Not provided");
+  console.log("SearchProperty - Current URL:", window.location.href);
+  
   sessionStorage.setItem("VisitedCommonPTSearch",true);
   sessionStorage.setItem("VisitedLightCreate",false);
   let allCities = Digit.Hooks.pt.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
@@ -651,7 +656,18 @@ setCityCode(city.code);
       ></FormComposer>
        <div style={{display:"flex"}}>
  
-      {window.location.href.includes("/obps/bpa/") ?<span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
+      {window.location.href.includes("/obps/bpa/") && onSkip ? (
+        <span 
+          className="link" 
+          style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px", cursor:"pointer"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px", cursor:"pointer"}}
+          onClick={() => {
+            console.log("Skip button clicked - calling onSkip()");
+            onSkip();
+          }}
+        >
+          <span>{t("CORE_COMMON_SKIP_CONTINUE")}</span>
+        </span>
+      ) : window.location.href.includes("/obps/bpa/") ?<span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
         <Link to={"/suda-ui/citizen/obps/bpa/building_plan_scrutiny/new_construction/location"}>{t("CORE_COMMON_SKIP_CONTINUE")}</Link>
       </span>: window.location.href.includes("/fsm/new-application/") ? <span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
         <Link to={"/suda-ui/citizen/fsm/new-application/property-type"}>{t("CORE_COMMON_SKIP_CONTINUE")}</Link>

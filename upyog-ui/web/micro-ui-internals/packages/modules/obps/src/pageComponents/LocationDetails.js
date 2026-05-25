@@ -7,7 +7,7 @@ import { stringReplaceAll } from "../utils";
 
 const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex = 0, addNewOwner, isShowToast }) => {
   let propertyData =JSON.parse(sessionStorage.getItem("Digit_OBPS_PT"))
-  let currCity = JSON.parse(sessionStorage.getItem("currentCity")) || { };
+  let currCity = JSON.parse(sessionStorage.getItem("currentCity")) || null;
   let currPincode = sessionStorage.getItem("currentPincode");
   let currLocality = JSON.parse(sessionStorage.getItem("currentLocality")) || { };
   const allCities = Digit.Hooks.obps.useTenants();
@@ -20,7 +20,7 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
   const [pincode, setPincode] = useState(currPincode || formData?.address?.pincode ||propertyData?.address?.pincode|| "");
   const [geoLocation, setgeoLocation] = useState(formData?.address?.geoLocation || "")
   const [tenantIdData, setTenantIdData] = useState(formData?.Scrutiny?.[0]?.tenantIdData);
-  const [selectedCity, setSelectedCity] = useState(() => formData?.address?.city  || currCity ||propertyData?.address.pincode || null);
+  const [selectedCity, setSelectedCity] = useState(() => formData?.address?.city || (currCity?.code ? currCity : null) || null);
   const [street, setStreet] = useState(formData?.address?.street || propertyData?.address.street||"");
   const [landmark, setLandmark] = useState(formData?.address?.landmark || formData?.address?.Landmark || propertyData?.address.landmark|| "");
   const [placeName, setplaceName] = useState(formData?.address?.placeName || formData?.placeName || "");
@@ -28,7 +28,7 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
   //const { isLoading, data: citymodules } = Digit.Hooks.obps.useMDMS(stateId, "tenant", ["citymodule"]);
   let [cities, setcitiesopetions] = useState(allCities);
   let validation = { };
-  let cityCode = !(formData?.selectedPlot) ? formData?.data?.edcrDetails?.tenantId :  Digit.ULBService.getCitizenCurrentTenant(true);
+  let cityCode = !(formData?.selectedPlot) ? (formData?.data?.edcrDetails?.tenantId || propertyData?.address?.tenantId) :  Digit.ULBService.getCitizenCurrentTenant(true);
   formData = { address: { ...formData?.address } };
   const isMobile = window.Digit.Utils.browser.isMobile();
   useEffect(() => {
@@ -59,8 +59,21 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
   
 
 
-  useEffect(() =>{
+  // When a property is selected, auto-set city from its tenantId (bypasses pincode filter issues)
+  useEffect(() => {
+    if (!allCities || allCities.length === 0) return;
+    const propertyTenantId = propertyData?.address?.tenantId;
+    if (propertyTenantId) {
+      const matchedCity = allCities.find(c => c.code === propertyTenantId);
+      if (matchedCity) {
+        setcitiesopetions(allCities);
+        setSelectedCity(matchedCity);
+        sessionStorage.setItem("currentCity", JSON.stringify(matchedCity));
+      }
+    }
+  }, [allCities]);
 
+  useEffect(() =>{
     cities.map((city,index) => {
       if(city.code === cityCode)
       {
@@ -109,7 +122,8 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
 
       if ((formData?.address?.pincode || pincode) && !Pinerror) {
         filteredLocalityList = __localityList.filter((obj) => obj.pincode?.find((item) => item == pincode));
-        if (!formData?.address?.locality && filteredLocalityList.length<=0) setSelectedLocality();
+        // Don't clear selectedLocality if it came from a selected property
+        if (!formData?.address?.locality && filteredLocalityList.length<=0 && !propertyData?.address?.locality) setSelectedLocality();
       }
       if(!localities || (filteredLocalityList.length > 0 && localities.length !== filteredLocalityList.length) || (filteredLocalityList.length <=0 && localities && localities.length !==__localityList.length))
       {

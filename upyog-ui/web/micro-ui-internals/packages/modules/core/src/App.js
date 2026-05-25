@@ -111,6 +111,18 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
             fill: orange !important;
           }
 
+          .checkbox-wrap input:checked ~ .custom-checkbox,
+          .checkbox-wrap input:hover ~ .custom-checkbox,
+          .checkbox-wrap input:checked ~ .custom-checkbox-emp,
+          .checkbox-wrap input:hover ~ .custom-checkbox-emp {
+            border: 2px solid #FF6600 !important;
+          }
+
+          .checkbox-wrap input:checked ~ .custom-checkbox svg,
+          .checkbox-wrap input:checked ~ .custom-checkbox-emp svg {
+            fill: #FF6600 !important;
+          }
+
           .employee .topbar {
             background: #1f45a4 !important;
           }
