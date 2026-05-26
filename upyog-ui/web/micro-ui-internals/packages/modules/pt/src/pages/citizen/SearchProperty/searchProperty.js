@@ -5,6 +5,117 @@ import React, { useEffect, useLayoutEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory ,Link } from "react-router-dom";
 
+const PT_SEARCH_INPUT_STYLE = { width: "100%", height: "40px", padding: "0 12px", border: "1px solid #b1b4b6", borderRadius: "8px", fontSize: "14px", boxSizing: "border-box", background: "#fff", color: "#1a1a1a", outline: "none", fontFamily: "inherit" };
+const PT_SEARCH_LABEL_STYLE = { display: "flex", alignItems: "center", minHeight: "22px", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px", letterSpacing: "0.2px" };
+const PT_SEARCH_CARD_STYLE = { border: "1px solid #e8ecf0", borderRadius: "8px", background: "#f8fafc", padding: "16px 18px 18px", marginTop: "8px" };
+const PT_SEARCH_SECTION_TITLE_STYLE = { fontSize: "13px", fontWeight: "700", color: "#1a2b49", marginBottom: "16px", paddingBottom: "8px", borderBottom: "2px solid #f47738", letterSpacing: "0.3px" };
+
+const ParamRow0 = ({ formProps, t, mobileNumberLabel, propertyLabel, propertyDescription, oldPropertyLabel }) => {
+  const isMobile = window.Digit.Utils.browser.isMobile();
+  const [localValues, setLocalValues] = React.useState({ mobileNumber: "", propertyIds: "", oldPropertyId: "" });
+  const handleChange = (fieldName, value) => {
+    setLocalValues((prev) => ({ ...prev, [fieldName]: value }));
+    formProps.setValue(fieldName, value);
+  };
+  return (
+    <div style={PT_SEARCH_CARD_STYLE}>
+      <div style={PT_SEARCH_SECTION_TITLE_STYLE}>{t("PT_PROVIDE_ONE_MORE_PARAM")}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+        <div style={{ flex: isMobile ? "0 0 100%" : "1 1 0", minWidth: "180px", boxSizing: "border-box" }}>
+          <label style={PT_SEARCH_LABEL_STYLE}>{t(mobileNumberLabel)}</label>
+          <input type="text" value={localValues.mobileNumber} onChange={(e) => handleChange("mobileNumber", e.target.value)} placeholder={t(mobileNumberLabel)} style={PT_SEARCH_INPUT_STYLE} maxLength={10} />
+        </div>
+        <div style={{ flex: isMobile ? "0 0 100%" : "1 1 0", minWidth: "180px", boxSizing: "border-box" }}>
+          <label style={PT_SEARCH_LABEL_STYLE}>
+            {t(propertyLabel)}
+            <span className="tooltip" style={{ display: "inline-block", paddingLeft: "8px", marginBottom: "-3px" }}>
+              <InfoBannerIcon fill="#0b0c0c" />
+              <span className="tooltiptext" style={{ width: "150px", left: "230%", fontSize: "14px" }}>
+                {t(propertyDescription) + " PG-PT-xxxx-xxxxxx"}
+              </span>
+            </span>
+          </label>
+          <input type="text" value={localValues.propertyIds} onChange={(e) => handleChange("propertyIds", e.target.value)} placeholder={t(propertyLabel)} style={PT_SEARCH_INPUT_STYLE} />
+        </div>
+        <div style={{ flex: isMobile ? "0 0 100%" : "1 1 0", minWidth: "180px", boxSizing: "border-box" }}>
+          <label style={PT_SEARCH_LABEL_STYLE}>{t(oldPropertyLabel)}</label>
+          <input type="text" value={localValues.oldPropertyId} onChange={(e) => handleChange("oldPropertyId", e.target.value)} placeholder={t(oldPropertyLabel)} style={PT_SEARCH_INPUT_STYLE} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const ParamRow1 = ({ formProps, t, doorNoLabel, nameLabel }) => {
+  const isMobile = window.Digit.Utils.browser.isMobile();
+  const [localValues, setLocalValues] = React.useState({ doorNo: "", name: "" });
+  const handleChange = (fieldName, value) => {
+    setLocalValues((prev) => ({ ...prev, [fieldName]: value }));
+    formProps.setValue(fieldName, value);
+  };
+  return (
+    <div style={PT_SEARCH_CARD_STYLE}>
+      <div style={PT_SEARCH_SECTION_TITLE_STYLE}>{t("PT_PROVIDE_ONE_MORE_PARAM")}</div>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: "16px" }}>
+        <div style={{ flex: isMobile ? "0 0 100%" : "1 1 0", minWidth: "180px", boxSizing: "border-box" }}>
+          <label style={PT_SEARCH_LABEL_STYLE}>{t(doorNoLabel)}</label>
+          <input type="text" value={localValues.doorNo} onChange={(e) => handleChange("doorNo", e.target.value)} placeholder={t(doorNoLabel)} style={PT_SEARCH_INPUT_STYLE} />
+        </div>
+        <div style={{ flex: isMobile ? "0 0 100%" : "1 1 0", minWidth: "180px", boxSizing: "border-box" }}>
+          <label style={PT_SEARCH_LABEL_STYLE}>{t(nameLabel)}</label>
+          <input type="text" value={localValues.name} onChange={(e) => handleChange("name", e.target.value)} placeholder={t(nameLabel)} style={PT_SEARCH_INPUT_STYLE} />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const CityLocalityRow = ({ formProps, t, allCities, cityCode, formValue, showLocality }) => {
+  const isMobile = window.Digit.Utils.browser.isMobile();
+  return (
+    <div style={{ display: "flex", flexWrap: isMobile ? "wrap" : "nowrap", gap: "16px" }}>
+      <div className="pt-search-city-dropdown" style={{ flex: "1 1 0", minWidth: "180px", maxWidth: showLocality ? undefined : "50%" }}>
+        <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px", letterSpacing: "0.2px" }}>
+          {t("PT_SELECT_CITY")}<span style={{ color: "#e54d42", marginLeft: "2px" }}>*</span>
+        </label>
+        <Dropdown
+          t={t}
+          isMandatory={true}
+          option={allCities}
+          optionKey="i18nKey"
+          selected={formValue?.city || null}
+          select={(d) => {
+            Digit.LocalizationService.getLocale({
+              modules: [`rainmaker-${cityCode}`],
+              locale: Digit.StoreData.getCurrentLanguage(),
+              tenantId: `${cityCode}`,
+            });
+            if (d.code !== cityCode) formProps.setValue("locality", null);
+            formProps.setValue("city", d);
+          }}
+        />
+      </div>
+      {showLocality && (
+        <div className="pt-search-locality-dropdown" style={{ flex: "1 1 0", minWidth: "180px" }}>
+          <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px", letterSpacing: "0.2px" }}>
+            {t("PT_SELECT_LOCALITY")}<span style={{ color: "#e54d42", marginLeft: "2px" }}>*</span>
+          </label>
+          <Localities
+            selectLocality={(d) => { formProps.setValue("locality", d); }}
+            tenantId={cityCode}
+            boundaryType="revenue"
+            keepNull={false}
+            optionCardStyles={{ height: "220px", overflow: "auto", zIndex: "10" }}
+            selected={formValue?.locality}
+            disable={!cityCode}
+            disableLoader={true}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
 const description = {
   description: "PT_SEARCH_OR_DESC",
   descriptionStyles: {
@@ -23,7 +134,7 @@ const SearchProperty = ({ config: propsConfig, onSelect }) => {
   const { action = 0 } = Digit.Hooks.useQueryParams();
   const [searchData, setSearchData] = useState({});
   const [showToast, setShowToast] = useState(null);
-  const allCities = Digit.Hooks.pt.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
+  const allCities = Digit.Hooks.pt.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey)) || [];
   const [cityCode, setCityCode] = useState();
   const [formValue, setFormValue] = useState();
   const [errorShown, seterrorShown] = useState(false);
@@ -114,84 +225,49 @@ const SearchProperty = ({ config: propsConfig, onSelect }) => {
           },
         },
         {
-          label: "PT_SELECT_CITY",
-          isMandatory: true,
           type: "custom",
+          withoutLabel: true,
           populators: {
-            name: "city",
+            name: "_cityRow",
             defaultValue: null,
-            rules: { required: true },
-            customProps: { t, isMandatory: true, option: [...allCities], optionKey: "i18nKey" },
+            customProps: { t, allCities, cityCode, formValue },
             component: (props, customProps) => (
-              <Dropdown
-                {...customProps}
-                selected={props.value}
-                select={(d) => {
-                  Digit.LocalizationService.getLocale({
-                    modules: [`rainmaker-${props?.value?.code}`],
-                    locale: Digit.StoreData.getCurrentLanguage(),
-                    tenantId: `${props?.value?.code}`,
-                  });
-                  if (d.code !== cityCode) props.setValue("locality", null);
-                  props.onChange(d);
-                }}
+              <CityLocalityRow
+                formProps={props}
+                t={customProps.t}
+                allCities={customProps.allCities}
+                cityCode={customProps.cityCode}
+                formValue={customProps.formValue}
+                showLocality={false}
               />
             ),
           },
         },
+        { type: "custom", withoutLabel: true, populators: { name: "city", defaultValue: null, component: () => null } },
         {
-          label: t("PT_PROVIDE_ONE_MORE_PARAM"),
-          isInsideBox: true,
-          placementinbox: 0,
-          isSectionText : true,
-        },
-        {
-          label: mobileNumber.label,
-          type: mobileNumber.type,
+          type: "custom",
+          withoutLabel: true,
           populators: {
-            defaultValue: "",
-            name: mobileNumber.name,
-            validation: mobileNumber?.validation,
+            name: "_paramRow0",
+            defaultValue: null,
+            customProps: { t, mobileNumberLabel: mobileNumber.label, propertyLabel: property.label, propertyDescription: property.description, oldPropertyLabel: oldProperty.label },
+            component: (props, customProps) => (
+              <ParamRow0
+                formProps={props}
+                t={customProps.t}
+                mobileNumberLabel={customProps.mobileNumberLabel}
+                propertyLabel={customProps.propertyLabel}
+                propertyDescription={customProps.propertyDescription}
+                oldPropertyLabel={customProps.oldPropertyLabel}
+              />
+            ),
           },
-          ...description,
-          isMandatory: false,
-          isInsideBox: true,
-          placementinbox: 1,
         },
-        {
-          label: property.label,
-          labelChildren: (
-            <div className="tooltip" style={{ paddingLeft: "10px", marginBottom: "-3px" }}>
-              {"  "}
-              <InfoBannerIcon fill="#0b0c0c" />
-              <span className="tooltiptext" style={{ width: "150px", left: "230%", fontSize:"14px" }}>
-                {t(property.description) + " " + "PG-PT-xxxx-xxxxxx"}
-              </span>
-            </div>
-          ),
-          type: property.type,
-          populators: {
-            name: property.name,
-            defaultValue: "",
-            validation: property?.validation,
-          },
-          ...description,
-          isMandatory: false,
-          isInsideBox: true,
-          placementinbox: 1,
-        },
-        {
-          label: oldProperty.label,
-          type: oldProperty.type,
-          populators: {
-            name: oldProperty.name,
-            defaultValue: "",
-            validation: oldProperty?.validation,
-          },
-          isMandatory: false,
-          isInsideBox: true,
-          placementinbox: 2,
-        },
+        // Hidden Controllers – register field names with react-hook-form so
+        // handleSubmit includes values written by setValue() above.
+        { type: "custom", withoutLabel: true, populators: { name: "mobileNumber", defaultValue: "", component: () => null } },
+        { type: "custom", withoutLabel: true, populators: { name: "propertyIds", defaultValue: "", component: () => null } },
+        { type: "custom", withoutLabel: true, populators: { name: "oldPropertyId", defaultValue: "", component: () => null } },
       ],
       body1: [
         {
@@ -227,86 +303,46 @@ const SearchProperty = ({ config: propsConfig, onSelect }) => {
           },
         },
         {
-          label: "PT_SELECT_CITY",
-          isMandatory: true,
           type: "custom",
+          withoutLabel: true,
           populators: {
-            name: "city",
+            name: "_cityLocalityRow",
             defaultValue: null,
-            rules: { required: true },
-            customProps: { t, isMandatory: true, option: [...allCities], optionKey: "i18nKey" },
+            customProps: { t, allCities, cityCode, formValue },
             component: (props, customProps) => (
-              <Dropdown
-                {...customProps}
-                selected={props.value}
-                select={(d) => {
-                  Digit.LocalizationService.getLocale({
-                    modules: [`rainmaker-${props?.value?.code}`],
-                    locale: Digit.StoreData.getCurrentLanguage(),
-                    tenantId: `${props?.value?.code}`,
-                  });
-                  if (d.code !== cityCode) props.setValue("locality", null);
-                  props.onChange(d);
-                }}
+              <CityLocalityRow
+                formProps={props}
+                t={customProps.t}
+                allCities={customProps.allCities}
+                cityCode={customProps.cityCode}
+                formValue={customProps.formValue}
+                showLocality={true}
               />
             ),
           },
         },
+        { type: "custom", withoutLabel: true, populators: { name: "city", defaultValue: null, component: () => null } },
+        { type: "custom", withoutLabel: true, populators: { name: "locality", defaultValue: "", component: () => null } },
         {
-          label: "PT_SELECT_LOCALITY",
           type: "custom",
-          isMandatory: true,
+          withoutLabel: true,
           populators: {
-            name: "locality",
-            defaultValue: "",
-            rules: { required: true },
-            customProps: {},
+            name: "_paramRow1",
+            defaultValue: null,
+            customProps: { t, doorNoLabel: doorNo.label, nameLabel: name.label },
             component: (props, customProps) => (
-              <Localities
-                selectLocality={(d) => {
-                  props.onChange(d);
-                }}
-                tenantId={cityCode}
-                boundaryType="revenue"
-                keepNull={false}
-                optionCardStyles={{ height: "600px", overflow: "auto", zIndex: "10" }}
-                selected={formValue?.locality}
-                disable={!cityCode}
-                disableLoader={true}
+              <ParamRow1
+                formProps={props}
+                t={customProps.t}
+                doorNoLabel={customProps.doorNoLabel}
+                nameLabel={customProps.nameLabel}
               />
             ),
           },
         },
-        {
-          label: t("PT_PROVIDE_ONE_MORE_PARAM"),
-          isInsideBox: true,
-          placementinbox: 0,
-          isSectionText : true,
-        },
-        {
-          label: doorNo.label,
-          type: doorNo.type,
-          populators: {
-            defaultValue: "",
-            name: doorNo.name,
-            validation: doorNo?.validation,
-          },
-          isMandatory: false,
-          isInsideBox: true,
-          placementinbox: 1,
-        },
-        {
-          label: name.label,
-          type: name.type,
-          populators: {
-            defaultValue: "",
-            name: name.name,
-            validation: name?.validation,
-          },
-          isMandatory: false,
-          isInsideBox: true,
-          placementinbox: 2,
-        },
+        // Hidden Controllers – register field names with react-hook-form.
+        { type: "custom", withoutLabel: true, populators: { name: "doorNo", defaultValue: "", component: () => null } },
+        { type: "custom", withoutLabel: true, populators: { name: "name", defaultValue: "", component: () => null } },
       ],
     },
   ];
@@ -374,6 +410,10 @@ const SearchProperty = ({ config: propsConfig, onSelect }) => {
     
     delete tempObject.addParam;
     delete tempObject.addParam1;
+    delete tempObject._cityRow;
+    delete tempObject._cityLocalityRow;
+    delete tempObject._paramRow0;
+    delete tempObject._paramRow1;
     delete tempObject.city;
     if(action == 1 && tempObject?.oldPropertyId){
       delete tempObject.oldPropertyId;
@@ -444,22 +484,108 @@ const SearchProperty = ({ config: propsConfig, onSelect }) => {
   }
 
   return (
-    <div style={{ marginTop: "16px", marginBottom: "16px" ,backgroundColor:"white", maxWidth:"960px"}}>
-      <FormComposer
-        onSubmit={onPropertySearch}
-        noBoxShadow
-        inline
-        config={config}
-        label={propsConfig.texts.submitButtonLabel}
-        heading={t(propsConfig.texts.header)}
-        text={t(propsConfig.texts.text)}
-        headingStyle={{ fontSize: "32px", marginBottom: "16px", fontFamily: "Roboto Condensed,sans-serif" }}
-        onFormValueChange={onFormValueChange}
-        cardStyle={{marginBottom:"0"}}
-      ></FormComposer>
-      <span className="link" style={{display:"flex", justifyContent: isMobile ? "center" : "left", paddingBottom:"16px", paddingLeft: "24px", marginTop: "-24px"}}>
-        <Link to={"/suda-ui/citizen/pt/property/new-application"}>{t("CPT_REG_NEW_PROPERTY")}</Link>
-      </span>
+    <div style={{ marginTop: "16px", marginBottom: "16px", maxWidth: "960px" }}>
+      <style>{`
+        .pt-search-city-dropdown .select,
+        .pt-search-city-dropdown .select-active,
+        .pt-search-locality-dropdown .select,
+        .pt-search-locality-dropdown .select-active {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+          height: 40px !important;
+        }
+        .pt-search-city-dropdown .select:hover,
+        .pt-search-city-dropdown .select-active:hover,
+        .pt-search-locality-dropdown .select:hover,
+        .pt-search-locality-dropdown .select-active:hover {
+          border: 1px solid #505a5f !important;
+        }
+        .pt-search-city-dropdown .select-wrap,
+        .pt-search-city-dropdown .employee-select-wrap,
+        .pt-search-locality-dropdown .select-wrap,
+        .pt-search-locality-dropdown .employee-select-wrap {
+          max-width: none !important;
+          position: relative !important;
+          overflow: visible !important;
+        }
+        .pt-search-city-dropdown .select-wrap .options-card,
+        .pt-search-city-dropdown .employee-select-wrap .options-card,
+        .pt-search-locality-dropdown .select-wrap .options-card,
+        .pt-search-locality-dropdown .employee-select-wrap .options-card {
+          position: absolute !important;
+          top: 100% !important;
+          bottom: auto !important;
+          margin-top: 4px !important;
+          max-height: 220px !important;
+          overflow-y: auto !important;
+          z-index: 9999 !important;
+          width: 100% !important;
+          background: #fff !important;
+          border: 1px solid #b1b4b6 !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+          border-radius: 8px !important;
+        }
+      `}</style>
+
+      {/* ── Hero Banner – matches create new property style ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+        borderRadius: "12px",
+        padding: "28px 36px",
+        marginBottom: "24px",
+        color: "#fff",
+        display: "flex",
+        alignItems: "center",
+        gap: "20px",
+      }}>
+        <div style={{
+          width: "56px", height: "56px", borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </div>
+        <div>
+          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t(propsConfig.texts.header)}</h2>
+          <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>{t(propsConfig.texts.text)}</p>
+        </div>
+      </div>
+
+      {/* ── Search Form Card – matches create new property card style ── */}
+      <div style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+        border: "1px solid #e8ecf0",
+        overflow: "hidden",
+      }}>
+        <FormComposer
+          onSubmit={onPropertySearch}
+          noBoxShadow
+          inline
+          config={config}
+          label={propsConfig.texts.submitButtonLabel}
+          heading={t(propsConfig.texts.header)}
+          headingStyle={{
+            fontSize: "15px",
+            fontWeight: "700",
+            color: "#1a2b49",
+            marginBottom: "20px",
+            paddingBottom: "10px",
+            borderBottom: "2px solid #f47738",
+            letterSpacing: "0.3px",
+          }}
+          onFormValueChange={onFormValueChange}
+          cardStyle={{ marginBottom: "0" }}
+        />
+        <span className="link" style={{ display: "flex", justifyContent: isMobile ? "center" : "left", paddingBottom: "16px", paddingLeft: "24px", marginTop: "-24px" }}>
+          <Link to={"/suda-ui/citizen/pt/property/new-application"}>{t("CPT_REG_NEW_PROPERTY")}</Link>
+        </span>
+      </div>
+
       {showToast && (
         <Toast
           error={showToast.error}

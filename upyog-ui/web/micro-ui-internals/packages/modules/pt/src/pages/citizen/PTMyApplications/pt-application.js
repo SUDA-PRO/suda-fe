@@ -67,7 +67,7 @@ const PTApplication = ({ application, buttonLabel }) => {
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d={item.icon}/>
                   {item.icon.includes("9l9") && <polyline points="9 22 9 12 15 12 15 22"/>}
-                  {item.icon.includes("14 2") && <><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></>}
+                  {item.icon.includes("14 2") && <g><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></g>}
                 </svg>
               </div>
               <span style={{ fontSize: "12px", color: "#9ca3af", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.4px" }}>{item.label}</span>
