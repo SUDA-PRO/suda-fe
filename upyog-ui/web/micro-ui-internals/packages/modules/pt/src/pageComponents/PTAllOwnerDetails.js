@@ -108,6 +108,8 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const [designation, setDesignation] = useState(existingOwner.designation || "");
   const [landlineNumber, setLandlineNumber] = useState(existingOwner.altContactNumber || "");
   const [landlineError, setLandlineError] = useState("");
+  const [institutionAltMobile, setInstitutionAltMobile] = useState(existingOwner.alternatemobilenumber || "");
+  const [institutionAltMobileError, setInstitutionAltMobileError] = useState("");
 
   /* ─── Gender MDMS ─── */
   const { data: GenderMenu } = Digit.Hooks.pt.useGenderMDMS(stateId, "common-masters", "GenderType");
@@ -128,16 +130,23 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     ownershipCategory?.value === "INSTITUTIONALGOVERNMENT";
 
   const institutionTypeOptions = React.useMemo(() => {
-    if (!SubOwnerShipCategoryOb || !ownershipCategory?.value) return [];
-    return SubOwnerShipCategoryOb
-      .filter((c) => c.ownerShipCategory === ownershipCategory.value)
-      .map((c) => ({
-        label: c.name,
-        value: c.code,
-        code: c.code,
-        i18nKey: `PROPERTYTAX_BILLING_SLAB_${c.code.replace(/\./g, "_")}`,
-      }));
-  }, [SubOwnerShipCategoryOb, ownershipCategory?.value]);
+    if (!ownershipCategory?.value) return [];
+    try {
+      const payload = JSON.parse(sessionStorage.getItem("getSubPropertyOwnerShipCategory"));
+      const subCats = payload?.PropertyTax?.SubOwnerShipCategory;
+      if (!subCats) return [];
+      return subCats
+        .filter((c) => c.active && c.ownerShipCategory === ownershipCategory.value)
+        .map((c) => ({
+          label: c.name,
+          value: c.code,
+          code: c.code,
+          i18nKey: `PROPERTYTAX_BILLING_SLAB_${c.code}`,
+        }));
+    } catch (e) {
+      return [];
+    }
+  }, [subLoading, ownershipCategory?.value]);
 
   const validateEmail = (value) => {
     if (!value) { setEmailError(""); return; }
@@ -261,6 +270,8 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     setDesignation(existing.designation || "");
     setLandlineNumber(existing.altContactNumber || "");
     setLandlineError("");
+    setInstitutionAltMobile(existing.alternatemobilenumber || "");
+    setInstitutionAltMobileError("");
     setOwnerType(existing.ownerType || null);
     setPermanentAddress(existing.permanentAddress || "");
     setIsCorrespondenceAddress(existing.isCorrespondenceAddress || false);
@@ -281,7 +292,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     if (!ownershipCategory) return false;
     if (isInstitutional) {
       if (!institutionName || !institutionType || !name || !designation || !mobileNumber || !permanentAddress) return false;
-      if (emailError || landlineError) return false;
+      if (emailError || landlineError || institutionAltMobileError) return false;
       if (!identityProofDocType || !identityProofFile) return false;
       return true;
     }
@@ -310,6 +321,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         name,
         designation,
         altContactNumber: landlineNumber || undefined,
+        alternatemobilenumber: institutionAltMobile || undefined,
         mobileNumber,
         emailId: email,
         permanentAddress,
@@ -622,6 +634,23 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
                       <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
+                    </div>
+                    {/* Alternate Mobile Number */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
+                      <MobileNumber
+                        value={institutionAltMobile}
+                        name="institutionAltMobile"
+                        onChange={(val) => {
+                          setInstitutionAltMobile(val);
+                          if (val && !/^[6-9][0-9]{9}$/.test(val)) setInstitutionAltMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
+                          else setInstitutionAltMobileError("");
+                        }}
+                        pattern="[6-9]{1}[0-9]{9}"
+                        type="tel"
+                        title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
+                      />
+                      {institutionAltMobileError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{institutionAltMobileError}</span>}
                     </div>
                     {/* Landline Number */}
                     <div style={col3}>

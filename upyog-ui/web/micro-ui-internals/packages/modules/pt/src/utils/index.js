@@ -138,6 +138,7 @@ export const setOwnerDetails = (data) => {
       }
       owner.push({
         altContactNumber: owners[0]?.altContactNumber,
+        alternatemobilenumber: owners[0]?.alternatemobilenumber || undefined,
         correspondenceAddress: owners[0]?.permanentAddress,
         designation: owners[0]?.designation,
         emailId: owners[0]?.emailId,
