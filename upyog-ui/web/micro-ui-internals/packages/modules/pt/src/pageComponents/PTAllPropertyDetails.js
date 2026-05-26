@@ -978,12 +978,11 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                   onSelect={handleSelectCity}
                   t={t}
                   isPTFlow={true}
-                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
                 />
               </div>
             </div>
 
-            {/* Locality */}
             {selectedCity && (
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
@@ -995,8 +994,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     select={setSelectedLocality}
                     optionKey="i18nkey"
                     t={t}
-                    placeholder={t("PT_SELECT_LOCALITY_PLACEHOLDER") || "Select Locality"}
-                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
                   />
                 </div>
               </div>

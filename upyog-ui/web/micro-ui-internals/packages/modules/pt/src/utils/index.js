@@ -820,7 +820,7 @@ export const convertToUpdateProperty = (data = {}, t) => {
         unit: unit,
         basement1: basement1,
         basement2: basement2,
-        ageOfProperty: data.propertyStructureDetails.ageOfProperty,
+        ageOfProperty: data?.propertyStructureDetails?.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
         isVacantLandRented: data?.isVacantLandRented?.code || null,
       },

@@ -143,6 +143,109 @@
         color: #2e7d32 !important;
         font-size: 12px !important;
       }
+
+      /* ── PT Application Details Page ── */
+      .pt-app-details-body .employeeCard,
+      .pt-app-details-body .employeeCard-override {
+        border-radius: 14px !important;
+        border: 1px solid #eaedf3 !important;
+        box-shadow: 0 2px 12px rgba(26,43,73,0.07) !important;
+        padding: 28px 32px !important;
+        margin-bottom: 20px !important;
+        background: #fff !important;
+      }
+      .pt-app-details-body .card-section-header {
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #1a2b49 !important;
+        border-left: 4px solid #f47738 !important;
+        padding-left: 12px !important;
+        margin-top: 24px !important;
+        margin-bottom: 14px !important;
+      }
+      .pt-app-details-body .employee-data-table {
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        border: 1px solid #f0f2f5 !important;
+        margin-bottom: 6px !important;
+      }
+      .pt-app-details-body .employee-data-table > div {
+        border-bottom: 1px solid #f0f2f5 !important;
+        padding: 10px 16px !important;
+        transition: background 0.15s;
+      }
+      .pt-app-details-body .employee-data-table > div:nth-child(even) {
+        background: #fafbfc !important;
+      }
+      .pt-app-details-body .employee-data-table > div:last-child {
+        border-bottom: none !important;
+      }
+      .pt-app-details-body .employee-data-table > div:hover {
+        background: #fff5ef !important;
+      }
+      .pt-app-details-body .employee-data-table .value {
+        font-size: 14px !important;
+        color: #1a2b49 !important;
+        font-weight: 600 !important;
+      }
+      .pt-app-details-body .primary-circle {
+        background: #f47738 !important;
+        border-color: #f47738 !important;
+      }
+      .pt-app-details-body .action-bar-wrap-back {
+        border-top: 3px solid #f47738 !important;
+        background: #fff !important;
+        box-shadow: 0 -4px 16px rgba(26,43,73,0.08) !important;
+      }
+      /* Download button in orange header */
+      .employee-download-btn-className {
+        background: rgba(255,255,255,0.18) !important;
+        border: 1px solid rgba(255,255,255,0.35) !important;
+        border-radius: 8px !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        padding: 8px 14px !important;
+      }
+      .employee-options-btn-className {
+        border-radius: 10px !important;
+        box-shadow: 0 4px 20px rgba(26,43,73,0.12) !important;
+        border: 1px solid #eaedf3 !important;
+        margin-top: 4px !important;
+      }
+
+      /* ── Action bar: full-width white footer, button on the right ── */
+      @media (min-width: 780px) {
+        .action-bar-wrap {
+          position: fixed !important;
+          left: 300px !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          width: auto !important;
+          max-width: none !important;
+          background: #ffffff !important;
+          box-shadow: 0 -2px 12px rgba(26,43,73,0.10) !important;
+          border-top: 2px solid #f47738 !important;
+          padding: 12px 32px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: flex-end !important;
+          z-index: 1000 !important;
+        }
+        .action-bar-wrap .submit-bar,
+        .action-bar-wrap button.submit-bar {
+          box-shadow: 0 4px 20px rgba(244,119,56,0.40) !important;
+          border-radius: 10px !important;
+        }
+        .action-bar-wrap .menu-wrap {
+          right: 32px !important;
+          bottom: 58px !important;
+          width: 220px !important;
+          box-shadow: 0 4px 24px rgba(26,43,73,0.14) !important;
+          border-radius: 10px !important;
+          overflow: hidden !important;
+        }
+      }
     </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel='stylesheet' type='text/css'>

@@ -1,5 +1,125 @@
 // PT Module - Rounded corners for all input boxes and select/dropdown components
 
+/* ── PT Application Details Page ── */
+.pt-app-details-body {
+  /* Main card */
+  .employeeCard,
+  .employeeCard-override {
+    border-radius: 14px !important;
+    border: 1px solid #eaedf3 !important;
+    box-shadow: 0 2px 12px rgba(26,43,73,0.07) !important;
+    padding: 28px 32px !important;
+    margin-bottom: 20px !important;
+    background: #fff !important;
+  }
+
+  /* Section headers */
+  .card-section-header {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #1a2b49 !important;
+    border-left: 4px solid #f47738;
+    padding-left: 12px !important;
+    margin-top: 24px !important;
+    margin-bottom: 16px !important;
+    line-height: 1.4 !important;
+  }
+
+  /* First section header (CardSubHeader) */
+  .card-sub-header,
+  h2.cardSubHeader {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    color: #1a2b49 !important;
+    border-left: 4px solid #f47738;
+    padding-left: 12px !important;
+    margin-bottom: 16px !important;
+  }
+
+  /* Data rows */
+  .employee-data-table {
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid #f0f2f5;
+    margin-bottom: 6px;
+
+    div.row-last,
+    div[class*="row"] {
+      background: #fff;
+      border-bottom: 1px solid #f0f2f5;
+      padding: 10px 16px !important;
+      transition: background 0.15s;
+
+      &:nth-child(even) {
+        background: #fafbfc;
+      }
+      &:last-child {
+        border-bottom: none;
+      }
+      &:hover {
+        background: #fff5ef;
+      }
+
+      /* Label column */
+      p, span.label {
+        font-size: 13px !important;
+        color: #6b7280 !important;
+        font-weight: 500 !important;
+      }
+
+      /* Value column */
+      .value {
+        font-size: 14px !important;
+        color: #1a2b49 !important;
+        font-weight: 600 !important;
+      }
+    }
+  }
+
+  /* Timeline checkpoints */
+  .checkpoint {
+    .primary-circle {
+      background: #f47738 !important;
+      border-color: #f47738 !important;
+    }
+    .checkpoint-text {
+      font-weight: 600 !important;
+      color: #1a2b49 !important;
+    }
+  }
+
+  /* Workflow action bar */
+  .action-bar-wrap-back {
+    border-top: 3px solid #f47738 !important;
+    background: #fff !important;
+    box-shadow: 0 -4px 16px rgba(26,43,73,0.08) !important;
+    padding: 14px 24px !important;
+  }
+}
+
+/* Download multilink button in header */
+.employee-download-btn-className {
+  background: rgba(255,255,255,0.18) !important;
+  border: 1px solid rgba(255,255,255,0.35) !important;
+  border-radius: 8px !important;
+  color: #fff !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 8px 16px !important;
+
+  svg path, svg polyline, svg line, svg circle {
+    stroke: #fff !important;
+  }
+}
+
+.employee-options-btn-className {
+  border-radius: 10px !important;
+  box-shadow: 0 4px 20px rgba(26,43,73,0.12) !important;
+  border: 1px solid #eaedf3 !important;
+  margin-top: 4px !important;
+}
+
+
 .pt-citizen,
 .pt-employee,
 .PropertySearchForm {

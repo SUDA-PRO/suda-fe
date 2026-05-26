@@ -334,50 +334,279 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
 };
 
 
-const EmployeeHome = ({ modules }) => {
-  const dashboardCemp = Digit.UserService.hasAccess(["DASHBOARD_EMPLOYEE"])?true:false;
-  if(window.Digit.SessionStorage.get("PT_CREATE_EMP_TRADE_NEW_FORM")) window.Digit.SessionStorage.set("PT_CREATE_EMP_TRADE_NEW_FORM",{})
-    const { data: dashboardConfig } = Digit.Hooks.useCustomMDMS(Digit.ULBService.getStateId(),"common-masters",[{ name: "CommonConfig" }],
-      {
-        select: (data) => {
-          const formattedData = data?.["common-masters"]?.["CommonConfig"];
-          // Find the object with cityDashboardEnabled and return its isActive value
-          const cityDashboardObject = formattedData?.find(
-            (item) => item?.name === "cityDashboardEnabled"
-          );
-          return cityDashboardObject?.isActive;
-        },
-      }
-    );
+/* ── Per-module config: name, colour, icon, services, links ── */
+const MODULE_CONFIG = {
+  PT:       { name: "Property Tax",    color: "#e65c00", icon: "🏠", moduleCode: "PT",       services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"],       links: [{ label: "Inbox",          url: "/suda-ui/employee/pt/inbox" },       { label: "New Property",   url: "/suda-ui/employee/pt/new-application" }, { label: "Search",         url: "/suda-ui/employee/pt/search" }] },
+  WS:       { name: "Water & Sewerage",color: "#0066cc", icon: "💧", moduleCode: "WS",       services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/ws/inbox" },       { label: "Apply Connection",url: "/suda-ui/employee/ws/new-application" }, { label: "Search",         url: "/suda-ui/employee/ws/search" }] },
+  TL:       { name: "Trade License",   color: "#00875a", icon: "📋", moduleCode: "TL",       services: ["TL", "EDITRENEWAL", "DIRECTRENEWAL"],             links: [{ label: "Inbox",          url: "/suda-ui/employee/tradelicense/inbox" }, { label: "New License",    url: "/suda-ui/employee/tradelicense/new-application" }, { label: "Search",  url: "/suda-ui/employee/tradelicense/search" }] },
+  PGR:      { name: "Grievances",      color: "#7B61FF", icon: "📣", moduleCode: "PGR",      services: ["PGR"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/pgr/inbox" },       { label: "Register Complaint",url: "/suda-ui/employee/pgr/create" },        { label: "Search",         url: "/suda-ui/employee/pgr/search" }] },
+  FSM:      { name: "Sanitation",      color: "#B54708", icon: "🚿", moduleCode: "FSM",      services: ["FSM"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/fsm/inbox" },       { label: "New Request",    url: "/suda-ui/employee/fsm/new-application" }, { label: "Search",         url: "/suda-ui/employee/fsm/search" }] },
+  MCollect: { name: "Collections",     color: "#027A48", icon: "💰", moduleCode: "MCOLLECT", services: ["mCollect"],                                       links: [{ label: "Inbox",          url: "/suda-ui/employee/mcollect/inbox" },  { label: "Collect Fees",   url: "/suda-ui/employee/mcollect/new-application" }, { label: "Search", url: "/suda-ui/employee/mcollect/search" }] },
+  OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search" }] },
+  CHB:      { name: "CHB",             color: "#C11574", icon: "🏛️", moduleCode: "CHB",      services: ["booking-refund"],                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/chb/inbox" },       { label: "New Booking",    url: "/suda-ui/employee/chb/bookHall/searchhall" }, { label: "Search", url: "/suda-ui/employee/chb/search" }] },
+  ADS:      { name: "Advertisements",  color: "#E31B54", icon: "📢", moduleCode: "ADS",      services: ["ADS"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ads/inbox" },       { label: "New Application",url: "/suda-ui/employee/ads/new-application" }, { label: "Search",         url: "/suda-ui/employee/ads/search" }] },
+  PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/inbox" },       { label: "Search",         url: "/suda-ui/employee/ptr/search" }] },
+  SW:       { name: "Solid Waste",     color: "#4A7C59", icon: "♻️", moduleCode: "SW",       services: ["SW"],                                             links: [{ label: "Inbox",          url: "/suda-ui/employee/sw/inbox" },        { label: "New Request",    url: "/suda-ui/employee/sw/new-application" },  { label: "Search",         url: "/suda-ui/employee/sw/search" }] },
+  SURVEY:   { name: "Surveys",         color: "#5B4FCF", icon: "📋", moduleCode: "SURVEY",   services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/survey/inbox" },    { label: "Create Survey",  url: "/suda-ui/employee/survey/create" }] },
+  Bills:    { name: "Bills",           color: "#D97706", icon: "🧾", moduleCode: null,        services: [],                                                 links: [{ label: "Search Bills",   url: "/suda-ui/employee/bills/search" },    { label: "Pay Bill",       url: "/suda-ui/employee/bills/pay" }] },
+};
+
+/* ── Single module card — fetches real inbox counts ── */
+const CustomModuleCard = ({ code }) => {
+  const cfg = MODULE_CONFIG[code] || {
+    name: code, color: "#1a2b49", icon: "📌", moduleCode: null, services: [],
+    links: [{ label: "Inbox", url: `/suda-ui/employee/${code.toLowerCase()}/inbox` }],
+  };
+  const accent = cfg.color;
+
+  // useNewInboxGeneral reads inboxConfig(tenantId)[ModuleCode] SYNCHRONOUSLY before
+  // checking `enabled`, so passing an unregistered ModuleCode crashes even with enabled:false.
+  // Solution: always call the hook with "PT" (guaranteed to exist in inboxConfig),
+  // and only enable the fetch when this card IS the PT module.
+  const isPT = code === "PT";
+  const [counts, setCounts] = React.useState({ totalCount: null, nearingSlaCount: null });
+  const { data, isFetching, isSuccess } = Digit.Hooks.useNewInboxGeneral({
+    tenantId: Digit.ULBService.getCurrentTenantId(),
+    ModuleCode: "PT",
+    filters: { limit: 1, offset: 0, services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"] },
+    config: {
+      select: (d) => ({ totalCount: d?.totalCount, nearingSlaCount: d?.nearingSlaCount }),
+      enabled: isPT,
+    },
+  });
+  React.useEffect(() => {
+    if (isPT && !isFetching && isSuccess) setCounts(data || {});
+  }, [isFetching]);
+
+  const linkIcons = ["📥", "➕", "🔍"];
   return (
-    <div className="employee-app-container">
-      <br />
-      {(dashboardConfig && dashboardCemp)?<EmployeeDashboard modules={modules}/>:null}
-      <div className="ground-container moduleCardWrapper gridModuleWrapper">
-        {modules.map(({ code }, index) => {
-          const Card = Digit.ComponentRegistryService.getComponent(`${code}Card`) || (() => <React.Fragment />);
-          return <Card key={index} />;
-        })}
+    <div style={{ background: "#ffffff", borderRadius: "14px", overflow: "hidden", boxShadow: "0 2px 12px rgba(26,43,73,0.09)", border: "1px solid #e8edf5" }}>
+      {/* Header */}
+      <div style={{ background: `linear-gradient(135deg, ${accent} 0%, ${accent}cc 100%)`, padding: "16px 20px 14px", display: "flex", alignItems: "center", gap: "14px" }}>
+        <div style={{ width: "44px", height: "44px", borderRadius: "10px", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>
+          {cfg.icon}
+        </div>
+        <div>
+          <div style={{ color: "#ffffff", fontSize: "15px", fontWeight: "700", letterSpacing: "0.1px", lineHeight: "1.3" }}>{cfg.name}</div>
+          <div style={{ color: "rgba(255,255,255,0.78)", fontSize: "11px", marginTop: "2px" }}>Municipal Services</div>
+        </div>
       </div>
-        <style>
-      {`
-        .employee .customEmployeeCard:nth-child(odd) .employeeCustomCard {
-          background-image: none;
-          background-color: #716565;
-          background-blend-mode: normal !important;
-          background-size: cover !important;
-        }
-        .employee .customEmployeeCard:nth-child(even) .employeeCustomCard {
-          background-image: none;
-          background-color: #716565;
-          background-blend-mode: normal !important;
-          background-size: cover !important;
-        }
-      `}
-      </style>
+      {/* KPI counts — shown only for PT (others would crash useNewInboxGeneral) */}
+      {isPT && (
+        <div style={{ display: "flex", borderBottom: "1px solid #f0f4f8" }}>
+          <div style={{ flex: 1, padding: "12px 16px", textAlign: "center", borderRight: "1px solid #f0f4f8" }}>
+            <div style={{ fontSize: "22px", fontWeight: "800", color: accent, lineHeight: 1 }}>
+              {isFetching ? "…" : (counts.totalCount != null ? counts.totalCount : "-")}
+            </div>
+            <div style={{ fontSize: "11px", color: "#5a6a8a", marginTop: "4px", fontWeight: "500" }}>Total Inbox</div>
+          </div>
+          <div style={{ flex: 1, padding: "12px 16px", textAlign: "center" }}>
+            <div style={{ fontSize: "22px", fontWeight: "800", color: "#e53935", lineHeight: 1 }}>
+              {isFetching ? "…" : (counts.nearingSlaCount != null ? counts.nearingSlaCount : "-")}
+            </div>
+            <div style={{ fontSize: "11px", color: "#5a6a8a", marginTop: "4px", fontWeight: "500" }}>Nearing SLA</div>
+          </div>
+        </div>
+      )}
+      {/* Action links */}
+      <div style={{ padding: "10px 14px 14px" }}>
+        {cfg.links.map((lnk, i) => (
+          <a key={i} href={lnk.url} style={{
+            display: "flex", alignItems: "center", gap: "9px",
+            padding: "9px 12px", marginBottom: i < cfg.links.length - 1 ? "6px" : "0",
+            borderRadius: "8px",
+            background: i === 0 ? `${accent}14` : "#f7f8fb",
+            color: i === 0 ? accent : "#3d4f6e",
+            fontSize: "13px", fontWeight: i === 0 ? "600" : "500",
+            textDecoration: "none",
+            border: i === 0 ? `1px solid ${accent}30` : "1px solid #edf0f5",
+          }}>
+            <span style={{ fontSize: "13px", lineHeight: 1 }}>{linkIcons[i] || "→"}</span>
+            {lnk.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+};
 
+const EmployeeHome = ({ modules }) => {
+  const dashboardCemp = Digit.UserService.hasAccess(["DASHBOARD_EMPLOYEE"]) ? true : false;
+  if (window.Digit.SessionStorage.get("PT_CREATE_EMP_TRADE_NEW_FORM")) window.Digit.SessionStorage.set("PT_CREATE_EMP_TRADE_NEW_FORM", {});
 
+  const userInfo = Digit.UserService.getUser()?.info;
+  const userName = userInfo?.name || userInfo?.userName || "Employee";
+  const ulb = Digit.ULBService.getCurrentUlb();
+  const ulbName = ulb?.name || "";
 
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" });
+  const hour = now.getHours();
+  const greeting = hour < 12 ? "Good Morning" : hour < 17 ? "Good Afternoon" : "Good Evening";
+
+  const moduleNameMap = {
+    PT: "Property Tax", WS: "Water & Sewerage", TL: "Trade License",
+    PGR: "Grievances", FSM: "Sanitation", MCollect: "Collections",
+    Bills: "Bills", QuickPayLinks: "Quick Pay", Payment: "Payments",
+    Engagement: "Engagement", OBPS: "Building Plan", CHB: "CHB",
+    ADS: "Advertisements", PTR: "PT Reports", SW: "Solid Waste",
+    SURVEY: "Surveys", EW: "E-Waste", BIRTH_DEATH: "Birth & Death",
+  };
+
+  const moduleColors = {
+    PT: "#e65c00", WS: "#0066cc", TL: "#00875a", PGR: "#7B61FF",
+    FSM: "#B54708", MCollect: "#027A48", OBPS: "#1570EF", CHB: "#C11574",
+    ADS: "#E31B54", Bills: "#D97706", SW: "#4A7C59", SURVEY: "#5B4FCF",
+    EW: "#0D9488", BIRTH_DEATH: "#7C3AED",
+  };
+
+  const moduleIcons = {
+    PT: "🏠", WS: "💧", TL: "📋", PGR: "📣", FSM: "🚿",
+    MCollect: "💰", OBPS: "🏗️", CHB: "🏛️", ADS: "📢", Bills: "🧾",
+    SW: "♻️", SURVEY: "📊", EW: "🔋", BIRTH_DEATH: "📜",
+  };
+
+  const moduleLinks = {
+    PT: [
+      { label: "Inbox", url: "/suda-ui/employee/pt/inbox" },
+      { label: "New Property", url: "/suda-ui/employee/pt/property/new-application/3" },
+      { label: "Search Property", url: "/suda-ui/employee/pt/property/search" },
+    ],
+    WS: [
+      { label: "Inbox", url: "/suda-ui/employee/ws/inbox" },
+      { label: "Apply Connection", url: "/suda-ui/employee/ws/new-application" },
+      { label: "Search", url: "/suda-ui/employee/ws/search" },
+    ],
+    TL: [
+      { label: "Inbox", url: "/suda-ui/employee/tradelicense/inbox" },
+      { label: "New License", url: "/suda-ui/employee/tradelicense/new-application" },
+      { label: "Search", url: "/suda-ui/employee/tradelicense/search" },
+    ],
+    PGR: [
+      { label: "Inbox", url: "/suda-ui/employee/pgr/inbox" },
+      { label: "Register Complaint", url: "/suda-ui/employee/pgr/create" },
+      { label: "Search", url: "/suda-ui/employee/pgr/search" },
+    ],
+    FSM: [
+      { label: "Inbox", url: "/suda-ui/employee/fsm/inbox" },
+      { label: "New Request", url: "/suda-ui/employee/fsm/new-application" },
+      { label: "Search", url: "/suda-ui/employee/fsm/search" },
+    ],
+    MCollect: [
+      { label: "Inbox", url: "/suda-ui/employee/mcollect/inbox" },
+      { label: "Collect Fees", url: "/suda-ui/employee/mcollect/new-application" },
+      { label: "Search", url: "/suda-ui/employee/mcollect/search" },
+    ],
+    OBPS: [
+      { label: "Inbox", url: "/suda-ui/employee/obps/inbox" },
+      { label: "New Application", url: "/suda-ui/employee/obps/new-application" },
+      { label: "Search", url: "/suda-ui/employee/obps/search" },
+    ],
+    CHB: [
+      { label: "Inbox", url: "/suda-ui/employee/chb/inbox" },
+      { label: "New Booking", url: "/suda-ui/employee/chb/new-application" },
+      { label: "Search", url: "/suda-ui/employee/chb/search" },
+    ],
+    ADS: [
+      { label: "Inbox", url: "/suda-ui/employee/ads/inbox" },
+      { label: "New Application", url: "/suda-ui/employee/ads/new-application" },
+      { label: "Search", url: "/suda-ui/employee/ads/search" },
+    ],
+    Bills: [
+      { label: "Search Bills", url: "/suda-ui/employee/bills/search" },
+      { label: "Pay Bill", url: "/suda-ui/employee/bills/pay" },
+    ],
+  };
+
+  const { data: dashboardConfig } = Digit.Hooks.useCustomMDMS(Digit.ULBService.getStateId(), "common-masters", [{ name: "CommonConfig" }], {
+    select: (data) => {
+      const cfg = data?.["common-masters"]?.["CommonConfig"];
+      return cfg?.find((item) => item?.name === "cityDashboardEnabled")?.isActive;
+    },
+  });
+
+  const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
+  const heroModules = visibleModules.slice(0, 4);
+
+  return (
+    <div style={{ background: "#f0f2f7", minHeight: "100vh", paddingBottom: "80px" }}>
+
+      {/* ── Hero Banner ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #1a2b49 0%, #274080 55%, #c95f20 100%)",
+        padding: "32px 40px 28px",
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        position: "relative", overflow: "hidden",
+      }}>
+        <div style={{ position:"absolute", top:"-60px", right:"-60px", width:"240px", height:"240px", borderRadius:"50%", background:"rgba(255,255,255,0.05)", pointerEvents:"none" }} />
+        <div style={{ position:"absolute", bottom:"-50px", left:"35%", width:"180px", height:"180px", borderRadius:"50%", background:"rgba(255,255,255,0.04)", pointerEvents:"none" }} />
+
+        <div style={{ flex:1, zIndex:1 }}>
+          <div style={{ color:"rgba(255,255,255,0.72)", fontSize:"14px", fontWeight:"500", marginBottom:"3px" }}>{greeting},</div>
+          <div style={{ color:"#ffffff", fontSize:"26px", fontWeight:"800", marginBottom:"5px", letterSpacing:"-0.3px" }}>{userName}</div>
+          {ulbName && (
+            <div style={{ color:"rgba(255,255,255,0.80)", fontSize:"13px", marginBottom:"3px" }}>
+              📍 {ulbName}
+            </div>
+          )}
+          <div style={{ color:"rgba(255,255,255,0.55)", fontSize:"12px", marginBottom:"20px" }}>{dateStr}</div>
+          <div style={{ display:"flex", gap:"8px", flexWrap:"wrap" }}>
+            {heroModules.map(({ code }, i) => {
+              const links = moduleLinks[code];
+              const href = links ? links[0].url : `/suda-ui/employee/${code.toLowerCase()}/inbox`;
+              return (
+                <a key={i} href={href} style={{
+                  display:"inline-flex", alignItems:"center",
+                  padding:"7px 16px", borderRadius:"20px",
+                  background: i === 0 ? "#f47738" : "rgba(255,255,255,0.12)",
+                  color:"#ffffff", fontSize:"13px", fontWeight:"600",
+                  textDecoration:"none",
+                  border: i === 0 ? "1.5px solid #f47738" : "1.5px solid rgba(255,255,255,0.30)",
+                  whiteSpace:"nowrap",
+                }}>
+                  {moduleNameMap[code] || code}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+
+        <div style={{ flexShrink:0, zIndex:1, opacity:0.70, marginLeft:"24px" }}>
+          <svg width="140" height="120" viewBox="0 0 150 130" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="12" y="56" width="126" height="70" rx="4" fill="rgba(255,255,255,0.10)" stroke="rgba(255,255,255,0.22)" strokeWidth="1.5"/>
+            <polygon points="75,12 6,60 144,60" fill="rgba(255,255,255,0.14)" stroke="rgba(255,255,255,0.25)" strokeWidth="1.5"/>
+            <rect x="53" y="88" width="44" height="38" rx="3" fill="rgba(255,255,255,0.18)"/>
+            <rect x="18" y="68" width="28" height="24" rx="2" fill="rgba(255,255,255,0.11)"/>
+            <rect x="104" y="68" width="28" height="24" rx="2" fill="rgba(255,255,255,0.11)"/>
+          </svg>
+        </div>
+      </div>
+
+      {/* ── Dashboard Stats ── */}
+      {dashboardConfig && dashboardCemp && (
+        <div style={{ padding:"24px 40px 0" }}>
+          <div style={{ fontSize:"14px", fontWeight:"700", color:"#1a2b49", marginBottom:"14px", paddingBottom:"7px", borderBottom:"3px solid #f47738", display:"inline-block" }}>
+            ULB Dashboard
+          </div>
+          <EmployeeDashboard modules={modules} />
+        </div>
+      )}
+
+      {/* ── Module Cards — fully custom, zero CDN dependency ── */}
+      <div style={{ padding:"24px 40px 0" }}>
+        <div style={{ fontSize:"14px", fontWeight:"700", color:"#1a2b49", marginBottom:"20px", paddingBottom:"7px", borderBottom:"3px solid #f47738", display:"inline-block" }}>
+          Services
+        </div>
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))",
+          gap: "20px",
+        }}>
+          {visibleModules.map(({ code }) => (
+            <CustomModuleCard key={code} code={code} />
+          ))}
+        </div>
+      </div>
     </div>
   );
 };
