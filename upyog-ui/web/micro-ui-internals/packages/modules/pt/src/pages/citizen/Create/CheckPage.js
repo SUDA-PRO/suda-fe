@@ -128,7 +128,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                       />
                       <Row
                         label={t("PT_TYPE_OF_INSTITUTION")}
-                        text={`${t(checkForNA(owner?.inistitutetype?.code))}`}
+                        text={owner?.inistitutetype?.label || t("CS_NA")}
                         actionButton={
                           <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
@@ -155,7 +155,14 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                         }
                       />
                       <Row
-                        label={`${t("PT_OWNERSHIP_INFO_TEL_PHONE_NO")}`}
+                        label={t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}
+                        text={`${t(checkForNA(owner?.alternatemobilenumber))}`}
+                        actionButton={
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                        }
+                      />
+                      <Row
+                        label={t("PT_LANDLINE_NUMBER_FLOATING_LABEL") || "Landline Number"}
                         text={`${t(checkForNA(owner?.altContactNumber))}`}
                         actionButton={
                           <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
