@@ -483,10 +483,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       });
       if (!allValid) return false;
     }
-    /* area vs built-up sum validation */
-    // if (!isVacant && builtUpAreaSum !== null && floorarea) {
-    //   if (parseFloat(floorarea) !== builtUpAreaSum) return false;
-    // }
+    /* area vs built-up sum validation – only for Ground Floor Only */
+    if (!isVacant && isIndependent && noOfFloors?.code === 0 && builtUpAreaSum !== null && floorarea) {
+      if (parseFloat(floorarea) !== builtUpAreaSum) return false;
+    }
     /* address validation */
     if (!selectedCity) return false;
     if (!selectedLocality) return false;
@@ -919,7 +919,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               </div>
             ))}
             {/* Area vs built-up sum summary */}
-            {builtUpBlurred && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
+            {builtUpBlurred && noOfFloors?.code === 0 && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
               <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
                 <span style={{ fontSize: "16px" }}>⚠</span>
                 <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
@@ -968,12 +968,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             <button type="button" onClick={handleAddFlatUnit} style={{ background: "none", border: "none", cursor: "pointer", color: "#f47738", fontWeight: "700", fontSize: "14px", padding: "4px 0", marginTop: "4px" }}>
               + {t("PT_ADD_UNIT")}
             </button>
-            {builtUpBlurred && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
-              <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
-                <span style={{ fontSize: "16px" }}>⚠</span>
-                <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
-              </div>
-            )}
           </div>
         )}
 
