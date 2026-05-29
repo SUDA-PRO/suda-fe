@@ -66,7 +66,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [electricity, setElectricity] = useState(
     formData?.electricity?.electricity || formData?.additionalDetails?.electricity || ""
   );
-  const [electricityError, setElectricityError] = useState("");`n`n  // Fetch Construction Type from MDMS`n  const { data: constructionTypeMDMS = {}, isLoading: constructionTypeLoading } =`n    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "ConstructionType") || {};`n  const constructionTypes = constructionTypeMDMS?.PropertyTax?.ConstructionType || [];
+  const [electricityError, setElectricityError] = useState("");
+
+  // Fetch Construction Type from MDMS
+  const { data: constructionTypeMDMS = {}, isLoading: constructionTypeLoading } =
+    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "ConstructionType") || {};
+  const constructionTypes = constructionTypeMDMS?.PropertyTax?.ConstructionType || [];
 
   /* ── Property Structure Details ── */
   const structureTypeOptions = constructionTypes
