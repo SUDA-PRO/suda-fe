@@ -43,10 +43,12 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         if (subKeys.length > 0) {
           subKeys.forEach((s) => {
             const { name, code: subCode } = SubOwnerShipCategory[s];
+            // Use full dotted code (e.g. "INDIVIDUAL.SINGLEOWNER") to match API ownershipCategory values
+            const fullCode = subCode.includes(".") ? subCode : `${code}.${subCode}`;
             result.push({
               label: name,
-              value: subCode,
-              code: subCode,
+              value: fullCode,
+              code: fullCode,
               i18nKey: `PT_OWNERSHIP_${subCode.split(".")[1] || subCode.split(".")[0]}`,
             });
           });
@@ -77,7 +79,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const [ownershipCategory, setOwnershipCategory] = useState(() => {
     const saved = formData?.ownershipCategory;
     if (!saved) return null;
-    if (typeof saved === "object" && saved.code) return saved;
+    if (typeof saved === "object" && saved.code) {
+      if (saved.i18nKey) return saved;
+      // Build i18nKey from code so the Dropdown shows the label immediately (e.g., "INDIVIDUAL.SINGLEOWNER" → "PT_OWNERSHIP_SINGLEOWNER")
+      const rawCode = saved.code || saved.value || "";
+      const parts = rawCode.split(".");
+      const subPart = parts[parts.length - 1];
+      return { ...saved, i18nKey: `PT_OWNERSHIP_${subPart}` };
+    }
     return null;
   });
 

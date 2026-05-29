@@ -134,8 +134,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [uploadedFileObj, setUploadedFileObj] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   /* ── Map coordinates ── */
-  const [latitude, setLatitude] = useState(formData?.address?.latitude || null);
-  const [longitude, setLongitude] = useState(formData?.address?.longitude || null);
+  const [latitude, setLatitude] = useState(
+    formData?.address?.latitude || formData?.address?.geoLocation?.latitude || null
+  );
+  const [longitude, setLongitude] = useState(
+    formData?.address?.longitude || formData?.address?.geoLocation?.longitude || null
+  );
   const [mapAddress, setMapAddress] = useState(
     formData?.address?.mapAddress || { district: "", tehsil: "", zone: "", ward: "", state: "" }
   );
@@ -353,6 +357,19 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       }
     })();
   }, [uploadedFileObj]);
+  /* Sync prefill values when edit-property data loads asynchronously */
+  useEffect(() => {
+    if (formData?.landArea?.floorarea && !floorarea) {
+      setFloorarea(String(formData.landArea.floorarea));
+    }
+  }, [formData?.landArea?.floorarea]);
+
+  useEffect(() => {
+    if (formData?.propertyStructureDetails?.structureType && !propertyStructureDetails?.structureType) {
+      setPropertyStructureDetails(formData.propertyStructureDetails);
+    }
+  }, [formData?.propertyStructureDetails]);
+
 
   /* â”€â”€ Handlers â”€â”€ */
   const handleElectricityChange = (e) => {

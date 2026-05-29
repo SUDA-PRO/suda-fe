@@ -47,8 +47,8 @@ const getPropertyEditDetails = (inputData = {}) => {
     data.owners[0].permanentAddress = data?.owners[0]?.correspondenceAddress;
     data.owners[0].isCorrespondenceAddress = data?.owners[0]?.isCorrespondenceAddress;
   } else {
-    data.owners.map((owner) => {
-      let document = [];
+    data.owners.map((owner, idx) => {
+      let document = {};
       owner.documents &&
         owner.documents.map((doc) => {
           if (doc?.documentType && typeof doc?.documentType == "string" && doc?.documentType?.includes("SPECIALCATEGORYPROOF")) {
@@ -62,10 +62,14 @@ const getPropertyEditDetails = (inputData = {}) => {
         });
       owner.emailId = owner?.emailId;
       owner.fatherOrHusbandName = owner?.fatherOrHusbandName;
-      owner.isCorrespondenceAddress = owner?.isCorrespondenceAddress;
+      owner.isCorrespondenceAddress = (owner?.isCorrespondenceAddress != null)
+        ? owner.isCorrespondenceAddress
+        : (data?.additionalDetails?.owners?.[idx]?.isCorrespondenceAddress != null
+            ? data.additionalDetails.owners[idx].isCorrespondenceAddress
+            : false);
       owner.mobileNumber = owner?.mobileNumber;
       owner.name = owner?.name;
-      owner.permanentAddress = owner?.permanentAddress;
+      owner.permanentAddress = owner?.permanentAddress || data?.additionalDetails?.owners?.[idx]?.permanentAddress;
       owner.gender = { code: owner?.gender };
       owner.ownerType = { code: owner?.ownerType };
       owner.relationship = { code: owner?.relationship };
@@ -102,7 +106,7 @@ const getPropertyEditDetails = (inputData = {}) => {
   if (data?.address?.documents) {
     data.address.documents["ProofOfAddress"] = addressDocs[0];
   } else {
-    data.address.documents = [];
+    data.address.documents = {};
     data.address.documents["ProofOfAddress"] = addressDocs && Array.isArray(addressDocs) && addressDocs.length > 0 && addressDocs[0];
   }
   data.documents["ProofOfAddress"] = addressDocs && Array.isArray(addressDocs) && addressDocs.length > 0 && addressDocs[0];
@@ -271,6 +275,11 @@ const getPropertyEditDetails = (inputData = {}) => {
         unoccupiedtf == true ? { i18nKey: "PT_COMMON_YES", code: "UNOCCUPIED" } : { i18nKey: "PT_COMMON_NO", code: "UNOCCUPIED" };
       data.floordetails = { plotSize: data?.landArea, builtUpArea: getSuperBuiltUpareafromob(data) };
       data["extraunitFPB"] = extraunitsFPB;
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     } else if (data?.propertyType === "BUILTUP.INDEPENDENTPROPERTY") {
       let nooffloor = 0,
         noofbasemement = 0;
@@ -383,7 +392,14 @@ const getPropertyEditDetails = (inputData = {}) => {
       data.PropertyType = data?.additionalDetails?.propertyType;
       data.isResdential = data?.additionalDetails?.isResdential;
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
-      data.landarea = { floorarea: data?.landArea };
+      const _vacantLandArea = data?.landArea;
+      data.landarea = { floorarea: _vacantLandArea };
+      data.landArea = { floorarea: _vacantLandArea };
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     } else if (data?.additionalDetails?.propertyType?.code === "BUILTUP.SHAREDPROPERTY" || data?.propertyType?.code === "BUILTUP.SHAREDPROPERTY") {
       data.isResdential = data?.additionalDetails?.isResdential;
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
@@ -406,7 +422,18 @@ const getPropertyEditDetails = (inputData = {}) => {
             data.landarea = { floorarea: unit?.constructionDetail?.builtUpArea };
           }
         });
-      data.floordetails = { plotSize: data?.landArea, builtUpArea: data?.additionalDetails?.builtUpArea };
+      // Always use Properties[0].landArea for Area (sq ft)* field
+      // PTLandArea reads formData.landArea?.floorarea (capital A); also set landarea (lowercase) for utils
+      const _landAreaVal = data?.landArea;
+      data.landarea = { floorarea: _landAreaVal };
+      data.landArea = { floorarea: _landAreaVal };
+      data.floordetails = { plotSize: _landAreaVal, builtUpArea: data?.additionalDetails?.builtUpArea || data?.superBuiltUpArea || data?.units?.reduce((acc, u) => acc + (parseFloat(u?.constructionDetail?.builtUpArea) || 0), 0) };
+      // Prefill structureType and ageOfProperty so PropertyStructureDetails reads them on first render
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     } else if (data?.additionalDetails?.propertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" || data?.propertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" || data?.propertyType === "BUILTUP.INDEPENDENTPROPERTY") {
       data.isResdential = data?.additionalDetails?.isResdential;
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
