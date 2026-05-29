@@ -226,26 +226,30 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
   });
 
+  const mapExistingUnitToForm = (existing, floorNo) => {
+    const usageCatCode = existing.usageCategory?.includes?.("RESIDENTIAL")
+      ? "RESIDENTIAL"
+      : getUsageCategoryParsed(existing.usageCategory || "").usageCategoryMinor;
+    return {
+      usageCategory: usageCatCode ? { code: usageCatCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${usageCatCode}` } : null,
+      unitType: existing.unitType ? { code: existing.unitType, i18nKey: `PROPERTYTAX_BILLING_SLAB_${existing.unitType}` } : null,
+      occupancyType: existing.occupancyType ? { code: existing.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${existing.occupancyType}` } : null,
+      builtUpArea: existing.constructionDetail?.builtUpArea || "",
+      floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
+    };
+  };
+
   const [floorUnits, setFloorUnits] = useState(() => {
     const floorList = getFloorList(formData?.noOfFloors, formData?.noOofBasements);
     const existingUnits = formData?.units || [];
-    return floorList.map((floorNo) => {
-      const existing = existingUnits.find(
-        (u) => (typeof u.floorNo === "object" ? u.floorNo?.code : u.floorNo) == floorNo
-      );
-      if (existing) {
-        const usageCatCode = existing.usageCategory?.includes?.("RESIDENTIAL")
-          ? "RESIDENTIAL"
-          : getUsageCategoryParsed(existing.usageCategory || "").usageCategoryMinor;
-        return {
-          usageCategory: usageCatCode ? { code: usageCatCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${usageCatCode}` } : null,
-          unitType: existing.unitType ? { code: existing.unitType, i18nKey: `PROPERTYTAX_BILLING_SLAB_${existing.unitType}` } : null,
-          occupancyType: existing.occupancyType ? { code: existing.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${existing.occupancyType}` } : null,
-          builtUpArea: existing.constructionDetail?.builtUpArea || "",
-          floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
-        };
-      }
-      return createEmptyUnit(floorNo);
+    const normalizedExistingUnits = existingUnits
+      .map((u) => ({ ...u, floorCode: Number(typeof u.floorNo === "object" ? u.floorNo?.code : u.floorNo) }))
+      .filter((u) => floorList.includes(u.floorCode))
+      .map((u) => mapExistingUnitToForm(u, u.floorCode));
+
+    return floorList.flatMap((floorNo) => {
+      const unitsForFloor = normalizedExistingUnits.filter((u) => Number(u.floorNo?.code) === Number(floorNo));
+      return unitsForFloor.length ? unitsForFloor : [createEmptyUnit(floorNo)];
     });
   });
 
@@ -279,12 +283,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   useEffect(() => {
     if (PropertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" && noOofBasements !== null && noOfFloors !== null) {
       const floorList = getFloorList(noOfFloors, noOofBasements);
-      setFloorUnits((prev) =>
-        floorList.map((floorNo) => {
-          const existing = prev.find((u) => u.floorNo?.code == floorNo);
-          return existing || createEmptyUnit(floorNo);
-        })
-      );
+      setFloorUnits((prev) => {
+        const filteredPrev = prev.filter((u) => floorList.includes(Number(u.floorNo?.code)));
+        return floorList.flatMap((floorNo) => {
+          const unitsForFloor = filteredPrev.filter((u) => Number(u.floorNo?.code) === Number(floorNo));
+          return unitsForFloor.length ? unitsForFloor : [createEmptyUnit(floorNo)];
+        });
+      });
     }
   }, [noOofBasements, noOfFloors, PropertyType]);
 
@@ -384,6 +389,27 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const handleRemoveFlatUnit = (idx) => {
     setFlatUnits((prev) => {
       if (prev.length === 1) return prev;
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
+
+  const handleAddIndependentUnit = (floorNo) => {
+    setFloorUnits((prev) => {
+      const insertionIndex = prev.reduce((lastIdx, u, idx) => (Number(u.floorNo?.code) === Number(floorNo) ? idx : lastIdx), -1);
+      const updated = [...prev];
+      if (insertionIndex === -1) {
+        updated.push(createEmptyUnit(floorNo));
+      } else {
+        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo));
+      }
+      return updated;
+    });
+  };
+
+  const handleRemoveIndependentUnit = (idx, floorNo) => {
+    setFloorUnits((prev) => {
+      const totalForFloor = prev.filter((u) => Number(u.floorNo?.code) === Number(floorNo)).length;
+      if (totalForFloor <= 1) return prev;
       return prev.filter((_, i) => i !== idx);
     });
   };
@@ -874,33 +900,66 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         {isIndependent && noOofBasements !== null && noOfFloors !== null && floorUnits.length > 0 && (
           <div style={cardStyle}>
             <div style={sectionTitleStyle}>{t("PT_FLOOR_USAGE_DETAILS") || "Floor Usage Details"}</div>
-            {floorUnits.map((unit, idx) => (
-              <div key={`floor-unit-${idx}-${unit.occupancyType?.code || "none"}`} style={unitCardStyle}>
-                <div style={{ fontWeight: "600", fontSize: "13px", color: "#1a2b49", marginBottom: "14px" }}>
-                  {t(`PROPERTYTAX_FLOOR_${unit.floorNo?.code}`)}
-                </div>
-                <div style={rowStyle}>
-                  <div style={col3}>
-                    <label style={labelStyle}>{t("PT_FORM2_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
-                    <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageCategory || []} selected={unit.usageCategory} select={(val) => updateUnit(idx, "usageCategory", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+            {getFloorList(noOfFloors, noOofBasements).map((floorNo) => {
+              const floorSpecificUnits = floorUnits
+                .map((unit, idx) => ({ unit, idx }))
+                .filter(({ unit }) => Number(unit.floorNo?.code) === Number(floorNo));
+
+              return (
+                <div key={`floor-block-${floorNo}`} style={{ marginBottom: "14px" }}>
+                  <div style={{ fontWeight: "700", fontSize: "14px", color: "#1a2b49", marginBottom: "10px" }}>
+                    {t(`PROPERTYTAX_FLOOR_${floorNo}`)}
                   </div>
-                  {unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" && (
-                    <div style={col3}>
-                      <label style={labelStyle}>{t("PT_FORM2_SUB_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
-                      <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageSubCategory?.filter((c) => c.usageCategoryMinor === unit.usageCategory?.code) || []} selected={unit.unitType} select={(val) => updateUnit(idx, "unitType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+
+                  {floorSpecificUnits.map(({ unit, idx }, floorUnitIdx) => (
+                    <div key={`floor-unit-${floorNo}-${idx}-${unit.occupancyType?.code || "none"}`} style={unitCardStyle}>
+                      {floorSpecificUnits.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveIndependentUnit(idx, floorNo)}
+                          style={{ position: "absolute", top: "10px", right: "12px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#888", lineHeight: 1 }}
+                        >
+                          x
+                        </button>
+                      )}
+
+                      <div style={{ fontWeight: "600", fontSize: "12px", color: "#4e5d78", marginBottom: "12px" }}>
+                        {`Unit ${floorUnitIdx + 1}`}
+                      </div>
+
+                      <div style={rowStyle}>
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_FORM2_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
+                          <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageCategory || []} selected={unit.usageCategory} select={(val) => updateUnit(idx, "usageCategory", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                        </div>
+                        {unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" && (
+                          <div style={col3}>
+                            <label style={labelStyle}>{t("PT_FORM2_SUB_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
+                            <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageSubCategory?.filter((c) => c.usageCategoryMinor === unit.usageCategory?.code) || []} selected={unit.unitType} select={(val) => updateUnit(idx, "unitType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                          </div>
+                        )}
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_FORM2_OCCUPANCY")}<span style={requiredMark}>*</span></label>
+                          <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.OccupancyType || []} selected={unit.occupancyType} select={(val) => updateUnit(idx, "occupancyType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                        </div>
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
+                          <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div style={col3}>
-                    <label style={labelStyle}>{t("PT_FORM2_OCCUPANCY")}<span style={requiredMark}>*</span></label>
-                    <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.OccupancyType || []} selected={unit.occupancyType} select={(val) => updateUnit(idx, "occupancyType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
-                  </div>
-                  <div style={col3}>
-                    <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
-                    <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
-                  </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddIndependentUnit(floorNo)}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#f47738", fontWeight: "700", fontSize: "14px", padding: "2px 0", marginTop: "2px" }}
+                  >
+                    + {t("PT_ADD_UNIT")}
+                  </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {/* Area vs built-up sum summary */}
             {builtUpBlurred && noOfFloors?.code === 0 && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
               <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
