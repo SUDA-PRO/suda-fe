@@ -5,8 +5,6 @@ import { TextInput, LabelFieldPair, Dropdown } from "@upyog/digit-ui-react-compo
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import useMCollectMDMS from "../../../../../../libraries/src/hooks/mcollect/useMCollectMDMS";
-import ServiceCategory from "../../../components/inbox/ServiceCategory";
 
 const SearchChallan = ({ config: propsConfig, formData }) => {
   const { t } = useTranslation();
