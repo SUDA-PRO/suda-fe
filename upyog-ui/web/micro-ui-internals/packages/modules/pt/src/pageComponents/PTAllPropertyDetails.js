@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, Fragment } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import {
   CardLabel,
   CardLabelDesc,
@@ -28,14 +28,14 @@ const getUsageCategoryParsed = (code = "") => {
 const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const stateId = Digit.ULBService.getStateId();
 
-  /* â”€â”€ Is Residential â”€â”€ */
+  /* ── Is Residential ── */
   const isResOptions = [
     { i18nKey: "PT_COMMON_YES", code: "RESIDENTIAL" },
     { i18nKey: "PT_COMMON_NO", code: "NONRESIDENTIAL" },
   ];
   const [isResdential, setIsResdential] = useState(formData?.isResdential || null);
 
-  /* â”€â”€ Usage Category Major (Non-residential only) â”€â”€ */
+  /* ── Usage Category Major (Non-residential only) ── */
   const { data: usageCatMDMS = {}, isLoading: usageCatLoading } =
     Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "UsageCategory") || {};
   const usagecat = usageCatMDMS?.PropertyTax?.UsageCategory || [];
@@ -49,7 +49,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     });
   const [usageCategoryMajor, setUsageCategoryMajor] = useState(formData?.usageCategoryMajor || null);
 
-  /* â”€â”€ Property Type â”€â”€ */
+  /* ── Property Type ── */
   const { data: propTypeMDMS = {}, isLoading: propTypeLoading } =
     Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "PTPropertyType") || {};
   const proptype = propTypeMDMS?.PropertyTax?.PropertyType || [];
@@ -62,19 +62,19 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       .sort((a, b) => a.i18nKey.split("_").pop().localeCompare(b.i18nKey.split("_").pop()));
   const [PropertyType, setPropertyType] = useState(formData?.PropertyType || null);
 
-  /* â”€â”€ Electricity â”€â”€ */
+  /* ── Electricity ── */
   const [electricity, setElectricity] = useState(
     formData?.electricity?.electricity || formData?.additionalDetails?.electricity || ""
   );
-  const [electricityError, setElectricityError] = useState("");
+  const [electricityError, setElectricityError] = useState("");`n`n  // Fetch Construction Type from MDMS`n  const { data: constructionTypeMDMS = {}, isLoading: constructionTypeLoading } =`n    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "ConstructionType") || {};`n  const constructionTypes = constructionTypeMDMS?.PropertyTax?.ConstructionType || [];
 
-  /* â”€â”€ Property Structure Details â”€â”€ */
-  const structureTypeOptions = [
-    { i18nKey: "Permanent", code: "permanent" },
-    { i18nKey: "Temporary", code: "temporary" },
-    { i18nKey: "Semi Permanent", code: "semi permanent" },
-    { i18nKey: "RCC", code: "RCC" },
-  ];
+  /* ── Property Structure Details ── */
+  const structureTypeOptions = constructionTypes
+    .filter((ct) => ct.active)
+    .map((ct) => ({
+      i18nKey: ct.name,
+      code: ct.code,
+    }));
   const ageOfPropertyOptions = [
     { i18nKey: "PROPERTYTAX_MONTH>10", code: "10" },
     { i18nKey: "PROPERTYTAX_MONTH>15", code: "15" },
@@ -84,10 +84,22 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     formData?.propertyStructureDetails || { structureType: null, ageOfProperty: null }
   );
 
-  /* ── Area (sq ft) – mandatory for all property types ── */
+  /* -- Road Type -- */
+  const { data: roadTypeMDMS = {}, isLoading: roadTypeLoading } =
+    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "RoadType") || {};
+  const roadTypes = roadTypeMDMS?.PropertyTax?.RoadType || [];
+  const roadTypeOptions = roadTypes
+    .filter((rt) => rt.active)
+    .map((rt) => ({
+      i18nKey: rt.name,
+      code: rt.code,
+    }));
+  const [roadType, setRoadType] = useState(formData?.address?.roadType || null);
+
+  /* -- Area (sq ft) � mandatory for all property types -- */
   const [floorarea, setFloorarea] = useState(formData?.landArea?.floorarea || "");
 
-  /* ── Number of Basements (Independent) ── */
+  /* -- Number of Basements (Independent) -- */
   const basementOptions = [
     { code: 0, i18nKey: "PT_NO_BASEMENT_OPTION" },
     { code: 1, i18nKey: "PT_ONE_BASEMENT_OPTION" },
@@ -95,7 +107,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   ];
   const [noOofBasements, setNoOofBasements] = useState(formData?.noOofBasements || null);
 
-  /* â”€â”€ Number of Floors (Independent) â”€â”€ */
+  /* ── Number of Floors (Independent) ── */
   const floorOptions = [
     { i18nKey: "PT_GROUND_FLOOR_OPTION", code: 0 },
     { i18nKey: "PT_GROUND_PLUS_ONE_OPTION", code: 1 },
@@ -104,7 +116,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [noOfFloors, setNoOfFloors] = useState(formData?.noOfFloors || null);
   const [builtUpBlurred, setBuiltUpBlurred] = useState(false);
 
-  /* â”€â”€ Property Address State â”€â”€ */
+  /* ── Property Address State ── */
   const allCities = Digit.Hooks.pt.useTenants();
   const [cities, setCities] = useState(allCities || []);
   const [selectedCity, setSelectedCity] = useState(formData?.address?.city || null);
@@ -133,7 +145,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
   const [uploadedFileObj, setUploadedFileObj] = useState(null);
   const [uploadError, setUploadError] = useState(null);
-  /* ── Map coordinates ── */
+  /* -- Map coordinates -- */
   const [latitude, setLatitude] = useState(
     formData?.address?.latitude || formData?.address?.geoLocation?.latitude || null
   );
@@ -143,7 +155,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [mapAddress, setMapAddress] = useState(
     formData?.address?.mapAddress || { district: "", tehsil: "", zone: "", ward: "", state: "" }
   );
-  /* â”€â”€ Floor Usage MDMS â”€â”€ */
+  /* ── Floor Usage MDMS ── */
   const { data: floorMdms } = Digit.Hooks.useCommonMDMSV2(
     stateId,
     "PropertyTax",
@@ -183,7 +195,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   );
 
-  /* â”€â”€ Flat Units (Shared/Flat property) â”€â”€ */
+  /* ── Flat Units (Shared/Flat property) ── */
   const createEmptyFlatUnit = () => ({
     usageCategory: null,
     unitType: null,
@@ -211,7 +223,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return [createEmptyFlatUnit()];
   });
 
-  /* â”€â”€ Floor Units helpers â”€â”€ */
+  /* ── Floor Units helpers ── */
   const getFloorList = (floors, basements) => {
     if (floors === null || floors === undefined) return [];
     const list = [];
@@ -262,7 +274,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     });
   };
 
-  /* â”€â”€ Derived flags â”€â”€ */
+  /* ── Derived flags ── */
   const isIndependent = PropertyType?.code === "BUILTUP.INDEPENDENTPROPERTY";
   const isShared = PropertyType?.code === "BUILTUP.SHAREDPROPERTY";
   const isVacant = PropertyType?.code === "VACANT";
@@ -279,7 +291,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return null;
   })();
 
-  /* â”€â”€ Regenerate floor units when basement/floor selection changes â”€â”€ */
+  /* ── Regenerate floor units when basement/floor selection changes ── */
   useEffect(() => {
     if (PropertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" && noOofBasements !== null && noOfFloors !== null) {
       const floorList = getFloorList(noOfFloors, noOofBasements);
@@ -292,7 +304,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   }, [noOofBasements, noOfFloors, PropertyType]);
 
-  /* â”€â”€ Address: update city list when pincode/allCities changes â”€â”€ */
+  /* ── Address: update city list when pincode/allCities changes ── */
   useEffect(() => {
     if (!allCities?.length) return;
     if (pincode) {
@@ -305,7 +317,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   }, [pincode, allCities]);
 
-  /* â”€â”€ Address: update localities when city/fetchedLocalities changes â”€â”€ */
+  /* ── Address: update localities when city/fetchedLocalities changes ── */
   useEffect(() => {
     if (!selectedCity) {
       setLocalities([]);
@@ -327,7 +339,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   }, [selectedCity, pincode, fetchedLocalities]);
 
-  /* â”€â”€ Address: upload proof file â”€â”€ */
+  /* ── Address: upload proof file ── */
   useEffect(() => {
     if (!uploadedFileObj) return;
     (async () => {
@@ -366,7 +378,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   }, [formData?.propertyStructureDetails]);
 
 
-  /* â”€â”€ Handlers â”€â”€ */
+  /* ── Handlers ── */
   const handleElectricityChange = (e) => {
     const value = e.target.value;
     if (/^\d{0,10}$/.test(value)) {
@@ -384,7 +396,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   };
 
-  /* â”€â”€ Flat unit handlers (Shared/Flat property) â”€â”€ */
+  /* ── Flat unit handlers (Shared/Flat property) ── */
   const updateFlatUnit = (idx, key, value) => {
     setFlatUnits((prev) => {
       const updated = [...prev];
@@ -454,7 +466,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       }
     }
   };
-  /* â”€â”€ Validation â”€â”€ */
+  /* ── Validation ── */
   const isFormValid = () => {
     if (!isResdential) return false;
     if (isNonResidential && !usageCategoryMajor) return false;
@@ -483,13 +495,14 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       });
       if (!allValid) return false;
     }
-    /* area vs built-up sum validation – only for Ground Floor Only */
+    /* area vs built-up sum validation � only for Ground Floor Only */
     if (!isVacant && isIndependent && noOfFloors?.code === 0 && builtUpAreaSum !== null && floorarea) {
       if (parseFloat(floorarea) !== builtUpAreaSum) return false;
     }
     /* address validation */
     if (!selectedCity) return false;
     if (!selectedLocality) return false;
+    if (!roadType) return false;
     if (!street) return false;
     if (!doorNo) return false;
     if (!proofDocType) return false;
@@ -499,7 +512,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return true;
   };
 
-  /* â”€â”€ Submit â”€â”€ */
+  /* ── Submit ── */
   const goNext = () => {
     sessionStorage.setItem("PropertyType", PropertyType?.i18nKey);
     sessionStorage.setItem("isResdential", isResdential?.i18nKey);
@@ -556,6 +569,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       pincode,
       city: selectedCity,
       locality: selectedLocality,
+      roadType: roadType?.code || null,
       street,
       doorNo,
       landmark,
@@ -590,7 +604,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 
   if (propTypeLoading || usageCatLoading) return <Loader />;
 
-  /* â”€â”€ Layout styles â”€â”€ */
+  /* ── Layout styles ── */
   const cardStyle = {
     background: "#ffffff",
     borderRadius: "10px",
@@ -777,7 +791,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       `}</style>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={1} /> : null}
 
-      {/* ── Hero Banner ── */}
+      {/* -- Hero Banner -- */}
       <div style={{
         background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
         borderRadius: "12px",
@@ -813,9 +827,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         isDisabled={!isFormValid()}
         showErrorBelowChildren={true}
       >
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            CARD 1 â€“ Property Details
-        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ══════════════════════════════════════
+            CARD 1 – Property Details
+        ══════════════════════════════════════ */}
         <div style={{ maxWidth: "100%", width: "100%" }}>
         <div style={cardStyle}>
           <div style={sectionTitleStyle}>{t("PT_PROPERTY_DETAILS_HEADER") || "Property Details"}</div>
@@ -827,7 +841,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={isResOptions} selected={isResdential} select={setIsResdential} placeholder={t("PT_SELECT_PLACEHOLDER")} />
             </div>
 
-            {/* Usage Category â€“ Non-residential only */}
+            {/* Usage Category – Non-residential only */}
             {isNonResidential && (
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_ASSESMENT_INFO_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
@@ -860,13 +874,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={ageOfPropertyOptions} selected={propertyStructureDetails?.ageOfProperty} select={(val) => setPropertyStructureDetails({ ...propertyStructureDetails, ageOfProperty: val })} placeholder={t("PT_SELECT_AGE_OF_PROPERTY")} />
             </div>
 
-            {/* Area (sq ft) – all property types */}
+            {/* Area (sq ft) � all property types */}
             <div style={col3}>
               <label style={labelStyle}>{t("PT_PLOT_SIZE_SQUARE_FEET_LABEL")}<span style={requiredMark}>*</span></label>
               <TextInput t={t} type="text" value={floorarea} onChange={handleAreaChange} placeholder={t("PT_FORM2_PLOT_SIZE_PLACEHOLDER")} maxLength={10} />
             </div>
 
-            {/* No. of Basements â€“ Independent only */}
+            {/* No. of Basements – Independent only */}
             {isIndependent && (
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_PROPERTY_DETAILS_NO_OF_BASEMENTS_HEADER")}</label>
@@ -874,7 +888,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               </div>
             )}
 
-            {/* No. of Floors â€“ Independent only */}
+            {/* No. of Floors – Independent only */}
             {isIndependent && (
               <div style={col3}>
                 <label style={labelStyle}>{t("BPA_SCRUTINY_DETAILS_NUMBER_OF_FLOORS_LABEL")}</label>
@@ -885,9 +899,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
         </div>
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            CARD 2 â€“ Floor Usage (Independent)
-        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ══════════════════════════════════════
+            CARD 2 – Floor Usage (Independent)
+        ══════════════════════════════════════ */}
         {isIndependent && noOofBasements !== null && noOfFloors !== null && floorUnits.length > 0 && (
           <div style={cardStyle}>
             <div style={sectionTitleStyle}>{t("PT_FLOOR_USAGE_DETAILS") || "Floor Usage Details"}</div>
@@ -921,23 +935,23 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             {/* Area vs built-up sum summary */}
             {builtUpBlurred && noOfFloors?.code === 0 && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
               <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
-                <span style={{ fontSize: "16px" }}>⚠</span>
-                <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
+                <span style={{ fontSize: "16px" }}>?</span>
+                <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} � {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
               </div>
             )}
           </div>
         )}
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            CARD 3 â€“ Flat Details (Shared)
-        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ══════════════════════════════════════
+            CARD 3 – Flat Details (Shared)
+        ══════════════════════════════════════ */}
         {isShared && (
           <div style={cardStyle}>
             <div style={sectionTitleStyle}>{t("PT_FLAT_DETAILS_HEADER") || "Flat Details"}</div>
             {flatUnits.map((unit, idx) => (
               <div key={`flat-unit-${idx}-${unit.occupancyType?.code || "none"}`} style={unitCardStyle}>
                 {flatUnits.length > 1 && (
-                  <button type="button" onClick={() => handleRemoveFlatUnit(idx)} style={{ position: "absolute", top: "10px", right: "12px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#888", lineHeight: 1 }}>âœ•</button>
+                  <button type="button" onClick={() => handleRemoveFlatUnit(idx)} style={{ position: "absolute", top: "10px", right: "12px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#888", lineHeight: 1 }}>✕</button>
                 )}
                 <div style={rowStyle}>
                   <div style={col3}>
@@ -971,9 +985,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
         )}
 
-        {/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
-            CARD 4 â€“ Property Address
-        â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */}
+        {/* ══════════════════════════════════════
+            CARD 4 – Property Address
+        ══════════════════════════════════════ */}
         <div style={cardStyle}>
           <div style={sectionTitleStyle}>{t("CS_FILE_APPLICATION_PROPERTY_LOCATION_ADDRESS_TEXT") || "Property Address"}</div>
           <div style={rowStyle}>
@@ -1004,6 +1018,24 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     option={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
                     select={setSelectedLocality}
                     optionKey="i18nkey"
+                    t={t}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Road Type */}
+            {selectedCity && (
+              <div style={col3}>
+                <label style={labelStyle}>{t("PT_ROAD_TYPE_LABEL")}<span style={requiredMark}>*</span></label>
+                <div style={{ position: "relative" }}>
+                  <Dropdown
+                    isMandatory={true}
+                    selected={roadType}
+                    option={roadTypeOptions}
+                    select={setRoadType}
+                    optionKey="i18nKey"
                     t={t}
                     optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
                   />
@@ -1068,7 +1100,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                         type="text"
                         value={mapAddress[key] || ""}
                         onChange={(e) => setMapAddress((prev) => ({ ...prev, [key]: e.target.value }))}
-                        placeholder="Not detected — enter manually"
+                        placeholder="Not detected � enter manually"
                         style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: mapAddress[key] ? "#fff" : "#fafafa", boxSizing: "border-box", color: mapAddress[key] ? "#1a1a1a" : "#888" }}
                       />
                     </div>
@@ -1120,7 +1152,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <div style={col6}>
                 <div style={{ border: "2px dashed #c8d0dc", borderRadius: "10px", background: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
                   <div style={{ display: "flex", alignItems: "center", gap: "5px", flexShrink: 0 }}>
-                    <span style={{ fontSize: "18px", lineHeight: 1 }}>📎</span>
+                    <span style={{ fontSize: "18px", lineHeight: 1 }}>??</span>
                     <span style={{ fontSize: "10px", color: "#8a97a8", whiteSpace: "nowrap" }}>JPG &middot; PNG &middot; PDF | Max 5MB</span>
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
@@ -1131,7 +1163,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     )}
                   </div>
                 </div>
-                {uploadError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "4px" }}><span>⚠</span> {uploadError}</div>}
+                {uploadError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "4px" }}><span>?</span> {uploadError}</div>}
               </div>
             </div>
           </div>
@@ -1144,3 +1176,4 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 };
 
 export default PTAllPropertyDetails;
+
