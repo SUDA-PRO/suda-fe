@@ -70,7 +70,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 
   // Fetch Construction Type from MDMS
   const { data: constructionTypeMDMS = {}, isLoading: constructionTypeLoading } =
-    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "ConstructionType") || {};
+    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", ["ConstructionType"]) || {};
   const constructionTypes = constructionTypeMDMS?.PropertyTax?.ConstructionType || [];
 
   /* ── Property Structure Details ── */
@@ -91,7 +91,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 
   /* -- Road Type -- */
   const { data: roadTypeMDMS = {}, isLoading: roadTypeLoading } =
-    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "RoadType") || {};
+    Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", ["RoadType"]) || {};
   const roadTypes = roadTypeMDMS?.PropertyTax?.RoadType || [];
   const roadTypeOptions = roadTypes
     .filter((rt) => rt.active)
