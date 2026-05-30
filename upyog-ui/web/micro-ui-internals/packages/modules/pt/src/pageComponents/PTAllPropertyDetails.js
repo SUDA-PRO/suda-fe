@@ -595,6 +595,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       isResdential,
       usageCategoryMajor: finalUsageCategory,
       PropertyType,
+      structureType: propertyStructureDetails?.structureType?.code || null,
       electricity: { electricity },
       propertyStructureDetails,
       landArea: { floorarea },
