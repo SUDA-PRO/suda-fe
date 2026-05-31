@@ -411,7 +411,7 @@ export default function Dashboard() {
                   whiteSpace: "nowrap",
                 }}
               >
-                {t("LANDING_PAGE_CITIZEN_CORNER") || "Citizen Corner"}
+                {t("LANDING_PAGE_CITIZEN_CORNER") }
                 <svg width="10" height="6" viewBox="0 0 10 6" fill="none">
                   <path d="M1 1l4 4 4-4" stroke="#666" strokeWidth="1.5" strokeLinecap="round" />
                 </svg>
@@ -1045,7 +1045,7 @@ export default function Dashboard() {
         }}
       >
         <div>
-          <h3 style={{textAlign:"center", fontWeight: 700, fontSize:30, marginBottom:40}}>Our Citizen Centric Services</h3>
+          <h3 style={{textAlign:"center", fontWeight: 700, fontSize:30, marginBottom:40}}>{t("LANDING_PAGE_CITIZEN_CENTRIC_SERVICES")}</h3>
 
         </div>
 
@@ -1229,7 +1229,7 @@ export default function Dashboard() {
                   marginTop: 3,
                 }}
               >
-                {t("ORG_NAME")} ({t("ORG_NAME_SHORT")})
+                {t("LANDING_PAGE_TITLE")}
               </div>
             </div>
           </div>
@@ -1331,17 +1331,17 @@ export default function Dashboard() {
 }
 
 const insightStats = [
-  { value: "280+", label: "Urban Local Bodies", icon: null },
-  { value: "15+",  label: "Citizen Services",   icon: null },
-  { value: "50K+", label: "Applications",       icon: null },
-  { value: "1L+",  label: "Registered Citizens",icon: null },
+  { value: "280+", label: "URBAN_LOCAL_BODIES", icon: null },
+  { value: "15+",  label: "CITIZEN_SERVICES",   icon: null },
+  { value: "50K+", label: "APPLICATIONS",       icon: null },
+  { value: "1L+",  label: "REGISTERED_CITIZENS",icon: null },
 ];
 
 const announcementItems = [
-  "Citizen Service Portal Now Live",
-  "Property Tax & Water Bill Payment Online",
-  "24×7 Civic Services Portal Available",
-  "New Scheme for Urban Poor Families Launched",
+  "Announcement_1",
+  "Announcement_2",
+  "Announcement_3",
+  "Announcement_4",
 ];
 
 function AnnouncementsTicker() {
@@ -1374,7 +1374,7 @@ function AnnouncementsTicker() {
           letterSpacing: "0.3px",
         }}
       >
-        {t("ANNOUNCEMENTS_LABEL") !== "ANNOUNCEMENTS_LABEL" ? t("ANNOUNCEMENTS_LABEL") : "Announcements"}
+        {t("ANNOUNCEMENTS_LABEL")}
       </div>
 
       {/* Static items */}
@@ -1382,7 +1382,7 @@ function AnnouncementsTicker() {
         {announcementItems.map((item, i) => (
           <span key={i} style={{ fontSize: 13, color: "#333", whiteSpace: "nowrap", display: "flex", alignItems: "center", gap: 6 }}>
             <span style={{ color: "#F59E0B", fontWeight: 700, fontSize: 16 }}>•</span>
-            {item}
+            {t(item)}
           </span>
         ))}
       </div>
@@ -1463,7 +1463,7 @@ function InsightsSection({ isMobile }) {
             </div>
           )}
           <div style={{ fontSize: isMobile ? 10 : 11, color: "#666", fontWeight: 500, marginTop: 2 }}>
-            {stat.label}
+            {t(stat.label)}
           </div>
         </div>
       ))}
@@ -1784,7 +1784,7 @@ function GallerySection({ isMobile }) {
         </div>
 
         {/* VIDEO GALLERY */}
-<div style={{ flex: 1 }}>
+<div style={{ flex: 1, width: isMobile ? "100%" : "auto" }}>
   {/* ✅ Heading ABOVE videos */}
   <h3
     style={{
@@ -1813,7 +1813,7 @@ function GallerySection({ isMobile }) {
         href={vid.url}
         target="_blank"
         rel="noopener noreferrer"
-        style={{ textDecoration: "none", display: "block" }}
+        style={{ textDecoration: "none", display: "block", width: isMobile ? "100%" : "auto" }}
       >
         <div
           style={{
@@ -2009,7 +2009,7 @@ function QuickLinksSection({ isMobile }) {
 
 
 const faqItems = [
-  { q: "FAQ_Q1", fallback: "What is SUDA ?" },
+  { q: "FAQ_Q1", fallback: "What is UAD ?" },
   { q: "FAQ_Q2", fallback: "How can citizens apply for schemes/services?" },
   { q: "FAQ_Q3", fallback: "Are the services available online?" },
   { q: "FAQ_Q4", fallback: "How can I check my application or scheme status?" },

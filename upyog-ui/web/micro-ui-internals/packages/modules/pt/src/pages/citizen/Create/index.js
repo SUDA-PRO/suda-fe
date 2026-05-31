@@ -164,11 +164,12 @@ let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetai
       setParams({ ...params, ...propertyStructureDetails });
 
     } else if (key === "allPropertyDetails") {
-      const { isResdential, usageCategoryMajor, PropertyType, electricity, propertyStructureDetails, landArea, noOofBasements, noOfFloors, units, address } = data;
+      const { isResdential, usageCategoryMajor, PropertyType, structureType, electricity, propertyStructureDetails, landArea, noOofBasements, noOfFloors, units, address } = data;
       let newParams = { ...params };
       if (isResdential !== undefined) newParams.isResdential = isResdential;
       if (usageCategoryMajor !== undefined) newParams.usageCategoryMajor = usageCategoryMajor;
       if (PropertyType !== undefined) newParams.PropertyType = PropertyType;
+      if (structureType !== undefined) newParams.structureType = structureType;
       if (electricity !== undefined) newParams.electricity = electricity;
       if (propertyStructureDetails !== undefined) newParams.propertyStructureDetails = propertyStructureDetails;
       if (landArea !== undefined) newParams.landArea = landArea;
