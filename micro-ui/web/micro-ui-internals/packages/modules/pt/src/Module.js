@@ -74,6 +74,7 @@ import EmployeeUpdateOwnerNumber from "./pages/employee/updateNumber";
 //import PTCitizenFeedback from "@upyog/digit-ui-module-core/src/components/PTCitizenFeedback";
 import PTSelectLandmark from "./pageComponents/PTSelectLandmark";
 import PropertyStructureDetails from "./pageComponents/PropertyStructureDetails";
+import PTPropertyDetailsForm from "./pageComponents/PTPropertyDetailsForm";
 //import PTCitizenFeedback from "@upyog/digit-ui-module-core/src/components/PTCitizenFeedback";
 
 import EmployeeApp from "./pages/employee";
@@ -125,6 +126,7 @@ const componentsToRegister = {
   UID,
   Electricity,
   PropertyStructureDetails,
+  PTPropertyDetailsForm,
   IsResidential,
   PropertyType,
   PropertyUsageType,

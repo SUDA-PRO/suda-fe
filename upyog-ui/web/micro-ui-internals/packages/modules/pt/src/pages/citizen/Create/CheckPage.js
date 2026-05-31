@@ -3,7 +3,6 @@ import {
   CardHeader,
   CardSubHeader,
   CardText,
-  CheckBox,
   LinkButton,
   Row,
   StatusTable,
@@ -596,12 +595,50 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             </div>
           )}
         </div> */}
-        <CheckBox
-          label={t("PT_FINAL_DECLARATION_MESSAGE")}
-          onChange={setdeclarationhandler}
-          styles={{ height: "auto" }}
-          //disabled={!agree}
-        />
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            gap: "12px",
+            background: agree ? "#f0f7ff" : "#fafafa",
+            border: `1.5px solid ${agree ? "#1E3A8A" : "#d0d0d0"}`,
+            borderRadius: "8px",
+            padding: "16px 20px",
+            marginTop: "24px",
+            marginBottom: "8px",
+            transition: "background 0.2s, border-color 0.2s",
+            cursor: "pointer",
+          }}
+          onClick={setdeclarationhandler}
+        >
+          <input
+            type="checkbox"
+            id="pt-declaration-checkbox"
+            checked={agree}
+            onChange={setdeclarationhandler}
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              width: "20px",
+              height: "20px",
+              minWidth: "20px",
+              marginTop: "2px",
+              accentColor: "#1E3A8A",
+              cursor: "pointer",
+            }}
+          />
+          <label
+            htmlFor="pt-declaration-checkbox"
+            style={{
+              fontSize: "14px",
+              color: "#333",
+              lineHeight: "1.6",
+              cursor: "pointer",
+              userSelect: "none",
+            }}
+          >
+            {t("PT_FINAL_DECLARATION_MESSAGE")}
+          </label>
+        </div>
       </div>
       <SubmitBar label={t("PT_COMMON_BUTTON_SUBMIT")} onSubmit={onSubmit} disabled={!agree} />
     </Card>

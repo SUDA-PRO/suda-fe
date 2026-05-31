@@ -1229,7 +1229,7 @@ export default function Dashboard() {
                   marginTop: 3,
                 }}
               >
-                STATE URBAN DEVELOPMENT AGENCY (SUDA)
+                {t("ORG_NAME")} ({t("ORG_NAME_SHORT")})
               </div>
             </div>
           </div>
