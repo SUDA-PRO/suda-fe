@@ -384,7 +384,7 @@ const Home = ({
               borderBottom: "1px solid #e8e8e8", flexShrink: 0,
             }}>
               <span style={{ fontSize: "22px", fontWeight: "700", color: "#091E64" }}>
-                State Urban Development Agency (SUDA)
+                URBAN ADMINISTRATION &amp; DEPARTMENT (UAD)
               </span>
               <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                 <ChangeLanguage dropdown={true} />

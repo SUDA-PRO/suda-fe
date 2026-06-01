@@ -598,6 +598,7 @@ export const convertToProperty = (data = {}) => {
 
       documents: data.documents || [],
       ...data.propertyDetails,
+      structureType: data?.structureType || null,
 
       additionalDetails: {
         inflammable: false,
@@ -805,6 +806,7 @@ export const convertToUpdateProperty = (data = {}, t) => {
 
       documents: data.documents || [],
       ...data.propertyDetails,
+      structureType: data?.structureType || null,
 
       additionalDetails: {
         inflammable: false,

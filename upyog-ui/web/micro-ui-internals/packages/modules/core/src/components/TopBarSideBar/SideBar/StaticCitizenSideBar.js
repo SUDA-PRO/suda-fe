@@ -64,7 +64,10 @@ const OrgHeader = ({ stateInfo, t, onClose }) => (
       <img src="https://tfstatee8aog.blob.core.windows.net/filestore/Coat_of_arms_of_Chhattisgarh.svg" className="sidebar-nav__logo-img" alt="logo" />
     </div>
     <div className="sidebar-nav__org-name">
-      URBAN ADMINISTRATION & DEPARTMENT
+      URBAN ADMINISTRATION &amp; DEPARTMENT
+    </div>
+    <div className="sidebar-nav__org-short" style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", letterSpacing: "1.5px", marginTop: "-4px", marginBottom: "4px" }}>
+      UAD
     </div>
     <div className="sidebar-nav__divider" />
   </div>

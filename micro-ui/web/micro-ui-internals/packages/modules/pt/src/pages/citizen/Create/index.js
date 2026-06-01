@@ -163,6 +163,16 @@ const CreateProperty = ({ parentRoute }) => {
 let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetail}
       setParams({ ...params, ...propertyStructureDetails });
 
+    } else if (key === "propertyDetailsForm") {
+      const { isResdential, PropertyType, electricity, propertyStructureDetails, units, address } = data;
+      const merged = { ...params };
+      if (isResdential !== undefined) merged.isResdential = isResdential;
+      if (PropertyType !== undefined) merged.PropertyType = PropertyType;
+      if (electricity !== undefined) merged.electricity = electricity;
+      if (propertyStructureDetails !== undefined) merged.propertyStructureDetails = propertyStructureDetails;
+      if (units !== undefined) merged.units = units;
+      if (address !== undefined) merged.address = { ...params.address, ...address };
+      setParams(merged);
     } else {
       setParams({ ...params, ...{ [key]: { ...params[key], ...data } } });
     }
@@ -812,7 +822,7 @@ let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetai
 //         "type": "component"
 //     }
 // ]
-config.indexRoute = "info";
+config.indexRoute = "property-details";
  // console.log("configconfigconfig",config)
 
   const CheckPage = Digit?.ComponentRegistryService?.getComponent("PTCheckPage");
