@@ -108,28 +108,54 @@ const EmployeeDashboard = ({modules}) => {
 
   return (
     <React.Fragment>
-      <div style={{marginLeft:"42%", fontWeight:"bold", fontSize:"22px", marginBottom:"5px"}}>
-        {t("COMMON_ULB_DASHBOARD")}
-      </div>
-      <div className="ground-container moduleCardWrapper gridModuleWrapper">
-        {cardData.map(({ title, count, color, isAmount }, index) => (
-          <div key={index} className={`status-card ${color}`}>
-            <div className="card-content">
-            {count === null ? (
-                <div>
+      <div style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+        gap: "16px",
+        marginBottom: "8px",
+      }}>
+        {cardData.map(({ title, count, color, isAmount }, index) => {
+          const configs = [
+            { grad: "linear-gradient(135deg, #1a2b49 0%, #2c4a8c 100%)", icon: "📥", shadow: "rgba(26,43,73,0.25)" },
+            { grad: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", icon: "💰", shadow: "rgba(244,119,56,0.30)" },
+            { grad: "linear-gradient(135deg, #7b3fa0 0%, #5c2d80 100%)", icon: "⏳", shadow: "rgba(123,63,160,0.25)" },
+            { grad: "linear-gradient(135deg, #1a7a4a 0%, #14603a 100%)", icon: "✅", shadow: "rgba(26,122,74,0.25)" },
+          ];
+          const cfg = configs[index] || configs[0];
+          return (
+            <div key={index} style={{
+              background: cfg.grad,
+              borderRadius: "14px",
+              padding: "22px 20px 18px",
+              color: "#ffffff",
+              position: "relative",
+              overflow: "hidden",
+              boxShadow: `0 6px 20px ${cfg.shadow}`,
+              display: "flex",
+              alignItems: "flex-start",
+              gap: "14px",
+              minHeight: "110px",
+            }}>
+              <div style={{ fontSize:"30px", lineHeight:"1", flexShrink:0, marginTop:"2px", filter:"drop-shadow(0 2px 4px rgba(0,0,0,0.2))" }}>
+                {cfg.icon}
+              </div>
+              <div style={{ flex:1, zIndex:1 }}>
+                {count === null ? (
                   <Loader />
-                </div>
-            ) : (
-              <React.Fragment>    
-                <span className="count">
-                  {isAmount ? formatIndianCurrency(count) : formatNumbers(count)}
-                </span>
-                <span className="title">{title}</span>
-              </React.Fragment>  
-            )}
+                ) : (
+                  <React.Fragment>
+                    <div style={{ fontSize:"30px", fontWeight:"800", lineHeight:"1.1", letterSpacing:"-0.5px", marginBottom:"5px" }}>
+                      {isAmount ? formatIndianCurrency(count) : formatNumbers(count)}
+                    </div>
+                    <div style={{ fontSize:"13px", fontWeight:"500", opacity:0.85, lineHeight:"1.3" }}>{title}</div>
+                  </React.Fragment>
+                )}
+              </div>
+              {/* decorative circle */}
+              <div style={{ position:"absolute", right:"-22px", bottom:"-22px", width:"100px", height:"100px", borderRadius:"50%", background:"rgba(255,255,255,0.08)", pointerEvents:"none" }} />
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </React.Fragment>
   );

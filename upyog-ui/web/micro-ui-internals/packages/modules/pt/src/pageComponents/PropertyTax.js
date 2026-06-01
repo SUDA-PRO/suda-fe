@@ -240,9 +240,6 @@ function getItemWithExpiry(key) {
             <p style={{ margin: 0, fontSize: "14px", color: "#5c3a1e", fontWeight: "600" }}>
               {t("PT_DOC_REQ_SCREEN_TEXT")}
             </p>
-            <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#7a5230" }}>
-              {t("PT_DOC_REQ_SCREEN_SUB_TEXT")}
-            </p>
           </div>
         </div>
 
@@ -338,22 +335,7 @@ function getItemWithExpiry(key) {
           >
             {t("PT_COMMON_NEXT")} →
           </button>
-          <button
-            onClick={(e) => { onConcent(e); }}
-            style={{
-              flex: 1, minWidth: "180px",
-              background: "#fff",
-              color: "#1a2b49", border: "2px solid #1a2b49",
-              borderRadius: "8px", padding: "14px 28px",
-              fontSize: "15px", fontWeight: "700",
-              cursor: "pointer", letterSpacing: "0.3px",
-              transition: "all 0.2s",
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
-            }}
-          >
-            <span style={{ fontSize: "16px" }}>🔐</span>
-            {t("PT_DIGILOCKER_CONSENT")}
-          </button>
+
         </div>
 
       </div>

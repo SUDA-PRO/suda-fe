@@ -90,7 +90,7 @@ export const PTSearch = {
       values: [
         { title: "TL_PROPERTY_ID", value: property?.propertyId || "NA" },
         { title: "PT_OWNER_NAME", value: property?.owners?.map((owner, idx) => {
-            const seq = owner?.additionalDetails?.ownerSequence != null ? owner?.additionalDetails?.ownerSequence : idx;
+            const seq = owner?.additionalDetails?.ownerSequence != null ? owner.additionalDetails.ownerSequence : idx;
             const plain = getPlainOwner(property?.additionalDetails?.owners, seq);
             return isEncrypted(owner?.name) ? (plain?.name || owner?.name) : owner?.name;
           }).reverse().join(",") || "NA" },
@@ -105,7 +105,7 @@ export const PTSearch = {
         owners: ownersSequences
           ?.filter((owner) => owner.status === "ACTIVE")
           .map((owner, index) => {
-            const seq = owner?.additionalDetails?.ownerSequence != null ? owner?.additionalDetails?.ownerSequence : index;
+            const seq = owner?.additionalDetails?.ownerSequence != null ? owner.additionalDetails.ownerSequence : index;
             const plain = getPlainOwner(additionalOwners, seq);
             const ownerName = isEncrypted(owner?.name) ? (plain?.name || owner?.name) : owner?.name;
             const ownerMobile = isEncrypted(owner?.mobileNumber) ? (plain?.mobileNumber || owner?.mobileNumber) : owner?.mobileNumber;
@@ -257,7 +257,7 @@ export const PTSearch = {
         title: "PT_OWNERSHIP_INFO_SUB_HEADER",
         additionalDetails: {
           owners: response?.owners?.map((owner, index) => {
-            const seq = owner?.additionalDetails?.ownerSequence != null ? owner?.additionalDetails?.ownerSequence : index;
+            const seq = owner?.additionalDetails?.ownerSequence != null ? owner.additionalDetails.ownerSequence : index;
             const plain = getPlainOwner(response?.additionalDetails?.owners, seq);
             const ownerName = isEncrypted(owner?.name) ? (plain?.name || owner?.name) : owner?.name;
             const ownerMobile = isEncrypted(owner?.mobileNumber) ? (plain?.mobileNumber || owner?.mobileNumber) : owner?.mobileNumber;

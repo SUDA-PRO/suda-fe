@@ -72,7 +72,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const structureTypeOptions = [
     { i18nKey: "Permanent", code: "permanent" },
     { i18nKey: "Temporary", code: "temporary" },
-    { i18nKey: "SEMI_PERMANENT", code: "semi permanent" },
+    { i18nKey: "Semi Permanent", code: "semi permanent" },
     { i18nKey: "RCC", code: "RCC" },
   ];
   const ageOfPropertyOptions = [
@@ -131,11 +131,15 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [digiLockerUpload, setDigiLockerUpload] = useState(false);
   const [proofDocType, setProofDocType] = useState(formData?.address?.documents?.ProofOfAddress?.documentType || null);
   const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
-  const [uploadedFileObj, setUploadedFileObj] = useState(formData?.address?.documents?.ProofOfAddress || null);
+  const [uploadedFileObj, setUploadedFileObj] = useState(null);
   const [uploadError, setUploadError] = useState(null);
   /* ── Map coordinates ── */
-  const [latitude, setLatitude] = useState(formData?.address?.latitude || null);
-  const [longitude, setLongitude] = useState(formData?.address?.longitude || null);
+  const [latitude, setLatitude] = useState(
+    formData?.address?.latitude || formData?.address?.geoLocation?.latitude || null
+  );
+  const [longitude, setLongitude] = useState(
+    formData?.address?.longitude || formData?.address?.geoLocation?.longitude || null
+  );
   const [mapAddress, setMapAddress] = useState(
     formData?.address?.mapAddress || { district: "", tehsil: "", zone: "", ward: "", state: "" }
   );
@@ -348,6 +352,19 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       }
     })();
   }, [uploadedFileObj]);
+  /* Sync prefill values when edit-property data loads asynchronously */
+  useEffect(() => {
+    if (formData?.landArea?.floorarea && !floorarea) {
+      setFloorarea(String(formData.landArea.floorarea));
+    }
+  }, [formData?.landArea?.floorarea]);
+
+  useEffect(() => {
+    if (formData?.propertyStructureDetails?.structureType && !propertyStructureDetails?.structureType) {
+      setPropertyStructureDetails(formData.propertyStructureDetails);
+    }
+  }, [formData?.propertyStructureDetails]);
+
 
   /* â”€â”€ Handlers â”€â”€ */
   const handleElectricityChange = (e) => {
@@ -466,8 +483,8 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       });
       if (!allValid) return false;
     }
-    /* area vs built-up sum validation */
-    if (!isVacant && builtUpAreaSum !== null && floorarea) {
+    /* area vs built-up sum validation – only for Ground Floor Only */
+    if (!isVacant && isIndependent && noOfFloors?.code === 0 && builtUpAreaSum !== null && floorarea) {
       if (parseFloat(floorarea) !== builtUpAreaSum) return false;
     }
     /* address validation */
@@ -476,7 +493,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!street) return false;
     if (!doorNo) return false;
     if (!proofDocType) return false;
-    if (!uploadedFileObj) return false;
+    if (!uploadedFile) return false;
     if (uploadError) return false;
     if (!latitude || !longitude) return false;
     return true;
@@ -902,7 +919,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               </div>
             ))}
             {/* Area vs built-up sum summary */}
-            {builtUpBlurred && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
+            {builtUpBlurred && noOfFloors?.code === 0 && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
               <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
                 <span style={{ fontSize: "16px" }}>⚠</span>
                 <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
@@ -951,12 +968,6 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             <button type="button" onClick={handleAddFlatUnit} style={{ background: "none", border: "none", cursor: "pointer", color: "#f47738", fontWeight: "700", fontSize: "14px", padding: "4px 0", marginTop: "4px" }}>
               + {t("PT_ADD_UNIT")}
             </button>
-            {builtUpBlurred && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
-              <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
-                <span style={{ fontSize: "16px" }}>⚠</span>
-                <span>{t("PT_AREA_MUST_EQUAL_BUILTUP_SUM") || "Total area must equal the sum of all built-up areas"} — {t("PT_BUILTUP_SUM_HINT") || "Sum:"} <strong>{builtUpAreaSum} sq ft</strong>, {t("PT_TOTAL_AREA_LABEL") || "Total area:"} <strong>{floorarea} sq ft</strong></span>
-              </div>
-            )}
           </div>
         )}
 
@@ -978,24 +989,23 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                   onSelect={handleSelectCity}
                   t={t}
                   isPTFlow={true}
-                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
                 />
               </div>
             </div>
 
-            {/* Locality */}
             {selectedCity && (
               <div style={col3}>
                 <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
                 <div style={{ position: "relative" }}>
-                  <RadioOrSelect
-                    dropdownStyle={{ paddingBottom: "20px" }}
-                    options={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
-                    selectedOption={selectedLocality}
+                  <Dropdown
+                    isMandatory={true}
+                    selected={selectedLocality}
+                    option={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
+                    select={setSelectedLocality}
                     optionKey="i18nkey"
-                    onSelect={setSelectedLocality}
                     t={t}
-                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)" }}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
                   />
                 </div>
               </div>
@@ -1115,9 +1125,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     {digiLockerUpload ? (
-                      <UploadFileDigiLocker id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFileObj ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
+                      <UploadFileDigiLocker id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
                     ) : (
-                      <UploadFile id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFileObj ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
+                      <UploadFile id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
                     )}
                   </div>
                 </div>

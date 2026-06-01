@@ -138,6 +138,7 @@ export const setOwnerDetails = (data) => {
       }
       owner.push({
         altContactNumber: owners[0]?.altContactNumber,
+        alternatemobilenumber: owners[0]?.alternatemobilenumber || undefined,
         correspondenceAddress: owners[0]?.permanentAddress,
         designation: owners[0]?.designation,
         emailId: owners[0]?.emailId,
@@ -495,7 +496,7 @@ export const setPropertyDetails = (data) => {
   if (data?.PropertyType?.code?.includes("VACANT")) {
     propertyDetails = {
       units: [],
-      landArea: parseInt(data?.landarea?.floorarea),
+      landArea: parseInt(data?.landArea?.floorarea || data?.landarea?.floorarea),
       propertyType: data?.PropertyType?.code,
       noOfFloors: 0,
       usageCategory: data?.propertyStructureDetails?.usageCategory?.code,
@@ -820,7 +821,7 @@ export const convertToUpdateProperty = (data = {}, t) => {
         unit: unit,
         basement1: basement1,
         basement2: basement2,
-        ageOfProperty: data.propertyStructureDetails.ageOfProperty,
+        ageOfProperty: data?.propertyStructureDetails?.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
         isVacantLandRented: data?.isVacantLandRented?.code || null,
       },

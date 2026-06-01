@@ -47,6 +47,7 @@ import { PTMyPayments } from "./pages/citizen/MyPayments";
 import SelectPTUnits from "./pageComponents/SelectPTUnits";
 import CreateProperty from "./pages/citizen/Create";
 import { PTMyApplications } from "./pages/citizen/PTMyApplications";
+import PTHomePage from "./pages/citizen/PTHome";
 import { MyProperties } from "./pages/citizen/MyProperties";
 import PTApplicationDetails from "./pages/citizen/PTApplicationDetails";
 import SearchPropertyComponent from "./pages/citizen/SearchProperty";
@@ -172,6 +173,7 @@ const componentsToRegister = {
   PTDocsRequired: DocsRequired,
   PTCreateProperty: CreateProperty,
   PTMyApplications: PTMyApplications,
+  PTHomePage: PTHomePage,
   PTMyProperties: MyProperties,
   PTApplicationDetails: PTApplicationDetails,
   PTSearchPropertyComponent: SearchPropertyComponent,
@@ -280,4 +282,5 @@ export const PTComponents = {
   PT_INBOX_FILTER: (props) => <InboxFilter {...props} />,
   PTEmptyResultInbox: EmptyResultInbox,
   PTInboxTableConfig: TableConfig,
+  PTHomePage,
 };
