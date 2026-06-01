@@ -34,7 +34,7 @@ const App = () => {
     <span className={"pt-citizen"}style={{width:"100%"}}>
       <Switch>
         <AppContainer>
-          {!shouldHideBackButton(hideBackButtonConfig) ? <BackButton>Back</BackButton> : ""}
+          {!shouldHideBackButton(hideBackButtonConfig) ? <BackButton style={{display:"inline-flex",alignItems:"center",gap:"6px",padding:"7px 16px 7px 10px",borderRadius:"20px",border:"1.5px solid #1E3A8A",background:"#ffffff",color:"#1E3A8A",fontWeight:"600",fontSize:"14px",lineHeight:"1",marginBottom:"16px",cursor:"pointer",boxShadow:"0 1px 4px rgba(30,58,138,0.10)",width:"fit-content",userSelect:"none"}}>Back</BackButton> : ""}
           <PrivateRoute path={`${path}/property/new-application`} component={CreateProperty} />
           <PrivateRoute path={`${path}/property/edit-application`} component={EditProperty} />
           <Route path={`${path}/property/citizen-search`} component={SearchPropertyComponent} />
