@@ -1,5 +1,24 @@
 export const newConfig =[
   {
+      "head": "ES_NEW_APPLICATION_PROPERTY_DETAILS_COMBINED",
+      "body": [
+          {
+              "type": "component",
+              "route": "property-details",
+              "isMandatory": true,
+              "component": "PTPropertyDetailsForm",
+              "key": "propertyDetailsForm",
+              "withoutLabel": true,
+              "texts": {
+                  "header": "ES_NEW_APPLICATION_PROPERTY_ASSESSMENT",
+                  "submitBarLabel": "PT_COMMON_NEXT"
+              },
+              "nextStep": "owner-ship-details@0",
+              "hideInEmployee": true
+          }
+      ]
+  },
+  {
       "head": "ES_NEW_APPLICATION_LOCATION_DETAILS",
       "body": [
           {

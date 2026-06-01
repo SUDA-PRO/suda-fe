@@ -139,23 +139,16 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     ownershipCategory?.value === "INSTITUTIONALGOVERNMENT";
 
   const institutionTypeOptions = React.useMemo(() => {
-    if (!ownershipCategory?.value) return [];
-    try {
-      const payload = JSON.parse(sessionStorage.getItem("getSubPropertyOwnerShipCategory"));
-      const subCats = payload?.PropertyTax?.SubOwnerShipCategory;
-      if (!subCats) return [];
-      return subCats
-        .filter((c) => c.active && c.ownerShipCategory === ownershipCategory.value)
-        .map((c) => ({
-          label: c.name,
-          value: c.code,
-          code: c.code,
-          i18nKey: `PROPERTYTAX_BILLING_SLAB_${c.code}`,
-        }));
-    } catch (e) {
-      return [];
-    }
-  }, [subLoading, ownershipCategory?.value]);
+    if (!ownershipCategory?.value || !SubOwnerShipCategoryOb) return [];
+    return SubOwnerShipCategoryOb
+      .filter((c) => c.active && c.ownerShipCategory === ownershipCategory.value)
+      .map((c) => ({
+        label: c.name,
+        value: c.code,
+        code: c.code,
+        i18nKey: `PROPERTYTAX_BILLING_SLAB_${c.code}`,
+      }));
+  }, [SubOwnerShipCategoryOb, ownershipCategory?.value]);
 
   const validateEmail = (value) => {
     if (!value) { setEmailError(""); return; }
@@ -212,7 +205,13 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   })();
 
   const [specialProofDocType, setSpecialProofDocType] = useState(existingOwner.documents?.specialProofIdentity?.documentType || null);
-  const [specialProofFile, setSpecialProofFile] = useState(existingOwner.documents?.specialProofIdentity || null);
+  const [specialProofFile, setSpecialProofFile] = useState(() => {
+    const doc = existingOwner.documents?.specialProofIdentity;
+    if (!doc) return null;
+    if (doc.name) return doc;
+    const n = sessionStorage.getItem(`pt-sp-name-${index}`); const s = sessionStorage.getItem(`pt-sp-size-${index}`);
+    return { ...doc, name: n || null, size: s ? Number(s) : null };
+  });
   const [specialProofUploadedId, setSpecialProofUploadedId] = useState(existingOwner.documents?.specialProofIdentity?.fileStoreId || null);
   const [specialProofError, setSpecialProofError] = useState(null);
 
@@ -238,7 +237,13 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   })();
 
   const [identityProofDocType, setIdentityProofDocType] = useState(existingOwner.documents?.proofIdentity?.documentType || null);
-  const [identityProofFile, setIdentityProofFile] = useState(existingOwner.documents?.proofIdentity || null);
+  const [identityProofFile, setIdentityProofFile] = useState(() => {
+    const doc = existingOwner.documents?.proofIdentity;
+    if (!doc) return null;
+    if (doc.name) return doc;
+    const n = sessionStorage.getItem(`pt-id-name-${index}`); const s = sessionStorage.getItem(`pt-id-size-${index}`);
+    return { ...doc, name: n || null, size: s ? Number(s) : null };
+  });
   const [identityProofUploadedId, setIdentityProofUploadedId] = useState(existingOwner.documents?.proofIdentity?.fileStoreId || null);
   const [identityProofError, setIdentityProofError] = useState(null);
 
@@ -319,7 +324,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   function buildOwnerData() {
     const documents = {};
     if (identityProofFile) {
-      const f = { ...identityProofFile, documentType: identityProofDocType, fileStoreId: identityProofUploadedId || null };
+      const f = { ...identityProofFile, name: identityProofFile?.name, size: identityProofFile?.size, documentType: identityProofDocType, fileStoreId: identityProofUploadedId || null };
       documents["proofIdentity"] = f;
     }
     if (isInstitutional) {
@@ -339,7 +344,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
       };
     }
     if (needsSpecialProof && specialProofFile) {
-      const f = { ...specialProofFile, documentType: specialProofDocType, fileStoreId: specialProofUploadedId || null };
+      const f = { ...specialProofFile, name: specialProofFile?.name, size: specialProofFile?.size, documentType: specialProofDocType, fileStoreId: specialProofUploadedId || null };
       documents["specialProofIdentity"] = f;
     }
     return {
@@ -434,8 +439,25 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         .pt-owner-details-form .employee-card-input-error {
           border: 1px solid #b1b4b6 !important;
           border-radius: 8px !important;
-          height: 40px !important;
-          line-height: 40px !important;
+          height: 46px !important;
+          line-height: 46px !important;
+        }
+        .pt-owner-details-form .mobile-field,
+        .pt-owner-details-form .mobile-field > div,
+        .pt-owner-details-form .phone-field-container {
+          height: 46px !important;
+        }
+        .pt-owner-details-form .phone-prefix,
+        .pt-owner-details-form .mobile-field .prefix {
+          height: 46px !important;
+          line-height: 46px !important;
+        }
+        .pt-phone-input:focus-within {
+          border-color: #1a2b49 !important;
+          box-shadow: 0 0 0 3px rgba(26,43,73,0.1) !important;
+        }
+        .pt-phone-input .pt-phone-prefix {
+          font-size: 14px !important;
         }
         .pt-owner-details-form .upload-file,
         .pt-owner-details-form .upload-file-max-width {
@@ -597,6 +619,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
             onAdd={isMultipleOwners ? onAddOwner : null}
             isMultipleAllow={isMultipleOwners}
           >
+            <div className="pt-owner-details-form">
 
             {/* ══════════════════════════════════════
                 CARD 1 – Owner Basic Details
@@ -608,7 +631,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                 {/* Ownership Type – always visible */}
                 <div style={col6}>
                   <label style={labelStyle}>{t("PT_PROVIDE_OWNERSHIP_DETAILS")}<span style={requiredMark}>*</span></label>
-                  <Dropdown t={t} isMandatory={true} option={ownershipOptions} selected={ownershipCategory} optionKey="i18nKey" select={(val) => { setOwnershipCategory(val); sessionStorage.setItem("ownershipCategory", val?.value); }} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                  <select
+                    style={{ display: "block", width: "100%", height: "46px", padding: "0 40px 0 14px", border: ownershipCategory ? "1.5px solid #1a2b49" : "1.5px solid #b0b8c1", borderRadius: "10px", fontSize: "14px", color: ownershipCategory ? "#1a2b49" : "#8a97a8", backgroundColor: ownershipCategory ? "#fff" : "#f9fafc", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%231a2b49' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 13px center", backgroundSize: "13px", WebkitAppearance: "none", MozAppearance: "none", appearance: "none", cursor: "pointer", outline: "none", boxSizing: "border-box", fontFamily: "inherit", fontWeight: ownershipCategory ? "600" : "400", boxShadow: ownershipCategory ? "0 0 0 3px rgba(26,43,73,0.08)" : "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
+                    value={ownershipCategory?.code || ""}
+                    onChange={(e) => { const val = ownershipOptions.find(o => o.code === e.target.value) || null; setOwnershipCategory(val); if (val) sessionStorage.setItem("ownershipCategory", val.value); }}
+                  >
+                    <option value="" disabled hidden>{t("PT_SELECT_PLACEHOLDER")}</option>
+                    {ownershipOptions.map(o => <option key={o.code} value={o.code}>{t(o.i18nKey)}</option>)}
+                  </select>
                 </div>
 
                 {isInstitutional ? (
@@ -621,7 +651,14 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                     {/* Institution Type */}
                     <div style={col6}>
                       <label style={labelStyle}>{t("PT_INSTITUTION_TYPE")}<span style={requiredMark}>*</span></label>
-                      <Dropdown t={t} isMandatory={true} option={institutionTypeOptions} selected={institutionType} optionKey="i18nKey" select={setInstitutionType} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                      <select
+                        style={{ display: "block", width: "100%", height: "46px", padding: "0 40px 0 14px", border: institutionType ? "1.5px solid #1a2b49" : "1.5px solid #b0b8c1", borderRadius: "10px", fontSize: "14px", color: institutionType ? "#1a2b49" : "#8a97a8", backgroundColor: institutionType ? "#fff" : "#f9fafc", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%231a2b49' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 13px center", backgroundSize: "13px", WebkitAppearance: "none", MozAppearance: "none", appearance: "none", cursor: "pointer", outline: "none", boxSizing: "border-box", fontFamily: "inherit", fontWeight: institutionType ? "600" : "400", transition: "border-color 0.2s" }}
+                        value={institutionType?.code || ""}
+                        onChange={(e) => { const val = institutionTypeOptions.find(o => o.code === e.target.value) || null; setInstitutionType(val); }}
+                      >
+                        <option value="" disabled hidden>{t("PT_SELECT_PLACEHOLDER")}</option>
+                        {institutionTypeOptions.map(o => <option key={o.code} value={o.code}>{t(o.i18nKey)}</option>)}
+                      </select>
                     </div>
                     {/* Authorised Person sub-header */}
                     <div style={{ ...col12, paddingTop: "8px", paddingBottom: "0" }}>
@@ -642,23 +679,18 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                     {/* Mobile Number */}
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
-                      <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
+                      <div className="pt-phone-input" style={{ display: "flex", alignItems: "stretch", border: "1.5px solid #b0b8c1", borderRadius: "10px", overflow: "hidden", height: "46px", backgroundColor: "#fff", boxSizing: "border-box" }}>
+                        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 14px", background: "linear-gradient(135deg, #eef1f6, #e8ecf3)", borderRight: "1.5px solid #dce1e9", fontSize: "14px", fontWeight: "700", color: "#1a2b49", whiteSpace: "nowrap", flexShrink: 0, letterSpacing: "0.3px" }}>+91</span>
+                        <input type="tel" value={mobileNumber} maxLength={10} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ""))} required pattern="[6-9]{1}[0-9]{9}" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} style={{ flex: 1, height: "100%", border: "none", outline: "none", padding: "0 12px", fontSize: "14px", color: "#363636", backgroundColor: "transparent", fontFamily: "inherit" }} />
+                      </div>
                     </div>
                     {/* Alternate Mobile Number */}
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
-                      <MobileNumber
-                        value={institutionAltMobile}
-                        name="institutionAltMobile"
-                        onChange={(val) => {
-                          setInstitutionAltMobile(val);
-                          if (val && !/^[6-9][0-9]{9}$/.test(val)) setInstitutionAltMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
-                          else setInstitutionAltMobileError("");
-                        }}
-                        pattern="[6-9]{1}[0-9]{9}"
-                        type="tel"
-                        title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
-                      />
+                      <div className="pt-phone-input" style={{ display: "flex", alignItems: "stretch", border: "1.5px solid #b0b8c1", borderRadius: "10px", overflow: "hidden", height: "46px", backgroundColor: "#fff", boxSizing: "border-box" }}>
+                        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 14px", background: "linear-gradient(135deg, #eef1f6, #e8ecf3)", borderRight: "1.5px solid #dce1e9", fontSize: "14px", fontWeight: "700", color: "#1a2b49", whiteSpace: "nowrap", flexShrink: 0, letterSpacing: "0.3px" }}>+91</span>
+                        <input type="tel" value={institutionAltMobile} maxLength={10} onChange={(e) => { const v = e.target.value.replace(/\D/g, ""); setInstitutionAltMobile(v); if (v && !/^[6-9][0-9]{9}$/.test(v)) setInstitutionAltMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")); else setInstitutionAltMobileError(""); }} pattern="[6-9]{1}[0-9]{9}" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} style={{ flex: 1, height: "100%", border: "none", outline: "none", padding: "0 12px", fontSize: "14px", color: "#363636", backgroundColor: "transparent", fontFamily: "inherit" }} />
+                      </div>
                       {institutionAltMobileError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{institutionAltMobileError}</span>}
                     </div>
                     {/* Landline Number */}
@@ -688,70 +720,88 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                     {/* Correspondence Address */}
                     <div style={col12}>
                       <label style={labelStyle}>{t("PT_OWNERS_ADDRESS")}<span style={requiredMark}>*</span></label>
-                      <TextArea value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
-                      <CheckBox label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")} onChange={handleCorrespondenceAddress} value={isCorrespondenceAddress} checked={isCorrespondenceAddress || false} style={{ paddingTop: "10px" }} />
+                      <textarea
+                        value={permanentAddress}
+                        onChange={(e) => setPermanentAddress(e.target.value)}
+                        rows={3}
+                        style={{ display: "block", width: "100%", padding: "12px 14px", border: permanentAddress ? "1.5px solid #1a2b49" : "1.5px solid #b0b8c1", borderRadius: "10px", fontSize: "14px", color: "#363636", backgroundColor: "#fff", resize: "vertical", outline: "none", boxSizing: "border-box", fontFamily: "inherit", lineHeight: "1.6", transition: "border-color 0.2s, box-shadow 0.2s", boxShadow: permanentAddress ? "0 0 0 3px rgba(26,43,73,0.08)" : "none" }}
+                      />
+                      <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", marginTop: "12px", userSelect: "none" }}>
+                        <div
+                          onClick={() => handleCorrespondenceAddress({ target: { checked: !isCorrespondenceAddress } })}
+                          style={{ width: "20px", height: "20px", border: isCorrespondenceAddress ? "2px solid #1a2b49" : "2px solid #c0c8d4", borderRadius: "5px", background: isCorrespondenceAddress ? "#1a2b49" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s", flexShrink: 0, alignSelf: "center", boxShadow: isCorrespondenceAddress ? "0 0 0 3px rgba(26,43,73,0.12)" : "none" }}
+                        >
+                          {isCorrespondenceAddress && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        </div>
+                        <span style={{ fontSize: "14px", fontWeight: "500", color: "#3d4f6b", lineHeight: "20px" }}>{t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}</span>
+                      </label>
                     </div>
                   </React.Fragment>
                 ) : (
                   <React.Fragment>
-                    {/* Owner Name */}
+                    {/* Row 1 — Owner Name (fills remaining col6 next to Ownership) */}
                     <div style={col6}>
                       <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
                       <TextInput type="text" value={name} onChange={(e) => setName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
                     </div>
 
-                    {/* Mobile Number */}
+                    {/* Row 2 — Mobile · Alt Mobile · Email */}
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
-                      <MobileNumber value={mobileNumber} name="mobileNumber" onChange={(val) => setMobileNumber(val)} required pattern="[6-9]{1}[0-9]{9}" type="tel" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} />
+                      <div className="pt-phone-input" style={{ display: "flex", alignItems: "stretch", border: "1.5px solid #b0b8c1", borderRadius: "10px", overflow: "hidden", height: "46px", backgroundColor: "#fff", boxSizing: "border-box" }}>
+                        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 14px", background: "linear-gradient(135deg, #eef1f6, #e8ecf3)", borderRight: "1.5px solid #dce1e9", fontSize: "14px", fontWeight: "700", color: "#1a2b49", whiteSpace: "nowrap", flexShrink: 0, letterSpacing: "0.3px" }}>+91</span>
+                        <input type="tel" value={mobileNumber} maxLength={10} onChange={(e) => setMobileNumber(e.target.value.replace(/\D/g, ""))} required pattern="[6-9]{1}[0-9]{9}" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} style={{ flex: 1, height: "100%", border: "none", outline: "none", padding: "0 12px", fontSize: "14px", color: "#363636", backgroundColor: "transparent", fontFamily: "inherit" }} />
+                      </div>
                     </div>
 
-                    {/* Email */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
+                      <div className="pt-phone-input" style={{ display: "flex", alignItems: "stretch", border: "1.5px solid #b0b8c1", borderRadius: "10px", overflow: "hidden", height: "46px", backgroundColor: "#fff", boxSizing: "border-box" }}>
+                        <span style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 14px", background: "linear-gradient(135deg, #eef1f6, #e8ecf3)", borderRight: "1.5px solid #dce1e9", fontSize: "14px", fontWeight: "700", color: "#1a2b49", whiteSpace: "nowrap", flexShrink: 0, letterSpacing: "0.3px" }}>+91</span>
+                        <input type="tel" value={alternateMobileNumber} maxLength={10} onChange={(e) => { const v = e.target.value.replace(/\D/g, ""); setAlternateMobileNumber(v); if (v && !/^[6-9][0-9]{9}$/.test(v)) setAlternateMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")); else setAlternateMobileError(""); }} pattern="[6-9]{1}[0-9]{9}" title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")} style={{ flex: 1, height: "100%", border: "none", outline: "none", padding: "0 12px", fontSize: "14px", color: "#363636", backgroundColor: "transparent", fontFamily: "inherit" }} />
+                      </div>
+                      {alternateMobileError && (
+                        <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{alternateMobileError}</span>
+                      )}
+                    </div>
+
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_EMAIL_ID")}</label>
                       <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }} />
                       {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
                     </div>
 
-                    {/* Father / Husband Name */}
+                    {/* Row 3 — Gender · Relationship · Father/Husband Name */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "2px" }}>
+                        {genderOptions.map(opt => (
+                          <label key={opt.code} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 18px", border: gender?.code === opt.code ? "2px solid #1a2b49" : "1.5px solid #c0c8d4", borderRadius: "8px", cursor: "pointer", background: gender?.code === opt.code ? "#f0f4ff" : "#fff", fontSize: "13px", fontWeight: "600", color: gender?.code === opt.code ? "#1a2b49" : "#505a6e", transition: "all 0.15s", userSelect: "none", boxShadow: gender?.code === opt.code ? "0 0 0 3px rgba(26,43,73,0.1)" : "none" }}>
+                            <input type="radio" name="gender" value={opt.code} checked={gender?.code === opt.code} onChange={() => setGender(opt)} style={{ display: "none" }} />
+                            {gender?.code === opt.code && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2b49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                            {t(`PT_COMMON_GENDER_${opt.code}`)}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Row 3 — Gender · Relationship · Father/Husband Name */}
+                    <div style={col3}>
+                      <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
+                      <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "2px" }}>
+                        {GuardianOptions.map(opt => (
+                          <label key={opt.code} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 18px", border: relationship?.code === opt.code ? "2px solid #1a2b49" : "1.5px solid #c0c8d4", borderRadius: "8px", cursor: "pointer", background: relationship?.code === opt.code ? "#f0f4ff" : "#fff", fontSize: "13px", fontWeight: "600", color: relationship?.code === opt.code ? "#1a2b49" : "#505a6e", transition: "all 0.15s", userSelect: "none", boxShadow: relationship?.code === opt.code ? "0 0 0 3px rgba(26,43,73,0.1)" : "none" }}>
+                            <input type="radio" name="relationship" value={opt.code} checked={relationship?.code === opt.code} onChange={() => setRelationship(opt)} style={{ display: "none" }} />
+                            {relationship?.code === opt.code && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2b49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                            {t(opt.i18nKey)}
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_FATHER_HUSBAND_NAME") || "Father / Husband Name"}<span style={requiredMark}>*</span></label>
                       <TextInput type="text" value={fatherOrHusbandName} onChange={(e) => setFatherOrHusbandName(e.target.value)} pattern="^[a-zA-Z ]+$" title={t("PT_NAME_ERROR_MESSAGE")} />
-                    </div>
-
-                    {/* Alternate Mobile Number */}
-                    <div style={col3}>
-                      <label style={labelStyle}>{t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}</label>
-                      <MobileNumber
-                        value={alternateMobileNumber}
-                        name="alternateMobileNumber"
-                        onChange={(val) => {
-                          setAlternateMobileNumber(val);
-                          if (val && !/^[6-9][0-9]{9}$/.test(val)) {
-                            setAlternateMobileError(t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"));
-                          } else {
-                            setAlternateMobileError("");
-                          }
-                        }}
-                        pattern="[6-9]{1}[0-9]{9}"
-                        type="tel"
-                        title={t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")}
-                      />
-                      {alternateMobileError && (
-                        <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{alternateMobileError}</span>
-                      )}
-                    </div>
-
-                    {/* Gender */}
-                    <div style={col6}>
-                      <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
-                      <RadioButtons t={t} options={genderOptions} optionsKey="code" name="gender" selectedOption={gender} onSelect={setGender} isDependent={true} labelKey="PT_COMMON_GENDER" />
-                    </div>
-
-                    {/* Relationship */}
-                    <div style={col6}>
-                      <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
-                      <RadioButtons t={t} optionsKey="i18nKey" options={GuardianOptions} selectedOption={relationship} onSelect={setRelationship} isDependent={true} labelKey="PT_RELATION" />
                     </div>
                   </React.Fragment>
                 )}
@@ -770,14 +820,35 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                 {/* Special Owner Category */}
                 <div style={col12}>
                   <label style={labelStyle}>{t("PT_SPECIAL_OWNER_CATEGORY")}<span style={requiredMark}>*</span></label>
-                  <RadioButtons t={t} optionsKey="i18nKey" options={sortedOwnerTypes} selectedOption={ownerType} onSelect={setOwnerType} isDependent={true} labelKey="PROPERTYTAX_OWNERTYPE" />
+                  <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "2px" }}>
+                    {sortedOwnerTypes.map(opt => (
+                      <label key={opt.code} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 18px", border: ownerType?.code === opt.code ? "2px solid #1a2b49" : "1.5px solid #c0c8d4", borderRadius: "8px", cursor: "pointer", background: ownerType?.code === opt.code ? "#f0f4ff" : "#fff", fontSize: "13px", fontWeight: "600", color: ownerType?.code === opt.code ? "#1a2b49" : "#505a6e", transition: "all 0.15s", userSelect: "none", boxShadow: ownerType?.code === opt.code ? "0 0 0 3px rgba(26,43,73,0.1)" : "none" }}>
+                        <input type="radio" name="ownerType" value={opt.code} checked={ownerType?.code === opt.code} onChange={() => setOwnerType(opt)} style={{ display: "none" }} />
+                        {ownerType?.code === opt.code && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2b49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                        {t(`PROPERTYTAX_OWNERTYPE_${opt.code}`)}
+                      </label>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Owner Address */}
                 <div style={col12}>
                   <label style={labelStyle}>{t("PT_OWNERS_ADDRESS")}<span style={requiredMark}>*</span></label>
-                  <TextArea value={permanentAddress} onChange={(e) => setPermanentAddress(e.target.value)} />
-                  <CheckBox label={t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")} onChange={handleCorrespondenceAddress} value={isCorrespondenceAddress} checked={isCorrespondenceAddress || false} style={{ paddingTop: "10px" }} />
+                  <textarea
+                    value={permanentAddress}
+                    onChange={(e) => setPermanentAddress(e.target.value)}
+                    rows={3}
+                    style={{ display: "block", width: "100%", padding: "12px 14px", border: permanentAddress ? "1.5px solid #1a2b49" : "1.5px solid #b0b8c1", borderRadius: "10px", fontSize: "14px", color: "#363636", backgroundColor: "#fff", resize: "vertical", outline: "none", boxSizing: "border-box", fontFamily: "inherit", lineHeight: "1.6", transition: "border-color 0.2s, box-shadow 0.2s", boxShadow: permanentAddress ? "0 0 0 3px rgba(26,43,73,0.08)" : "none" }}
+                  />
+                  <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", marginTop: "12px", userSelect: "none" }}>
+                    <div
+                      onClick={() => handleCorrespondenceAddress({ target: { checked: !isCorrespondenceAddress } })}
+                      style={{ width: "20px", height: "20px", border: isCorrespondenceAddress ? "2px solid #1a2b49" : "2px solid #c0c8d4", borderRadius: "5px", background: isCorrespondenceAddress ? "#1a2b49" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s", flexShrink: 0, alignSelf: "center", boxShadow: isCorrespondenceAddress ? "0 0 0 3px rgba(26,43,73,0.12)" : "none" }}
+                    >
+                      {isCorrespondenceAddress && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
+                    </div>
+                    <span style={{ fontSize: "14px", fontWeight: "500", color: "#3d4f6b", lineHeight: "20px" }}>{t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}</span>
+                  </label>
                 </div>
 
               </div>
@@ -808,30 +879,39 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
                 {/* Special Category Proof – conditional */}
                 {needsSpecialProof && (
-                  <div style={col12}>
-                    <div style={{ background: "#f8f9fe", border: "1px solid #e4e8f0", borderRadius: "10px", padding: "16px" }}>
-                      <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-                        <div style={{ width: "28px", height: "28px", borderRadius: "6px", background: "#fff3ec", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                  <div style={col6}>
+                    <div style={{ background: "linear-gradient(135deg, #fff8f3 0%, #fff3ec 100%)", border: "1px solid #f5d5c0", borderRadius: "12px", padding: "18px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #f5d5c0" }}>
+                        <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "linear-gradient(135deg, #f47738, #e05a1a)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 6px rgba(244,119,56,0.3)" }}>
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                         </div>
-                        <label style={{ ...labelStyle, margin: 0, lineHeight: "1.2" }}>{t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}<span style={requiredMark}>*</span></label>
+                        <div style={{ fontSize: "14px", fontWeight: "700", color: "#c0511a" }}>{t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}<span style={requiredMark}>*</span></div>
                       </div>
-                      <div style={{ display: "flex", gap: "16px", alignItems: "center", width: "100%" }}>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <label style={{ ...labelStyle, fontWeight: "500", fontSize: "12px", color: "#5a6475" }}>{t("PT_CATEGORY_DOCUMENT_TYPE")}</label>
-                          <Dropdown t={t} isMandatory={false} option={specialProofOptions} selected={specialProofDocType} optionKey="i18nKey" select={setSpecialProofDocType} placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                        <div>
+                          <label style={labelStyle}>{t("PT_CATEGORY_DOCUMENT_TYPE")}</label>
+                          <select
+                            style={{ display: "block", width: "100%", height: "46px", padding: "0 40px 0 14px", border: specialProofDocType ? "1.5px solid #f47738" : "1.5px solid #c0c8d4", borderRadius: "10px", fontSize: "14px", color: specialProofDocType ? "#1a2b49" : "#8a97a8", backgroundColor: "#fff", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%231a2b49' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 13px center", backgroundSize: "13px", WebkitAppearance: "none", MozAppearance: "none", appearance: "none", cursor: "pointer", outline: "none", boxSizing: "border-box", fontFamily: "inherit", fontWeight: specialProofDocType ? "600" : "400" }}
+                            value={specialProofDocType?.code || ""}
+                            onChange={(e) => { const val = specialProofOptions.find(o => o.code === e.target.value) || null; setSpecialProofDocType(val); }}
+                          >
+                            <option value="" disabled hidden>{t("PT_MUTATION_SELECT_DOC_LABEL")}</option>
+                            {specialProofOptions.map(o => <option key={o.code} value={o.code}>{t(o.i18nKey)}</option>)}
+                          </select>
                         </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{ border: "2px dashed #c8d0dc", borderRadius: "10px", background: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
-                            <div style={{ display: "flex", alignItems: "center", gap: "5px", flexShrink: 0 }}>
-                              <span style={{ fontSize: "18px", lineHeight: 1 }}>📎</span>
-                              <span style={{ fontSize: "10px", color: "#8a97a8", whiteSpace: "nowrap" }}>JPG &middot; PNG &middot; PDF | Max 5MB</span>
+                        <div>
+                          <div role="button" tabIndex={0} onClick={() => document.getElementById("pt-special-proof-native").click()} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById("pt-special-proof-native").click(); }} style={{ border: specialProofFile ? "2px solid #4caf50" : "2px dashed #c0c8d4", borderRadius: "12px", background: specialProofFile ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", minHeight: "64px", boxSizing: "border-box" }}>
+                            <div style={{ width: "42px", height: "42px", borderRadius: "10px", flexShrink: 0, background: specialProofFile ? "linear-gradient(135deg, #43a047, #2e7d32)" : "linear-gradient(135deg, #ffe8d6, #fdd0b0)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                              {specialProofFile ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>}
                             </div>
                             <div style={{ flex: 1, minWidth: 0 }}>
-                              <UploadFile id="pt-special-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={(e) => setSpecialProofFile(e.target.files[0])} onDelete={() => { setSpecialProofUploadedId(null); setSpecialProofFile(null); }} message={specialProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={specialProofError} />
+                              <div style={{ fontSize: "13px", fontWeight: "600", color: specialProofFile ? "#2e7d32" : "#3d4f6b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{specialProofFile?.name || (specialProofUploadedId ? t("PT_ACTION_FILEUPLOADED") : t("PT_ACTION_NO_FILEUPLOADED"))}</div>
+                              <div style={{ fontSize: "11px", color: "#8a97a8", marginTop: "3px" }}>{specialProofFile?.size ? `${(specialProofFile.size / 1024).toFixed(1)} KB` : specialProofFile ? t("PT_ACTION_FILEUPLOADED") : "JPG · PNG · PDF · Max 5MB"}</div>
                             </div>
+                            {specialProofFile ? <button type="button" onClick={(e) => { e.stopPropagation(); setSpecialProofUploadedId(null); setSpecialProofFile(null); }} style={{ background: "rgba(229,77,66,0.1)", border: "1px solid rgba(229,77,66,0.3)", borderRadius: "6px", cursor: "pointer", color: "#e54d42", fontSize: "16px", fontWeight: "700", lineHeight: 1, padding: "4px 8px", flexShrink: 0 }}>×</button> : <div style={{ background: "linear-gradient(135deg, #f47738, #e05a1a)", color: "#fff", fontSize: "12px", fontWeight: "600", padding: "8px 16px", borderRadius: "8px", whiteSpace: "nowrap", flexShrink: 0 }}>Browse</div>}
+                            <input type="file" id="pt-special-proof-native" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }} onChange={(e) => { if (e.target.files?.[0]) { const f = e.target.files[0]; sessionStorage.setItem(`pt-sp-name-${index}`, f.name); sessionStorage.setItem(`pt-sp-size-${index}`, String(f.size)); setSpecialProofFile(f); } }} />
                           </div>
-                          {specialProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}><span>⚠</span> {specialProofError}</div>}
+                          {specialProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "5px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{specialProofError}</div>}
                         </div>
                       </div>
                     </div>
@@ -839,30 +919,39 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                 )}
 
                 {/* Identity Proof */}
-                <div style={col12}>
-                  <div style={{ background: "#f8f9fe", border: "1px solid #e4e8f0", borderRadius: "10px", padding: "16px" }}>
-                    <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-                      <div style={{ width: "28px", height: "28px", borderRadius: "6px", background: "#e8f4e8", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+                <div style={col6}>
+                  <div style={{ background: "linear-gradient(135deg, #f8f9fe 0%, #eef2fb 100%)", border: "1px solid #dde4f0", borderRadius: "12px", padding: "18px", boxShadow: "0 2px 8px rgba(26,43,73,0.06)" }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #dde4f0" }}>
+                      <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "linear-gradient(135deg, #1a2b49, #2d4a7a)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 6px rgba(26,43,73,0.25)" }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
                       </div>
-                      <label style={{ ...labelStyle, margin: 0, lineHeight: "1.2" }}>{t("PT_PROOF_IDENTITY_HEADER")}<span style={requiredMark}>*</span></label>
+                      <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49" }}>{t("PT_PROOF_IDENTITY_HEADER")}<span style={requiredMark}>*</span></div>
                     </div>
-                    <div style={{ display: "flex", gap: "16px", alignItems: "center", width: "100%" }}>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <label style={{ ...labelStyle, fontWeight: "500", fontSize: "12px", color: "#5a6475" }}>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span style={requiredMark}>*</span></label>
-                        <Dropdown t={t} isMandatory={false} option={identityProofOptions} selected={identityProofDocType} optionKey="i18nKey" select={setIdentityProofDocType} placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")} />
+                    <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                      <div>
+                        <label style={labelStyle}>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span style={requiredMark}>*</span></label>
+                        <select
+                          style={{ display: "block", width: "100%", height: "46px", padding: "0 40px 0 14px", border: identityProofDocType ? "1.5px solid #1a2b49" : "1.5px solid #b0b8c1", borderRadius: "10px", fontSize: "14px", color: identityProofDocType ? "#1a2b49" : "#8a97a8", backgroundColor: identityProofDocType ? "#fff" : "#f9fafc", backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%231a2b49' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")", backgroundRepeat: "no-repeat", backgroundPosition: "right 13px center", backgroundSize: "13px", WebkitAppearance: "none", MozAppearance: "none", appearance: "none", cursor: "pointer", outline: "none", boxSizing: "border-box", fontFamily: "inherit", fontWeight: identityProofDocType ? "600" : "400", boxShadow: identityProofDocType ? "0 0 0 3px rgba(26,43,73,0.08)" : "none", transition: "border-color 0.2s, box-shadow 0.2s" }}
+                          value={identityProofDocType?.code || ""}
+                          onChange={(e) => { const val = identityProofOptions.find(o => o.code === e.target.value) || null; setIdentityProofDocType(val); }}
+                        >
+                          <option value="" disabled hidden>{t("PT_MUTATION_SELECT_DOC_LABEL")}</option>
+                          {identityProofOptions.map(o => <option key={o.code} value={o.code}>{t(o.i18nKey)}</option>)}
+                        </select>
                       </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ border: "2px dashed #c8d0dc", borderRadius: "10px", background: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
-                          <div style={{ display: "flex", alignItems: "center", gap: "5px", flexShrink: 0 }}>
-                            <span style={{ fontSize: "18px", lineHeight: 1 }}>📎</span>
-                            <span style={{ fontSize: "10px", color: "#8a97a8", whiteSpace: "nowrap" }}>JPG &middot; PNG &middot; PDF | Max 5MB</span>
+                      <div>
+                        <div role="button" tabIndex={0} onClick={() => document.getElementById("pt-identity-proof-native").click()} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById("pt-identity-proof-native").click(); }} style={{ border: identityProofFile ? "2px solid #4caf50" : "2px dashed #b0b8c1", borderRadius: "12px", background: identityProofFile ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", minHeight: "64px", boxSizing: "border-box" }}>
+                          <div style={{ width: "42px", height: "42px", borderRadius: "10px", flexShrink: 0, background: identityProofFile ? "linear-gradient(135deg, #43a047, #2e7d32)" : "linear-gradient(135deg, #e8edf5, #cfd7e8)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: identityProofFile ? "0 2px 6px rgba(46,125,50,0.3)" : "none" }}>
+                            {identityProofFile ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#505a6e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>}
                           </div>
                           <div style={{ flex: 1, minWidth: 0 }}>
-                            <UploadFile id="pt-identity-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={(e) => setIdentityProofFile(e.target.files[0])} onDelete={() => { setIdentityProofUploadedId(null); setIdentityProofFile(null); }} message={identityProofFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={identityProofError} />
+                            <div style={{ fontSize: "13px", fontWeight: "600", color: identityProofFile ? "#2e7d32" : "#3d4f6b", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{identityProofFile?.name || (identityProofUploadedId ? t("PT_ACTION_FILEUPLOADED") : t("PT_ACTION_NO_FILEUPLOADED"))}</div>
+                            <div style={{ fontSize: "11px", color: "#8a97a8", marginTop: "3px" }}>{identityProofFile?.size ? `${(identityProofFile.size / 1024).toFixed(1)} KB` : identityProofFile ? t("PT_ACTION_FILEUPLOADED") : "JPG · PNG · PDF · Max 5MB"}</div>
                           </div>
+                          {identityProofFile ? <button type="button" onClick={(e) => { e.stopPropagation(); setIdentityProofUploadedId(null); setIdentityProofFile(null); }} style={{ background: "rgba(229,77,66,0.1)", border: "1px solid rgba(229,77,66,0.3)", borderRadius: "6px", cursor: "pointer", color: "#e54d42", fontSize: "16px", fontWeight: "700", lineHeight: 1, padding: "4px 8px", flexShrink: 0 }}>×</button> : <div style={{ background: "linear-gradient(135deg, #1a2b49 0%, #2d4a7a 100%)", color: "#fff", fontSize: "12px", fontWeight: "600", padding: "8px 16px", borderRadius: "8px", whiteSpace: "nowrap", flexShrink: 0, boxShadow: "0 2px 6px rgba(26,43,73,0.3)" }}>Browse</div>}
+                          <input type="file" id="pt-identity-proof-native" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }} onChange={(e) => { if (e.target.files?.[0]) { const f = e.target.files[0]; sessionStorage.setItem(`pt-id-name-${index}`, f.name); sessionStorage.setItem(`pt-id-size-${index}`, String(f.size)); setIdentityProofFile(f); } }} />
                         </div>
-                        {identityProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "6px", display: "flex", alignItems: "center", gap: "4px" }}><span>⚠</span> {identityProofError}</div>}
+                        {identityProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "5px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{identityProofError}</div>}
                       </div>
                     </div>
                   </div>
@@ -871,6 +960,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
               </div>
             </div>
 
+            </div>
           </FormStep>
         );
       })()}
