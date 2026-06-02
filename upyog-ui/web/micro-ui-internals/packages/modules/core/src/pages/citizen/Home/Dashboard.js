@@ -1331,7 +1331,7 @@ export default function Dashboard() {
 }
 
 const insightStats = [
-  { value: "280+", label: "URBAN_LOCAL_BODIES", icon: null },
+  { value: "194", label: "URBAN_LOCAL_BODIES", icon: null },
   { value: "15+",  label: "CITIZEN_SERVICES",   icon: null },
   { value: "50K+", label: "APPLICATIONS",       icon: null },
   { value: "1L+",  label: "REGISTERED_CITIZENS",icon: null },
@@ -2009,12 +2009,12 @@ function QuickLinksSection({ isMobile }) {
 
 
 const faqItems = [
-  { q: "FAQ_Q1", fallback: "What is UAD ?" },
-  { q: "FAQ_Q2", fallback: "How can citizens apply for schemes/services?" },
-  { q: "FAQ_Q3", fallback: "Are the services available online?" },
-  { q: "FAQ_Q4", fallback: "How can I check my application or scheme status?" },
-  { q: "FAQ_Q5", fallback: "What documents are required for registration?" },
-  { q: "FAQ_Q6", fallback: "How do I raise a grievance on the portal?" },
+  { q: "FAQ_Q1" },
+  { q: "FAQ_Q2" },
+  { q: "FAQ_Q3" },
+  { q: "FAQ_Q4" },
+  { q: "FAQ_Q5" },
+  { q: "FAQ_Q6" },
 ];
 
 function FaqSection({ isMobile }) {
@@ -2042,13 +2042,13 @@ function FaqSection({ isMobile }) {
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 12 }}>
           <span style={{ fontSize: 13.5, color: "#333", fontWeight: 500 }}>
-            {t(item.q) !== item.q ? t(item.q) : item.fallback}
+            {t(item.q)}
           </span>
           <span style={{ fontSize: 16, color: "#888", flexShrink: 0, transform: isOpen ? "rotate(180deg)" : "none", transition: "transform 0.2s" }}>▾</span>
         </div>
         {isOpen && (
           <p style={{ margin: "10px 0 0", fontSize: 13, color: "#555", lineHeight: 1.6 }}>
-            {t(item.q + "_ANS") !== item.q + "_ANS" ? t(item.q + "_ANS") : "Information will be updated soon."}
+            {t(item.q + "_ANS")}
           </p>
         )}
       </div>
@@ -2082,7 +2082,7 @@ function FaqSection({ isMobile }) {
       />
 
       <h3 style={{ fontSize: "clamp(18px, 2.2vw, 24px)", fontWeight: 700, color: "#222", marginBottom: 28, marginTop: 0, textAlign: "center" }}>
-        {t("FAQ_HEADING") !== "FAQ_HEADING" ? t("FAQ_HEADING") : "Frequently Asked Questions"}
+        {t("FAQ_HEADING")}
       </h3>
 
       <div
