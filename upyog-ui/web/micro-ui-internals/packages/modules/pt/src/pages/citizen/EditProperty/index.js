@@ -49,17 +49,37 @@ const getPropertyEditDetails = (inputData = {}) => {
   } else {
     data.owners.map((owner, idx) => {
       let document = {};
-      owner.documents &&
-        owner.documents.map((doc) => {
-          if (doc?.documentType && typeof doc?.documentType == "string" && doc?.documentType?.includes("SPECIALCATEGORYPROOF")) {
-            doc.documentType = { code: doc?.documentType, i18nKey: stringReplaceAll(doc?.documentType, ".", "_") };
-            document["specialProofIdentity"] = doc;
+
+      console.log(`[EditProperty] owner[${idx}].documents (owner-level):`, owner.documents);
+      console.log(`[EditProperty] data.documents (property-level):`, data.documents);
+
+      // 1. Try owner-level documents array (populated on edit/update)
+      if (Array.isArray(owner.documents)) {
+        owner.documents.forEach((doc) => {
+          const dt = typeof doc?.documentType === "string" ? doc.documentType : doc?.documentType?.code || "";
+          if (dt.includes("SPECIALCATEGORYPROOF")) {
+            document["specialProofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
           }
-          if (doc?.documentType && typeof doc?.documentType == "string" && doc?.documentType?.includes("IDENTITYPROOF")) {
-            doc.documentType = { code: doc?.documentType, i18nKey: stringReplaceAll(doc?.documentType, ".", "_") };
-            document["proofIdentity"] = doc;
+          if (dt.includes("IDENTITYPROOF")) {
+            document["proofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
           }
         });
+      }
+
+      // 2. Fallback: property-level documents array (populated on create)
+      if (!document["proofIdentity"] || !document["specialProofIdentity"]) {
+        const propDocs = Array.isArray(data.documents) ? data.documents : [];
+        propDocs.forEach((doc) => {
+          const dt = typeof doc?.documentType === "string" ? doc.documentType : doc?.documentType?.code || "";
+          if (dt.includes("SPECIALCATEGORYPROOF") && !document["specialProofIdentity"]) {
+            document["specialProofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
+          }
+          if (dt.includes("IDENTITYPROOF") && !document["proofIdentity"]) {
+            document["proofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
+          }
+        });
+      }
+
       owner.emailId = owner?.emailId;
       owner.fatherOrHusbandName = owner?.fatherOrHusbandName;
       owner.isCorrespondenceAddress = (owner?.isCorrespondenceAddress != null)
