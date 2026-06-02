@@ -525,7 +525,9 @@ const EmployeeHome = ({ modules }) => {
     },
   });
 
-  const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
+  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan
+  // const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
+  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS"].includes(code));
   const heroModules = visibleModules.slice(0, 4);
 
   return (
