@@ -63,7 +63,11 @@ const PTCard = () => {
         link: `/suda-ui/employee/pt/inbox`,
       }
     ],
-    links:links.filter(link=>!link?.role||PT_CEMP),
+    links: links.filter(link => {
+      if (!link?.role) return true;
+      if (link.role === "PT_CEMP") return PT_CEMP;
+      return true;
+    }),
   };
 
   return <EmployeeModuleCard {...propsForModuleCard} />;

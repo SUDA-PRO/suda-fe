@@ -1,224 +1,191 @@
-import React, { useCallback, useMemo, useEffect,useState } from "react"
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { TextInput, SubmitBar, LinkLabel, ActionBar, CloseSvg, DatePicker, CardLabelError, SearchForm, SearchField, Dropdown, Table, Card, MobileNumber, Loader, CardText, Header } from "@upyog/digit-ui-react-components";
-import { Link } from "react-router-dom";
-import MobileSearchApplication from "./MobileSearchApplication";
+import { Header, SearchForm, SearchField, Dropdown, SubmitBar, Loader, Card } from "@upyog/digit-ui-react-components";
 
-const UlbAssesmentSearch = ({tenantId, isLoading, t, onSubmit, data, count, setShowToast, financialYearsData }) => {
-    const isMobile = window.Digit.Utils.browser.isMobile();
-    const [financialYears, setFinancialYears] = useState([]);
-    const { register, control, handleSubmit, setValue, getValues, reset, formState } = useForm({
-        defaultValues: {
-            offset: 0,
-            limit: !isMobile && 10,
-            sortBy: "commencementDate",
-            sortOrder: "DESC"
-        }
-    })
-    useEffect(() => {
-      register("offset", 0)
-      register("limit", 10)
-      register("sortBy", "commencementDate")
-      register("sortOrder", "DESC")
-    },[register])
+const modeButtonStyle = (active) => ({
+  padding: "8px 24px",
+  borderRadius: "4px",
+  border: "2px solid #F47738",
+  background: active ? "#F47738" : "#fff",
+  color: active ? "#fff" : "#F47738",
+  cursor: "pointer",
+  fontWeight: 600,
+  fontSize: "14px",
+});
 
-    useEffect(() => {
-        if (financialYearsData && financialYearsData["egf-master"]) {
-          setFinancialYears(financialYearsData["egf-master"]?.["FinancialYear"]);
-        }
-      }, [financialYearsData]);
-    //need to get from workflow
-    const tenantType = [
-        {
-            code: "pg.citya",
-            i18nKey: "City A"
-        },
-        {
-            code: "pg.cityb",
-            i18nKey: "City B"
-        },
-        {
-            code: "pg.cityc",
-            i18nKey: "City C"
-        },
-    ]
-    const financialYearDropdown = financialYears?.map((year) =>{
-        return {code:year.code ,i18nKey:year.name}
-    })
-    const getaddress = (address) => {
-        let newaddr = `${address?.doorNo ? `${address?.doorNo}, ` : ""} ${address?.street ? `${address?.street}, ` : ""}${
-            address?.landmark ? `${address?.landmark}, ` : ""
-          }${t(address?.locality.code)}, ${t(address?.city)},${t(address?.pincode) ? `${address.pincode}` : " "}`
-        return newaddr;
+const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }) => {
+  const stateId = Digit.ULBService.getStateId();
+
+  const [assessmentMode, setAssessmentMode] = useState("ULB");
+  const [selectedTenantCode, setSelectedTenantCode] = useState(null);
+
+  const { control, handleSubmit, setValue, watch, reset } = useForm({
+    defaultValues: { tenant: null, ward: null, financialYear: null },
+  });
+
+  const watchedTenant = watch("tenant");
+
+  useEffect(() => {
+    setSelectedTenantCode(watchedTenant?.code || null);
+    setValue("ward", null);
+  }, [watchedTenant]);
+
+  // Tenants list from PT session data
+  const tenants = Digit.Hooks.pt.useTenants();
+  const tenantOptions =
+    tenants
+      ?.filter((tn) => tn.code !== stateId)
+      ?.map((tn) => ({ code: tn.code, i18nKey: tn.city?.name || tn.code })) || [];
+
+  // Financial Years from MDMS (PT module)
+  const { data: fyMDMS } = Digit.Hooks.useCustomMDMS(stateId, "egf-master", [
+    { name: "FinancialYear", filter: "[?(@.module == 'PT')]" },
+  ]);
+  const financialYearOptions =
+    fyMDMS?.["egf-master"]?.FinancialYear?.map((fy) => ({ code: fy.code, i18nKey: fy.code })) || [];
+
+  // Ward/Locality list from boundary MDMS for the selected tenant
+  const { data: boundaryData, isLoading: boundaryLoading } = Digit.Hooks.useCustomMDMS(
+    selectedTenantCode || stateId,
+    "egov-location",
+    [{ name: "TenantBoundary" }],
+    { enabled: !!selectedTenantCode }
+  );
+  const wardOptions =
+    boundaryData?.["egov-location"]?.TenantBoundary?.[0]?.boundary?.children?.map((w) => ({
+      code: w.code,
+      i18nKey: w.name,
+    })) || [];
+
+  function handleFormSubmit(data) {
+    if (!data.tenant || !data.financialYear) {
+      setShowToast({ key: "warning", label: "PT_BULK_DEMAND_FILL_REQUIRED_FIELDS" });
+      return;
     }
-    const GetCell = (value) => <span className="cell-text">{value}</span>;
-    const columns = useMemo( () => ([
-        {
-            Header: t("PT_SEARCHPROPERTY_TABEL_PID"),
-            disableSortBy: true,
-            accessor: (row) => GetCell(row.propertyId || ""),
-        },
-        {
-            Header: t("PT_APPLICATION_NO_LABEL"),
-            accessor: "acknowldgementNumber",
-            disableSortBy: true,
-            Cell: ({ row }) => {
-              return (
-                <div>
-                  <span className="link">
-                    <Link to={`/suda-ui/employee/pt/applicationsearch/application-details/${row.original["propertyId"]}`}>
-                      {row.original["acknowldgementNumber"]}
-                    </Link>
-                  </span>
-                </div>
-              );
-            },
-          },
-          {
-            Header: t("PT_SEARCHPROPERTY_TABEL_APPLICATIONTYPE"),
-            disableSortBy: true,
-            accessor: (row) => GetCell(row.creationReason || ""),
-          },
-          {
-            Header: t("PT_COMMON_TABLE_COL_OWNER_NAME"),
-            accessor: (row) => GetCell(row.owners.map( o => o.name ). join(",") || ""),
-            disableSortBy: true,
-          },
-          {
-            Header: t("ES_SEARCH_PROPERTY_STATUS"),
-            accessor: (row) =>GetCell(t( row?.status &&`WF_PT_${row.status}`|| "NA") ),
-            disableSortBy: true,
-          },
-          {
-            Header: t("PT_ADDRESS_LABEL"),
-            disableSortBy: true,
-            accessor: (row) => GetCell(getaddress(row.address) || ""),
-          },
-      ]), [] )
-
-    const onSort = useCallback((args) => {
-        if (args.length === 0) return
-        setValue("sortBy", args.id)
-        setValue("sortOrder", args.desc ? "DESC" : "ASC")
-    }, [])
-
-    function onPageSizeChange(e){
-        setValue("limit",Number(e.target.value))
-        handleSubmit(onSubmit)()
+    if (assessmentMode === "WARD" && !data.ward) {
+      setShowToast({ key: "warning", label: "PT_BULK_DEMAND_SELECT_WARD" });
+      return;
     }
+    const payload = {
+      tenantId: data.tenant.code,
+      assessmentYear: data.financialYear.code,
+      ...(assessmentMode === "WARD" && data.ward ? { locality: [data.ward.code] } : {}),
+    };
+    onSubmit(payload);
+  }
 
-    function nextPage () {
-        setValue("offset", getValues("offset") + getValues("limit"))
-        handleSubmit(onSubmit)()
-    }
-    function previousPage () {
-        setValue("offset", getValues("offset") - getValues("limit") )
-        handleSubmit(onSubmit)()
-    }
-    let validation={}
+  function handleReset() {
+    reset({ tenant: null, ward: null, financialYear: null });
+    setSelectedTenantCode(null);
+    setAssessmentMode("ULB");
+  }
 
-    return <React.Fragment>
-                {isMobile ?
-                <MobileSearchApplication {...{ Controller, register, control, t, reset, previousPage, handleSubmit, tenantId, data, onSubmit, formState, setShowToast }}/>
-                 :
-                <div>
-                <Header>{t("PT_CREATE_ULB_ASSESSMENT")}</Header>
-                <SearchForm onSubmit={onSubmit} handleSubmit={handleSubmit}>
+  return (
+    <React.Fragment>
+      <Header>{t("PT_CREATE_BULK_DEMAND")}</Header>
 
-                <SearchField>
-                    <label>{t("PT_SEARCH_TENANT_ID")}</label>
-                    <Controller
-                            control={control}
-                            name="creationReason"
-                            render={(props) => (
-                                <Dropdown
-                                selected={props.value}
-                                select={props.onChange}
-                                onBlur={props.onBlur}
-                                option={tenantType}
-                                optionKey="i18nKey"
-                                t={t}
-                                disable={false}
-                                />
-                            )}
-                            />
-                </SearchField>
-                <SearchField>
-                    <label>{t("ES_SEARCH_FINANCIAL_YEAR")}</label>
-                    <Controller
-                            control={control}
-                            name="status"
-                            render={(props) => (
-                                <Dropdown
-                                selected={props.value}
-                                select={props.onChange}
-                                onBlur={props.onBlur}
-                                option={financialYearDropdown}
-                                optionKey="i18nKey"
-                                t={t}
-                                disable={false}
-                                />
-                            )}
-                            />
-                </SearchField>
-                <SearchField className="submit">
-                    <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
-                    <p style={{marginTop:"10px"}}
-                     onClick={() => {
-                        reset({ 
-                            acknowledgementIds: "", 
-                            fromDate: "", 
-                            toDate: "",
-                            propertyIds: "",
-                            mobileNumber:"",
-                            status: "",
-                            creationReason: "",
-                            offset: 0,
-                            limit: 10,
-                            sortBy: "commencementDate",
-                            sortOrder: "DESC"
-                        });
-                        setShowToast(null);
-                        previousPage();
-                    }}>{t(`ES_COMMON_CLEAR_ALL`)}</p>
-                </SearchField>
-            </SearchForm>
-            {!isLoading && data?.display ? <Card style={{ marginTop: 20 }}>
-                {
-                t(data.display)
-                    .split("\\n")
-                    .map((text, index) => (
-                    <p key={index} style={{ textAlign: "center" }}>
-                        {text}
-                    </p>
-                    ))
-                }
-            </Card>
-            :(!isLoading && data !== ""? <Table
+      {/* Mode toggle */}
+      <div style={{ display: "flex", gap: "12px", margin: "16px 0 24px 8px" }}>
+        <button type="button" style={modeButtonStyle(assessmentMode === "ULB")}
+          onClick={() => { setAssessmentMode("ULB"); setValue("ward", null); }}>
+          {t("PT_BULK_MODE_ULB_WISE")}
+        </button>
+        <button type="button" style={modeButtonStyle(assessmentMode === "WARD")}
+          onClick={() => setAssessmentMode("WARD")}>
+          {t("PT_BULK_MODE_WARD_WISE")}
+        </button>
+      </div>
+
+      <SearchForm onSubmit={handleSubmit(handleFormSubmit)} handleSubmit={handleSubmit}>
+        {/* ULB Dropdown */}
+        <SearchField>
+          <label>{t("PT_BULK_DEMAND_SELECT_ULB")} *</label>
+          <Controller
+            control={control}
+            name="tenant"
+            render={(props) => (
+              <Dropdown
+                selected={props.value}
+                select={props.onChange}
+                onBlur={props.onBlur}
+                option={tenantOptions}
+                optionKey="i18nKey"
                 t={t}
-                data={data}
-                totalRecords={count}
-                columns={columns}
-                getCellProps={(cellInfo) => {
-                return {
-                    style: {
-                    minWidth: cellInfo.column.Header === t("ES_INBOX_APPLICATION_NO") ? "240px" : "",
-                    padding: "20px 18px",
-                    fontSize: "16px"
-                  },
-                };
-                }}
-                onPageSizeChange={onPageSizeChange}
-                currentPage={getValues("offset")/getValues("limit")}
-                onNextPage={nextPage}
-                onPrevPage={previousPage}
-                pageSizeLimit={getValues("limit")}
-                onSort={onSort}
-                disableSort={false}
-                sortParams={[{id: getValues("sortBy"), desc: getValues("sortOrder") === "DESC" ? true : false}]}
-            />: data !== "" || isLoading && <Loader/>)}
-            </div>}
-        </React.Fragment>
-}
+              />
+            )}
+          />
+        </SearchField>
 
-export default UlbAssesmentSearch
+        {/* Ward Dropdown — only in WARD mode */}
+        {assessmentMode === "WARD" && (
+          <SearchField>
+            <label>{t("PT_BULK_DEMAND_SELECT_WARD")} *</label>
+            <Controller
+              control={control}
+              name="ward"
+              render={(props) =>
+                boundaryLoading ? (
+                  <Loader />
+                ) : (
+                  <Dropdown
+                    selected={props.value}
+                    select={props.onChange}
+                    onBlur={props.onBlur}
+                    option={wardOptions}
+                    optionKey="i18nKey"
+                    t={t}
+                    disable={!selectedTenantCode || wardOptions.length === 0}
+                  />
+                )
+              }
+            />
+          </SearchField>
+        )}
+
+        {/* Financial Year Dropdown */}
+        <SearchField>
+          <label>{t("PT_BULK_DEMAND_SELECT_FY")} *</label>
+          <Controller
+            control={control}
+            name="financialYear"
+            render={(props) => (
+              <Dropdown
+                selected={props.value}
+                select={props.onChange}
+                onBlur={props.onBlur}
+                option={financialYearOptions}
+                optionKey="i18nKey"
+                t={t}
+              />
+            )}
+          />
+        </SearchField>
+
+        <SearchField className="submit">
+          <SubmitBar label={t("PT_GENERATE_DEMAND")} submit disabled={isLoading} />
+          <p style={{ marginTop: "10px", cursor: "pointer" }} onClick={handleReset}>
+            {t("ES_COMMON_CLEAR_ALL")}
+          </p>
+        </SearchField>
+      </SearchForm>
+
+      {/* Result summary after generation */}
+      {resultInfo && (
+        <Card style={{ marginTop: 20 }}>
+          <p style={{ textAlign: "center", fontSize: "16px", fontWeight: 600 }}>
+            {t("PT_BULK_DEMAND_RESULT_SUCCESS")}: {resultInfo.count} {t("PT_BULK_DEMAND_PROPERTIES_ASSESSED")}
+          </p>
+          {resultInfo.failed > 0 && (
+            <p style={{ textAlign: "center", color: "#d4351c" }}>
+              {t("PT_BULK_DEMAND_RESULT_FAILED")}: {resultInfo.failed}
+            </p>
+          )}
+        </Card>
+      )}
+
+      {isLoading && <Loader />}
+    </React.Fragment>
+  );
+};
+
+export default UlbAssesmentSearch;

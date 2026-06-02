@@ -336,7 +336,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
 
 /* ── Per-module config: name, colour, icon, services, links ── */
 const MODULE_CONFIG = {
-  PT:       { name: "Property Tax",    color: "#e65c00", icon: "🏠", moduleCode: "PT",       services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"],       links: [{ label: "Inbox",          url: "/suda-ui/employee/pt/inbox" },       { label: "New Property",   url: "/suda-ui/employee/pt/new-application" }, { label: "Search",         url: "/suda-ui/employee/pt/search" }] },
+  PT:       { name: "Property Tax",    color: "#e65c00", icon: "🏠", moduleCode: "PT",       services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"],       links: [{ label: "Inbox",          url: "/suda-ui/employee/pt/inbox" },       { label: "New Property",   url: "/suda-ui/employee/pt/new-application" }, { label: "Bulk Demand",    url: "/suda-ui/employee/pt/Ulb-assesment", icon: "📊" }, { label: "Search",         url: "/suda-ui/employee/pt/search", icon: "🔍" }] },
   WS:       { name: "Water & Sewerage",color: "#0066cc", icon: "💧", moduleCode: "WS",       services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/ws/inbox" },       { label: "Apply Connection",url: "/suda-ui/employee/ws/new-application" }, { label: "Search",         url: "/suda-ui/employee/ws/search" }] },
   TL:       { name: "Trade License",   color: "#00875a", icon: "📋", moduleCode: "TL",       services: ["TL", "EDITRENEWAL", "DIRECTRENEWAL"],             links: [{ label: "Inbox",          url: "/suda-ui/employee/tradelicense/inbox" }, { label: "New License",    url: "/suda-ui/employee/tradelicense/new-application" }, { label: "Search",  url: "/suda-ui/employee/tradelicense/search" }] },
   PGR:      { name: "Grievances",      color: "#7B61FF", icon: "📣", moduleCode: "PGR",      services: ["PGR"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/pgr/inbox" },       { label: "Register Complaint",url: "/suda-ui/employee/pgr/create" },        { label: "Search",         url: "/suda-ui/employee/pgr/search" }] },
@@ -421,7 +421,7 @@ const CustomModuleCard = ({ code }) => {
             textDecoration: "none",
             border: i === 0 ? `1px solid ${accent}30` : "1px solid #edf0f5",
           }}>
-            <span style={{ fontSize: "13px", lineHeight: 1 }}>{linkIcons[i] || "→"}</span>
+            <span style={{ fontSize: "13px", lineHeight: 1 }}>{lnk.icon || linkIcons[i] || "→"}</span>
             {lnk.label}
           </a>
         ))}
