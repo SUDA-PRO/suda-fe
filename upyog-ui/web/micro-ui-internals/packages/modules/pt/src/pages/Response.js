@@ -98,15 +98,43 @@ const Response = (props) => {
 
   const handleDownloadPdf = async () => {
     const { Properties = [] } = mutation.data || successData;
-    const Property = (Properties && Properties[0]) || {};
+    const baseProperty = (Properties && Properties[0]) || {};
+    const searchTenantId = baseProperty?.tenantId || tenantId;
+    const preferNonEmpty = (primary = {}, secondary = {}) => {
+      const merged = { ...secondary };
+      Object.keys(primary || {}).forEach((key) => {
+        const v = primary[key];
+        if (v !== undefined && v !== null && v !== "") merged[key] = v;
+      });
+      return merged;
+    };
+
+    // Fetch full property payload so acknowledgement PDF has complete field data.
+    const activePropertySearch = await Digit.PTService.search({ tenantId: searchTenantId, filters: { propertyIds: baseProperty?.propertyId } });
+    const activeProperty = activePropertySearch?.Properties?.find((p) => p?.status === "ACTIVE") || activePropertySearch?.Properties?.[0] || {};
+    const ownersCount = Math.max(activeProperty?.owners?.length || 0, baseProperty?.owners?.length || 0);
+    const mergedOwners = Array.from({ length: ownersCount }, (_, index) =>
+      preferNonEmpty(baseProperty?.owners?.[index] || {}, activeProperty?.owners?.[index] || {})
+    ).filter((o) => Object.keys(o || {}).length > 0);
+
+    const mergedInstitution = preferNonEmpty(baseProperty?.institution || {}, activeProperty?.institution || {});
+
+    const Property = {
+      ...preferNonEmpty(baseProperty || {}, activeProperty || {}),
+      additionalDetails: preferNonEmpty(baseProperty?.additionalDetails || {}, activeProperty?.additionalDetails || {}),
+      units: (activeProperty?.units && activeProperty?.units.length > 0 ? activeProperty?.units : baseProperty?.units) || [],
+      owners: mergedOwners.length > 0 ? mergedOwners : baseProperty?.owners || activeProperty?.owners || [],
+      institution: mergedInstitution,
+    };
+
+    if (Property?.creationReason === "MUTATION") {
+      const inactivePropertySearch = await Digit.PTService.search({ tenantId: searchTenantId, filters: { propertyIds: Property?.propertyId, status: "INACTIVE" } });
+      Property.transferorDetails = inactivePropertySearch?.Properties?.[0] || [];
+      Property.isTransferor = true;
+      Property.transferorOwnershipCategory = inactivePropertySearch?.Properties?.[0]?.ownershipCategory;
+    }
+
     const tenantInfo = tenants.find((tenant) => tenant.code === Property.tenantId);
-    
-    let tenantId = Property.tenantId || tenantId;
-    const propertyDetails = await Digit.PTService.search({ tenantId, filters: { propertyIds: Property?.propertyId, status: "INACTIVE" } });
-    Property.transferorDetails = propertyDetails?.Properties?.[0] || [];
-    Property.isTransferor = true;
-    Property.transferorOwnershipCategory = propertyDetails?.Properties?.[0]?.ownershipCategory
-    
     const data = await getPTAcknowledgementData({ ...Property, auditData }, tenantInfo, t);
     Digit.Utils.pdf.generate(data);
   };

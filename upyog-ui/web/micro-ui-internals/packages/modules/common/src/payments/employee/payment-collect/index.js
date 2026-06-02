@@ -271,7 +271,10 @@ export const CollectPayment = (props) => {
             validation: {
               required: true,
               pattern: /^[6-9]\d{9}$/,
+              minLength: 10,
+              maxLength: 10,
             },
+            maxlength: 10,
             error: t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"),
             className: "payment-form-text-input-correction",
           },
