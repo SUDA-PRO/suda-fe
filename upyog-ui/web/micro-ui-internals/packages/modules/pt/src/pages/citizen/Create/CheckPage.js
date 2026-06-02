@@ -75,6 +75,11 @@ const CheckPage = ({ onSubmit, value = {} }) => {
   const setdeclarationhandler = () => {
     setAgree(!agree);
   };
+
+  const ownershipCode = ownershipCategory?.code || ownershipCategory?.value || ownershipCategory;
+  const ownershipLabelKey = ownershipCode ? `PT_OWNERSHIP_${String(ownershipCode).split(".").pop()}` : null;
+  const isInstitutional = ownershipCode === "INSTITUTIONALPRIVATE" || ownershipCode === "INSTITUTIONALGOVERNMENT";
+
   return (
     <React.Fragment>
      {window.location.href.includes("/citizen") ? <Timeline currentStep={4}/> : null}
@@ -101,7 +106,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
         <StatusTable>
           <Row
             label={t("PT_FORM3_OWNERSHIP_TYPE")}
-            text={t(checkForNA(`PT_OWNERSHIP_${ownershipCategory?.code}`))}
+            text={ownershipLabelKey ? t(ownershipLabelKey) : t("CS_NA")}
             actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-ship-details@0`} />}
           />
         </StatusTable>
@@ -115,7 +120,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                     {t("PT_OWNER_SUB_HEADER")} - {index + 1}
                   </CardSubHeader>
                 )}
-                {ownershipCategory?.value == "INSTITUTIONALPRIVATE" || ownershipCategory?.value == "INSTITUTIONALGOVERNMENT" ? (
+                {isInstitutional ? (
                   <div>
                     <StatusTable>
                       <Row
