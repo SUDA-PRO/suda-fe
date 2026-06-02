@@ -133,22 +133,24 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     { name: "Father", code: "FATHER", i18nKey: "PT_RELATION_FATHER" },
   ];
 
+  const ownershipCategoryCode = ownershipCategory?.value || ownershipCategory?.code || ownershipCategory;
+
   /* ─── Institutional flag & type options ─── */
   const isInstitutional =
-    ownershipCategory?.value === "INSTITUTIONALPRIVATE" ||
-    ownershipCategory?.value === "INSTITUTIONALGOVERNMENT";
+    ownershipCategoryCode === "INSTITUTIONALPRIVATE" ||
+    ownershipCategoryCode === "INSTITUTIONALGOVERNMENT";
 
   const institutionTypeOptions = React.useMemo(() => {
-    if (!ownershipCategory?.value || !SubOwnerShipCategoryOb) return [];
+    if (!ownershipCategoryCode || !SubOwnerShipCategoryOb) return [];
     return SubOwnerShipCategoryOb
-      .filter((c) => c.active && c.ownerShipCategory === ownershipCategory.value)
+      .filter((c) => c.active && c.ownerShipCategory === ownershipCategoryCode)
       .map((c) => ({
         label: c.name,
         value: c.code,
         code: c.code,
         i18nKey: `PROPERTYTAX_BILLING_SLAB_${c.code}`,
       }));
-  }, [SubOwnerShipCategoryOb, ownershipCategory?.value]);
+  }, [SubOwnerShipCategoryOb, ownershipCategoryCode]);
 
   const validateEmail = (value) => {
     if (!value) { setEmailError(""); return; }
@@ -360,7 +362,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         inistitutetype: institutionType,
         name,
         designation,
-        altContactNumber: landlineNumber || undefined,
+        altContactNumber: landlineNumber || mobileNumber || undefined,
         alternatemobilenumber: institutionAltMobile || undefined,
         mobileNumber,
         emailId: email,
@@ -390,7 +392,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   }
 
   const goNext = () => {
-    sessionStorage.setItem("ownershipCategory", ownershipCategory?.value);
+    sessionStorage.setItem("ownershipCategory", ownershipCategoryCode);
     onSelect("allOwnerDetails", {
       ownershipCategory,
       ownerData: buildOwnerData(),
@@ -400,7 +402,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
   /* ─── Add another owner (MULTIPLE OWNERS only) ─── */
   function onAddOwner() {
-    sessionStorage.setItem("ownershipCategory", ownershipCategory?.value);
+    sessionStorage.setItem("ownershipCategory", ownershipCategoryCode);
     const newIndex = index + 1;
     onSelect("allOwnerDetails", {
       ownershipCategory,

@@ -131,6 +131,11 @@ const CheckPage = ({ onSubmit, value = {} }) => {
   const setdeclarationhandler = () => {
     setAgree(!agree);
   };
+
+  const ownershipCode = ownershipCategory?.code || ownershipCategory?.value || ownershipCategory;
+  const ownershipLabelKey = ownershipCode ? `PT_OWNERSHIP_${String(ownershipCode).split(".").pop()}` : null;
+  const isInstitutional = ownershipCode === "INSTITUTIONALPRIVATE" || ownershipCode === "INSTITUTIONALGOVERNMENT";
+
   return (
     <React.Fragment>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={4}/> : null}
@@ -211,7 +216,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                     {t("PT_OWNER_SUB_HEADER")} — {index + 1}
                   </div>
                 )}
-                {ownershipCategory?.value == "INSTITUTIONALPRIVATE" || ownershipCategory?.value == "INSTITUTIONALGOVERNMENT" ? (
+                {isInstitutional ? (
                   <div>
                     <StatusTable>
                       <Row
