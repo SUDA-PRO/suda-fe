@@ -82,7 +82,11 @@ const MyProperty = ({ application }) => {
   const propertyType = application?.propertyType ? t(`PROPERTYTYPE_MASTERS_${application.propertyType}`) : null;
   const usageCategory = application?.usageCategory ? t(`PROPERTYTAX_BILLING_SLAB_${application.usageCategory}`) : null;
   const noOfFloors = application?.noOfFloors != null ? application.noOfFloors : null;
-  const landArea = application?.landArea || application?.superBuiltUpArea || null;
+  const activeUnits = application?.units?.filter(u => u.active !== false) || [];
+  const unitsArea = activeUnits.length > 0
+    ? activeUnits.reduce((sum, u) => sum + (u?.constructionDetail?.builtUpArea || 0), 0)
+    : null;
+  const landArea = unitsArea || application?.landArea || application?.superBuiltUpArea || null;
   const financialYear = application?.financialYear || null;
   const assessmentNumber = application?.assessmentNumber || null;
   const createdDate = application?.auditDetails?.createdTime
@@ -102,12 +106,12 @@ const MyProperty = ({ application }) => {
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 14px rgba(26,43,73,0.09)"; e.currentTarget.style.transform = "translateY(0)"; }}
     >
       {/* â”€â”€ Orange header â”€â”€ */}
-      <div style={{ background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", padding: "16px 20px", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", padding: "16px 28px 16px 20px", position: "relative", overflow: "hidden" }}>
         {/* decorative circle */}
         <div style={{ position: "absolute", right: "-20px", top: "-20px", width: "90px", height: "90px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", right: "30px", bottom: "-30px", width: "70px", height: "70px", borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none" }} />
 
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative", gap: "16px" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", gap: "16px" }}>
           <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1 }}>
             <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "2px" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -119,7 +123,7 @@ const MyProperty = ({ application }) => {
               <div style={{ fontSize: "15px", color: "#ffffff", fontWeight: "800", letterSpacing: "0.2px", marginTop: "2px", whiteSpace: "nowrap" }}>{application.propertyId}</div>
             </div>
           </div>
-          <span style={{ padding: "4px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "700", letterSpacing: "0.4px", background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}`, textTransform: "uppercase", flexShrink: 0 }}>
+          <span style={{ padding: "4px 6px", borderRadius: "20px", fontSize: "11px", fontWeight: "700", letterSpacing: "0.4px", background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}`, textTransform: "uppercase", flexShrink: 0 }}>
             {t(statusStyle.label)}
           </span>
         </div>

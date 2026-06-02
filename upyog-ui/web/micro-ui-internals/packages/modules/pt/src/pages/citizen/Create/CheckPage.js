@@ -80,7 +80,7 @@ const SectionCard = ({ icon, title, children }) => (
 const CheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
   const history = useHistory();
-  console.log("value",value)
+  console.log("[CheckPage] landArea:", value?.landArea, "landarea:", value?.landarea, "PropertyType:", value?.PropertyType?.code);
   const {
     address,
     isResdential,
@@ -187,6 +187,13 @@ const CheckPage = ({ onSubmit, value = {} }) => {
               }${t(address?.locality?.code)}, ${t(address?.city?.code)},${t(address?.pincode) ? `${address.pincode}` : " "}`}
               actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/pincode`} />}
             />
+            {address?.roadType && (
+              <Row
+                label={t("PT_ROAD_TYPE")}
+                text={t(`PROPERTYTAX_ROAD_TYPE_${address.roadType}`)}
+                actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/pincode`} />}
+              />
+            )}
             <Row
               label={t("PT_PROOF_OF_ADDRESS_SUB_HEADER")}
               text={address?.documents?.ProofOfAddress?.documentType?.i18nKey ? t(address.documents.ProofOfAddress.documentType.i18nKey) : t("CS_NA")}
@@ -396,7 +403,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             <Row 
               label={t("PT_ASSESMENT1_PLOT_SIZE")}
               text={`${landArea?.floorarea || landarea?.floorarea}`}
-              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/area`} />}
             />
           )}
           {PropertyType?.code !== "VACANT" &&

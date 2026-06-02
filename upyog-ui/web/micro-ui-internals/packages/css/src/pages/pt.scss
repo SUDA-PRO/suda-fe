@@ -1,4 +1,4 @@
-// PT Module - Rounded corners for all input boxes and select/dropdown components
+/* PT Module - Rounded corners for all input boxes and select/dropdown components */
 
 /* ── PT Application Details Page ── */
 .pt-app-details-body {
@@ -123,7 +123,7 @@
 .pt-citizen,
 .pt-employee,
 .PropertySearchForm {
-  // Text inputs
+  /* Text inputs */
   .card-input,
   .card-input-error,
   .employee-card-input,
@@ -132,13 +132,13 @@
     border-radius: 6px !important;
   }
 
-  // Textareas
+  /* Textareas */
   .card-textarea,
   .employee-card-textarea {
     border-radius: 6px !important;
   }
 
-  // Dropdown (select wrap) - outer container and inner elements
+  /* Dropdown (select wrap) - outer container and inner elements */
   .employee-select-wrap {
     .select,
     .select-active {
@@ -150,14 +150,14 @@
     }
   }
 
-  // Date input wrappers
+  /* Date input wrappers */
   .date-wrap {
     input {
       border-radius: 6px !important;
     }
   }
 
-  // MultiSelect dropdown
+  /* MultiSelect dropdown */
   .multi-select-dropdown {
     border-radius: 6px !important;
 
@@ -166,12 +166,12 @@
     }
   }
 
-  // Native select elements
+  /* Native select elements */
   select {
     border-radius: 6px !important;
   }
 
-  // Generic input elements not covered by class names
+  /* Generic input elements not covered by class names */
   input[type="text"],
   input[type="number"],
   input[type="email"],

@@ -115,6 +115,8 @@ const state = Digit.ULBService.getStateId();
     if (auditData?.[0]) {
       const property = auditData?.[0] || {};
       property.owners = property?.owners?.filter((owner) => owner.status == "ACTIVE");
+      // Preserve the actual current status from the API (not the old ACTIVE audit version)
+      property.status = data?.Properties[0]?.status || property.status;
       setProperty(property);
     }
   }, [enableAudit, auditData]);
