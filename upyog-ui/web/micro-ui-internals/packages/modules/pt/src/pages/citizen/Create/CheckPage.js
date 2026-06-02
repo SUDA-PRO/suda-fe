@@ -3,7 +3,6 @@ import {
   CardHeader,
   CardSubHeader,
   CardText,
-  CheckBox,
   LinkButton,
   Row,
   StatusTable,
@@ -493,32 +492,9 @@ const CheckPage = ({ onSubmit, value = {} }) => {
             </label>
           </div>
         </div>
-
-        {/* ── Submit button ────────────────────────────────────── */}
-        <div style={{
-          background: agree
-            ? `linear-gradient(135deg, #43a047 0%, #66bb6a 100%)`
-            : `linear-gradient(135deg, #d95f00 0%, #f07e1a 100%)`,
-          borderRadius: "10px",
-          padding: "16px 28px",
-          textAlign: "center",
-          cursor: agree ? "pointer" : "not-allowed",
-          boxShadow: agree ? "0 4px 16px rgba(67,160,71,0.4)" : "0 4px 16px rgba(217,95,0,0.25)",
-          transition: "all 0.25s ease",
-          opacity: agree ? 1 : 0.65,
-        }}
-          onClick={agree ? onSubmit : undefined}
-        >
-          <span style={{
-            color: WHITE, fontWeight: 700, fontSize: "16px",
-            letterSpacing: "0.5px", textTransform: "uppercase",
-          }}>
-            {t("PT_COMMON_BUTTON_SUBMIT")}
-          </span>
-        </div>
-
-      </div>{/* end page wrapper */}
-    </React.Fragment>
+      </div>
+      <SubmitBar label={t("PT_COMMON_BUTTON_SUBMIT")} onSubmit={onSubmit} disabled={!agree} />
+   </React.Fragment>
   );
 };
 

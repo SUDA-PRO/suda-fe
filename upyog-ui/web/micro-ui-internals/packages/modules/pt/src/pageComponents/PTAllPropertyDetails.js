@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from "react";
+﻿import React, { useState, useEffect, Fragment } from "react";
 import {
   CardLabel,
   CardLabelDesc,
@@ -149,6 +149,17 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [proofDocType, setProofDocType] = useState(formData?.address?.documents?.ProofOfAddress?.documentType || null);
   const [uploadedFile, setUploadedFile] = useState(formData?.address?.documents?.ProofOfAddress?.fileStoreId || null);
   const [uploadedFileObj, setUploadedFileObj] = useState(null);
+  const [uploadedFileName, setUploadedFileName] = useState(
+    formData?.address?.documents?.ProofOfAddress?.fileName ||
+    sessionStorage.getItem("pt-addr-proof-filename") || null
+  );
+  const [uploadedFileSize, setUploadedFileSize] = useState(
+    formData?.address?.documents?.ProofOfAddress?.fileSize
+      ? Number(formData.address.documents.ProofOfAddress.fileSize)
+      : sessionStorage.getItem("pt-addr-proof-filesize")
+        ? Number(sessionStorage.getItem("pt-addr-proof-filesize"))
+        : null
+  );
   const [uploadError, setUploadError] = useState(null);
   /* -- Map coordinates -- */
   const [latitude, setLatitude] = useState(
@@ -247,26 +258,30 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
   });
 
+  const mapExistingUnitToForm = (existing, floorNo) => {
+    const usageCatCode = existing.usageCategory?.includes?.("RESIDENTIAL")
+      ? "RESIDENTIAL"
+      : getUsageCategoryParsed(existing.usageCategory || "").usageCategoryMinor;
+    return {
+      usageCategory: usageCatCode ? { code: usageCatCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${usageCatCode}` } : null,
+      unitType: existing.unitType ? { code: existing.unitType, i18nKey: `PROPERTYTAX_BILLING_SLAB_${existing.unitType}` } : null,
+      occupancyType: existing.occupancyType ? { code: existing.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${existing.occupancyType}` } : null,
+      builtUpArea: existing.constructionDetail?.builtUpArea || "",
+      floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
+    };
+  };
+
   const [floorUnits, setFloorUnits] = useState(() => {
     const floorList = getFloorList(formData?.noOfFloors, formData?.noOofBasements);
     const existingUnits = formData?.units || [];
-    return floorList.map((floorNo) => {
-      const existing = existingUnits.find(
-        (u) => (typeof u.floorNo === "object" ? u.floorNo?.code : u.floorNo) == floorNo
-      );
-      if (existing) {
-        const usageCatCode = existing.usageCategory?.includes?.("RESIDENTIAL")
-          ? "RESIDENTIAL"
-          : getUsageCategoryParsed(existing.usageCategory || "").usageCategoryMinor;
-        return {
-          usageCategory: usageCatCode ? { code: usageCatCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${usageCatCode}` } : null,
-          unitType: existing.unitType ? { code: existing.unitType, i18nKey: `PROPERTYTAX_BILLING_SLAB_${existing.unitType}` } : null,
-          occupancyType: existing.occupancyType ? { code: existing.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${existing.occupancyType}` } : null,
-          builtUpArea: existing.constructionDetail?.builtUpArea || "",
-          floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
-        };
-      }
-      return createEmptyUnit(floorNo);
+    const normalizedExistingUnits = existingUnits
+      .map((u) => ({ ...u, floorCode: Number(typeof u.floorNo === "object" ? u.floorNo?.code : u.floorNo) }))
+      .filter((u) => floorList.includes(u.floorCode))
+      .map((u) => mapExistingUnitToForm(u, u.floorCode));
+
+    return floorList.flatMap((floorNo) => {
+      const unitsForFloor = normalizedExistingUnits.filter((u) => Number(u.floorNo?.code) === Number(floorNo));
+      return unitsForFloor.length ? unitsForFloor : [createEmptyUnit(floorNo)];
     });
   });
 
@@ -300,12 +315,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   useEffect(() => {
     if (PropertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" && noOofBasements !== null && noOfFloors !== null) {
       const floorList = getFloorList(noOfFloors, noOofBasements);
-      setFloorUnits((prev) =>
-        floorList.map((floorNo) => {
-          const existing = prev.find((u) => u.floorNo?.code == floorNo);
-          return existing || createEmptyUnit(floorNo);
-        })
-      );
+      setFloorUnits((prev) => {
+        const filteredPrev = prev.filter((u) => floorList.includes(Number(u.floorNo?.code)));
+        return floorList.flatMap((floorNo) => {
+          const unitsForFloor = filteredPrev.filter((u) => Number(u.floorNo?.code) === Number(floorNo));
+          return unitsForFloor.length ? unitsForFloor : [createEmptyUnit(floorNo)];
+        });
+      });
     }
   }, [noOofBasements, noOfFloors, PropertyType]);
 
@@ -450,6 +466,27 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     });
   };
 
+  const handleAddIndependentUnit = (floorNo) => {
+    setFloorUnits((prev) => {
+      const insertionIndex = prev.reduce((lastIdx, u, idx) => (Number(u.floorNo?.code) === Number(floorNo) ? idx : lastIdx), -1);
+      const updated = [...prev];
+      if (insertionIndex === -1) {
+        updated.push(createEmptyUnit(floorNo));
+      } else {
+        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo));
+      }
+      return updated;
+    });
+  };
+
+  const handleRemoveIndependentUnit = (idx, floorNo) => {
+    setFloorUnits((prev) => {
+      const totalForFloor = prev.filter((u) => Number(u.floorNo?.code) === Number(floorNo)).length;
+      if (totalForFloor <= 1) return prev;
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
+
   const handleSelectCity = (city) => {    setSelectedLocality(null);
     setLocalities([]);
     setSelectedCity(city);
@@ -462,10 +499,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleSelectFile = (e, newFile) => {
-    if (newFile) {
-      setUploadedFileObj(newFile);
-    } else {
-      setUploadedFileObj(e.target.files[0]);
+    const f = newFile || e.target.files[0];
+    if (f) {
+      sessionStorage.setItem("pt-addr-proof-filename", f.name);
+      sessionStorage.setItem("pt-addr-proof-filesize", String(f.size));
+      setUploadedFileName(f.name);
+      setUploadedFileSize(f.size);
+      setUploadedFileObj(f);
     }
   };
   const handleLocationSelect = (lat, lng) => {
@@ -615,6 +655,8 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         ProofOfAddress: {
           documentType: proofDocType,
           fileStoreId: uploadedFile,
+          fileName: uploadedFileName || uploadedFileObj?.name || null,
+          fileSize: uploadedFileSize || uploadedFileObj?.size || null,
         },
       },
     };
@@ -864,7 +906,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         {/* ══════════════════════════════════════
             CARD 1 – Property Details
         ══════════════════════════════════════ */}
-        <div style={{ maxWidth: "100%", width: "100%" }}>
+        <div style={{ maxWidth: "100%", width: "100%" }} className="pt-property-details-form">
         <div style={cardStyle}>
           <div style={sectionTitleStyle}>{t("PT_PROPERTY_DETAILS_HEADER") || "Property Details"}</div>
           <div style={rowStyle}>
@@ -939,33 +981,66 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         {isIndependent && noOofBasements !== null && noOfFloors !== null && floorUnits.length > 0 && (
           <div style={cardStyle}>
             <div style={sectionTitleStyle}>{t("PT_FLOOR_USAGE_DETAILS") || "Floor Usage Details"}</div>
-            {floorUnits.map((unit, idx) => (
-              <div key={`floor-unit-${idx}-${unit.occupancyType?.code || "none"}`} style={unitCardStyle}>
-                <div style={{ fontWeight: "600", fontSize: "13px", color: "#1a2b49", marginBottom: "14px" }}>
-                  {t(`PROPERTYTAX_FLOOR_${unit.floorNo?.code}`)}
-                </div>
-                <div style={rowStyle}>
-                  <div style={col3}>
-                    <label style={labelStyle}>{t("PT_FORM2_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
-                    <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageCategory || []} selected={unit.usageCategory} select={(val) => updateUnit(idx, "usageCategory", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+            {getFloorList(noOfFloors, noOofBasements).map((floorNo) => {
+              const floorSpecificUnits = floorUnits
+                .map((unit, idx) => ({ unit, idx }))
+                .filter(({ unit }) => Number(unit.floorNo?.code) === Number(floorNo));
+
+              return (
+                <div key={`floor-block-${floorNo}`} style={{ marginBottom: "14px" }}>
+                  <div style={{ fontWeight: "700", fontSize: "14px", color: "#1a2b49", marginBottom: "10px" }}>
+                    {t(`PROPERTYTAX_FLOOR_${floorNo}`)}
                   </div>
-                  {unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" && (
-                    <div style={col3}>
-                      <label style={labelStyle}>{t("PT_FORM2_SUB_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
-                      <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageSubCategory?.filter((c) => c.usageCategoryMinor === unit.usageCategory?.code) || []} selected={unit.unitType} select={(val) => updateUnit(idx, "unitType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+
+                  {floorSpecificUnits.map(({ unit, idx }, floorUnitIdx) => (
+                    <div key={`floor-unit-${floorNo}-${idx}-${unit.occupancyType?.code || "none"}`} style={unitCardStyle}>
+                      {floorSpecificUnits.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveIndependentUnit(idx, floorNo)}
+                          style={{ position: "absolute", top: "10px", right: "12px", background: "none", border: "none", cursor: "pointer", fontSize: "16px", color: "#888", lineHeight: 1 }}
+                        >
+                          x
+                        </button>
+                      )}
+
+                      <div style={{ fontWeight: "600", fontSize: "12px", color: "#4e5d78", marginBottom: "12px" }}>
+                        {`Unit ${floorUnitIdx + 1}`}
+                      </div>
+
+                      <div style={rowStyle}>
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_FORM2_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
+                          <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageCategory || []} selected={unit.usageCategory} select={(val) => updateUnit(idx, "usageCategory", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                        </div>
+                        {unit.usageCategory?.code && unit.usageCategory.code !== "RESIDENTIAL" && (
+                          <div style={col3}>
+                            <label style={labelStyle}>{t("PT_FORM2_SUB_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
+                            <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.UsageSubCategory?.filter((c) => c.usageCategoryMinor === unit.usageCategory?.code) || []} selected={unit.unitType} select={(val) => updateUnit(idx, "unitType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                          </div>
+                        )}
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_FORM2_OCCUPANCY")}<span style={requiredMark}>*</span></label>
+                          <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.OccupancyType || []} selected={unit.occupancyType} select={(val) => updateUnit(idx, "occupancyType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+                        </div>
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
+                          <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                        </div>
+                      </div>
                     </div>
-                  )}
-                  <div style={col3}>
-                    <label style={labelStyle}>{t("PT_FORM2_OCCUPANCY")}<span style={requiredMark}>*</span></label>
-                    <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.OccupancyType || []} selected={unit.occupancyType} select={(val) => updateUnit(idx, "occupancyType", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
-                  </div>
-                  <div style={col3}>
-                    <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
-                    <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
-                  </div>
+                  ))}
+
+                  <button
+                    type="button"
+                    onClick={() => handleAddIndependentUnit(floorNo)}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: "#f47738", fontWeight: "700", fontSize: "14px", padding: "2px 0", marginTop: "2px" }}
+                  >
+                    + {t("PT_ADD_UNIT")}
+                  </button>
                 </div>
-              </div>
-            ))}
+              );
+            })}
             {/* Area vs built-up sum summary */}
             {builtUpBlurred && noOfFloors?.code === 0 && floorarea && builtUpAreaSum > 0 && parseFloat(floorarea) !== builtUpAreaSum && (
               <div style={{ marginTop: "12px", padding: "10px 14px", borderRadius: "8px", background: "#fff3e0", border: "1px solid #ffb74d", display: "flex", alignItems: "center", gap: "10px", fontSize: "13px", color: "#e65100", fontWeight: "600" }}>
@@ -1165,39 +1240,169 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           </div>
 
           {/* Proof of Address */}
-          <div style={{ marginTop: "20px", background: "#f8f9fe", border: "1px solid #e4e8f0", borderRadius: "12px", padding: "18px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px", paddingBottom: "12px", borderBottom: "1px solid #e4e8f0" }}>
-              <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "linear-gradient(135deg, #1a2b49, #2d4a7a)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <div style={{ marginTop: "20px", background: "linear-gradient(135deg, #f8f9fe 0%, #eef2fb 100%)", border: "1px solid #dde4f0", borderRadius: "14px", padding: "20px", boxShadow: "0 2px 8px rgba(26,43,73,0.06)" }}>
+            {/* Section header */}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "18px", paddingBottom: "14px", borderBottom: "1px solid #dde4f0" }}>
+              <div style={{ width: "36px", height: "36px", borderRadius: "10px", background: "linear-gradient(135deg, #1a2b49 0%, #2d4a7a 100%)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: "0 2px 6px rgba(26,43,73,0.25)" }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
                   <polyline points="14 2 14 8 20 8"/>
+                  <line x1="16" y1="13" x2="8" y2="13"/>
+                  <line x1="16" y1="17" x2="8" y2="17"/>
+                  <polyline points="10 9 9 9 8 9"/>
                 </svg>
               </div>
               <div>
-                <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49" }}>Proof of Address</div>
+                <div style={{ fontSize: "15px", fontWeight: "700", color: "#1a2b49", letterSpacing: "0.1px" }}>Proof of Address</div>
                 <div style={{ fontSize: "11px", color: "#8a97a8", marginTop: "2px" }}>{t("PT_UPLOAD_RESTRICTIONS_TYPES")} &middot; {t("PT_UPLOAD_RESTRICTIONS_SIZE")}</div>
               </div>
             </div>
-            <div style={rowStyle}>
-              <div style={col6}>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "16px", maxWidth: "480px" }}>
+              {/* Document Type — native select */}
+              <div>
                 <label style={labelStyle}>{t("PT_CATEGORY_DOCUMENT_TYPE")}<span style={requiredMark}>*</span></label>
-                <Dropdown t={t} isMandatory={false} option={addressDropdownData} selected={proofDocType} optionKey="i18nKey" select={handleSelectProofDoc} placeholder={t("PT_MUTATION_SELECT_DOC_LABEL")} />
+                <div style={{ position: "relative" }}>
+                  <select
+                    style={{
+                      display: "block", width: "100%", height: "46px",
+                      padding: "0 40px 0 14px",
+                      border: proofDocType ? "1.5px solid #1a2b49" : "1.5px solid #b0b8c1",
+                      borderRadius: "10px", fontSize: "14px",
+                      color: proofDocType ? "#1a2b49" : "#8a97a8",
+                      backgroundColor: proofDocType ? "#ffffff" : "#f9fafc",
+                      backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 24 24' fill='none' stroke='%231a2b49' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E\")",
+                      backgroundRepeat: "no-repeat", backgroundPosition: "right 13px center", backgroundSize: "13px",
+                      WebkitAppearance: "none", MozAppearance: "none", appearance: "none",
+                      cursor: "pointer", outline: "none", boxSizing: "border-box",
+                      fontFamily: "inherit", boxShadow: proofDocType ? "0 0 0 3px rgba(26,43,73,0.08)" : "none",
+                      transition: "border-color 0.2s, box-shadow 0.2s",
+                      fontWeight: proofDocType ? "600" : "400",
+                    }}
+                    value={proofDocType?.code || ""}
+                    onChange={(e) => {
+                      const selected = (addressDropdownData || []).find(d => d.code === e.target.value);
+                      handleSelectProofDoc(selected || null);
+                    }}
+                  >
+                    <option value="" disabled hidden>{t("PT_MUTATION_SELECT_DOC_LABEL")}</option>
+                    {(addressDropdownData || []).map(doc => (
+                      <option key={doc.code} value={doc.code}>{t(doc.i18nKey)}</option>
+                    ))}
+                  </select>
+                  {proofDocType && (
+                    <div style={{ position: "absolute", right: "32px", top: "50%", transform: "translateY(-50%)", width: "8px", height: "8px", borderRadius: "50%", background: "#4caf50" }} />
+                  )}
+                </div>
               </div>
-              <div style={col6}>
-                <div style={{ border: "2px dashed #c8d0dc", borderRadius: "10px", background: "#ffffff", padding: "10px 14px", display: "flex", alignItems: "center", gap: "10px" }}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "5px", flexShrink: 0 }}>
-                    <span style={{ fontSize: "18px", lineHeight: 1 }}>??</span>
-                    <span style={{ fontSize: "10px", color: "#8a97a8", whiteSpace: "nowrap" }}>JPG &middot; PNG &middot; PDF | Max 5MB</span>
-                  </div>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    {digiLockerUpload ? (
-                      <UploadFileDigiLocker id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
+
+              {/* File Upload — fully custom */}
+              <div>
+                <div
+                  role="button"
+                  tabIndex={0}
+                  onClick={() => document.getElementById("pt-addr-proof-native").click()}
+                  onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById("pt-addr-proof-native").click(); }}
+                  style={{
+                    border: (uploadedFile || uploadedFileObj) ? "2px solid #4caf50" : "2px dashed #b0b8c1",
+                    borderRadius: "12px",
+                    background: (uploadedFile || uploadedFileObj) ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff",
+                    padding: "14px 16px",
+                    display: "flex", alignItems: "center", gap: "14px",
+                    cursor: "pointer", transition: "border-color 0.2s, background 0.2s",
+                    minHeight: "64px", boxSizing: "border-box",
+                  }}
+                >
+                  {/* Icon */}
+                  <div style={{
+                    width: "42px", height: "42px", borderRadius: "10px", flexShrink: 0,
+                    background: (uploadedFile || uploadedFileObj)
+                      ? "linear-gradient(135deg, #43a047, #2e7d32)"
+                      : "linear-gradient(135deg, #e8edf5, #cfd7e8)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    boxShadow: (uploadedFile || uploadedFileObj) ? "0 2px 6px rgba(46,125,50,0.3)" : "none",
+                  }}>
+                    {(uploadedFile || uploadedFileObj) ? (
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffffff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="20 6 9 17 4 12"/>
+                      </svg>
                     ) : (
-                      <UploadFile id="pt-address-proof" extraStyleName="propertyCreate" accept=".jpg,.png,.pdf" onUpload={handleSelectFile} onDelete={() => { setUploadedFile(null); setUploadedFileObj(null); }} message={uploadedFile ? `1 ${t("PT_ACTION_FILEUPLOADED")}` : t("PT_ACTION_NO_FILEUPLOADED")} error={uploadError} />
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#505a6e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polyline points="16 16 12 12 8 16"/>
+                        <line x1="12" y1="12" x2="12" y2="21"/>
+                        <path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/>
+                      </svg>
                     )}
                   </div>
+
+                  {/* Text info */}
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{
+                      fontSize: "13px", fontWeight: "600",
+                      color: (uploadedFile || uploadedFileObj) ? "#2e7d32" : "#3d4f6b",
+                      whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+                    }}>
+                      {uploadedFileObj
+                        ? uploadedFileObj.name
+                        : (uploadedFile && uploadedFileName)
+                          ? uploadedFileName
+                          : uploadedFile
+                            ? t("PT_ACTION_FILEUPLOADED")
+                            : t("PT_ACTION_NO_FILEUPLOADED")}
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#8a97a8", marginTop: "3px" }}>
+                      {uploadedFileObj
+                        ? `${(uploadedFileObj.size / 1024).toFixed(1)} KB · click × to remove`
+                        : (uploadedFile && uploadedFileSize)
+                          ? `${(uploadedFileSize / 1024).toFixed(1)} KB`
+                          : uploadedFile
+                            ? t("PT_ACTION_FILEUPLOADED")
+                            : "JPG · PNG · PDF · Max 5MB"}
+                    </div>
+                  </div>
+
+                  {/* Action button */}
+                  {(uploadedFile || uploadedFileObj) ? (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); setUploadedFile(null); setUploadedFileObj(null); }}
+                      style={{
+                        background: "rgba(229,77,66,0.1)", border: "1px solid rgba(229,77,66,0.3)",
+                        borderRadius: "6px", cursor: "pointer", color: "#e54d42",
+                        fontSize: "16px", fontWeight: "700", lineHeight: 1,
+                        padding: "4px 8px", flexShrink: 0, transition: "background 0.15s",
+                      }}
+                      title="Remove file"
+                    >
+                      ×
+                    </button>
+                  ) : (
+                    <div style={{
+                      background: "linear-gradient(135deg, #1a2b49 0%, #2d4a7a 100%)",
+                      color: "#fff", fontSize: "12px", fontWeight: "600",
+                      padding: "8px 16px", borderRadius: "8px",
+                      whiteSpace: "nowrap", flexShrink: 0,
+                      boxShadow: "0 2px 6px rgba(26,43,73,0.3)",
+                    }}>
+                      Browse
+                    </div>
+                  )}
+
+                  <input
+                    type="file"
+                    id="pt-addr-proof-native"
+                    accept=".jpg,.jpeg,.png,.pdf"
+                    style={{ display: "none" }}
+                    onChange={(e) => { if (e.target.files && e.target.files[0]) handleSelectFile(e); }}
+                  />
                 </div>
-                {uploadError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "4px" }}><span>?</span> {uploadError}</div>}
+
+                {uploadError && (
+                  <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "5px", fontWeight: "500" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                    {uploadError}
+                  </div>
+                )}
               </div>
             </div>
           </div>

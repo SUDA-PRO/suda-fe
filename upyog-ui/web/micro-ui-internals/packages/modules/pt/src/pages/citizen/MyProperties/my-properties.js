@@ -167,7 +167,7 @@ const MyProperty = ({ application }) => {
               </svg>
               <span style={{ fontSize: "12px", color: "#92400e", fontWeight: "600" }}>{t("PT_TOTAL_DUE_AMOUNT") || "Total Due"}</span>
             </div>
-            <span style={{ fontSize: "16px", color: "#c2410c", fontWeight: "800" }}>â‚¹ {Number(dueAmount || 0).toLocaleString("en-IN")}</span>
+            <span style={{ fontSize: "16px", color: "#c2410c", fontWeight: "800" }}>₹ {Number(dueAmount || 0).toLocaleString("en-IN")}</span>
           </div>
         )}
 
