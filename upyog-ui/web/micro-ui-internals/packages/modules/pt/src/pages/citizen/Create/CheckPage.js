@@ -23,9 +23,10 @@ const ActionButton = ({ jumpTo }) => null;
 /* ─── inline style constants ─────────────────────────────────────────────── */
 const GOLD    = "#e07b00";
 const NAVY    = "#d95f00";
-const LIGHT   = "#fff4e8";
-const BORDER  = "#f5c99a";
+const LIGHT   = "#f5f5f5";
+const BORDER  = "#ddd";
 const WHITE   = "#ffffff";
+const DARK_GREY = "#1a3a5c";
 
 const sectionWrap = {
   background: WHITE,
@@ -40,7 +41,7 @@ const sectionHeader = {
   display: "flex",
   alignItems: "center",
   gap: "10px",
-  background: `linear-gradient(135deg, #d95f00 0%, #f07e1a 100%)`,
+  background: DARK_GREY,
   color: WHITE,
   padding: "14px 20px",
   fontWeight: 700,
@@ -60,7 +61,7 @@ const iconCircle = (icon) => (
     width: "28px",
     height: "28px",
     borderRadius: "50%",
-    background: "rgba(255,255,255,0.2)",
+    background: "rgba(255,255,255,0.15)",
     fontSize: "14px",
     flexShrink: 0,
   }}>{icon}</span>
@@ -209,8 +210,8 @@ const CheckPage = ({ onSubmit, value = {} }) => {
               <div key={index}>
                 {owners.length > 1 && (
                   <div style={{
-                    background: LIGHT, borderTop: `3px solid ${GOLD}`,
-                    padding: "8px 16px", fontWeight: 600, color: "#b34e00",
+                    background: LIGHT, borderTop: `3px solid ${DARK_GREY}`,
+                    padding: "8px 16px", fontWeight: 600, color: DARK_GREY,
                     fontSize: "13px", letterSpacing: "0.3px",
                   }}>
                     {t("PT_OWNER_SUB_HEADER")} — {index + 1}
@@ -406,8 +407,8 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                   <div key={unitIndex}>
                     {units.length > 1 && (
                       <div style={{
-                        background: LIGHT, borderTop: `3px solid ${GOLD}`,
-                        padding: "8px 16px", fontWeight: 600, color: "#b34e00",
+                        background: LIGHT, borderTop: `3px solid ${DARK_GREY}`,
+                        padding: "8px 16px", fontWeight: 600, color: DARK_GREY,
                         fontSize: "13px",
                       }}>
                         {t("PT_UNIT")} — {unitIndex + 1}
@@ -479,7 +480,7 @@ const CheckPage = ({ onSubmit, value = {} }) => {
           </span>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 700, color: NAVY, fontSize: "14px", marginBottom: "6px" }}>
-              {t("PT_FINAL_DECLARATION_MESSAGE") || "Declaration"}
+              {t("PT_DECLARATION_HEADER") || "Declaration"}
             </div>
             <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", userSelect: "none" }}>
               <input
