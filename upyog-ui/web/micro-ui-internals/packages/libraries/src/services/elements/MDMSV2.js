@@ -1134,12 +1134,7 @@ const getSubPropertyOwnerShipCategory = (MdmsRes) => {
 };
 
 const getDocumentRequiredScreen = (MdmsRes) => {
-  MdmsRes["PropertyTax"].Documents.filter((Documents) => Documents.active).map((dropdownData) => {
-    return {
-      ...Documents,
-      i18nKey: `${dropdownData.code}`,
-    };
-  });
+  return MdmsRes;
 };
 
 const getTLDocumentRequiredScreen = (MdmsRes) => {
