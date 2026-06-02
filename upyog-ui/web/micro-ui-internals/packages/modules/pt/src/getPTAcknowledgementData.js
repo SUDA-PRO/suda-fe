@@ -7,6 +7,7 @@ import {
   getMohallaLocale,
   getCityLocale,
 } from "./utils";
+import cgLogo from "./utils/cgLogo";
 
 const capitalize = (text) => text.substr(0, 1).toUpperCase() + text.substr(1);
 const ulbCamel = (ulb) => ulb.toLowerCase().split(" ").map(capitalize).join(" ");
@@ -311,6 +312,8 @@ const getPTAcknowledgementData = async (application, tenantInfo, t) => {
     return {
       t: t,
       tenantId: tenantInfo?.code,
+      logo: cgLogo,
+      watermark: cgLogo,
       name: `${t(tenantInfo?.i18nKey)} ${ulbCamel(t(`ULBGRADE_${tenantInfo?.city?.ulbGrade.toUpperCase().replace(" ", "_").replace(".", "_")}`))}`,
       email: tenantInfo?.emailId,
       phoneNumber: tenantInfo?.contactNumber,
@@ -353,6 +356,8 @@ const getPTAcknowledgementData = async (application, tenantInfo, t) => {
   return {
     t: t,
     tenantId: tenantInfo?.code,
+    logo: cgLogo,
+    watermark: cgLogo,
     name: `${t(tenantInfo?.i18nKey)} ${ulbCamel(t(`ULBGRADE_${tenantInfo?.city?.ulbGrade.toUpperCase().replace(" ", "_").replace(".", "_")}`))}`,
     email: tenantInfo?.emailId,
     phoneNumber: tenantInfo?.contactNumber,

@@ -261,17 +261,32 @@ const PTApplicationDetails = () => {
       <div>
         <div className="cardHeaderWithOptions" style={{ marginRight: "auto", maxWidth: "960px" }}>
           <Header styles={{ fontSize: "32px" }}>{t("PT_MUTATION_APPLICATION_DETAILS")}</Header>
-          <div style={{zIndex: "10",display:"flex",flexDirection:"row-reverse",alignItems:"center",marginTop:"-25px"}}>
-       
-          {dowloadOptions && dowloadOptions.length > 0 && (
-            <MultiLink
-              className="multilinkWrapper"
-              onHeadClick={() => setShowOptions(!showOptions)}
-              displayOptions={showOptions}
-              options={dowloadOptions}
-            />
-          )}
-          <LinkButton label={t("VIEW_TIMELINE")} style={{ color:"#A52A2A"}} onClick={handleViewTimeline}></LinkButton>
+          <div style={{ zIndex: "10", display: "flex", alignItems: "center", gap: "12px", marginTop: "-25px" }}>
+            <style>{`.pt-dl-theme .card-link { color: #0B3D91 !important; }`}</style>
+            <button
+              onClick={handleViewTimeline}
+              style={{ display: "flex", alignItems: "center", gap: "6px", padding: "7px 14px", background: "#0B3D91", border: "none", borderRadius: "6px", color: "#fff", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {t("VIEW_TIMELINE")}
+            </button>
+            {dowloadOptions && dowloadOptions.length > 0 && (
+              <div className="pt-dl-theme">
+                <MultiLink
+                  className="multilinkWrapper"
+                  onHeadClick={() => setShowOptions(!showOptions)}
+                  displayOptions={showOptions}
+                  options={dowloadOptions}
+                  icon={
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0B3D91" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: "4px" }}>
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                  }
+                />
+              </div>
+            )}
           </div>
           
         </div>
