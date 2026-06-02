@@ -255,6 +255,32 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     })();
   }, [identityProofFile]);
 
+  /* ─── Sync identity proof from async formData load ─── */
+  useEffect(() => {
+    const savedDoc = formData?.owners?.[index]?.documents?.proofIdentity;
+    if (!savedDoc) return;
+    if (!identityProofFile) setIdentityProofFile(savedDoc);
+    if (!identityProofUploadedId && savedDoc.fileStoreId) setIdentityProofUploadedId(savedDoc.fileStoreId);
+    if (savedDoc.documentType && identityProofOptions.length > 0) {
+      const savedCode = typeof savedDoc.documentType === "object" ? savedDoc.documentType.code : savedDoc.documentType;
+      const matched = identityProofOptions.find((o) => o.code === savedCode);
+      if (matched && matched !== identityProofDocType) setIdentityProofDocType(matched);
+    }
+  }, [formData?.owners?.[index]?.documents?.proofIdentity, identityProofOptions.length]);
+
+  /* ─── Sync special category proof from async formData load ─── */
+  useEffect(() => {
+    const savedDoc = formData?.owners?.[index]?.documents?.specialProofIdentity;
+    if (!savedDoc) return;
+    if (!specialProofFile) setSpecialProofFile(savedDoc);
+    if (!specialProofUploadedId && savedDoc.fileStoreId) setSpecialProofUploadedId(savedDoc.fileStoreId);
+    if (savedDoc.documentType && specialProofOptions.length > 0) {
+      const savedCode = typeof savedDoc.documentType === "object" ? savedDoc.documentType.code : savedDoc.documentType;
+      const matched = specialProofOptions.find((o) => o.code === savedCode);
+      if (matched && matched !== specialProofDocType) setSpecialProofDocType(matched);
+    }
+  }, [formData?.owners?.[index]?.documents?.specialProofIdentity, specialProofOptions.length, ownerType]);
+
   /* auto-select special proof doc when only one option */
   useEffect(() => {
     if (specialProofOptions.length === 1 && specialProofDocType !== specialProofOptions[0]) {

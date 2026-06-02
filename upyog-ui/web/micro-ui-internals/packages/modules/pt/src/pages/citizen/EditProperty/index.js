@@ -444,7 +444,13 @@ const getPropertyEditDetails = (inputData = {}) => {
      // data.units[0].selfOccupied = data?.additionalDetails?.unit[0]?.selfOccupied;
       // data.units["-1"] = data?.additionalDetails?.basement1 || "";
       // data.units["-2"] = data?.additionalDetails?.basement2 || "";
-      // data.landArea = { floorarea:data?.landArea}
+      data.landArea = { floorarea: data?.landArea };
+      data.landarea = { floorarea: data?.landArea };
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     }
   }
   return data;

@@ -377,10 +377,38 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   }, [formData?.landArea?.floorarea]);
 
   useEffect(() => {
-    if (formData?.propertyStructureDetails?.structureType && !propertyStructureDetails?.structureType) {
-      setPropertyStructureDetails(formData.propertyStructureDetails);
+    const srcStructure = formData?.propertyStructureDetails?.structureType;
+    const srcAge = formData?.propertyStructureDetails?.ageOfProperty;
+    if (srcStructure && !propertyStructureDetails?.structureType && structureTypeOptions.length > 0) {
+      const matched =
+        typeof srcStructure === "object"
+          ? srcStructure
+          : structureTypeOptions.find((o) => o.code === srcStructure);
+      if (matched) setPropertyStructureDetails((prev) => ({ ...prev, structureType: matched }));
     }
-  }, [formData?.propertyStructureDetails]);
+    if (srcAge && !propertyStructureDetails?.ageOfProperty) {
+      const matched =
+        typeof srcAge === "object"
+          ? srcAge
+          : ageOfPropertyOptions.find((o) => o.code === String(srcAge));
+      if (matched) setPropertyStructureDetails((prev) => ({ ...prev, ageOfProperty: matched }));
+    }
+  }, [formData?.propertyStructureDetails, structureTypeOptions.length]);
+
+  useEffect(() => {
+    if (formData?.address?.street && !street) setStreet(formData.address.street);
+  }, [formData?.address?.street]);
+
+  useEffect(() => {
+    const srcRoadType = formData?.address?.roadType;
+    if (srcRoadType && typeof roadType !== "object" && roadTypeOptions.length > 0) {
+      const matched =
+        typeof srcRoadType === "object"
+          ? srcRoadType
+          : roadTypeOptions.find((o) => o.code === (typeof srcRoadType === "object" ? srcRoadType?.code : srcRoadType));
+      if (matched) setRoadType(matched);
+    }
+  }, [formData?.address?.roadType, roadTypeOptions.length]);
 
 
   /* ── Handlers ── */
