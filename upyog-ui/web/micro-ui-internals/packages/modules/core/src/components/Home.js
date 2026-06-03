@@ -342,7 +342,7 @@ const MODULE_CONFIG = {
   PGR:      { name: "Grievances",      color: "#7B61FF", icon: "📣", moduleCode: "PGR",      services: ["PGR"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/pgr/inbox" },       { label: "Register Complaint",url: "/suda-ui/employee/pgr/create" },        { label: "Search",         url: "/suda-ui/employee/pgr/search" }] },
   FSM:      { name: "Sanitation",      color: "#B54708", icon: "🚿", moduleCode: "FSM",      services: ["FSM"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/fsm/inbox" },       { label: "New Request",    url: "/suda-ui/employee/fsm/new-application" }, { label: "Search",         url: "/suda-ui/employee/fsm/search" }] },
   MCollect: { name: "Collections",     color: "#027A48", icon: "💰", moduleCode: "MCOLLECT", services: ["mCollect"],                                       links: [{ label: "Inbox",          url: "/suda-ui/employee/mcollect/inbox" },  { label: "Collect Fees",   url: "/suda-ui/employee/mcollect/new-application" }, { label: "Search", url: "/suda-ui/employee/mcollect/search" }] },
-  OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search" }] },
+  OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/stakeholder-inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search/application" }] },
   CHB:      { name: "CHB",             color: "#C11574", icon: "🏛️", moduleCode: "CHB",      services: ["booking-refund"],                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/chb/inbox" },       { label: "New Booking",    url: "/suda-ui/employee/chb/bookHall/searchhall" }, { label: "Search", url: "/suda-ui/employee/chb/search" }] },
   ADS:      { name: "Advertisements",  color: "#E31B54", icon: "📢", moduleCode: "ADS",      services: ["ADS"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ads/inbox" },       { label: "New Application",url: "/suda-ui/employee/ads/new-application" }, { label: "Search",         url: "/suda-ui/employee/ads/search" }] },
   PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/inbox" },       { label: "Search",         url: "/suda-ui/employee/ptr/search" }] },
@@ -498,9 +498,9 @@ const EmployeeHome = ({ modules }) => {
       { label: "Search", url: "/suda-ui/employee/mcollect/search" },
     ],
     OBPS: [
-      { label: "Inbox", url: "/suda-ui/employee/obps/inbox" },
+      { label: "Inbox", url: "/suda-ui/employee/obps/stakeholder-inbox" },
       { label: "New Application", url: "/suda-ui/employee/obps/new-application" },
-      { label: "Search", url: "/suda-ui/employee/obps/search" },
+      { label: "Search", url: "/suda-ui/employee/obps/search/application" },
     ],
     CHB: [
       { label: "Inbox", url: "/suda-ui/employee/chb/inbox" },
