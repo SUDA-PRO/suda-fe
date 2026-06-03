@@ -26,7 +26,7 @@ const UlbAssesment = ({ path }) => {
       },
       onSuccess: (data) => {
         const assessed = data?.Assessments?.length || 0;
-        setResultInfo({ count: assessed });
+        setResultInfo({ count: assessed, assessments: data?.Assessments || [] });
         setShowToast({ label: "PT_BULK_DEMAND_SUCCESS" });
         setTimeout(closeToast, 5000);
       },

@@ -13,6 +13,27 @@ const modeButtonStyle = (active) => ({
   fontSize: "14px",
 });
 
+function downloadCSV(assessments, t) {
+  const headers = ["Property ID", "Assessment No.", "Financial Year", "Status", "Assessment Date"];
+  const rows = assessments.map((a) => [
+    a.propertyId || "",
+    a.assessmentNumber || "",
+    a.financialYear || "",
+    a.status || "",
+    a.assessmentDate ? new Date(a.assessmentDate).toLocaleDateString("en-IN") : "",
+  ]);
+  const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `bulk-demand-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
 const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }) => {
   const stateId = Digit.ULBService.getStateId();
 
@@ -172,13 +193,67 @@ const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }
       {/* Result summary after generation */}
       {resultInfo && (
         <Card style={{ marginTop: 20 }}>
-          <p style={{ textAlign: "center", fontSize: "16px", fontWeight: 600 }}>
-            {t("PT_BULK_DEMAND_RESULT_SUCCESS")}: {resultInfo.count} {t("PT_BULK_DEMAND_PROPERTIES_ASSESSED")}
-          </p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+            <p style={{ fontSize: "16px", fontWeight: 600, margin: 0 }}>
+              {t("PT_BULK_DEMAND_RESULT_SUCCESS")}: {resultInfo.count} {t("PT_BULK_DEMAND_PROPERTIES_ASSESSED")}
+            </p>
+            {resultInfo.assessments?.length > 0 && (
+              <button
+                type="button"
+                onClick={() => downloadCSV(resultInfo.assessments, t)}
+                style={{
+                  padding: "8px 18px",
+                  background: "#F47738",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "4px",
+                  cursor: "pointer",
+                  fontWeight: 600,
+                  fontSize: "13px",
+                }}
+              >
+                ⬇ {t("PT_BULK_DEMAND_DOWNLOAD_CSV")}
+              </button>
+            )}
+          </div>
           {resultInfo.failed > 0 && (
-            <p style={{ textAlign: "center", color: "#d4351c" }}>
+            <p style={{ color: "#d4351c", marginTop: 8 }}>
               {t("PT_BULK_DEMAND_RESULT_FAILED")}: {resultInfo.failed}
             </p>
+          )}
+          {resultInfo.assessments?.length > 0 && (
+            <div style={{ overflowX: "auto", marginTop: 16 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                <thead>
+                  <tr style={{ background: "#fbe9d8", textAlign: "left" }}>
+                    <th style={thStyle}>#</th>
+                    <th style={thStyle}>{t("PT_PROPERTY_ID")}</th>
+                    <th style={thStyle}>{t("PT_ASSESSMENT_NO")}</th>
+                    <th style={thStyle}>{t("PT_COMMON_TABLE_COL_FIN_YEAR")}</th>
+                    <th style={thStyle}>{t("PT_STATUS")}</th>
+                    <th style={thStyle}>{t("PT_ASSESSMENT_DATE")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultInfo.assessments.map((a, i) => (
+                    <tr key={a.id || i} style={{ borderBottom: "1px solid #e0e0e0", background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                      <td style={tdStyle}>{i + 1}</td>
+                      <td style={tdStyle}>{a.propertyId}</td>
+                      <td style={tdStyle}>{a.assessmentNumber}</td>
+                      <td style={tdStyle}>{a.financialYear}</td>
+                      <td style={tdStyle}>
+                        <span style={{ color: a.status === "ACTIVE" ? "#00703c" : "#d4351c", fontWeight: 600 }}>
+                          {a.status}
+                        </span>
+                      </td>
+                      <td style={tdStyle}>
+                        {a.assessmentDate ? new Date(a.assessmentDate).toLocaleDateString("en-IN") : "-"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           )}
         </Card>
       )}
@@ -187,5 +262,8 @@ const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }
     </React.Fragment>
   );
 };
+
+const thStyle = { padding: "10px 12px", fontWeight: 600, whiteSpace: "nowrap" };
+const tdStyle = { padding: "8px 12px" };
 
 export default UlbAssesmentSearch;
