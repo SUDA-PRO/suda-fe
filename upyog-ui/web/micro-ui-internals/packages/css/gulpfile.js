@@ -43,6 +43,7 @@ function livereloadStyles() {
 exports.styles = styles;
 exports.default = series(styles);
 exports.watch = livereloadStyles;
+exports.buildprod = series(cleanStyles, styles, minify);
 if (process.env.NODE_ENV === "production") {
   exports.build = series(cleanStyles, styles, minify);
 } else {

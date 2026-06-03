@@ -1,4 +1,5 @@
-/* PT Module - Rounded corners for all input boxes and select/dropdown components */
+/* PT Module - Rounded corners for all input boxes and select/dropdown components
+ */
 
 /* ── PT Application Details Page ── */
 .pt-app-details-body {
@@ -123,7 +124,8 @@
 .pt-citizen,
 .pt-employee,
 .PropertySearchForm {
-  /* Text inputs */
+  /* Text inputs
+ */
   .card-input,
   .card-input-error,
   .employee-card-input,
@@ -132,13 +134,15 @@
     border-radius: 6px !important;
   }
 
-  /* Textareas */
+  /* Textareas
+ */
   .card-textarea,
   .employee-card-textarea {
     border-radius: 6px !important;
   }
 
-  /* Dropdown (select wrap) - outer container and inner elements */
+  /* Dropdown (select wrap) - outer container and inner elements
+ */
   .employee-select-wrap {
     .select,
     .select-active {
@@ -150,14 +154,16 @@
     }
   }
 
-  /* Date input wrappers */
+  /* Date input wrappers
+ */
   .date-wrap {
     input {
       border-radius: 6px !important;
     }
   }
 
-  /* MultiSelect dropdown */
+  /* MultiSelect dropdown
+ */
   .multi-select-dropdown {
     border-radius: 6px !important;
 
@@ -166,12 +172,14 @@
     }
   }
 
-  /* Native select elements */
+  /* Native select elements
+ */
   select {
     border-radius: 6px !important;
   }
 
-  /* Generic input elements not covered by class names */
+  /* Generic input elements not covered by class names
+ */
   input[type="text"],
   input[type="number"],
   input[type="email"],
@@ -179,5 +187,447 @@
   input[type="date"],
   input[type="search"] {
     border-radius: 6px !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PT Employee Inbox – Beautiful Redesign
+   ═══════════════════════════════════════════════════════════════ */
+
+@screen dt {
+  /* ── Left sidebar: Links card ───────────────────────────────── */
+  .inbox-container .filters-container {
+    .employeeCard.filter.inboxLinks {
+      border-radius: 14px !important;
+      border: none !important;
+      box-shadow: 0 2px 16px rgba(26, 43, 73, 0.1) !important;
+      overflow: hidden !important;
+      padding: 0 !important;
+
+      .complaint-links-container {
+        .header {
+          background: linear-gradient(135deg, #f47738 0%, #d95f00 100%) !important;
+          padding: 16px 20px !important;
+          border-bottom: none !important;
+
+          .logo {
+            background: rgba(255, 255, 255, 0.18) !important;
+            border-radius: 8px !important;
+
+            svg path {
+              fill: #fff !important;
+            }
+          }
+
+          .text {
+            color: #fff !important;
+            font-size: 15px !important;
+            font-weight: 700 !important;
+          }
+        }
+
+        .body {
+          padding: 10px 12px !important;
+          margin-left: 0 !important;
+
+          .link {
+            display: flex !important;
+            align-items: center !important;
+            padding: 9px 12px !important;
+            border-radius: 8px !important;
+            margin-bottom: 2px !important;
+            font-size: 13px !important;
+            font-weight: 500 !important;
+            color: #1a2b49 !important;
+            transition: background 0.18s, color 0.18s;
+
+            a {
+              color: inherit !important;
+              text-decoration: none !important;
+              font-weight: 500 !important;
+            }
+
+            &:hover {
+              background: #fff5ef !important;
+              color: #c05a1a !important;
+
+              a {
+                color: #c05a1a !important;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    /* ── Filter form card ───────────────────────────────── */
+    .filter .filter-card {
+      border-radius: 14px !important;
+      border: none !important;
+      box-shadow: 0 2px 16px rgba(26, 43, 73, 0.1) !important;
+      padding: 20px !important;
+
+      .filter-label {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        color: #1a2b49 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.6px !important;
+        padding-bottom: 10px !important;
+        border-bottom: 2px solid #f0f2f5 !important;
+      }
+
+      .sub-filter-label {
+        font-size: 13px !important;
+        color: #4a5568 !important;
+        margin-top: 4px !important;
+        margin-bottom: 8px !important;
+      }
+
+      /* Inputs inside filter card */
+      input[type="text"],
+      input[type="number"],
+      input[type="tel"],
+      input[type="date"],
+      input:not([type]),
+      select {
+        border-radius: 8px !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        font-size: 13px !important;
+        padding: 8px 12px !important;
+        width: 100% !important;
+        transition: border-color 0.18s, box-shadow 0.18s;
+
+        &:focus {
+          border-color: #f47738 !important;
+          box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.12) !important;
+          background: #fff !important;
+          outline: none !important;
+        }
+      }
+
+      .employee-select-wrap {
+        .select,
+        .select-active {
+          border-radius: 8px !important;
+          border: 1.5px solid #e2e8f0 !important;
+          background: #f8fafc !important;
+        }
+
+        .options-card {
+          border-radius: 8px !important;
+          box-shadow: 0 8px 24px rgba(26, 43, 73, 0.12) !important;
+        }
+      }
+    }
+  }
+
+  /* ── Right: Search panel ────────────────────────────────────── */
+  .inbox-container .search-container {
+    .search-complaint-container {
+      border-radius: 14px !important;
+      border: none !important;
+      box-shadow: 0 2px 16px rgba(26, 43, 73, 0.1) !important;
+      padding: 24px 28px !important;
+      margin-bottom: 16px !important;
+      background: #fff !important;
+
+      .complaint-header h2 {
+        font-size: 17px !important;
+        font-weight: 700 !important;
+        color: #1a2b49 !important;
+      }
+
+      /* Field labels */
+      label,
+      .label,
+      p.label {
+        font-size: 12px !important;
+        font-weight: 600 !important;
+        color: #6b7280 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.4px !important;
+        margin-bottom: 5px !important;
+        display: block !important;
+      }
+
+      /* Uniform field sizing — pin TextInput wrapper and MobileNumber container to exactly 42px */
+      .input-fields {
+        /* TextInput wrapper: div.text-input */
+        > span > .text-input {
+          height: 42px !important;
+          display: flex !important;
+          align-items: stretch !important;
+          width: 100% !important;
+          overflow: hidden !important;
+          margin-bottom: 0 !important;
+        }
+      }
+
+      /* All text inputs */
+      input[type="text"],
+      input[type="number"],
+      input[type="tel"],
+      input[type="date"],
+      input[type="search"],
+      input:not([type]),
+      .card-input,
+      .employee-card-input,
+      .employee-card-input-error {
+        border-radius: 8px !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        font-size: 14px !important;
+        color: #1a2b49 !important;
+        padding: 0 14px !important;
+        height: 42px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        transition: border-color 0.18s, box-shadow 0.18s;
+
+        &:focus {
+          border-color: #f47738 !important;
+          box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.12) !important;
+          background: #fff !important;
+          outline: none !important;
+        }
+
+        &::placeholder {
+          color: #a0aec0 !important;
+        }
+      }
+
+      /* Dropdown wraps */
+      .employee-select-wrap,
+      .select-wrap {
+        .select,
+        .select-active {
+          border-radius: 8px !important;
+          border: 1.5px solid #e2e8f0 !important;
+          background: #f8fafc !important;
+          font-size: 14px !important;
+          padding: 10px 14px !important;
+        }
+
+        .options-card {
+          border-radius: 8px !important;
+          box-shadow: 0 8px 24px rgba(26, 43, 73, 0.12) !important;
+          border: 1px solid #e2e8f0 !important;
+        }
+      }
+
+      /* MultiSelect */
+      .multi-select-dropdown,
+      .multi-select-dropdown__control {
+        border-radius: 8px !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+      }
+
+      /* Native select */
+      select {
+        border-radius: 8px !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+        font-size: 14px !important;
+        padding: 10px 14px !important;
+      }
+
+      /* Date picker */
+      .date-wrap input {
+        border-radius: 8px !important;
+        border: 1.5px solid #e2e8f0 !important;
+        background: #f8fafc !important;
+      }
+
+      /* Mobile number +91 prefix – seamless pill style */
+      .field-container {
+        display: flex !important;
+        align-items: stretch !important;
+        border: 1.5px solid #e2e8f0 !important;
+        border-radius: 8px !important;
+        background: #f8fafc !important;
+        overflow: hidden !important;
+        height: 42px !important;
+        box-sizing: border-box !important;
+        width: 100% !important;
+        transition: border-color 0.18s, box-shadow 0.18s;
+
+        &:focus-within {
+          border-color: #f47738 !important;
+          box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.12) !important;
+          background: #fff !important;
+        }
+
+        .citizen-card-input--front {
+          display: flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          padding: 0 12px !important;
+          background: #f0f4f8 !important;
+          border: none !important;
+          border-right: 1.5px solid #e2e8f0 !important;
+          border-radius: 0 !important;
+          font-size: 13px !important;
+          font-weight: 700 !important;
+          color: #1a2b49 !important;
+          letter-spacing: 0.5px !important;
+          min-width: unset !important;
+          max-width: unset !important;
+          width: auto !important;
+          margin: 0 !important;
+          height: auto !important;
+        }
+
+        .text-input {
+          flex: 1 !important;
+          display: flex !important;
+          align-items: stretch !important;
+          width: auto !important;
+          height: 42px !important;
+          margin: 0 !important;
+          overflow: hidden !important;
+
+          input {
+            border: none !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            height: 42px !important;
+            margin: 0 !important;
+            padding: 0 12px !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
+            font-size: 14px !important;
+
+            &:focus {
+              outline: none !important;
+              box-shadow: none !important;
+              border: none !important;
+            }
+          }
+        }
+      }
+
+      /* Submit / Search button */
+      .search-submit-wrapper {
+        grid-column: 3 / 4 !important;
+        grid-row: 2 !important;
+        margin-top: 16px !important;
+        align-self: start !important;
+      }
+
+      .search-submit-wrapper .submit-bar-search,
+      button.submit-bar-search {
+        border-radius: 8px !important;
+        background: linear-gradient(135deg, #f47738 0%, #d95f00 100%) !important;
+        border: none !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.3px !important;
+        box-shadow: 0 4px 14px rgba(244, 119, 56, 0.3) !important;
+        transition: box-shadow 0.2s, transform 0.15s !important;
+
+        &:hover:not(:disabled) {
+          box-shadow: 0 6px 20px rgba(244, 119, 56, 0.42) !important;
+          transform: translateY(-1px) !important;
+        }
+
+        &:disabled {
+          opacity: 0.55 !important;
+          background: #d1d5db !important;
+          box-shadow: none !important;
+        }
+      }
+
+      /* Clear search link */
+      .clear-search,
+      .clear-search .link-label {
+        color: #f47738 !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+      }
+    }
+  }
+
+  /* ── Results table ──────────────────────────────────────────── */
+  .inbox-container .result {
+    background: #fff !important;
+    border-radius: 14px !important;
+    box-shadow: 0 2px 16px rgba(26, 43, 73, 0.1) !important;
+    overflow: hidden !important;
+    margin-top: 0 !important;
+
+    table {
+      border-collapse: collapse !important;
+      width: 100% !important;
+
+      thead tr {
+        background: linear-gradient(135deg, #1a2b49 0%, #2d4a7a 100%) !important;
+
+        th,
+        th *,
+        th span,
+        th div,
+        th p,
+        th a,
+        th button {
+          color: #fff !important;
+          fill: #fff !important;
+        }
+
+        th {
+          font-size: 12px !important;
+          font-weight: 600 !important;
+          letter-spacing: 0.5px !important;
+          text-transform: uppercase !important;
+          padding: 14px 18px !important;
+          border: none !important;
+          white-space: nowrap !important;
+        }
+      }
+
+      tbody tr {
+        border-bottom: 1px solid #f0f2f5 !important;
+        transition: background 0.15s !important;
+
+        &:nth-child(even) {
+          background: #fafbfc !important;
+        }
+
+        &:hover {
+          background: #fff5ef !important;
+        }
+
+        td {
+          font-size: 14px !important;
+          color: #374151 !important;
+          border: none !important;
+        }
+      }
+    }
+
+    /* Pagination footer */
+    .digit-table-bottom-pagination-footer,
+    [class*="pagination"] {
+      border-top: 1px solid #f0f2f5 !important;
+      padding: 12px 20px !important;
+      background: #fff !important;
+    }
+  }
+
+  /* SLA badge overrides inside table */
+  .sla-cell-error {
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+  }
+
+  .sla-cell-success {
+    border-radius: 20px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
   }
 }
