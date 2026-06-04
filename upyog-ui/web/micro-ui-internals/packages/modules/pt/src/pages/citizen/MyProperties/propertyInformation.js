@@ -115,6 +115,8 @@ const state = Digit.ULBService.getStateId();
     if (auditData?.[0]) {
       const property = auditData?.[0] || {};
       property.owners = property?.owners?.filter((owner) => owner.status == "ACTIVE");
+      // Preserve the actual current status from the API (not the old ACTIVE audit version)
+      property.status = data?.Properties[0]?.status || property.status;
       setProperty(property);
     }
   }, [enableAudit, auditData]);
@@ -528,15 +530,6 @@ const handleClick=()=>{
           {/* ── Action Buttons ── */}
           {property?.status === "ACTIVE" && !enableAudit && (
             <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", marginTop: "4px" }}>
-              <button
-                onClick={handleClickOnPtPgr}
-                style={{ flex: 1, minWidth: "140px", height: "48px", background: "#fff", border: "2px solid #f47738", borderRadius: "12px", color: "#f47738", fontSize: "14px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", transition: "background 0.15s, color 0.15s" }}
-                onMouseEnter={e => { e.currentTarget.style.background = "#f47738"; e.currentTarget.style.color = "#fff"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#f47738"; }}
-              >
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-                {t("PT_PGR")}
-              </button>
               <Link to={{ pathname: `/suda-ui/citizen/pt/property/edit-application/action=UPDATE/${property.propertyId}` }} style={{ flex: 1, minWidth: "140px", textDecoration: "none" }}>
                 <button style={{ width: "100%", height: "48px", background: "#fff", border: "2px solid #1a2b49", borderRadius: "12px", color: "#1a2b49", fontSize: "14px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", transition: "background 0.15s, color 0.15s" }}
                   onMouseEnter={e => { e.currentTarget.style.background = "#1a2b49"; e.currentTarget.style.color = "#fff"; }}

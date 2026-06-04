@@ -125,7 +125,7 @@ const TopBar = ({
     <div className="topbar" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "0 28px", height: "56px", background: "#ffffff", borderBottom: "1px solid #e8e8e8", boxShadow: "none" }}>
       {mobileView ? <Hamburger handleClick={toggleSidebar} color="#9E9E9E" /> : null}
       <span style={{ fontSize: "20px", fontWeight: "700", color: "#091E64", flexShrink: 0 }}>
-        {t("ORG_NAME")} ({t("ORG_NAME_SHORT")})
+        {t("ORG_NAME")}
       </span>
       <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
         {!mobileView && !window.location.href.includes("employee/user/login") && !window.location.href.includes("employee/user/language-selection") && (

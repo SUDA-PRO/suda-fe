@@ -9,14 +9,26 @@ const statusConfig = {
   MUTATIONINWORKFLOW: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe", label: "PT_COMMON_MUTATIONINWORKFLOW" },
 };
 
-const InfoRow = ({ icon, label, value }) => (
+const InfoRow = ({ icon, label, value, isAddress }) => (
   <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", marginBottom: "10px" }}>
     <div style={{ width: "30px", height: "30px", borderRadius: "8px", background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "1px" }}>
       {icon}
     </div>
-    <div style={{ minWidth: 0 }}>
+    <div style={{ minWidth: 0, flex: 1 }}>
       <div style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "600", letterSpacing: "0.5px", textTransform: "uppercase", marginBottom: "2px" }}>{label}</div>
-      <div style={{ fontSize: "13px", color: "#1a2b49", fontWeight: "600", wordBreak: "break-word" }}>{value || "â€”"}</div>
+      <div style={{
+        fontSize: "13px",
+        color: "#1a2b49",
+        fontWeight: "600",
+        wordBreak: "break-word",
+        ...(isAddress && {
+          minHeight: "63px",
+          display: "-webkit-box",
+          WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical",
+          lineHeight: "1.4"
+        })
+      }}>{value || "-"}</div>
     </div>
   </div>
 );
@@ -70,7 +82,11 @@ const MyProperty = ({ application }) => {
   const propertyType = application?.propertyType ? t(`PROPERTYTYPE_MASTERS_${application.propertyType}`) : null;
   const usageCategory = application?.usageCategory ? t(`PROPERTYTAX_BILLING_SLAB_${application.usageCategory}`) : null;
   const noOfFloors = application?.noOfFloors != null ? application.noOfFloors : null;
-  const landArea = application?.landArea || application?.superBuiltUpArea || null;
+  const activeUnits = application?.units?.filter(u => u.active !== false) || [];
+  const unitsArea = activeUnits.length > 0
+    ? activeUnits.reduce((sum, u) => sum + (u?.constructionDetail?.builtUpArea || 0), 0)
+    : null;
+  const landArea = unitsArea || application?.landArea || application?.superBuiltUpArea || null;
   const financialYear = application?.financialYear || null;
   const assessmentNumber = application?.assessmentNumber || null;
   const createdDate = application?.auditDetails?.createdTime
@@ -90,24 +106,24 @@ const MyProperty = ({ application }) => {
       onMouseLeave={e => { e.currentTarget.style.boxShadow = "0 2px 14px rgba(26,43,73,0.09)"; e.currentTarget.style.transform = "translateY(0)"; }}
     >
       {/* â”€â”€ Orange header â”€â”€ */}
-      <div style={{ background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", padding: "16px 20px", position: "relative", overflow: "hidden" }}>
+      <div style={{ background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", padding: "16px 28px 16px 20px", position: "relative", overflow: "hidden" }}>
         {/* decorative circle */}
         <div style={{ position: "absolute", right: "-20px", top: "-20px", width: "90px", height: "90px", borderRadius: "50%", background: "rgba(255,255,255,0.1)", pointerEvents: "none" }} />
         <div style={{ position: "absolute", right: "30px", bottom: "-30px", width: "70px", height: "70px", borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none" }} />
 
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", position: "relative", gap: "16px" }}>
+          <div style={{ display: "flex", alignItems: "flex-start", gap: "12px", flex: 1 }}>
+            <div style={{ width: "40px", height: "40px", borderRadius: "12px", background: "rgba(255,255,255,0.22)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, marginTop: "2px" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
               </svg>
             </div>
-            <div>
+            <div style={{ flex: 1 }}>
               <div style={{ fontSize: "10px", color: "rgba(255,255,255,0.75)", fontWeight: "600", letterSpacing: "0.6px", textTransform: "uppercase" }}>{t("PT_COMMON_TABLE_COL_PT_ID")}</div>
-              <div style={{ fontSize: "15px", color: "#ffffff", fontWeight: "800", letterSpacing: "0.2px", marginTop: "2px" }}>{application.propertyId}</div>
+              <div style={{ fontSize: "15px", color: "#ffffff", fontWeight: "800", letterSpacing: "0.2px", marginTop: "2px", whiteSpace: "nowrap" }}>{application.propertyId}</div>
             </div>
           </div>
-          <span style={{ padding: "4px 12px", borderRadius: "20px", fontSize: "11px", fontWeight: "700", letterSpacing: "0.4px", background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}`, textTransform: "uppercase", flexShrink: 0 }}>
+          <span style={{ padding: "4px 6px", borderRadius: "20px", fontSize: "11px", fontWeight: "700", letterSpacing: "0.4px", background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}`, textTransform: "uppercase", flexShrink: 0 }}>
             {t(statusStyle.label)}
           </span>
         </div>
@@ -138,6 +154,7 @@ const MyProperty = ({ application }) => {
           icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
           label={t("PT_COMMON_COL_ADDRESS")}
           value={addressLine}
+          isAddress={true}
         />
 
         {/* Area + Assessment row */}
@@ -160,7 +177,7 @@ const MyProperty = ({ application }) => {
 
         {/* Due Amount banner */}
         {hasBill && (
-          <div style={{ padding: "10px 14px", background: "linear-gradient(135deg, #fff7ed 0%, #fff3e6 100%)", borderRadius: "10px", border: "1px solid #fed7aa", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px" }}>
+          <div style={{ padding: "10px 14px", background: "linear-gradient(135deg, #fff7ed 0%, #fff3e6 100%)", borderRadius: "10px", border: "1px solid #fed7aa", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "4px", minHeight: "40px" }}>
             <div style={{ display: "flex", alignItems: "center", gap: "7px" }}>
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
@@ -170,15 +187,14 @@ const MyProperty = ({ application }) => {
             <span style={{ fontSize: "16px", color: "#c2410c", fontWeight: "800" }}>₹ {Number(dueAmount || 0).toLocaleString("en-IN")}</span>
           </div>
         )}
+        {!hasBill && <div style={{ minHeight: "40px", marginBottom: "4px" }} />}
 
         {/* Created date */}
-        {createdDate && (
-          <div style={{ textAlign: "right", marginTop: "6px" }}>
-            <span style={{ fontSize: "11px", color: "#c4c9d4", fontWeight: "500" }}>
-              {t("PT_REGISTERED_ON") || "Registered on"}: {createdDate}
-            </span>
-          </div>
-        )}
+        <div style={{ textAlign: "right", marginTop: "6px", minHeight: "16px" }}>
+          <span style={{ fontSize: "11px", color: "#c4c9d4", fontWeight: "500" }}>
+            {t("PT_REGISTERED_ON") || "Registered on"}: {createdDate || "-"}
+          </span>
+        </div>
       </div>
 
       {/* â”€â”€ Footer buttons â”€â”€ */}
@@ -194,19 +210,17 @@ const MyProperty = ({ application }) => {
             {t("PT_VIEW_DETAILS")}
           </button>
         </Link>
-        {hasBill && (
-          <Link to={`/suda-ui/citizen/payment/my-bills/PT/${application?.propertyId}`} style={{ flex: 1, textDecoration: "none" }}>
-            <button style={{ width: "100%", height: "40px", background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", border: "none", borderRadius: "10px", color: "#ffffff", fontSize: "13px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", boxShadow: "0 3px 10px rgba(244,119,56,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}
-              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(244,119,56,0.45)"; }}
-              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 3px 10px rgba(244,119,56,0.35)"; }}
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-              </svg>
-              {t("COMMON_MAKE_PAYMENT")}
-            </button>
-          </Link>
-        )}
+        <Link to={`/suda-ui/citizen/payment/my-bills/PT/${application?.propertyId}`} style={{ flex: 1, textDecoration: "none", opacity: hasBill ? 1 : 0.5, pointerEvents: hasBill ? "auto" : "none" }}>
+          <button disabled={!hasBill} style={{ width: "100%", height: "40px", background: hasBill ? "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)" : "#f3f4f6", border: "none", borderRadius: "10px", color: hasBill ? "#ffffff" : "#9ca3af", fontSize: "13px", fontWeight: "700", cursor: hasBill ? "pointer" : "not-allowed", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", boxShadow: hasBill ? "0 3px 10px rgba(244,119,56,0.35)" : "none", transition: "transform 0.15s, box-shadow 0.15s" }}
+            onMouseEnter={e => { if (hasBill) { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 16px rgba(244,119,56,0.45)"; } }}
+            onMouseLeave={e => { if (hasBill) { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 3px 10px rgba(244,119,56,0.35)"; } }}
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+            </svg>
+            {t("COMMON_MAKE_PAYMENT")}
+          </button>
+        </Link>
       </div>
     </div>
   );

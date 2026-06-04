@@ -336,13 +336,13 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
 
 /* ── Per-module config: name, colour, icon, services, links ── */
 const MODULE_CONFIG = {
-  PT:       { name: "Property Tax",    color: "#e65c00", icon: "🏠", moduleCode: "PT",       services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"],       links: [{ label: "Inbox",          url: "/suda-ui/employee/pt/inbox" },       { label: "New Property",   url: "/suda-ui/employee/pt/new-application" }, { label: "Search",         url: "/suda-ui/employee/pt/search" }] },
+  PT:       { name: "Property Tax",    color: "#e65c00", icon: "🏠", moduleCode: "PT",       services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"],       links: [{ label: "Inbox",          url: "/suda-ui/employee/pt/inbox" },       { label: "New Property",   url: "/suda-ui/employee/pt/new-application" }, { label: "Bulk Demand",    url: "/suda-ui/employee/pt/Ulb-assesment", icon: "📊" }, { label: "Search",         url: "/suda-ui/employee/pt/search", icon: "🔍" }] },
   WS:       { name: "Water & Sewerage",color: "#0066cc", icon: "💧", moduleCode: "WS",       services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/ws/inbox" },       { label: "Apply Connection",url: "/suda-ui/employee/ws/new-application" }, { label: "Search",         url: "/suda-ui/employee/ws/search" }] },
   TL:       { name: "Trade License",   color: "#00875a", icon: "📋", moduleCode: "TL",       services: ["TL", "EDITRENEWAL", "DIRECTRENEWAL"],             links: [{ label: "Inbox",          url: "/suda-ui/employee/tradelicense/inbox" }, { label: "New License",    url: "/suda-ui/employee/tradelicense/new-application" }, { label: "Search",  url: "/suda-ui/employee/tradelicense/search" }] },
   PGR:      { name: "Grievances",      color: "#7B61FF", icon: "📣", moduleCode: "PGR",      services: ["PGR"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/pgr/inbox" },       { label: "Register Complaint",url: "/suda-ui/employee/pgr/create" },        { label: "Search",         url: "/suda-ui/employee/pgr/search" }] },
   FSM:      { name: "Sanitation",      color: "#B54708", icon: "🚿", moduleCode: "FSM",      services: ["FSM"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/fsm/inbox" },       { label: "New Request",    url: "/suda-ui/employee/fsm/new-application" }, { label: "Search",         url: "/suda-ui/employee/fsm/search" }] },
   MCollect: { name: "Collections",     color: "#027A48", icon: "💰", moduleCode: "MCOLLECT", services: ["mCollect"],                                       links: [{ label: "Inbox",          url: "/suda-ui/employee/mcollect/inbox" },  { label: "Collect Fees",   url: "/suda-ui/employee/mcollect/new-application" }, { label: "Search", url: "/suda-ui/employee/mcollect/search" }] },
-  OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search" }] },
+  OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/stakeholder-inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search/application" }] },
   CHB:      { name: "CHB",             color: "#C11574", icon: "🏛️", moduleCode: "CHB",      services: ["booking-refund"],                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/chb/inbox" },       { label: "New Booking",    url: "/suda-ui/employee/chb/bookHall/searchhall" }, { label: "Search", url: "/suda-ui/employee/chb/search" }] },
   ADS:      { name: "Advertisements",  color: "#E31B54", icon: "📢", moduleCode: "ADS",      services: ["ADS"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ads/inbox" },       { label: "New Application",url: "/suda-ui/employee/ads/new-application" }, { label: "Search",         url: "/suda-ui/employee/ads/search" }] },
   PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/inbox" },       { label: "Search",         url: "/suda-ui/employee/ptr/search" }] },
@@ -421,7 +421,7 @@ const CustomModuleCard = ({ code }) => {
             textDecoration: "none",
             border: i === 0 ? `1px solid ${accent}30` : "1px solid #edf0f5",
           }}>
-            <span style={{ fontSize: "13px", lineHeight: 1 }}>{linkIcons[i] || "→"}</span>
+            <span style={{ fontSize: "13px", lineHeight: 1 }}>{lnk.icon || linkIcons[i] || "→"}</span>
             {lnk.label}
           </a>
         ))}
@@ -498,9 +498,9 @@ const EmployeeHome = ({ modules }) => {
       { label: "Search", url: "/suda-ui/employee/mcollect/search" },
     ],
     OBPS: [
-      { label: "Inbox", url: "/suda-ui/employee/obps/inbox" },
+      { label: "Inbox", url: "/suda-ui/employee/obps/stakeholder-inbox" },
       { label: "New Application", url: "/suda-ui/employee/obps/new-application" },
-      { label: "Search", url: "/suda-ui/employee/obps/search" },
+      { label: "Search", url: "/suda-ui/employee/obps/search/application" },
     ],
     CHB: [
       { label: "Inbox", url: "/suda-ui/employee/chb/inbox" },
@@ -525,7 +525,9 @@ const EmployeeHome = ({ modules }) => {
     },
   });
 
-  const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
+  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan
+  // const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
+  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS"].includes(code));
   const heroModules = visibleModules.slice(0, 4);
 
   return (
