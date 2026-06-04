@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Header, SearchForm, SearchField, Dropdown, SubmitBar, Loader, Card } from "@upyog/digit-ui-react-components";
+import { downloadSingleDemandPDF, downloadBulkDemandZip } from "../utils/ptDemandPdf";
 
 const modeButtonStyle = (active) => ({
   padding: "8px 24px",
@@ -14,13 +15,15 @@ const modeButtonStyle = (active) => ({
 });
 
 function downloadCSV(assessments, t) {
-  const headers = ["Property ID", "Assessment No.", "Financial Year", "Status", "Assessment Date"];
+  const headers = ["Property ID", "Assessment No.", "Financial Year", "Status", "Assessment Date", "Total Amount (₹)", "Balance Due (₹)"];
   const rows = assessments.map((a) => [
     a.propertyId || "",
     a.assessmentNumber || "",
     a.financialYear || "",
     a.status || "",
     a.assessmentDate ? new Date(a.assessmentDate).toLocaleDateString("en-IN") : "",
+    a.totalAmount != null ? a.totalAmount : "",
+    a.balanceDue != null ? a.balanceDue : "",
   ]);
   const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
   const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
@@ -34,11 +37,149 @@ function downloadCSV(assessments, t) {
   URL.revokeObjectURL(url);
 }
 
+/**
+ * Calls _fetchbill for a single property and returns billAccountDetails
+ * sorted by order — exactly the same 9 rows the citizen Tax Bill Details page shows.
+ */
+async function fetchBillItems(tenantId, propertyId) {
+  try {
+    const user = Digit.UserService.getUser();
+    const body = {
+      RequestInfo: {
+        apiId: "Rainmaker",
+        authToken: user?.info?.authToken || user?.access_token || "",
+        userInfo: user?.info || {},
+        msgId: `${Date.now()}|en_IN`,
+        plainAccessRequest: {},
+      },
+    };
+    const res = await fetch(
+      `/billing-service/bill/v2/_fetchbill?tenantId=${encodeURIComponent(tenantId)}&businessService=PT&consumerCode=${encodeURIComponent(propertyId)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=UTF-8" },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = data?.Bill?.[0]?.billDetails?.[0]?.billAccountDetails || [];
+    return items.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+  } catch (_) {
+    return [];
+  }
+}
+
+/**
+ * Single _fetchbill call with multiple consumerCodes (comma-separated).
+ * Returns { [consumerCode]: sortedBillAccountDetails[] }
+ */
+async function fetchBillsBatch(tenantId, propertyIds) {
+  try {
+    const user = Digit.UserService.getUser();
+    const body = {
+      RequestInfo: {
+        apiId: "Rainmaker",
+        authToken: user?.info?.authToken || user?.access_token || "",
+        userInfo: user?.info || {},
+        msgId: `${Date.now()}|en_IN`,
+        plainAccessRequest: {},
+      },
+    };
+    const consumerCode = propertyIds.map((id) => id.trim()).join(",");
+    const res = await fetch(
+      `/billing-service/bill/v2/_fetchbill?tenantId=${encodeURIComponent(tenantId)}&businessService=PT&consumerCode=${encodeURIComponent(consumerCode)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=UTF-8" },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!res.ok) return {};
+    const data = await res.json();
+    const map = {};
+    (data?.Bill || []).forEach((bill) => {
+      const items = (bill?.billDetails?.[0]?.billAccountDetails || [])
+        .slice()
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      map[bill.consumerCode] = items;
+    });
+    return map;
+  } catch (_) {
+    return {};
+  }
+}
+
 const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }) => {
   const stateId = Digit.ULBService.getStateId();
 
   const [assessmentMode, setAssessmentMode] = useState("ULB");
   const [selectedTenantCode, setSelectedTenantCode] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [rowPdfLoading, setRowPdfLoading] = useState({});
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // Reset selection whenever new results arrive
+  useEffect(() => { setSelectedIds(new Set()); }, [resultInfo]);
+
+  // Per-row PDF: fetch live _fetchbill data then generate
+  async function handleRowPdf(a) {
+    setRowPdfLoading((prev) => ({ ...prev, [a.propertyId]: true }));
+    try {
+      const taxItems = await fetchBillItems(a.tenantId, a.propertyId);
+      downloadSingleDemandPDF(a, taxItems, t);
+    } catch (_) {
+      setShowToast({ key: "error", label: "PT_BULK_PDF_DOWNLOAD_ERROR" });
+    } finally {
+      setRowPdfLoading((prev) => ({ ...prev, [a.propertyId]: false }));
+    }
+  }
+
+  // Bulk ZIP: one batch _fetchbill call per ULB, respects row selection
+  async function handleDownloadZip() {
+    if (!resultInfo?.assessments?.length) return;
+    const toExport =
+      selectedIds.size > 0
+        ? resultInfo.assessments.filter((a) => selectedIds.has(a.propertyId))
+        : resultInfo.assessments;
+    if (!toExport.length) return;
+    setPdfLoading(true);
+    try {
+      // Group by tenantId → one batch _fetchbill call per ULB (usually one)
+      const byTenant = {};
+      toExport.forEach((a) => {
+        if (!byTenant[a.tenantId]) byTenant[a.tenantId] = [];
+        byTenant[a.tenantId].push(a.propertyId);
+      });
+      const itemsMap = {};
+      for (const [tid, ids] of Object.entries(byTenant)) {
+        Object.assign(itemsMap, await fetchBillsBatch(tid, ids));
+      }
+      await downloadBulkDemandZip(toExport, itemsMap, t);
+    } catch (_) {
+      setShowToast({ key: "error", label: "PT_BULK_PDF_DOWNLOAD_ERROR" });
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  const allSelected =
+    (resultInfo?.assessments?.length || 0) > 0 &&
+    resultInfo.assessments.every((a) => selectedIds.has(a.propertyId));
+
+  function toggleAll() {
+    setSelectedIds(
+      allSelected ? new Set() : new Set(resultInfo.assessments.map((a) => a.propertyId))
+    );
+  }
+
+  function toggleRow(propertyId) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(propertyId) ? next.delete(propertyId) : next.add(propertyId);
+      return next;
+    });
+  }
 
   const { control, handleSubmit, setValue, watch, reset } = useForm({
     defaultValues: { tenant: null, ward: null, financialYear: null },
@@ -198,22 +339,45 @@ const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }
               {t("PT_BULK_DEMAND_RESULT_SUCCESS")}: {resultInfo.count} {t("PT_BULK_DEMAND_PROPERTIES_ASSESSED")}
             </p>
             {resultInfo.assessments?.length > 0 && (
-              <button
-                type="button"
-                onClick={() => downloadCSV(resultInfo.assessments, t)}
-                style={{
-                  padding: "8px 18px",
-                  background: "#F47738",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "4px",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  fontSize: "13px",
-                }}
-              >
-                ⬇ {t("PT_BULK_DEMAND_DOWNLOAD_CSV")}
-              </button>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={() => downloadCSV(resultInfo.assessments, t)}
+                  style={{
+                    padding: "8px 18px",
+                    background: "#F47738",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "13px",
+                  }}
+                >
+                  ⬇ {t("PT_BULK_DEMAND_DOWNLOAD_CSV")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadZip}
+                  disabled={pdfLoading}
+                  style={{
+                    padding: "8px 18px",
+                    background: pdfLoading ? "#aaa" : "#1a3c6e",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: pdfLoading ? "not-allowed" : "pointer",
+                    fontWeight: 600,
+                    fontSize: "13px",
+                  }}
+                >
+                  {pdfLoading
+                    ? "Generating PDFs..."
+                    : selectedIds.size > 0
+                    ? `⬇ Download PDFs (${selectedIds.size} selected)`
+                    : "⬇ Download PDFs (ZIP)"}
+                </button>
+              </div>
             )}
           </div>
           {resultInfo.failed > 0 && (
@@ -226,17 +390,26 @@ const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }
               <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
                 <thead>
                   <tr style={{ background: "#fbe9d8", textAlign: "left" }}>
+                    <th style={{ ...thStyle, textAlign: "center", width: "36px" }}>
+                      <input type="checkbox" checked={allSelected} onChange={toggleAll} title="Select / deselect all" />
+                    </th>
                     <th style={thStyle}>#</th>
                     <th style={thStyle}>{t("PT_PROPERTY_ID")}</th>
                     <th style={thStyle}>{t("PT_ASSESSMENT_NO")}</th>
                     <th style={thStyle}>{t("PT_COMMON_TABLE_COL_FIN_YEAR")}</th>
                     <th style={thStyle}>{t("PT_STATUS")}</th>
                     <th style={thStyle}>{t("PT_ASSESSMENT_DATE")}</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>{t("PT_TOTAL_AMOUNT")}</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>{t("PT_BALANCE_DUE")}</th>
+                    <th style={{ ...thStyle, textAlign: "center" }}>PDF</th>
                   </tr>
                 </thead>
                 <tbody>
                   {resultInfo.assessments.map((a, i) => (
-                    <tr key={a.id || i} style={{ borderBottom: "1px solid #e0e0e0", background: i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                    <tr key={a.id || i} style={{ borderBottom: "1px solid #e0e0e0", background: selectedIds.has(a.propertyId) ? "#fff3e8" : i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        <input type="checkbox" checked={selectedIds.has(a.propertyId)} onChange={() => toggleRow(a.propertyId)} />
+                      </td>
                       <td style={tdStyle}>{i + 1}</td>
                       <td style={tdStyle}>{a.propertyId}</td>
                       <td style={tdStyle}>{a.assessmentNumber}</td>
@@ -248,6 +421,33 @@ const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }
                       </td>
                       <td style={tdStyle}>
                         {a.assessmentDate ? new Date(a.assessmentDate).toLocaleDateString("en-IN") : "-"}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>
+                        {a.totalAmount != null ? `₹ ${Number(a.totalAmount).toLocaleString("en-IN")}` : "-"}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: a.balanceDue > 0 ? 600 : "normal", color: a.balanceDue > 0 ? "#d4351c" : "inherit" }}>
+                        {a.balanceDue != null ? `₹ ${Number(a.balanceDue).toLocaleString("en-IN")}` : "-"}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        <button
+                          type="button"
+                          title="Download Demand Notice PDF"
+                          disabled={!!rowPdfLoading[a.propertyId]}
+                          onClick={() => handleRowPdf(a)}
+                          style={{
+                            padding: "4px 10px",
+                            background: rowPdfLoading[a.propertyId] ? "#888" : "#1a3c6e",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "3px",
+                            cursor: rowPdfLoading[a.propertyId] ? "not-allowed" : "pointer",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {rowPdfLoading[a.propertyId] ? "..." : "⬇ PDF"}
+                        </button>
                       </td>
                     </tr>
                   ))}

@@ -282,13 +282,15 @@ const ScrutinyDetails = ({ onSelect, userType, formData, config }) => {
             text={
               data?.planDetail?.blocks?.[0]?.building?.totalBuitUpArea
                 ? `${data?.planDetail?.blocks?.[0]?.building?.totalBuitUpArea} ${t("BPA_SQ_MTRS_LABEL")}`
-                : `${formData?.data?.edcrDetails?.drawingDetail?.totalBuitUpArea} ${t("BPA_SQ_MTRS_LABEL")}`
+                : formData?.data?.edcrDetails?.drawingDetail?.totalBuitUpArea
+                ? `${formData?.data?.edcrDetails?.drawingDetail?.totalBuitUpArea} ${t("BPA_SQ_MTRS_LABEL")}`
+                : "NA"
             }
           ></Row>
           <Row
             className="border-none"
             label={t("BPA_SCRUTINY_DETAILS_NUMBER_OF_FLOORS_LABEL")}
-            text={data?.planDetail?.blocks?.[0]?.building?.totalFloors || formData?.data?.edcrDetails?.drawingDetail?.blocks[0]?.building?.totalFloors}
+            text={data?.planDetail?.blocks?.[0]?.building?.totalFloors || formData?.data?.edcrDetails?.drawingDetail?.blocks?.[0]?.building?.totalFloors || "NA"}
           ></Row>
           <Row
             className="border-none"
@@ -296,7 +298,9 @@ const ScrutinyDetails = ({ onSelect, userType, formData, config }) => {
             text={
               data?.planDetail?.blocks?.[0]?.building?.declaredBuildingHeight
                 ? `${data?.planDetail?.blocks?.[0]?.building?.declaredBuildingHeight} ${t("BPA_MTRS_LABEL")}`
-                : `${formData?.data?.edcrDetails?.drawingDetail?.blocks?.[0]?.building?.buildingHeight} ${t("BPA_MTRS_LABEL")}`
+                : formData?.data?.edcrDetails?.drawingDetail?.blocks?.[0]?.building?.buildingHeight
+                ? `${formData?.data?.edcrDetails?.drawingDetail?.blocks?.[0]?.building?.buildingHeight} ${t("BPA_MTRS_LABEL")}`
+                : "NA"
             }
           ></Row>
         </StatusTable>
