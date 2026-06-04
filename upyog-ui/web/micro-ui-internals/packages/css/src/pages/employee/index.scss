@@ -68,7 +68,8 @@
       }
     }
 
-    /* Dropdown selects (ChangeCity / ChangeLanguage) inside white topbar */
+    /* Dropdown selects (ChangeCity / ChangeLanguage) inside white topbar
+ */
     .select-wrap .react-select__single-value,
     .employee-select-wrap .react-select__single-value,
     .select-wrap .react-select__placeholder,
@@ -96,8 +97,9 @@
   }
 
 .submit-bar header{
-  height: 2rem !important;
-  line-height: 2rem !important;
+  height: auto !important;
+  line-height: normal !important;
+  white-space: nowrap !important;
 } 
 
   .loginContainer {
