@@ -70,45 +70,82 @@ const SubMenu = ({ item }) => {
   const appendTranslate = t(`ACTION_TEST_${getModuleName}`);
   const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
 
+  /**
+   * Resolve a navigationURL to either an external href or an internal React Router path.
+   *
+   * Finance ERP paths (services/*) trigger a full-page navigation to /employee/services/...
+   * so that rainmaker's EGFFinance component handles the iframe POST auth handshake.
+   * In production, upyog-ui (/suda-ui/) and rainmaker (/employee/) are served by nginx
+   * on the same domain — they share localStorage so the auth token is available to rainmaker.
+   *
+   * Other URL rules:
+   *   - Full http/https URLs       → external anchor (new tab)
+   *   - /digit-ui/...              → rewrite to /suda-ui/... then internal Link
+   *   - /upyog-ui/...              → rewrite to /suda-ui/... then internal Link
+   *   - /suda-ui/...               → internal Link as-is
+   *   - other relative paths       → internal Link under /suda-ui/employee/
+   */
+  const resolveNavUrl = (navigationURL) => {
+    if (!navigationURL) return { isExternal: false, to: "#" };
+
+    // Finance ERP paths — route internally to ERPFinance component which renders an
+    // iframe + hidden POST form. On localhost the form targets /erp-proxy/... (same-origin)
+    // which the webpack dev-server proxy forwards to citya-suda.digitalgovernance.digital.
+    // On production the form POSTs directly to the ERP subdomain.
+    if (navigationURL.startsWith("services/") || navigationURL.startsWith("/services/")) {
+      const cleanPath = navigationURL.replace(/^\//, "");
+      return { isExternal: false, to: `/suda-ui/employee/${cleanPath}` };
+    }
+
+    if (navigationURL.startsWith("http://") || navigationURL.startsWith("https://")) {
+      return { isExternal: true, href: navigationURL };
+    }
+    if (navigationURL.includes("/digit-ui")) {
+      return { isExternal: false, to: navigationURL.replace("/digit-ui", "/suda-ui") };
+    }
+    if (navigationURL.includes("/upyog-ui")) {
+      return { isExternal: false, to: navigationURL.replace("/upyog-ui", "/suda-ui") };
+    }
+    if (navigationURL.startsWith("/suda-ui")) {
+      return { isExternal: false, to: navigationURL };
+    }
+    // Other relative paths — internal React Router
+    return { isExternal: false, to: `/suda-ui/employee/${navigationURL.replace(/^\//, "")}` };
+  };
+
   if (item.type === "single") {
-    const getOrigin = window.location.origin;
+    const nav = resolveNavUrl(item.navigationURL);
     return (
       <div className="submenu-container">
         <div className={`sidebar-link  ${pathname === item?.navigationURL ? "active" : ""}`}>
           <div className="actions">
             {leftIcon}
-            {item.navigationURL?.indexOf("/digit-ui")||item.navigationURL?.indexOf("/suda-ui") === -1? (
+            {nav.isExternal ? (
               <a
                 data-tip="React-tooltip"
                 data-for={`jk-side-${getModuleName}`}
                 className="custom-link"
-                href={item.navigationURL.includes("digit-ui") || item.navigationURL.includes("/workbench-ui") ? item.navigationURL.replace("digit-ui","suda-ui") : item.navigationURL.includes("upyog-ui") ? item.navigationURL.replace("upyog-ui","suda-ui") : item.navigationURL.includes("suda-ui") ? item.navigationURL : "/suda-ui/employee/" + item.navigationURL.replace(/^\//, "")}
+                href={nav.href}
+                target="_blank"
+                rel="noreferrer"
               >
                 <span> {trimModuleName} </span>
-
-               {trimModuleName?.includes("...") &&<ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${getModuleName}`}>
-                  {t(`ACTION_TEST_${getModuleName}`)}
-                </ReactTooltip>}
+                {trimModuleName?.includes("...") && (
+                  <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${getModuleName}`}>
+                    {t(`ACTION_TEST_${getModuleName}`)}
+                  </ReactTooltip>
+                )}
               </a>
             ) : (
-              // <a className="custom-link" href={getOrigin + "/employee/" + item.navigationURL}>
-              //   <div className="tooltip">
-              //     <p className="p1">{trimModuleName}</p>
-              //     <span className="tooltiptext">{t(`ACTION_TEST_${getModuleName}`)}</span>
-              //   </div>
-              // </a>
-              <Link className="custom-link" to={item.navigationURL}>
+              <Link className="custom-link" to={nav.to}>
                 <div data-tip="React-tooltip" data-for={`jk-side-${getModuleName}`}>
                   <span> {trimModuleName} </span>
-
-                 {trimModuleName?.includes("...") && <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${getModuleName}`}>
-                    {t(`ACTION_TEST_${getModuleName}`)}
-                  </ReactTooltip>}
+                  {trimModuleName?.includes("...") && (
+                    <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${getModuleName}`}>
+                      {t(`ACTION_TEST_${getModuleName}`)}
+                    </ReactTooltip>
+                  )}
                 </div>
-                {/* <div className="tooltip">
-                  <p className="p1">{trimModuleName}</p>
-                  <span className="tooltiptext">{t(`ACTION_TEST_${getModuleName}`)}</span>
-                </div>{" "} */}
               </Link>
             )}
           </div>
@@ -146,45 +183,41 @@ const SubMenu = ({ item }) => {
               const getChildName = item?.displayName?.toUpperCase()?.replace(/[ -]/g, "_");
               const appendTranslate = t(`ACTION_TEST_${getChildName}`);
               const trimModuleName = t(appendTranslate?.length > 20 ? appendTranslate.substring(0, 20) + "..." : appendTranslate);
+              const childNav = resolveNavUrl(item.navigationURL);
 
-              if (item.navigationURL.indexOf("/suda-ui") || item.navigationURL.indexOf("/digit-ui")=== -1) {
-                const getOrigin = window.location.origin;
+              if (childNav.isExternal) {
                 return (
                   <a
                     key={index}
                     className={`dropdown-link ${pathname === item.link ? "active" : ""}`}
-                    href={item.navigationURL.includes("digit-ui") ? item.navigationURL.replace("digit-ui","suda-ui") : item.navigationURL.includes("upyog-ui") ? item.navigationURL.replace("upyog-ui","suda-ui") : item.navigationURL.includes("suda-ui") ? item.navigationURL : "/suda-ui/employee/" + item.navigationURL.replace(/^\//, "")}
+                    href={childNav.href}
+                    target="_blank"
+                    rel="noreferrer"
                   >
                     <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
                       <span> {trimModuleName} </span>
-                    {trimModuleName?.includes("...") && <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${index}`}>
-                        {t(`ACTION_TEST_${getChildName}`)}
-                      </ReactTooltip>}
+                      {trimModuleName?.includes("...") && (
+                        <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${index}`}>
+                          {t(`ACTION_TEST_${getChildName}`)}
+                        </ReactTooltip>
+                      )}
                     </div>
-                    {/* <div className="actions">
-                      <div className="tooltip">
-                        <p className="p1">{trimModuleName}</p>
-                        <span className="tooltiptext">{t(`ACTION_TEST_${getChildName}`)}</span>
-                      </div>{" "}
-                    </div> */}
                   </a>
                 );
               }
               return (
                 <Link
-                  to={item?.link || item.navigationURL}
+                  to={childNav.to}
                   key={index}
-                  className={`dropdown-link ${pathname === item?.link || pathname === item?.navigationURL ? "active" : ""}`}
+                  className={`dropdown-link ${pathname === item?.link || pathname === childNav.to ? "active" : ""}`}
                 >
                   <div className="actions" data-tip="React-tooltip" data-for={`jk-side-${index}`}>
                     <span> {trimModuleName} </span>
-                   {trimModuleName?.includes("...") &&<ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${index}`}>
-                      {t(`ACTION_TEST_${getChildName}`)}
-                    </ReactTooltip>}
-                    {/* <div className="tooltip">
-                      <p className="p1">{trimModuleName}</p>
-                      <span className="tooltiptext">{t(`ACTION_TEST_${getChildName}`)}</span>
-                    </div>{" "} */}
+                    {trimModuleName?.includes("...") && (
+                      <ReactTooltip textColor="white" backgroundColor="grey" place="right" type="info" effect="solid" id={`jk-side-${index}`}>
+                        {t(`ACTION_TEST_${getChildName}`)}
+                      </ReactTooltip>
+                    )}
                   </div>
                 </Link>
               );
