@@ -803,7 +803,8 @@ export const convertEpochToDate = (dateEpoch) => {
   if ((window.location.href.includes("bpa") || window.location.href.includes("BPA")) && isBpaSearchLoading) return <Loader />
 
   return (
-    <Card>
+    <div>
+      <div style={{ margin: "0 16px 20px" }}>
       <Banner
         svg={
           <svg className="payment-svg" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -818,6 +819,8 @@ export const convertEpochToDate = (dateEpoch) => {
         applicationNumber={paymentData?.paymentDetails[0].receiptNumber}
         successful={true}
       />
+      </div>
+    <Card>
       <CardText></CardText>
       <StatusTable>
         <Row rowContainerStyle={rowContainerStyle} last label={business_service==="TL" ? t("CS_PAYMENT_APPLICATION_NUMBER") : t(label)} text={applicationNo} />
@@ -1077,6 +1080,7 @@ export const convertEpochToDate = (dateEpoch) => {
         </Link>
       )}
     </Card>
+    </div>
   );
 };
 

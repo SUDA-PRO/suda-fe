@@ -23,6 +23,14 @@ const SearchProperty = ({ config: propsConfig, onSelect, redirectToUrl }) => {
   const { action = 0 } = Digit.Hooks.useQueryParams();
   const [searchData, setSearchData] = useState({});
   const [showToast, setShowToast] = useState(null);
+  const [uiCity, setUiCity] = useState(null);
+  const [uiLocality, setUiLocality] = useState(null);
+  const [uiCityCode, setUiCityCode] = useState(undefined);
+  const [uiMobile, setUiMobile] = useState("");
+  const [uiPropertyId, setUiPropertyId] = useState("");
+  const [uiOldPropertyId, setUiOldPropertyId] = useState("");
+  const [uiDoorNo, setUiDoorNo] = useState("");
+  const [uiOwnerName, setUiOwnerName] = useState("");
   sessionStorage.setItem("VisitedCommonPTSearch",true);
   sessionStorage.setItem("VisitedLightCreate",false);
   let allCities = Digit.Hooks.pt.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
@@ -635,40 +643,137 @@ setCityCode(city.code);
     config[0].body = [...config[0].body1];
   }
 
+  /* ── styles ────────────────────────────────────────────────── */
+  const sectionCard = { background: "#fff", borderRadius: "14px", border: "1px solid #eaedf3", padding: "20px 24px", boxShadow: "0 1px 6px rgba(26,43,73,0.05)", marginBottom: "16px" };
+  const inputStyle = { width: "100%", padding: "11px 14px", border: "1.5px solid #e5e7eb", borderRadius: "9px", fontSize: "14px", color: "#1a2b49", background: "#fafbfc", boxSizing: "border-box", outline: "none", fontFamily: "inherit" };
+  const onInputFocus = (e) => { e.target.style.borderColor = "#f47738"; e.target.style.boxShadow = "0 0 0 3px rgba(244,119,56,0.10)"; e.target.style.background = "#fff"; };
+  const onInputBlur = (e) => { e.target.style.borderColor = "#e5e7eb"; e.target.style.boxShadow = "none"; e.target.style.background = "#fafbfc"; };
+  const FieldLabel = ({ text }) => (
+    <div style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.45px", marginBottom: "7px" }}>{text}</div>
+  );
+  const SectionHeader = ({ step, title, required }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "16px" }}>
+      <span style={{ width: "22px", height: "22px", borderRadius: "7px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "11px", fontWeight: "800", flexShrink: 0 }}>{step}</span>
+      <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151" }}>{title}{required && <span style={{ color: "#ef4444", marginLeft: "3px" }}>*</span>}</span>
+    </div>
+  );
+
+  const currentAction = parseInt(action);
+
+  const handleModeChange = (mode) => {
+    setUiCity(null); setUiLocality(null); setUiCityCode(undefined);
+    setUiMobile(""); setUiPropertyId(""); setUiOldPropertyId(""); setUiDoorNo(""); setUiOwnerName("");
+    history.replace(`${history.location.pathname}?action=${mode}`);
+  };
+
+  const handleNewSubmit = () => {
+    const data = {
+      city: uiCity, locality: uiLocality, mobileNumber: uiMobile,
+      propertyIds: uiPropertyId, oldPropertyId: uiOldPropertyId, doorNumber: uiDoorNo, name: uiOwnerName,
+    };
+    onPropertySearch(data);
+  };
+
+  const isOBPS = window.location.href.includes("/obps/bpa/");
+
   return (
-    <div style={{ marginTop: "16px", marginBottom: "16px" ,backgroundColor:"white", maxWidth:"960px"}}>
-      <FormComposer
-        onSubmit={onPropertySearch}
-        noBoxShadow
-        inline
-        config={config}
-        label={propsConfig.texts.submitButtonLabel}
-        heading={t(propsConfig.texts.header)}
-        text={t(propsConfig.texts.text)}
-        headingStyle={{ fontSize: "32px", marginBottom: "16px", fontFamily: "Roboto Condensed,sans-serif" }}
-        onFormValueChange={onFormValueChange}
-        cardStyle={{marginBottom:"0",maxWidth:"960px"}}
-      ></FormComposer>
-       <div style={{display:"flex"}}>
- 
-      {window.location.href.includes("/obps/bpa/") ?<span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
-        <Link to={"/digit-ui/citizen/obps/bpa/building_plan_scrutiny/new_construction/location"}>{t("CORE_COMMON_SKIP_CONTINUE")}</Link>
-      </span>:
-           <span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
-       
-           <Link to={window.location.href.includes("/ws/")?"/digit-ui/citizen/ws/create-application/create-property" : window.location.href.includes("/tl/tradelicence/") ? "/digit-ui/citizen/tl/tradelicence/new-application/create-property":window.location.href.includes("/fsm/")? "/digit-ui/citizen/fsm/new-application/create-property":"/digit-ui/citizen/commonpt/property/new-application"}>{t("CPT_REG_NEW_PROPERTY")}</Link>
-         </span>}
+    <div style={{ minHeight: "60vh", background: "#f5f6fa" }}>
+      {/* ── Hero Banner ── */}
+      <div style={{ background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)", borderRadius: "12px", padding: isMobile ? "24px 20px 28px" : "28px 32px 32px", marginBottom: "0", position: "relative", overflow: "hidden" }}>
+        <div style={{ position: "absolute", right: "-60px", top: "-60px", width: "220px", height: "220px", borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none" }} />
+        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", color: "rgba(255,255,255,0.75)", marginBottom: "4px" }}>
+              {isOBPS ? (t("BPA_BUILDING_PERMIT") || "Building Permit") : (t("ACTION_TEST_PROPERTY_TAX") || "Property Tax")}
+            </div>
+            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "800", color: "#fff", lineHeight: 1.2 }}>{t(propsConfig.texts.header) || "Search Property"}</h2>
+            <p style={{ margin: "4px 0 0", fontSize: "13px", color: "rgba(255,255,255,0.85)" }}>{t(propsConfig.texts.text) || "Find your property to link with this application"}</p>
+          </div>
+          {isOBPS && <div style={{ flexShrink: 0, background: "rgba(255,255,255,0.2)", borderRadius: "20px", padding: "6px 16px", fontSize: "12px", fontWeight: "700", color: "#fff", whiteSpace: "nowrap" }}>Step 1 of 3</div>}
+        </div>
       </div>
+
+      {/* ── Form Body ── */}
+      <div style={{ padding: isMobile ? "20px 16px 48px" : "24px 32px 56px" }}>
+        {/* Mode Toggle */}
+        <div style={sectionCard}>
+          <div style={{ fontSize: "11px", fontWeight: "700", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "12px" }}>{t("PT_HOME_SEARCH_PROPERTY_BY") || "Search Property By"}</div>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {[
+              { code: 0, label: t("PT_KNOW_PT_ID") || "Property ID / Mobile", icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg> },
+              { code: 1, label: t("PT_KNOW_PT_DETAIL") || "Owner / Address Details", icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> },
+            ].map((opt) => {
+              const isActive = currentAction === opt.code;
+              return (
+                <button key={opt.code} type="button" onClick={() => handleModeChange(opt.code)} style={{ flex: 1, minWidth: "160px", padding: "13px 20px", borderRadius: "10px", border: isActive ? "2px solid #f47738" : "2px solid #e5e7eb", background: isActive ? "linear-gradient(135deg, #fff8f4 0%, #fff3ec 100%)" : "#f9fafb", color: isActive ? "#d44f0a" : "#6b7280", fontWeight: "700", fontSize: "13px", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", boxShadow: isActive ? "0 2px 10px rgba(244,119,56,0.18)" : "none" }}>
+                  {opt.icon}{opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* City + Locality */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : currentAction === 1 ? "1fr 1fr" : "1fr", gap: "16px", marginBottom: "16px" }}>
+          <div style={sectionCard}>
+            <SectionHeader step="1" title={t("PT_SELECT_CITY") || "Select City"} required />
+            <Dropdown t={t} isMandatory option={allCities} optionKey="i18nKey" selected={uiCity} optionCardStyles={{ maxHeight: "220px", overflowY: "auto", zIndex: 20 }}
+              select={(d) => {
+                Digit.LocalizationService.getLocale({ modules: [`rainmaker-${d?.code}`], locale: Digit.StoreData.getCurrentLanguage(), tenantId: `${d?.code}` });
+                if (d?.code !== uiCityCode) setUiLocality(null);
+                setUiCityCode(d?.code); setUiCity(d); setCityCode(d?.code);
+              }}
+            />
+          </div>
+          {currentAction === 1 && (
+            <div style={sectionCard}>
+              <SectionHeader step="2" title={t("PT_SELECT_LOCALITY") || "Select Locality"} required />
+              <Localities selectLocality={(d) => setUiLocality(d)} tenantId={uiCityCode} boundaryType="revenue" keepNull={false} optionCardStyles={{ maxHeight: "220px", overflowY: "auto", zIndex: 20 }} selected={uiLocality} disable={!uiCityCode} disableLoader={true} />
+            </div>
+          )}
+        </div>
+
+        {/* Additional fields */}
+        <div style={{ ...sectionCard, marginBottom: "20px" }}>
+          <SectionHeader step={currentAction === 1 ? "3" : "2"} title={t("PT_PROVIDE_ONE_MORE_PARAM") || "Enter at least one of the following"} />
+          {currentAction === 0 ? (
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "18px" }}>
+              <div><FieldLabel text={t(mobileNumber.label) || "Mobile Number"} /><input type="tel" value={uiMobile} onChange={(e) => setUiMobile(e.target.value)} placeholder="e.g. 9876543210" style={inputStyle} onFocus={onInputFocus} onBlur={onInputBlur} /></div>
+              <div><FieldLabel text={t(property.label) || "Property ID"} /><input type="text" value={uiPropertyId} onChange={(e) => setUiPropertyId(e.target.value)} style={inputStyle} onFocus={onInputFocus} onBlur={onInputBlur} /></div>
+              <div><FieldLabel text={t(oldProperty.label) || "Old Property ID"} /><input type="text" value={uiOldPropertyId} onChange={(e) => setUiOldPropertyId(e.target.value)} style={inputStyle} onFocus={onInputFocus} onBlur={onInputBlur} /></div>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "18px" }}>
+              <div><FieldLabel text={t(doorNumber.label) || "Door / House Number"} /><input type="text" value={uiDoorNo} onChange={(e) => setUiDoorNo(e.target.value)} style={inputStyle} onFocus={onInputFocus} onBlur={onInputBlur} /></div>
+              <div><FieldLabel text={t(name.label) || "Owner Name"} /><input type="text" value={uiOwnerName} onChange={(e) => setUiOwnerName(e.target.value)} style={inputStyle} onFocus={onInputFocus} onBlur={onInputBlur} /></div>
+            </div>
+          )}
+        </div>
+
+        {/* Search Button */}
+        <button type="button" onClick={handleNewSubmit} disabled={propertyDataLoading}
+          style={{ width: "100%", padding: "15px 32px", background: propertyDataLoading ? "#d1d5db" : "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", border: "none", borderRadius: "12px", color: "#fff", fontSize: "15px", fontWeight: "700", cursor: propertyDataLoading ? "not-allowed" : "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "10px", boxShadow: propertyDataLoading ? "none" : "0 4px 20px rgba(244,119,56,0.35)", marginBottom: "16px" }}>
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          {propertyDataLoading ? (t("CS_COMMON_SEARCHING") || "Searching...") : (t(propsConfig.texts.submitButtonLabel) || "Search Property")}
+        </button>
+
+        {isOBPS && onSkip && (
+          <div style={{ textAlign: "center" }}>
+            <button type="button" onClick={onSkip} style={{ background: "none", border: "none", color: "#f47738", fontSize: "13px", fontWeight: "700", cursor: "pointer", textDecoration: "underline" }}>{t("CORE_COMMON_SKIP_CONTINUE") || "Skip & Continue"}</button>
+          </div>
+        )}
+        {isOBPS && !onSkip && (
+          <div style={{ textAlign: "center" }}>
+            <Link to="/digit-ui/citizen/obps/bpa/building_plan_scrutiny/new_construction/location" style={{ color: "#f47738", fontSize: "13px", fontWeight: "700" }}>{t("CORE_COMMON_SKIP_CONTINUE")}</Link>
+          </div>
+        )}
+      </div>
+
       {showToast && (
-        <Toast
-          isDleteBtn={true}
-          error={showToast.error}
-          warning={showToast.warning}
-          label={t(showToast.label)}
-          onClose={() => {
-            setShowToast(null);
-          }}
-        />
+        <Toast isDleteBtn={true} error={showToast.error} warning={showToast.warning} label={t(showToast.label)} onClose={() => setShowToast(null)} />
       )}
     </div>
   );
