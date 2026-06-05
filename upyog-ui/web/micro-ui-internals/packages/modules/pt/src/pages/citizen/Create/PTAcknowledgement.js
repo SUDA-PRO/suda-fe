@@ -144,15 +144,6 @@ const PTAcknowledgement = ({ data, onSuccess }) => {
           className="w-full"
         />)}*/}
       <StatusTable>
-        {mutation.isSuccess && (
-          <Row
-            rowContainerStyle={rowContainerStyle}
-            last
-            label={t("PT_COMMON_TABLE_COL_PT_ID")}
-            text={mutation?.data?.Properties[0]?.propertyId}
-            textStyle={{ whiteSpace: "pre", width: "60%" }}
-          />
-        )}
       </StatusTable>
       {/* {mutation.isSuccess && <Link to={`/suda-ui/citizen/feedback?redirectedFrom=${match.path}&propertyId=${mutation.isSuccess ? mutation?.data?.Properties[0]?.propertyId : ""}&acknowldgementNumber=${mutation.isSuccess ? mutation?.data?.Properties[0]?.acknowldgementNumber : ""}&creationReason=${mutation.isSuccess ? mutation?.data?.Properties[0]?.creationReason : ""}&tenantId=${mutation.isSuccess ? mutation?.data?.Properties[0]?.tenantId : ""}&locality=${mutation.isSuccess ? mutation?.data?.Properties[0]?.address?.locality?.code : ""}`}>
           <SubmitBar label={t("CS_REVIEW_AND_FEEDBACK")}/>

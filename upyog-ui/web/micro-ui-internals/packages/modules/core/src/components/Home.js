@@ -345,7 +345,7 @@ const MODULE_CONFIG = {
   OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/stakeholder-inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search/application" }] },
   CHB:      { name: "CHB",             color: "#C11574", icon: "🏛️", moduleCode: "CHB",      services: ["booking-refund"],                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/chb/inbox" },       { label: "New Booking",    url: "/suda-ui/employee/chb/bookHall/searchhall" }, { label: "Search", url: "/suda-ui/employee/chb/search" }] },
   ADS:      { name: "Advertisements",  color: "#E31B54", icon: "📢", moduleCode: "ADS",      services: ["ADS"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ads/inbox" },       { label: "New Application",url: "/suda-ui/employee/ads/new-application" }, { label: "Search",         url: "/suda-ui/employee/ads/search" }] },
-  PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/inbox" },       { label: "Search",         url: "/suda-ui/employee/ptr/search" }] },
+  PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/petservice/inbox" }, { label: "Search",         url: "/suda-ui/employee/ptr/petservice/my-applications" }] },
   SW:       { name: "Solid Waste",     color: "#4A7C59", icon: "♻️", moduleCode: "SW",       services: ["SW"],                                             links: [{ label: "Inbox",          url: "/suda-ui/employee/sw/inbox" },        { label: "New Request",    url: "/suda-ui/employee/sw/new-application" },  { label: "Search",         url: "/suda-ui/employee/sw/search" }] },
   SURVEY:   { name: "Surveys",         color: "#5B4FCF", icon: "📋", moduleCode: "SURVEY",   services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/survey/inbox" },    { label: "Create Survey",  url: "/suda-ui/employee/survey/create" }] },
   Bills:    { name: "Bills",           color: "#D97706", icon: "🧾", moduleCode: null,        services: [],                                                 links: [{ label: "Search Bills",   url: "/suda-ui/employee/bills/search" },    { label: "Pay Bill",       url: "/suda-ui/employee/bills/pay" }] },
@@ -525,9 +525,9 @@ const EmployeeHome = ({ modules }) => {
     },
   });
 
-  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan
+  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan, PT Reports
   // const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
-  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS"].includes(code));
+  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS", "PTR"].includes(code));
   const heroModules = visibleModules.slice(0, 4);
 
   return (
