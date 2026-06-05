@@ -498,7 +498,7 @@ const EmployeeHome = ({ modules }) => {
       { label: "Search", url: "/suda-ui/employee/mcollect/search" },
     ],
     OBPS: [
-      { label: "Inbox", url: "/suda-ui/employee/obps/stakeholder-inbox" },
+      { label: "Inbox", url: "/suda-ui/employee/obps/inbox" },
       { label: "New Application", url: "/suda-ui/employee/obps/new-application" },
       { label: "Search", url: "/suda-ui/employee/obps/search/application" },
     ],
