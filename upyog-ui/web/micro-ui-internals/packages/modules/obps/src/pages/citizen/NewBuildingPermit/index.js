@@ -55,7 +55,11 @@ const NewBuildingPermit = () => {
     else if(key=== "")
     setParams({...data});
     else setParams({ ...params, ...{ [key]: { ...params[key], ...data }}});
-    goNext(skipStep);
+    // Defer navigation to after React commits the state update.
+    // Calling history.push synchronously after setParams in React 16/17 causes
+    // "Cannot update StaticCitizenSideBar while rendering LocationDetails" because
+    // useLocation-dependent components try to update mid-render.
+    setTimeout(() => goNext(skipStep), 0);
   };
   const handleSkip = () => {
     const currentPath = pathname.split("/").pop();

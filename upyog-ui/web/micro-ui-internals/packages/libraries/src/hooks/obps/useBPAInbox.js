@@ -19,7 +19,7 @@ const useBPAInbox = ({ tenantId, filters, config={} }) => {
     let _filters = {
         tenantId,
         processSearchCriteria: {
-          assignee : assignee === "ASSIGNED_TO_ME"?user?.info?.uuid:"",
+          ...(assignee === "ASSIGNED_TO_ME" ? {assignee: user?.info?.uuid} : {}),
           moduleName: moduleName !== "BPAREG"  ? "bpa-services" : "BPAREG", 
           businessService: moduleName !== "BPAREG"  ? (businessService ? [businessService] : ["BPA_LOW", "BPA", "BPA_OC", "BPA-PAP"] ) : (businessService ? [businessService.identifier] : ["ARCHITECT","BUILDER","ENGINEER","STRUCTURALENGINEER", "TOWNPLANNER", "SUPERVISOR"]),
           ...(applicationStatus?.length > 0 ? {status: applicationStatus} : {}),

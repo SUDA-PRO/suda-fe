@@ -1,4 +1,4 @@
-import { CardLabel, FormStep, LinkButton, RadioOrSelect, TextInput } from "@upyog/digit-ui-react-components";
+import { FormStep, LinkButton, RadioOrSelect, TextInput } from "@upyog/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import GIS from "./GIS";
@@ -230,10 +230,35 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
     sessionStorage.setItem("currLocality", JSON.stringify(locality));
   }
 
+  const sectionTitleStyle = { fontSize: "15px", fontWeight: "700", color: "#1a2b49", marginBottom: "20px", paddingBottom: "10px", borderBottom: "2px solid #f47738", letterSpacing: "0.3px" };
+  const labelStyle = { display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px", letterSpacing: "0.2px" };
+  const requiredMark = { color: "#e54d42", marginLeft: "2px" };
+  const cardStyle = { background: "#ffffff", borderRadius: "10px", boxShadow: "0 2px 12px rgba(0,0,0,0.08)", padding: "24px 28px", marginBottom: "24px", border: "1px solid #e8ecf0" };
+
   return (
-    <div>
+    <div className="location-details-page">
+      <style>{".location-details-page .card-caption, .location-details-page .card-text { display: none !important; }"}</style>
       {!isOpen && <Timeline currentStep={checkingFlow === "OCBPA" ? 2 : checkingFlow==="PRE_APPROVE"? 5: 1 } flow={checkingFlow}/>}
-      {isOpen && <GIS t={t} onSelect={onSelect} formData={formData} handleRemove={handleRemove} onSave={onSave} />}   
+      {isOpen && <GIS t={t} onSelect={onSelect} formData={formData} handleRemove={handleRemove} onSave={onSave} />}
+      {!isOpen && (
+        <div style={{ background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)", borderRadius: "12px", padding: "28px 36px", marginBottom: "24px", color: "#fff", display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" /><circle cx="12" cy="10" r="3" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>
+              {t("BPA_BUILDING_PERMIT") || "Building Permit"}
+            </div>
+            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("BPA_NEW_TRADE_DETAILS_HEADER_DETAILS") || "Location Details"}</h2>
+            <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>
+              {t("BPA_LOCATION_SUBTEXT") || "Provide the property location details"}
+            </p>
+          </div>
+          <div style={{ marginLeft: "auto", flexShrink: 0, background: "rgba(255,255,255,0.2)", borderRadius: "20px", padding: "6px 16px", fontSize: "12px", fontWeight: "700", color: "#fff", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>Step 1 of 3</div>
+        </div>
+      )}
     {!isOpen && <FormStep
       t={t}
       config={config}
@@ -242,15 +267,16 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
       isMultipleAllow={true}
       forcedError={t(Pinerror)}
     >
-      <CardLabel>{`${t("BPA_GIS_LABEL")}`}</CardLabel>
-      <div style={{/* position:"relative",height:"100px",width:"200px" */ }}>
+      <div style={cardStyle}>
+        <div style={sectionTitleStyle}>{t("BPA_LOCATION_SECTION") || "Location Information"}</div>
+        <label style={labelStyle}>{t("BPA_GIS_LABEL")}</label>
+        <div style={{/* position:"relative",height:"100px",width:"200px" */ }}>
         <TextInput
           style={{ }}
           isMandatory={false}
           optionKey="i18nKey"
           t={t}
           name="gis"
-          //value={geoLocation && geoLocation.latitude && geoLocation.longitude?`${geoLocation.latitude},${geoLocation.longitude}`:""}
           value={isEditApplication || isSendBackTOCitizen?(geoLocation.latitude !== null?`${geoLocation.latitude}, ${geoLocation.longitude}`:""):placeName}
           onChange={selectGeolocation}
         />
@@ -269,8 +295,7 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
           onClick={(e) => handleGIS()}
         />
       </div>
-      {/* {isOpen && <GIS t={t} onSelect={onSelect} formData={formData} handleRemove={handleRemove} onSave={onSave} />} */}
-      <CardLabel>{`${t("BPA_DETAILS_PIN_LABEL")}`}</CardLabel>
+      <label style={labelStyle}>{t("BPA_DETAILS_PIN_LABEL")}</label>
       {!isOpen && <TextInput
         isMandatory={false}
         optionKey="i18nKey"
@@ -281,7 +306,7 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
         value={pincode}
         disabled={propertyData?.address ?true:false}
       />}
-      <CardLabel>{`${t("BPA_CITY_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
+      <label style={labelStyle}>{t("BPA_CITY_LABEL")}<span style={requiredMark}>*</span></label>
       {!isOpen && <RadioOrSelect
         options={cities}
         selectedOption={selectedCity}
@@ -289,12 +314,11 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
         onSelect={selectCity}
         t={t}
         isDependent={true}
-        //labelKey="TENANT_TENANTS"
         disabled={propertyData?.address ?true:false}
       />}
       {!isOpen && selectedCity && localities && !propertyData?.address?.locality.name && (
         <span className={"form-pt-dropdown-only"}>
-          <CardLabel>{`${t("BPA_LOC_MOHALLA_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
+          <label style={labelStyle}>{t("BPA_LOC_MOHALLA_LABEL")}<span style={requiredMark}>*</span></label>
           <RadioOrSelect
             optionCardStyles={{ maxHeight:"20vmax", overflow:"scroll" }}
             isMandatory={config.isMandatory}
@@ -305,17 +329,15 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
             t={t}
             isDependent={true}
             labelKey={`${stringReplaceAll(selectedCity?.code,".","_").toUpperCase()}_REVENUE`}
-          //disabled={isEdit}
           />
         </span>
        )}
          {!isOpen  && propertyData?.address?.locality.name && (
         <span className={"form-pt-dropdown-only"}>
-          <CardLabel>{`${t("BPA_LOC_MOHALLA_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
+          <label style={labelStyle}>{t("BPA_LOC_MOHALLA_LABEL")}<span style={requiredMark}>*</span></label>
           <TextInput
             optionCardStyles={{ maxHeight:"20vmax", overflow:"scroll" }}
             isMandatory={config.isMandatory}
-            //options={}
             value={propertyData?.address.locality.name}
             optionKey="i18nkey"
             t={t}
@@ -324,9 +346,8 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
             disabled={propertyData?.address ?true:false}
           />
         </span>
-            
             )}
-      <CardLabel>{`${t("BPA_DETAILS_SRT_NAME_LABEL")}`}</CardLabel>
+      <label style={labelStyle}>{t("BPA_DETAILS_SRT_NAME_LABEL")}</label>
       {!isOpen && <TextInput
         style={{ }}
         isMandatory={false}
@@ -337,7 +358,7 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
         value={street}
         disabled={propertyData?.address ?true:false}
       />}
-      <CardLabel>{`${t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}`}</CardLabel>
+      <label style={labelStyle}>{t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}</label>
       {!isOpen && <TextInput
         style={{ }}
         isMandatory={false}
@@ -347,12 +368,8 @@ const LocationDetails = ({ t, config, onSelect, userType, formData, ownerIndex =
         onChange={selectLandmark}
         value={landmark}
         disabled={propertyData?.address ?true:false}
-      // {...(validation = {
-      //     isRequired: true,
-      //     pattern: getPattern("Name"),
-      //     title: t("BPA_INVALID_NAME"),
-      // })}
       />}
+      </div>
     </FormStep>}
     </div>
   );
