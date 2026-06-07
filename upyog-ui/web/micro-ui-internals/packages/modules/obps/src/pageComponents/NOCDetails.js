@@ -123,8 +123,29 @@ const NOCDetails = ({ t, config, onSelect, userType, formData, setError: setForm
     function onAdd() { }
 
     return (
-        <div>
+        <div className="noc-details-page">
+            <style>{".noc-details-page .card-caption, .noc-details-page .card-text { display: none !important; }"}</style>
             <Timeline currentStep={3} flow= {checkingFlow === "OCBPA" ? "OCBPA" : ""}/>
+
+            {/* Hero Banner */}
+            <div style={{ background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)", borderRadius: "12px", padding: "28px 36px", marginBottom: "24px", color: "#fff", display: "flex", alignItems: "center", gap: "20px" }}>
+              <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="9 11 12 14 22 4" /><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+              </div>
+              <div>
+                <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>
+                  {t("BPA_BUILDING_PERMIT") || "Building Permit"}
+                </div>
+                <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("BPA_NOC_DETAILS_SUMMARY") || "NOC Details"}</h2>
+                <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>
+                  {t("BPA_NOC_SUBTEXT") || "Upload NOC documents from relevant authorities"}
+                </p>
+              </div>
+              <div style={{ marginLeft: "auto", flexShrink: 0, background: "rgba(255,255,255,0.2)", borderRadius: "20px", padding: "6px 16px", fontSize: "12px", fontWeight: "700", color: "#fff", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>Step 3 of 3</div>
+            </div>
+
             {!nocDocsLoading ?
                 <FormStep
                     t={t}

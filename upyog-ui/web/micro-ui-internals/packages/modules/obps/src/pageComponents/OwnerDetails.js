@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { FormStep, TextInput, CardLabel, RadioButtons,RadioOrSelect, LabelFieldPair, Dropdown, CheckBox, LinkButton, Loader, Toast, SearchIcon, DeleteIcon } from "@upyog/digit-ui-react-components";
 import { stringReplaceAll, getPattern, convertDateTimeToEpoch, convertDateToEpoch } from "../utils";
 import Timeline from "../components/Timeline";
@@ -28,6 +28,8 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
     const [showToast, setShowToast] = useState(null);
     const [isDisable, setIsDisable] = useState(false);
     const [propertyData, setPropertyData] = useState(null);
+    const isMounted = useRef(true);
+    useEffect(() => { return () => { isMounted.current = false; }; }, []);
     const [ownerRoleCheck, setownerRoleCheck] = useState({});
     let Webview = !Digit.Utils.browser.isMobile();
     const checkingFlow = formData?.uiFlow?.flow ? formData?.uiFlow?.flow :formData?.selectedPlot||formData?.businessService==="BPA-PAP"    ? "PRE_APPROVE":"";
@@ -264,6 +266,7 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
        
             const usersResponse = await Digit.UserService.userSearch(Digit.ULBService.getStateId(), { userName: fields?.[indexValue]?.mobileNumber }, {});
             let found = usersResponse?.user?.[0]?.roles?.filter(el => el.code === "BPA_ARCHITECT" || el.code === "BPA_SUPERVISOR")?.[0];
+            if (!isMounted.current) return;
             if (usersResponse?.user?.length === 0) {
                 setShowToast({ key: "true", warning: true, message: "ERR_MOBILE_NUMBER_NOT_REGISTERED" });
                 return;
@@ -323,6 +326,7 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
     const goNext = async () => {
     if(!error){
         const moveforward = await getUserData();
+        if (!isMounted.current) return;
        if(moveforward){
         if (ismultiple == true && fields.length == 1) {
             window.scrollTo(0,0);
@@ -362,6 +366,7 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
             
             if (!formData?.id) {
                 setIsDisable(true);
+                try {
                 //for owners conversion
                 let conversionOwners = [];
                 console.log("ownerStepownerStep",ownerStep)
@@ -432,6 +437,7 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
                  
                      createdProp = await PTService.create({Property, tenantId})
               }
+                if (!isMounted.current) { setIsDisable(false); return; }
                 let payload = {};
                 payload.edcrNumber = formData?.edcrNumber?.edcrNumber ? formData?.edcrNumber?.edcrNumber :formData?.data?.scrutinyNumber?.edcrNumber ||formData?.data?.scrutinyNumber;
                 payload.riskType = formData?.data?.riskType;
@@ -479,6 +485,7 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
                 payload.additionalDetails.applicantName = formData?.data?.applicantName
                 Digit.OBPSService.create({ BPA: payload }, tenantId)
                     .then((result, err) => {
+                        if (!isMounted.current) return;
                         if (result?.BPA?.length > 0) {
                             result?.BPA?.[0]?.landInfo?.owners?.forEach(owner => {
                                 owner.gender = { code: owner.gender, active: true, i18nKey: `COMMON_GENDER_${owner.gender}` }
@@ -501,9 +508,16 @@ const OwnerDetails = ({ t, config, onSelect, userType, formData }) => {
                         }
                     })
                     .catch((e) => {
+                        if (!isMounted.current) return;
                         setIsDisable(false);
                         setShowToast({ key: "true", error: true, message: e?.response?.data?.Errors[0]?.message });
                     });
+                } catch (e) {
+                    if (isMounted.current) {
+                        setIsDisable(false);
+                        setShowToast({ key: "true", error: true, message: e?.response?.data?.Errors?.[0]?.message || e?.message || "PT_MUTATION_ERROR_KEY" });
+                    }
+                }
             } else {
                 onSelect(config.key, ownerStep);
             }
@@ -589,13 +603,35 @@ useEffect(()=>{
 
 
     return (
-        <div>
+        <div className="owner-details-page">
+        <style>{".owner-details-page .card-caption, .owner-details-page .card-text { display: none !important; }"}</style>
         <Timeline currentStep={checkingFlow === "OCBPA"  ? 2 : checkingFlow==="PRE_APPROVE"? 6 : 1 } flow={checkingFlow}/>
+
+        {/* Hero Banner */}
+        <div style={{ background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)", borderRadius: "12px", padding: "28px 36px", marginBottom: "24px", color: "#fff", display: "flex", alignItems: "center", gap: "20px" }}>
+          <div style={{ width: "56px", height: "56px", borderRadius: "50%", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>
+              {t("BPA_BUILDING_PERMIT") || "Building Permit"}
+            </div>
+            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t("BPA_APPLICANT_DETAILS_HEADER") || "Owner Details"}</h2>
+            <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>
+              {t("BPA_OWNER_SUBTEXT") || "Provide applicant and ownership information"}
+            </p>
+          </div>
+          <div style={{ marginLeft: "auto", flexShrink: 0, background: "rgba(255,255,255,0.2)", borderRadius: "20px", padding: "6px 16px", fontSize: "12px", fontWeight: "700", color: "#fff", letterSpacing: "0.5px", whiteSpace: "nowrap" }}>Step 2 of 3</div>
+        </div>
+
         <FormStep config={config} onSelect={goNext} onSkip={onSkip} t={t} isDisabled={canmovenext || getCanMoveNextMultiple() || !ownershipCategory || isDisable || showToast} forcedError={t(error)}>   
             {!isLoading ?
                 <div style={{marginBottom: "10px"}}>
-                    <div>
-                        <CardLabel>{`${t("BPA_TYPE_OF_OWNER_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
+                    <div style={{ background: "#ffffff", borderRadius: "10px", boxShadow: "0 2px 12px rgba(0,0,0,0.08)", padding: "24px 28px", marginBottom: "24px", border: "1px solid #e8ecf0" }}>
+                      <div style={{ fontSize: "15px", fontWeight: "700", color: "#1a2b49", marginBottom: "20px", paddingBottom: "10px", borderBottom: "2px solid #f47738" }}>{t("BPA_OWNER_SECTION") || "Ownership Details"}</div>
+                        <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px" }}>{`${t("BPA_TYPE_OF_OWNER_LABEL")}`}<span style={{ color: "#e54d42", marginLeft: "2px" }}>*</span></label>
                         <RadioButtons
                             isMandatory={config.isMandatory}
                             options={ownershipCategoryList}
@@ -612,7 +648,7 @@ useEffect(()=>{
                         return (
                             <div key={`${field}-${index}`}>
                                 <div style={{ border: "solid", borderRadius: "5px", padding: "10px", paddingTop: "20px", marginTop: "10px", borderColor: "#f3f3f3", background: "#FAFAFA" }}>
-                                    <CardLabel style={{ marginBottom: "-15px" }}>{`${t("CORE_COMMON_MOBILE_NUMBER")}`}<span className="check-page-link-button"> *</span></CardLabel>
+                                    <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px", marginBottom: "-15px" }}>{`${t("CORE_COMMON_MOBILE_NUMBER")}`}<span style={{ color: "#e54d42", marginLeft: "2px" }}>*</span></label>
                                     {ismultiple && <LinkButton
                                         label={ <DeleteIcon style={{ float: "right", position: "relative", bottom: "5px" }} fill={!(fields.length == 1) ? "#494848" : "#FAFAFA"}/>}
                                         style={{ width: "100px", display: "inline", background: "black" }}
@@ -641,7 +677,7 @@ useEffect(()=>{
                                             <div style={{ position: "relative", zIndex: "100", right: "35px", marginTop: "-24px", marginRight:Webview?"-20px":"-20px" }} onClick={(e) => getOwnerDetails(index, e)}> <SearchIcon /> </div>
                                         </div>
                                     </div>
-                                    <CardLabel>{`${t("CORE_COMMON_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
+                                    <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px" }}>{`${t("CORE_COMMON_NAME")}`}<span style={{ color: "#e54d42", marginLeft: "2px" }}>*</span></label>
                                     <TextInput
                                         style={{ background: "#FAFAFA" }}
                                         t={t}
@@ -659,7 +695,7 @@ useEffect(()=>{
                                         })}
                                         disabled={propertyData?.owners ?true:false}
                                     />
-                                    <CardLabel>{`${t("BPA_APPLICANT_GENDER_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
+                                    <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px" }}>{`${t("BPA_APPLICANT_GENDER_LABEL")}`}<span style={{ color: "#e54d42", marginLeft: "2px" }}>*</span></label>
                                     <RadioOrSelect
                                     name="gender"
                                     options={genderList}
@@ -670,7 +706,7 @@ useEffect(()=>{
                                     disabled={propertyData?.owners ? true:false}
                                     />
                                     <div>
-                                     <CardLabel>{`${t("CORE_EMAIL_ID")}`}</CardLabel>
+                                     <label style={{ display: "block", fontWeight: "600", fontSize: "13px", color: "#3d4f6b", marginBottom: "6px" }}>{`${t("CORE_EMAIL_ID")}`}</label>
                                     <TextInput
                                         style={{ background: "#FAFAFA" }}
                                         t={t}

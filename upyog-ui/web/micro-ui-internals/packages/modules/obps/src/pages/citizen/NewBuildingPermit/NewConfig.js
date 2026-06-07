@@ -42,8 +42,8 @@ export const newConfig1=[
     "type": "component",
     "route": "search-property",
     "isMandatory": true,
-    "component": "CPTSearchProperty",
-    "key": "cptsearchproperty",
+    "component": "BPAPropertySearch",
+    "key": "cptSearchQuery",
     "withoutLabel": true,
     "nextStep": "search-results",
     "hideInEmployee": true

@@ -42,7 +42,7 @@ const MutationApplicationDetails = ({ propertyId, acknowledgementIds, workflowDe
   const { isLoading: auditDataLoading, isError: isAuditError, data: auditResponse } = Digit.Hooks.pt.usePropertySearch(
     {
       tenantId,
-      filters: { propertyIds: propertyId, audit: true },
+      filters: { propertyIds: application?.propertyId, audit: true },
     },
     {
       enabled: true,

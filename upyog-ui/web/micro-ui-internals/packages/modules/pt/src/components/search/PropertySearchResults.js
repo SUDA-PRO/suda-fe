@@ -101,10 +101,17 @@ const SearchPTID = ({ tenantId, t, payload, showToast, setShowToast,ptSearchConf
         Header: t("PT_COMMON_TABLE_COL_PT_ID"),
         disableSortBy: true,
         Cell: ({ row }) => {
+          const pid = row.original["propertyId"];
+          const ackNo = row.original["acknowldgementNumber"];
+          // Pre-approval: propertyId is null — link to application-details by acknowledgement number
+          const linkPath = pid
+            ? `/suda-ui/employee/pt/ptsearch/property-details/${pid}`
+            : `/suda-ui/employee/pt/applicationsearch/application-details/${ackNo}`;
+          const label = pid || `${ackNo} (${t("PT_PROPERTY_ID_PENDING_APPROVAL")})`;
           return (
             <div>
               <span className="link">
-                <Link to={`/suda-ui/employee/pt/ptsearch/property-details/${row.original["propertyId"]}`}>{row.original["propertyId"]}</Link>
+                <Link to={linkPath}>{label}</Link>
               </span>
             </div>
           );
