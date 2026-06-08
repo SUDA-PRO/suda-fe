@@ -71,54 +71,80 @@ const getCitizenStyles = (value) => {
   } else if (value == "OBPS") {
     citizenStyles = {
       containerStyles: {
-        display: "flex", 
-        justifyContent: "flex-start", 
-        alignItems: "center", 
-        flexWrap: "wrap",
+        display: "flex",
+        justifyContent: "flex-start",
+        alignItems: "center",
+        flexWrap: "nowrap",
+        gap: "12px",
         margin: "0px",
-        padding: "0px"
+        padding: "0px",
       },
       tagContainerStyles: {
-       margin: "0px",
-       padding: "0px",
-       width: "46%"
+        margin: "0px",
+        padding: "0px",
+        maxWidth: "60%",
       },
       tagStyles: {
-        height: "auto", 
-        padding: "5px", 
-        margin: 0,
-        width: "100%",
-        margin: "5px"
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "8px",
+        background: "#e8f4e8",
+        border: "1px solid #a8d8aa",
+        borderRadius: "8px",
+        padding: "6px 12px",
+        color: "#2e7d32",
+        fontWeight: "500",
+        fontSize: "12px",
+        margin: "0",
+        width: "auto",
+        maxWidth: "100%",
       },
       textStyles: {
-        wordBreak: "break-word",
-        height: "auto",
-        lineHeight: "16px",
+        whiteSpace: "nowrap",
         overflow: "hidden",
-        // minHeight: "35px",
-        maxHeight: "34px"
-      },   
+        textOverflow: "ellipsis",
+        maxWidth: "180px",
+        color: "#2e7d32",
+        fontSize: "12px",
+        lineHeight: "1.4",
+      },
       inputStyles: {
-        width: "43%",
-        minHeight: "42px",
-        maxHeight: "42px",
-        top: "5px",
-        left: "5px"
+        width: "150px",
+        minHeight: "40px",
+        maxHeight: "40px",
+        top: "0px",
+        left: "0px",
+        opacity: "0",
+        cursor: "pointer",
       },
       buttonStyles: {
-        height: "auto",
+        background: "#C6C6C6",
+        color: "#ffffff",
+        border: "none",
+        borderRadius: "8px",
+        padding: "10px 22px 10px 22px",
+        fontWeight: "600",
+        fontSize: "13px",
+        cursor: "pointer",
+        minWidth: "150px",
+        width: "auto",
         minHeight: "40px",
-        width: "43%",
-        maxHeight: "40px",
-        margin: "5px",
-        padding: "0px"
+        maxHeight: "none",
+        margin: "0",
+        boxShadow: "0 3px 10px rgba(198, 198, 198, 0.40)",
+        letterSpacing: "0.3px",
+        whiteSpace: "nowrap",
+        transition: "box-shadow 0.2s, transform 0.1s",
       },
       closeIconStyles: {
-        width : "20px"
+        width: "16px",
+        height: "16px",
+        cursor: "pointer",
+        flexShrink: 0,
       },
       uploadFile: {
-        minHeight: "50px"
-      }
+        minHeight: "44px",
+      },
     };
   }
   else {

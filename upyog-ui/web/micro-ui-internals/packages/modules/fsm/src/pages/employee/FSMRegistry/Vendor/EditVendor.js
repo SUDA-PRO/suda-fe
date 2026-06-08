@@ -162,7 +162,7 @@ const EditVendor = ({ parentUrl, heading }) => {
         queryClient.invalidateQueries("DSO_SEARCH");
         setTimeout(() => {
           closeToast();
-          history.push(`/upyog-ui/employee/fsm/registry/vendor-details/${dsoId}`);
+          history.push(`/suda-ui/employee/fsm/registry/vendor-details/${dsoId}`);
         }, 5000);
       },
     });

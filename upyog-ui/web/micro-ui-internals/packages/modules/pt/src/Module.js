@@ -47,6 +47,7 @@ import { PTMyPayments } from "./pages/citizen/MyPayments";
 import SelectPTUnits from "./pageComponents/SelectPTUnits";
 import CreateProperty from "./pages/citizen/Create";
 import { PTMyApplications } from "./pages/citizen/PTMyApplications";
+import PTHomePage from "./pages/citizen/PTHome";
 import { MyProperties } from "./pages/citizen/MyProperties";
 import PTApplicationDetails from "./pages/citizen/PTApplicationDetails";
 import SearchPropertyComponent from "./pages/citizen/SearchProperty";
@@ -74,6 +75,9 @@ import EmployeeUpdateOwnerNumber from "./pages/employee/updateNumber";
 //import PTCitizenFeedback from "@upyog/digit-ui-module-core/src/components/PTCitizenFeedback";
 import PTSelectLandmark from "./pageComponents/PTSelectLandmark";
 import PropertyStructureDetails from "./pageComponents/PropertyStructureDetails";
+import PTAllAddressDetails from "./pageComponents/PTAllAddressDetails";
+import PTAllOwnerDetails from "./pageComponents/PTAllOwnerDetails";
+import PTAllPropertyDetails from "./pageComponents/PTAllPropertyDetails";
 //import PTCitizenFeedback from "@upyog/digit-ui-module-core/src/components/PTCitizenFeedback";
 
 import EmployeeApp from "./pages/employee";
@@ -125,6 +129,9 @@ const componentsToRegister = {
   UID,
   Electricity,
   PropertyStructureDetails,
+  PTAllAddressDetails,
+  PTAllOwnerDetails,
+  PTAllPropertyDetails,
   IsResidential,
   PropertyType,
   PropertyUsageType,
@@ -166,6 +173,7 @@ const componentsToRegister = {
   PTDocsRequired: DocsRequired,
   PTCreateProperty: CreateProperty,
   PTMyApplications: PTMyApplications,
+  PTHomePage: PTHomePage,
   PTMyProperties: MyProperties,
   PTApplicationDetails: PTApplicationDetails,
   PTSearchPropertyComponent: SearchPropertyComponent,
@@ -197,7 +205,10 @@ export const PTModule = ({ stateCode, userType, tenants }) => {
 
   addComponentsToRegistry();
 
-  Digit.SessionStorage.set("PT_TENANTS", tenants);
+  useEffect(() => {
+    Digit.SessionStorage.set("PT_TENANTS", tenants);
+  }, [tenants]);
+
   useEffect(
     () =>
       userType === "employee" &&
@@ -228,7 +239,7 @@ export const PTLinks = ({ matchPath, userType }) => {
       i18nKey: t("PT_SEARCH_AND_PAY"),
     },
     {
-      link: `/upyog-ui/citizen/payment/my-bills/PT`,
+      link: `/suda-ui/citizen/payment/my-bills/PT`,
       i18nKey: t("CS_TITLE_MY_BILLS"),
     },
     {
@@ -271,4 +282,5 @@ export const PTComponents = {
   PT_INBOX_FILTER: (props) => <InboxFilter {...props} />,
   PTEmptyResultInbox: EmptyResultInbox,
   PTInboxTableConfig: TableConfig,
+  PTHomePage,
 };

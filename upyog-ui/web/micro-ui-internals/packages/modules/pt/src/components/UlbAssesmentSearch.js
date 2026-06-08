@@ -1,224 +1,469 @@
-import React, { useCallback, useMemo, useEffect,useState } from "react"
+import React, { useState, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
-import { TextInput, SubmitBar, LinkLabel, ActionBar, CloseSvg, DatePicker, CardLabelError, SearchForm, SearchField, Dropdown, Table, Card, MobileNumber, Loader, CardText, Header } from "@upyog/digit-ui-react-components";
-import { Link } from "react-router-dom";
-import MobileSearchApplication from "./MobileSearchApplication";
+import { Header, SearchForm, SearchField, Dropdown, SubmitBar, Loader, Card } from "@upyog/digit-ui-react-components";
+import { downloadSingleDemandPDF, downloadBulkDemandZip } from "../utils/ptDemandPdf";
 
-const UlbAssesmentSearch = ({tenantId, isLoading, t, onSubmit, data, count, setShowToast, financialYearsData }) => {
-    const isMobile = window.Digit.Utils.browser.isMobile();
-    const [financialYears, setFinancialYears] = useState([]);
-    const { register, control, handleSubmit, setValue, getValues, reset, formState } = useForm({
-        defaultValues: {
-            offset: 0,
-            limit: !isMobile && 10,
-            sortBy: "commencementDate",
-            sortOrder: "DESC"
-        }
-    })
-    useEffect(() => {
-      register("offset", 0)
-      register("limit", 10)
-      register("sortBy", "commencementDate")
-      register("sortOrder", "DESC")
-    },[register])
+const modeButtonStyle = (active) => ({
+  padding: "8px 24px",
+  borderRadius: "4px",
+  border: "2px solid #F47738",
+  background: active ? "#F47738" : "#fff",
+  color: active ? "#fff" : "#F47738",
+  cursor: "pointer",
+  fontWeight: 600,
+  fontSize: "14px",
+});
 
-    useEffect(() => {
-        if (financialYearsData && financialYearsData["egf-master"]) {
-          setFinancialYears(financialYearsData["egf-master"]?.["FinancialYear"]);
-        }
-      }, [financialYearsData]);
-    //need to get from workflow
-    const tenantType = [
-        {
-            code: "pg.citya",
-            i18nKey: "City A"
-        },
-        {
-            code: "pg.cityb",
-            i18nKey: "City B"
-        },
-        {
-            code: "pg.cityc",
-            i18nKey: "City C"
-        },
-    ]
-    const financialYearDropdown = financialYears?.map((year) =>{
-        return {code:year.code ,i18nKey:year.name}
-    })
-    const getaddress = (address) => {
-        let newaddr = `${address?.doorNo ? `${address?.doorNo}, ` : ""} ${address?.street ? `${address?.street}, ` : ""}${
-            address?.landmark ? `${address?.landmark}, ` : ""
-          }${t(address?.locality.code)}, ${t(address?.city)},${t(address?.pincode) ? `${address.pincode}` : " "}`
-        return newaddr;
-    }
-    const GetCell = (value) => <span className="cell-text">{value}</span>;
-    const columns = useMemo( () => ([
-        {
-            Header: t("PT_SEARCHPROPERTY_TABEL_PID"),
-            disableSortBy: true,
-            accessor: (row) => GetCell(row.propertyId || ""),
-        },
-        {
-            Header: t("PT_APPLICATION_NO_LABEL"),
-            accessor: "acknowldgementNumber",
-            disableSortBy: true,
-            Cell: ({ row }) => {
-              return (
-                <div>
-                  <span className="link">
-                    <Link to={`/upyog-ui/employee/pt/applicationsearch/application-details/${row.original["propertyId"]}`}>
-                      {row.original["acknowldgementNumber"]}
-                    </Link>
-                  </span>
-                </div>
-              );
-            },
-          },
-          {
-            Header: t("PT_SEARCHPROPERTY_TABEL_APPLICATIONTYPE"),
-            disableSortBy: true,
-            accessor: (row) => GetCell(row.creationReason || ""),
-          },
-          {
-            Header: t("PT_COMMON_TABLE_COL_OWNER_NAME"),
-            accessor: (row) => GetCell(row.owners.map( o => o.name ). join(",") || ""),
-            disableSortBy: true,
-          },
-          {
-            Header: t("ES_SEARCH_PROPERTY_STATUS"),
-            accessor: (row) =>GetCell(t( row?.status &&`WF_PT_${row.status}`|| "NA") ),
-            disableSortBy: true,
-          },
-          {
-            Header: t("PT_ADDRESS_LABEL"),
-            disableSortBy: true,
-            accessor: (row) => GetCell(getaddress(row.address) || ""),
-          },
-      ]), [] )
-
-    const onSort = useCallback((args) => {
-        if (args.length === 0) return
-        setValue("sortBy", args.id)
-        setValue("sortOrder", args.desc ? "DESC" : "ASC")
-    }, [])
-
-    function onPageSizeChange(e){
-        setValue("limit",Number(e.target.value))
-        handleSubmit(onSubmit)()
-    }
-
-    function nextPage () {
-        setValue("offset", getValues("offset") + getValues("limit"))
-        handleSubmit(onSubmit)()
-    }
-    function previousPage () {
-        setValue("offset", getValues("offset") - getValues("limit") )
-        handleSubmit(onSubmit)()
-    }
-    let validation={}
-
-    return <React.Fragment>
-                {isMobile ?
-                <MobileSearchApplication {...{ Controller, register, control, t, reset, previousPage, handleSubmit, tenantId, data, onSubmit, formState, setShowToast }}/>
-                 :
-                <div>
-                <Header>{t("PT_CREATE_ULB_ASSESSMENT")}</Header>
-                <SearchForm onSubmit={onSubmit} handleSubmit={handleSubmit}>
-
-                <SearchField>
-                    <label>{t("PT_SEARCH_TENANT_ID")}</label>
-                    <Controller
-                            control={control}
-                            name="creationReason"
-                            render={(props) => (
-                                <Dropdown
-                                selected={props.value}
-                                select={props.onChange}
-                                onBlur={props.onBlur}
-                                option={tenantType}
-                                optionKey="i18nKey"
-                                t={t}
-                                disable={false}
-                                />
-                            )}
-                            />
-                </SearchField>
-                <SearchField>
-                    <label>{t("ES_SEARCH_FINANCIAL_YEAR")}</label>
-                    <Controller
-                            control={control}
-                            name="status"
-                            render={(props) => (
-                                <Dropdown
-                                selected={props.value}
-                                select={props.onChange}
-                                onBlur={props.onBlur}
-                                option={financialYearDropdown}
-                                optionKey="i18nKey"
-                                t={t}
-                                disable={false}
-                                />
-                            )}
-                            />
-                </SearchField>
-                <SearchField className="submit">
-                    <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
-                    <p style={{marginTop:"10px"}}
-                     onClick={() => {
-                        reset({ 
-                            acknowledgementIds: "", 
-                            fromDate: "", 
-                            toDate: "",
-                            propertyIds: "",
-                            mobileNumber:"",
-                            status: "",
-                            creationReason: "",
-                            offset: 0,
-                            limit: 10,
-                            sortBy: "commencementDate",
-                            sortOrder: "DESC"
-                        });
-                        setShowToast(null);
-                        previousPage();
-                    }}>{t(`ES_COMMON_CLEAR_ALL`)}</p>
-                </SearchField>
-            </SearchForm>
-            {!isLoading && data?.display ? <Card style={{ marginTop: 20 }}>
-                {
-                t(data.display)
-                    .split("\\n")
-                    .map((text, index) => (
-                    <p key={index} style={{ textAlign: "center" }}>
-                        {text}
-                    </p>
-                    ))
-                }
-            </Card>
-            :(!isLoading && data !== ""? <Table
-                t={t}
-                data={data}
-                totalRecords={count}
-                columns={columns}
-                getCellProps={(cellInfo) => {
-                return {
-                    style: {
-                    minWidth: cellInfo.column.Header === t("ES_INBOX_APPLICATION_NO") ? "240px" : "",
-                    padding: "20px 18px",
-                    fontSize: "16px"
-                  },
-                };
-                }}
-                onPageSizeChange={onPageSizeChange}
-                currentPage={getValues("offset")/getValues("limit")}
-                onNextPage={nextPage}
-                onPrevPage={previousPage}
-                pageSizeLimit={getValues("limit")}
-                onSort={onSort}
-                disableSort={false}
-                sortParams={[{id: getValues("sortBy"), desc: getValues("sortOrder") === "DESC" ? true : false}]}
-            />: data !== "" || isLoading && <Loader/>)}
-            </div>}
-        </React.Fragment>
+function downloadCSV(assessments, t) {
+  const headers = ["Property ID", "Assessment No.", "Financial Year", "Status", "Assessment Date", "Total Amount (₹)", "Balance Due (₹)"];
+  const rows = assessments.map((a) => [
+    a.propertyId || "",
+    a.assessmentNumber || "",
+    a.financialYear || "",
+    a.status || "",
+    a.assessmentDate ? new Date(a.assessmentDate).toLocaleDateString("en-IN") : "",
+    a.totalAmount != null ? a.totalAmount : "",
+    a.balanceDue != null ? a.balanceDue : "",
+  ]);
+  const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `bulk-demand-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
-export default UlbAssesmentSearch
+/**
+ * Calls _fetchbill for a single property and returns billAccountDetails
+ * sorted by order — exactly the same 9 rows the citizen Tax Bill Details page shows.
+ */
+async function fetchBillItems(tenantId, propertyId) {
+  try {
+    const user = Digit.UserService.getUser();
+    const body = {
+      RequestInfo: {
+        apiId: "Rainmaker",
+        authToken: user?.info?.authToken || user?.access_token || "",
+        userInfo: user?.info || {},
+        msgId: `${Date.now()}|en_IN`,
+        plainAccessRequest: {},
+      },
+    };
+    const res = await fetch(
+      `/billing-service/bill/v2/_fetchbill?tenantId=${encodeURIComponent(tenantId)}&businessService=PT&consumerCode=${encodeURIComponent(propertyId)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=UTF-8" },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    const items = data?.Bill?.[0]?.billDetails?.[0]?.billAccountDetails || [];
+    return items.slice().sort((a, b) => (a.order || 0) - (b.order || 0));
+  } catch (_) {
+    return [];
+  }
+}
+
+/**
+ * Single _fetchbill call with multiple consumerCodes (comma-separated).
+ * Returns { [consumerCode]: sortedBillAccountDetails[] }
+ */
+async function fetchBillsBatch(tenantId, propertyIds) {
+  try {
+    const user = Digit.UserService.getUser();
+    const body = {
+      RequestInfo: {
+        apiId: "Rainmaker",
+        authToken: user?.info?.authToken || user?.access_token || "",
+        userInfo: user?.info || {},
+        msgId: `${Date.now()}|en_IN`,
+        plainAccessRequest: {},
+      },
+    };
+    const consumerCode = propertyIds.map((id) => id.trim()).join(",");
+    const res = await fetch(
+      `/billing-service/bill/v2/_fetchbill?tenantId=${encodeURIComponent(tenantId)}&businessService=PT&consumerCode=${encodeURIComponent(consumerCode)}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json;charset=UTF-8" },
+        body: JSON.stringify(body),
+      }
+    );
+    if (!res.ok) return {};
+    const data = await res.json();
+    const map = {};
+    (data?.Bill || []).forEach((bill) => {
+      const items = (bill?.billDetails?.[0]?.billAccountDetails || [])
+        .slice()
+        .sort((a, b) => (a.order || 0) - (b.order || 0));
+      map[bill.consumerCode] = items;
+    });
+    return map;
+  } catch (_) {
+    return {};
+  }
+}
+
+const UlbAssesmentSearch = ({ t, isLoading, onSubmit, resultInfo, setShowToast }) => {
+  const stateId = Digit.ULBService.getStateId();
+
+  const [assessmentMode, setAssessmentMode] = useState("ULB");
+  const [selectedTenantCode, setSelectedTenantCode] = useState(null);
+  const [pdfLoading, setPdfLoading] = useState(false);
+  const [rowPdfLoading, setRowPdfLoading] = useState({});
+  const [selectedIds, setSelectedIds] = useState(new Set());
+
+  // Reset selection whenever new results arrive
+  useEffect(() => { setSelectedIds(new Set()); }, [resultInfo]);
+
+  // Per-row PDF: fetch live _fetchbill data then generate
+  async function handleRowPdf(a) {
+    setRowPdfLoading((prev) => ({ ...prev, [a.propertyId]: true }));
+    try {
+      const taxItems = await fetchBillItems(a.tenantId, a.propertyId);
+      downloadSingleDemandPDF(a, taxItems, t);
+    } catch (_) {
+      setShowToast({ key: "error", label: "PT_BULK_PDF_DOWNLOAD_ERROR" });
+    } finally {
+      setRowPdfLoading((prev) => ({ ...prev, [a.propertyId]: false }));
+    }
+  }
+
+  // Bulk ZIP: one batch _fetchbill call per ULB, respects row selection
+  async function handleDownloadZip() {
+    if (!resultInfo?.assessments?.length) return;
+    const toExport =
+      selectedIds.size > 0
+        ? resultInfo.assessments.filter((a) => selectedIds.has(a.propertyId))
+        : resultInfo.assessments;
+    if (!toExport.length) return;
+    setPdfLoading(true);
+    try {
+      // Group by tenantId → one batch _fetchbill call per ULB (usually one)
+      const byTenant = {};
+      toExport.forEach((a) => {
+        if (!byTenant[a.tenantId]) byTenant[a.tenantId] = [];
+        byTenant[a.tenantId].push(a.propertyId);
+      });
+      const itemsMap = {};
+      for (const [tid, ids] of Object.entries(byTenant)) {
+        Object.assign(itemsMap, await fetchBillsBatch(tid, ids));
+      }
+      await downloadBulkDemandZip(toExport, itemsMap, t);
+    } catch (_) {
+      setShowToast({ key: "error", label: "PT_BULK_PDF_DOWNLOAD_ERROR" });
+    } finally {
+      setPdfLoading(false);
+    }
+  }
+
+  const allSelected =
+    (resultInfo?.assessments?.length || 0) > 0 &&
+    resultInfo.assessments.every((a) => selectedIds.has(a.propertyId));
+
+  function toggleAll() {
+    setSelectedIds(
+      allSelected ? new Set() : new Set(resultInfo.assessments.map((a) => a.propertyId))
+    );
+  }
+
+  function toggleRow(propertyId) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      next.has(propertyId) ? next.delete(propertyId) : next.add(propertyId);
+      return next;
+    });
+  }
+
+  const { control, handleSubmit, setValue, watch, reset } = useForm({
+    defaultValues: { tenant: null, ward: null, financialYear: null },
+  });
+
+  const watchedTenant = watch("tenant");
+
+  useEffect(() => {
+    setSelectedTenantCode(watchedTenant?.code || null);
+    setValue("ward", null);
+  }, [watchedTenant]);
+
+  // Tenants list from PT session data
+  const tenants = Digit.Hooks.pt.useTenants();
+  const tenantOptions =
+    tenants
+      ?.filter((tn) => tn.code !== stateId)
+      ?.map((tn) => ({ code: tn.code, i18nKey: tn.city?.name || tn.code })) || [];
+
+  // Financial Years from MDMS (PT module)
+  const { data: fyMDMS } = Digit.Hooks.useCustomMDMS(stateId, "egf-master", [
+    { name: "FinancialYear", filter: "[?(@.module == 'PT')]" },
+  ]);
+  const financialYearOptions =
+    fyMDMS?.["egf-master"]?.FinancialYear?.map((fy) => ({ code: fy.code, i18nKey: fy.code })) || [];
+
+  // Ward/Locality list from boundary MDMS for the selected tenant
+  const { data: boundaryData, isLoading: boundaryLoading } = Digit.Hooks.useCustomMDMS(
+    selectedTenantCode || stateId,
+    "egov-location",
+    [{ name: "TenantBoundary" }],
+    { enabled: !!selectedTenantCode }
+  );
+  const wardOptions =
+    boundaryData?.["egov-location"]?.TenantBoundary?.[0]?.boundary?.children?.map((w) => ({
+      code: w.code,
+      i18nKey: w.name,
+    })) || [];
+
+  function handleFormSubmit(data) {
+    if (!data.tenant || !data.financialYear) {
+      setShowToast({ key: "warning", label: "PT_BULK_DEMAND_FILL_REQUIRED_FIELDS" });
+      return;
+    }
+    if (assessmentMode === "WARD" && !data.ward) {
+      setShowToast({ key: "warning", label: "PT_BULK_DEMAND_SELECT_WARD" });
+      return;
+    }
+    const payload = {
+      tenantId: data.tenant.code,
+      assessmentYear: data.financialYear.code,
+      ...(assessmentMode === "WARD" && data.ward ? { locality: [data.ward.code] } : {}),
+    };
+    onSubmit(payload);
+  }
+
+  function handleReset() {
+    reset({ tenant: null, ward: null, financialYear: null });
+    setSelectedTenantCode(null);
+    setAssessmentMode("ULB");
+  }
+
+  return (
+    <React.Fragment>
+      <Header>{t("PT_CREATE_BULK_DEMAND")}</Header>
+
+      {/* Mode toggle */}
+      <div style={{ display: "flex", gap: "12px", margin: "16px 0 24px 8px" }}>
+        <button type="button" style={modeButtonStyle(assessmentMode === "ULB")}
+          onClick={() => { setAssessmentMode("ULB"); setValue("ward", null); }}>
+          {t("PT_BULK_MODE_ULB_WISE")}
+        </button>
+        <button type="button" style={modeButtonStyle(assessmentMode === "WARD")}
+          onClick={() => setAssessmentMode("WARD")}>
+          {t("PT_BULK_MODE_WARD_WISE")}
+        </button>
+      </div>
+
+      <SearchForm onSubmit={handleSubmit(handleFormSubmit)} handleSubmit={handleSubmit}>
+        {/* ULB Dropdown */}
+        <SearchField>
+          <label>{t("PT_BULK_DEMAND_SELECT_ULB")} *</label>
+          <Controller
+            control={control}
+            name="tenant"
+            render={(props) => (
+              <Dropdown
+                selected={props.value}
+                select={props.onChange}
+                onBlur={props.onBlur}
+                option={tenantOptions}
+                optionKey="i18nKey"
+                t={t}
+              />
+            )}
+          />
+        </SearchField>
+
+        {/* Ward Dropdown — only in WARD mode */}
+        {assessmentMode === "WARD" && (
+          <SearchField>
+            <label>{t("PT_BULK_DEMAND_SELECT_WARD")} *</label>
+            <Controller
+              control={control}
+              name="ward"
+              render={(props) =>
+                boundaryLoading ? (
+                  <Loader />
+                ) : (
+                  <Dropdown
+                    selected={props.value}
+                    select={props.onChange}
+                    onBlur={props.onBlur}
+                    option={wardOptions}
+                    optionKey="i18nKey"
+                    t={t}
+                    disable={!selectedTenantCode || wardOptions.length === 0}
+                  />
+                )
+              }
+            />
+          </SearchField>
+        )}
+
+        {/* Financial Year Dropdown */}
+        <SearchField>
+          <label>{t("PT_BULK_DEMAND_SELECT_FY")} *</label>
+          <Controller
+            control={control}
+            name="financialYear"
+            render={(props) => (
+              <Dropdown
+                selected={props.value}
+                select={props.onChange}
+                onBlur={props.onBlur}
+                option={financialYearOptions}
+                optionKey="i18nKey"
+                t={t}
+              />
+            )}
+          />
+        </SearchField>
+
+        <SearchField className="submit">
+          <SubmitBar label={t("PT_GENERATE_DEMAND")} submit disabled={isLoading} />
+          <p style={{ marginTop: "10px", cursor: "pointer" }} onClick={handleReset}>
+            {t("ES_COMMON_CLEAR_ALL")}
+          </p>
+        </SearchField>
+      </SearchForm>
+
+      {/* Result summary after generation */}
+      {resultInfo && (
+        <Card style={{ marginTop: 20 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
+            <p style={{ fontSize: "16px", fontWeight: 600, margin: 0 }}>
+              {t("PT_BULK_DEMAND_RESULT_SUCCESS")}: {resultInfo.count} {t("PT_BULK_DEMAND_PROPERTIES_ASSESSED")}
+            </p>
+            {resultInfo.assessments?.length > 0 && (
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  onClick={() => downloadCSV(resultInfo.assessments, t)}
+                  style={{
+                    padding: "8px 18px",
+                    background: "#F47738",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: "pointer",
+                    fontWeight: 600,
+                    fontSize: "13px",
+                  }}
+                >
+                  ⬇ {t("PT_BULK_DEMAND_DOWNLOAD_CSV")}
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDownloadZip}
+                  disabled={pdfLoading}
+                  style={{
+                    padding: "8px 18px",
+                    background: pdfLoading ? "#aaa" : "#1a3c6e",
+                    color: "#fff",
+                    border: "none",
+                    borderRadius: "4px",
+                    cursor: pdfLoading ? "not-allowed" : "pointer",
+                    fontWeight: 600,
+                    fontSize: "13px",
+                  }}
+                >
+                  {pdfLoading
+                    ? "Generating PDFs..."
+                    : selectedIds.size > 0
+                    ? `⬇ Download PDFs (${selectedIds.size} selected)`
+                    : "⬇ Download PDFs (ZIP)"}
+                </button>
+              </div>
+            )}
+          </div>
+          {resultInfo.failed > 0 && (
+            <p style={{ color: "#d4351c", marginTop: 8 }}>
+              {t("PT_BULK_DEMAND_RESULT_FAILED")}: {resultInfo.failed}
+            </p>
+          )}
+          {resultInfo.assessments?.length > 0 && (
+            <div style={{ overflowX: "auto", marginTop: 16 }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "13px" }}>
+                <thead>
+                  <tr style={{ background: "#fbe9d8", textAlign: "left" }}>
+                    <th style={{ ...thStyle, textAlign: "center", width: "36px" }}>
+                      <input type="checkbox" checked={allSelected} onChange={toggleAll} title="Select / deselect all" />
+                    </th>
+                    <th style={thStyle}>#</th>
+                    <th style={thStyle}>{t("PT_PROPERTY_ID")}</th>
+                    <th style={thStyle}>{t("PT_ASSESSMENT_NO")}</th>
+                    <th style={thStyle}>{t("PT_COMMON_TABLE_COL_FIN_YEAR")}</th>
+                    <th style={thStyle}>{t("PT_STATUS")}</th>
+                    <th style={thStyle}>{t("PT_ASSESSMENT_DATE")}</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>{t("PT_TOTAL_AMOUNT")}</th>
+                    <th style={{ ...thStyle, textAlign: "right" }}>{t("PT_BALANCE_DUE")}</th>
+                    <th style={{ ...thStyle, textAlign: "center" }}>PDF</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {resultInfo.assessments.map((a, i) => (
+                    <tr key={a.id || i} style={{ borderBottom: "1px solid #e0e0e0", background: selectedIds.has(a.propertyId) ? "#fff3e8" : i % 2 === 0 ? "#fff" : "#fafafa" }}>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        <input type="checkbox" checked={selectedIds.has(a.propertyId)} onChange={() => toggleRow(a.propertyId)} />
+                      </td>
+                      <td style={tdStyle}>{i + 1}</td>
+                      <td style={tdStyle}>{a.propertyId}</td>
+                      <td style={tdStyle}>{a.assessmentNumber}</td>
+                      <td style={tdStyle}>{a.financialYear}</td>
+                      <td style={tdStyle}>
+                        <span style={{ color: a.status === "ACTIVE" ? "#00703c" : "#d4351c", fontWeight: 600 }}>
+                          {a.status}
+                        </span>
+                      </td>
+                      <td style={tdStyle}>
+                        {a.assessmentDate ? new Date(a.assessmentDate).toLocaleDateString("en-IN") : "-"}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right" }}>
+                        {a.totalAmount != null ? `₹ ${Number(a.totalAmount).toLocaleString("en-IN")}` : "-"}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "right", fontWeight: a.balanceDue > 0 ? 600 : "normal", color: a.balanceDue > 0 ? "#d4351c" : "inherit" }}>
+                        {a.balanceDue != null ? `₹ ${Number(a.balanceDue).toLocaleString("en-IN")}` : "-"}
+                      </td>
+                      <td style={{ ...tdStyle, textAlign: "center" }}>
+                        <button
+                          type="button"
+                          title="Download Demand Notice PDF"
+                          disabled={!!rowPdfLoading[a.propertyId]}
+                          onClick={() => handleRowPdf(a)}
+                          style={{
+                            padding: "4px 10px",
+                            background: rowPdfLoading[a.propertyId] ? "#888" : "#1a3c6e",
+                            color: "#fff",
+                            border: "none",
+                            borderRadius: "3px",
+                            cursor: rowPdfLoading[a.propertyId] ? "not-allowed" : "pointer",
+                            fontSize: "12px",
+                            fontWeight: 600,
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {rowPdfLoading[a.propertyId] ? "..." : "⬇ PDF"}
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {isLoading && <Loader />}
+    </React.Fragment>
+  );
+};
+
+const thStyle = { padding: "10px 12px", fontWeight: 600, whiteSpace: "nowrap" };
+const tdStyle = { padding: "8px 12px" };
+
+export default UlbAssesmentSearch;

@@ -3,12 +3,255 @@
   <head>
     <meta charset="utf-8"/>
     <link rel="icon" href="https://cdn.jsdelivr.net/npm/@egovernments/digit-ui-css/img/browser-icon.png"/>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@upyog-niua/upyog-css@3.10.0/dist/index.css"/>
+    <link rel="stylesheet" href="/index.css"/>
+    <style>
+      .app-container form .card { max-width: 100% !important; }
+      .app-container form .card .field-container { max-width: 100% !important; }
+      .card { max-width: 100% !important; }
+
+      /* ── Beautiful Next / Submit button ── */
+      button.submit-bar {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: linear-gradient(135deg, #f47738 0%, #e05a1a 100%) !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 0 40px !important;
+        height: 52px !important;
+        min-height: 52px !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.4px !important;
+        cursor: pointer !important;
+        box-shadow: 0 4px 14px rgba(244, 119, 56, 0.40) !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+        min-width: 160px !important;
+        line-height: 1 !important;
+      }
+      button.submit-bar:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(244, 119, 56, 0.55) !important;
+      }
+      button.submit-bar:active {
+        transform: translateY(0) !important;
+        box-shadow: 0 2px 8px rgba(244, 119, 56, 0.35) !important;
+      }
+      button.submit-bar header {
+        display: inline !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+        color: #ffffff !important;
+        pointer-events: none !important;
+      }
+
+      /* ── Disabled state ── */
+      button.submit-bar-disabled {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: #d0d5dd !important;
+        color: #8a97a8 !important;
+        border: none !important;
+        border-radius: 10px !important;
+        padding: 0 40px !important;
+        height: 52px !important;
+        min-height: 52px !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        cursor: not-allowed !important;
+        box-shadow: none !important;
+        min-width: 160px !important;
+        line-height: 1 !important;
+      }
+      button.submit-bar-disabled header {
+        display: inline !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        line-height: 1 !important;
+        color: #8a97a8 !important;
+        pointer-events: none !important;
+      }
+
+      /* ── Upload File widget ── */
+      .upload-file {
+        border-radius: 8px !important;
+        overflow: visible !important;
+      }
+      .upload-file button.selector-button-border,
+      div.upload-file .selector-button-border {
+        background: #C6C6C6 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 10px 22px !important;
+        font-size: 13px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        min-width: 130px !important;
+        width: auto !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        display: inline-block !important;
+        transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease !important;
+        box-shadow: 0 2px 8px rgba(198, 198, 198, 0.40) !important;
+      }
+      .upload-file button.selector-button-border:hover,
+      div.upload-file .selector-button-border:hover {
+        background: #b0b0b0 !important;
+        box-shadow: 0 4px 12px rgba(198, 198, 198, 0.6) !important;
+      }
+      .upload-file button.selector-button-border:active,
+      div.upload-file .selector-button-border:active {
+        transform: scale(0.96) !important;
+        box-shadow: 0 1px 4px rgba(198, 198, 198, 0.3) !important;
+      }
+      .file-upload-status {
+        font-size: 12px !important;
+        color: #9aa4b2 !important;
+        margin: 0 !important;
+        font-weight: 400 !important;
+        font-style: italic !important;
+        white-space: nowrap !important;
+      }
+      .upload-file .tag {
+        background: #e8f4e8 !important;
+        border: 1px solid #a8d8aa !important;
+        border-radius: 8px !important;
+        padding: 6px 12px !important;
+        font-size: 12px !important;
+        color: #2e7d32 !important;
+        font-weight: 500 !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        margin: 4px auto !important;
+        width: auto !important;
+        max-width: 100% !important;
+      }
+      .upload-file .tag .text {
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        max-width: 180px !important;
+        color: #2e7d32 !important;
+        font-size: 12px !important;
+      }
+
+      /* ── PT Application Details Page ── */
+      .pt-app-details-body .employeeCard,
+      .pt-app-details-body .employeeCard-override {
+        border-radius: 14px !important;
+        border: 1px solid #eaedf3 !important;
+        box-shadow: 0 2px 12px rgba(26,43,73,0.07) !important;
+        padding: 28px 32px !important;
+        margin-bottom: 20px !important;
+        background: #fff !important;
+      }
+      .pt-app-details-body .card-section-header {
+        font-size: 15px !important;
+        font-weight: 700 !important;
+        color: #1a2b49 !important;
+        border-left: 4px solid #f47738 !important;
+        padding-left: 12px !important;
+        margin-top: 24px !important;
+        margin-bottom: 14px !important;
+      }
+      .pt-app-details-body .employee-data-table {
+        border-radius: 10px !important;
+        overflow: hidden !important;
+        border: 1px solid #f0f2f5 !important;
+        margin-bottom: 6px !important;
+      }
+      .pt-app-details-body .employee-data-table > div {
+        border-bottom: 1px solid #f0f2f5 !important;
+        padding: 10px 16px !important;
+        transition: background 0.15s;
+      }
+      .pt-app-details-body .employee-data-table > div:nth-child(even) {
+        background: #fafbfc !important;
+      }
+      .pt-app-details-body .employee-data-table > div:last-child {
+        border-bottom: none !important;
+      }
+      .pt-app-details-body .employee-data-table > div:hover {
+        background: #fff5ef !important;
+      }
+      .pt-app-details-body .employee-data-table .value {
+        font-size: 14px !important;
+        color: #1a2b49 !important;
+        font-weight: 600 !important;
+      }
+      .pt-app-details-body .primary-circle {
+        background: #f47738 !important;
+        border-color: #f47738 !important;
+      }
+      .pt-app-details-body .action-bar-wrap-back {
+        border-top: 3px solid #f47738 !important;
+        background: #fff !important;
+        box-shadow: 0 -4px 16px rgba(26,43,73,0.08) !important;
+      }
+      /* Download button in orange header */
+      .employee-download-btn-className {
+        background: rgba(255,255,255,0.18) !important;
+        border: 1px solid rgba(255,255,255,0.35) !important;
+        border-radius: 8px !important;
+        color: #fff !important;
+        font-weight: 600 !important;
+        font-size: 13px !important;
+        padding: 8px 14px !important;
+      }
+      .employee-options-btn-className {
+        border-radius: 10px !important;
+        box-shadow: 0 4px 20px rgba(26,43,73,0.12) !important;
+        border: 1px solid #eaedf3 !important;
+        margin-top: 4px !important;
+      }
+
+      /* ── Action bar: full-width white footer, button on the right ── */
+      @media (min-width: 780px) {
+        .action-bar-wrap {
+          position: fixed !important;
+          left: 300px !important;
+          right: 0 !important;
+          bottom: 0 !important;
+          width: auto !important;
+          max-width: none !important;
+          background: #ffffff !important;
+          box-shadow: 0 -2px 12px rgba(26,43,73,0.10) !important;
+          border-top: 2px solid #f47738 !important;
+          padding: 12px 32px !important;
+          display: flex !important;
+          align-items: center !important;
+          justify-content: flex-end !important;
+          z-index: 1000 !important;
+        }
+        .action-bar-wrap .submit-bar,
+        .action-bar-wrap button.submit-bar {
+          box-shadow: 0 4px 20px rgba(244,119,56,0.40) !important;
+          border-radius: 10px !important;
+        }
+        .action-bar-wrap .menu-wrap {
+          right: 32px !important;
+          bottom: 58px !important;
+          width: 220px !important;
+          box-shadow: 0 4px 24px rgba(26,43,73,0.14) !important;
+          border-radius: 10px !important;
+          overflow: hidden !important;
+        }
+      }
+    </style>
 
     <link href="https://fonts.googleapis.com/css2?family=Roboto+Condensed:wght@400;500;700&family=Roboto:wght@400;500;700&display=swap" rel='stylesheet' type='text/css'>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="theme-color" content="#00bcd1"/>
-    <title>UPYOG</title>
+    <title>Urban Administration & Department | SUDA</title>
     <!-- <link rel="stylesheet" href="https://unpkg.com/@egovernments/digit-ui-css/dist/index.css"/> -->
     <script src="https://s3.ap-south-1.amazonaws.com/in-egov-assets/globalConfigs.js"></script>
     <script src="%REACT_APP_GLOBAL%"></script>

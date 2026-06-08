@@ -3,11 +3,13 @@ const inboxSearchFields = {
     {
       label: "PT_PROPERTY_APPLICATION_NO",
       name: "acknowledgementIds",
+      placeholder: "Enter Application No.",
       roles: [],
     },
     {
       label: "ES_SEARCH_UNIQUE_PROPERTY_ID",
       name: "propertyIds",
+      placeholder: "Enter Property ID",
       // minLength: "10",
       roles: [],
     },
@@ -15,6 +17,7 @@ const inboxSearchFields = {
       label: "ES_SEARCH_APPLICATION_MOBILE_NO",
       name: "mobileNumber",
       type: "mobileNumber",
+      placeholder: "Enter Mobile Number",
       maxLength: 10,
       minLength: 0,
       roles: [],

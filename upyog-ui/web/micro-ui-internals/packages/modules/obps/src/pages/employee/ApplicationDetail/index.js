@@ -12,7 +12,7 @@ const ApplicationDetail = () => {
   const stateCode = Digit.ULBService.getStateId();
   const [showToast, setShowToast] = useState(null);
   const [showOptions, setShowOptions] = useState(false);
-  const { isLoading, data: applicationDetails } = Digit.Hooks.obps.useLicenseDetails(stateCode, { applicationNumber: id, tenantId: stateCode }, {});
+  const { isLoading, data: applicationDetails } = Digit.Hooks.obps.useLicenseDetails(tenantId, { applicationNumber: id, tenantId: tenantId }, {});
   const isMobile = window.Digit.Utils.browser.isMobile();
   const [viewTimeline, setViewTimeline]=useState(false);
   const {
@@ -24,7 +24,7 @@ const ApplicationDetail = () => {
   } = Digit.Hooks.obps.useBPAREGApplicationActions(tenantId);
 
   const workflowDetails = Digit.Hooks.useWorkflowDetails({
-    tenantId: stateCode,
+    tenantId: tenantId,
     id: id,
     moduleCode: "BPAREG",
   });

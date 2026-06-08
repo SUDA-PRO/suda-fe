@@ -81,12 +81,13 @@
   }
 
   .options-card {
+    position: absolute !important;
     width: 100% !important;
     box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
     max-height: 250px !important;
     overflow: auto;
     z-index: 1000 !important;
-    @apply absolute z-20 mt-xs bg-white max-w-full;
+    @apply z-20 mt-xs bg-white max-w-full;
 
     p {
       padding-top: 14px;
@@ -185,9 +186,12 @@
   
 
   .options-card {
+    position: absolute !important;
     width: 100% !important;
     box-shadow: 0 8px 10px 1px rgba(0, 0, 0, 0.14), 0 3px 14px 2px rgba(0, 0, 0, 0.12), 0 5px 5px -3px rgba(0, 0, 0, 0.2);
-    @apply absolute z-20 mt-xs bg-white;
+    max-height: 220px !important;
+    overflow-y: auto !important;
+    @apply z-20 mt-xs bg-white;
 
     p {
       padding-top: 14px;

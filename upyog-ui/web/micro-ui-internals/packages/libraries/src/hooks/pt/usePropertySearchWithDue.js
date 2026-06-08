@@ -18,8 +18,13 @@ const usePropertySearchWithDue = ({ tenantId, filters, auth = true, configs }) =
       property.owners = property?.owners?.filter((owner) =>
         (owner.status === property?.status) === "INWORKFLOW" && property?.creationReason === "MUTATION" ? "INACTIVE" : "ACTIVE"
       );
-      formattedData[property.propertyId] = {
+      // Use propertyId as key when available; fall back to acknowldgementNumber for
+      // pre-approval properties (null propertyId) so multiple INWORKFLOW properties
+      // don't collapse into a single formattedData["null"] entry.
+      const key = property.propertyId || property.acknowldgementNumber;
+      formattedData[key] = {
         propertyId: property?.propertyId,
+        acknowldgementNumber: property?.acknowldgementNumber,
         name: property?.owners?.[0].name,
         status: property?.status,
         due: false,

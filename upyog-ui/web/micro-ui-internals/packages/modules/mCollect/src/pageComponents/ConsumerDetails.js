@@ -16,7 +16,6 @@ const createConsumerDetails = () => ({
 });
 
 const ConsumerDetails = ({ config, onSelect, userType, formData, setError, formState, clearErrors }) => {
-  console.log("formadata", formData)
   if(window.location.href.includes("modify-challan") && sessionStorage.getItem("mcollectEditObject"))
   {
     formData = JSON.parse(sessionStorage.getItem("mcollectEditObject"))
@@ -98,17 +97,38 @@ const OwnerForm1 = (_props) => {
 
   const { control, formState: localFormState, watch, setError: setLocalError, clearErrors: clearLocalErrors, setValue, trigger, getValues } = useForm();
   const formValue = watch();
-  const { errors } = localFormState;
-  console.log("errorssssss", errors)
-  const isMobile = window.Digit.Utils.browser.isMobile();
+  const { errors, touchedFields } = localFormState;
+  const submitAttempted = sessionStorage.getItem("mcollectSubmitAttempted") === "true";
+const fieldGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fill, minmax(180px, 240px))",
+  columnGap: "16px",
+  rowGap: "16px",
+};
+const stackedPairStyle = {
+  display: "flex",
+  flexDirection: "column",
+  width: "100%",
+};
+
+const labelStyle = {
+  marginBottom: "6px",
+  whiteSpace: "nowrap",
+  textAlign: "left",     // ✅ FIX
+  width: "100%",         // ✅ IMPORTANT
+};
 
   
-
-
 
   useEffect(() => {
     trigger();
   }, []);
+
+  useEffect(() => {
+    if (formState?.submitCount > 0 || formState?.isSubmitted) {
+      trigger();
+    }
+  }, [formState?.submitCount, formState?.isSubmitted]);
 
   useEffect(() => {
     if(Object.entries(formValue).length>0){
@@ -143,93 +163,140 @@ const OwnerForm1 = (_props) => {
 
   const errorStyle = { width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" };
   return (
-    <React.Fragment>
+  <div>
+
+    <CardSectionHeader>{t("UC_CONSUMER_DETAILS")}</CardSectionHeader>
+
+    <div style={fieldGridStyle}>
+
+      {/* Consumer Name */}
       <div>
-        <div>
-        <CardSectionHeader>{t("CONSUMERDETAILS")}</CardSectionHeader>
-        <LabelFieldPair>
-            <CardLabel className={isMobile?"card-label-APK":"card-label-smaller"}>{`${t("UC_CONS_NAME_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={"ConsumerName"}
-                defaultValue={consumerdetail?.ConsumerName}
-                rules={{ required: t("REQUIRED_FIELD"), validate: { pattern: (val) => (/^[a-zA-Z ]*$/.test(val) ? true : t("CS_ADDCOMPLAINT_NAME_ERROR")) } }}
-                render={(props) => (
-                  <TextInput
-                    value={props.value}
-                    autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "name"}
-                    errorStyle={(localFormState.touched.ConsumerName && errors?.ConsumerName?.message) ? true : false}
-                    onChange={(e) => {
-                      props.onChange(e.target.value);
-                      //setFocusIndex({ index: consumerdetail.key, type: "ConsumerName" });
-                    }}
-                    onBlur={(e) => {
-                      setFocusIndex({ index: -1 });
-                      props.onBlur(e);
-                    }}
-                    disable={isEdit}
-                  />
-                )}
-              />
-            </div>
-          </LabelFieldPair>
-          <CardLabelError style={errorStyle}>{localFormState.touched.ConsumerName ? errors?.ConsumerName?.message : ""}</CardLabelError>
-          <LabelFieldPair>
-            <CardLabel style={{paddingTop:"10px"}} className="card-label-smaller">{`${t("UC_MOBILE_NUMBER")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <div className="field">
-              <Controller
-                control={control}
-                name={"mobileNumber"}
-                defaultValue={consumerdetail?.mobileNumber}
-                rules={{ required: t("REQUIRED_FIELD"), validate: (v) => (/^[6789]\d{9}$/.test(v) ? true : t("CORE_COMMON_MOBILE_ERROR")) }}
-                render={(props) => (
-                  <MobileNumber
-                    value={props.value}
-                    autoFocus={focusIndex.index === consumerdetail?.key && focusIndex.type === "mobileNumber"}
-                    onChange={(e) => {
-                      props.onChange(e);
-                      setFocusIndex({ index: consumerdetail.key, type: "mobileNumber" });
-                    }}
-                    labelStyle={{ marginTop: "unset", border: "1px solid #464646", borderRight: "none" }}
-                    onBlur={props.onBlur}
-                    errorStyle={(localFormState.touched.mobileNumber && errors?.mobileNumber?.message) ? true : false}
-                    disable={isEdit}
-                    //style={ isMulitpleOwners ? { background: "#FAFAFA" }: ""}
-                  />
-                )}
-              />
-            </div>
-          </LabelFieldPair>  
-          <div>
-          <CardLabelError style={errorStyle}>{localFormState.touched.mobileNumber ? errors?.mobileNumber?.message : ""}</CardLabelError>
-          <LabelFieldPair>  
-          <CardLabel style={{paddingTop:"10px"}} className="card-label-smaller">{`${t("UC_EMAIL_ID")}`}</CardLabel>
-          <div className="field">
-          <Controller
-          control={control}
-          name="emailId"
-          defaultValue={consumerdetail?.emailId}
-          rules={{  validate: { pattern: (val) => (/^[a-zA-Z0-9._%+-]+@[a-z.-]+\.(com|org|in)$/.test(val) ? true : t("CS_ADDCOMPLAINT_EMAIL_ERROR")) } }}
-          render={(props) => (
-            <TextInput
-              t={t}
-              isMandatory={false}
-              value={props.value}
-                            onChange={(e) => {
-                props.onChange(e.target.value)
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_CONS_NAME_LABEL")} <span style={{ color: "red" }}>*</span>
+          </CardLabel>
+
+
+<div style={{ width: "100%" }}>
+             <Controller
+              control={control}
+              name="ConsumerName"
+              defaultValue={consumerdetail?.ConsumerName}
+              rules={{
+                required: t("REQUIRED_FIELD"),
+                validate: {
+                  pattern: (val) =>
+                    /^[a-zA-Z ]*$/.test(val)
+                      ? true
+                      : t("CS_ADDCOMPLAINT_NAME_ERROR"),
+                },
               }}
-              disable={isEdit}
+              render={(props) => (
+                <TextInput
+                
+  style={{ height: "40px" }}   // ✅ reduce height
+
+                  value={props.value}
+                  onChange={(e) => props.onChange(e.target.value)}
+                  disable={isEdit}
+                />
+              )}
             />
-            )}
+          </div>
+        </LabelFieldPair>
+
+        <CardLabelError style={{ fontSize: "12px" }}>
+          {(submitAttempted || formState?.submitCount > 0) &&
+            errors?.ConsumerName?.message}
+        </CardLabelError>
+      </div>
+
+      {/* Mobile Number */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_MOBILE_NUMBER")} <span style={{ color: "red" }}>*</span>
+          </CardLabel>
+
+
+<div style={{ width: "100%" }}>
+        <Controller
+              control={control}
+              name="mobileNumber"
+              defaultValue={consumerdetail?.mobileNumber}
+              rules={{
+                required: t("REQUIRED_FIELD"),
+                validate: (v) =>
+                  /^[6789]\d{9}$/.test(v)
+                    ? true
+                    : t("CORE_COMMON_MOBILE_ERROR"),
+              }}
+              render={(props) => (
+                <MobileNumber
+                
+  style={{ height: "40px" }}   // ✅ reduce height
+
+                  value={props.value}
+                  onChange={(e) => props.onChange(e)}
+                  disable={isEdit}
+                />
+              )}
             />
-            </div>
-            </LabelFieldPair> 
-            {formData?.consomerDetails1 && formData?.consomerDetails1[0]?.emailId && errors && <span style={{color:"red"}}>{errors?.emailId?.message}</span>}
-            </div> 
+          </div>
+        </LabelFieldPair>
+
+        <CardLabelError style={{ fontSize: "12px" }}>
+          {(submitAttempted || formState?.submitCount > 0) &&
+            errors?.mobileNumber?.message}
+        </CardLabelError>
       </div>
+
+      {/* Email */}
+      <div>
+        <LabelFieldPair style={stackedPairStyle}>
+          <CardLabel style={labelStyle}>
+            {t("UC_EMAIL_ID")}
+          </CardLabel>
+
+
+<div style={{ width: "100%" }}>
+        <Controller
+              control={control}
+              name="emailId"
+              defaultValue={consumerdetail?.emailId}
+              rules={{
+                validate: {
+                  pattern: (val) =>
+                    !val || /^[a-zA-Z0-9._%+-]+@[a-z.-]+\.(com|org|in)$/.test(val)
+                      ? true
+                      : t("CS_ADDCOMPLAINT_EMAIL_ERROR"),
+                },
+              }}
+              render={(props) => (
+                <TextInput
+                
+  style={{ height: "40px" }}   // ✅ reduce height
+
+                  value={props.value}
+                  onChange={(e) => props.onChange(e.target.value)}
+                  disable={isEdit}
+                />
+              )}
+            />
+          </div>
+        </LabelFieldPair>
+
+        {errors?.emailId && (touchedFields?.emailId || submitAttempted || formState?.submitCount > 0) && (
+          <CardLabelError style={{ fontSize: "12px" }}>
+            {errors.emailId.message}
+          </CardLabelError>
+        )}
       </div>
-    </React.Fragment>
-  );
+
+    </div>
+
+  </div>
+);
+
 };
 export default ConsumerDetails;

@@ -76,8 +76,26 @@ export const propertyCardBodyStyle = {
   // overflowY: "auto",
 };
 
+const getOwnershipCategoryCode = (ownershipCategory) => ownershipCategory?.value || ownershipCategory?.code || ownershipCategory;
+
 export const setAddressDetails = (data) => {
   let { address } = data;
+
+  // Build geoLocation from map picker's lat/lng fields
+  const geoLocation =
+    address?.latitude || address?.longitude
+      ? {
+          latitude: address.latitude ? parseFloat(address.latitude) : undefined,
+          longitude: address.longitude ? parseFloat(address.longitude) : undefined,
+        }
+      : address?.geoLocation || undefined;
+
+  // Merge mapAddress (district/tehsil/zone/ward from reverse geocode) into additionalDetails JSONB
+  const additionalDetails =
+    address?.mapAddress &&
+    (address.mapAddress.district || address.mapAddress.tehsil || address.mapAddress.zone || address.mapAddress.ward)
+      ? { ...(address.additionalDetails || {}), mapAddress: address.mapAddress }
+      : address?.additionalDetails || undefined;
 
   let propAddress = {
     ...address,
@@ -90,6 +108,12 @@ export const setAddressDetails = (data) => {
       code: address?.locality?.code || "NA",
       area: address?.locality?.name,
     },
+    geoLocation,
+    additionalDetails,
+    // Remove the FE-only flat fields so they don't leak into the API payload
+    latitude: undefined,
+    longitude: undefined,
+    mapAddress: undefined,
   };
 
   data.address = propAddress;
@@ -98,10 +122,11 @@ export const setAddressDetails = (data) => {
 
 export const setOwnerDetails = (data) => {
   const { address, owners } = data;
+  const ownershipCategoryCode = getOwnershipCategoryCode(data?.ownershipCategory);
   let institution = {},
     owner = [];
   if (owners && owners.length > 0) {
-    if (data?.ownershipCategory?.value === "INSTITUTIONALPRIVATE" || data?.ownershipCategory?.value === "INSTITUTIONALGOVERNMENT") {
+    if (ownershipCategoryCode === "INSTITUTIONALPRIVATE" || ownershipCategoryCode === "INSTITUTIONALGOVERNMENT") {
       institution.designation = owners[0]?.designation;
       institution.name = owners[0]?.inistitutionName;
       institution.nameOfAuthorizedPerson = owners[0]?.name;
@@ -115,7 +140,8 @@ export const setOwnerDetails = (data) => {
         });
       }
       owner.push({
-        altContactNumber: owners[0]?.altContactNumber,
+        altContactNumber: owners[0]?.altContactNumber || owners[0]?.mobileNumber,
+        alternatemobilenumber: owners[0]?.alternatemobilenumber || undefined,
         correspondenceAddress: owners[0]?.permanentAddress,
         designation: owners[0]?.designation,
         emailId: owners[0]?.emailId,
@@ -149,6 +175,7 @@ export const setOwnerDetails = (data) => {
           gender: ownr?.gender?.value,
           isCorrespondenceAddress: ownr?.isCorrespondenceAddress,
           mobileNumber: ownr?.mobileNumber,
+          alternatemobilenumber: ownr?.alternatemobilenumber || undefined,
           name: ownr?.name,
           ownerType: ownr?.ownerType?.code || "NONE",
           permanentAddress: ownr?.permanentAddress,
@@ -472,7 +499,7 @@ export const setPropertyDetails = (data) => {
   if (data?.PropertyType?.code?.includes("VACANT")) {
     propertyDetails = {
       units: [],
-      landArea: parseInt(data?.landarea?.floorarea),
+      landArea: parseInt(data?.landArea?.floorarea || data?.landarea?.floorarea),
       propertyType: data?.PropertyType?.code,
       noOfFloors: 0,
       usageCategory: data?.propertyStructureDetails?.usageCategory?.code,
@@ -568,12 +595,13 @@ export const convertToProperty = (data = {}) => {
       tenantId: data.tenantId,
       address: data.address,
 
-      ownershipCategory: data?.ownershipCategory?.value,
+      ownershipCategory: getOwnershipCategoryCode(data?.ownershipCategory),
       owners: data.owners,
       institution: data.institution || null,
 
       documents: data.documents || [],
       ...data.propertyDetails,
+      structureType: data?.structureType || null,
 
       additionalDetails: {
         inflammable: false,
@@ -590,10 +618,11 @@ export const convertToProperty = (data = {}) => {
         basement1: basement1,
         basement2: basement2,
         unit:unitValues,
-        electricity:data.electricity.electricity,
-        uid:data.uid.uid,
+        electricity:data?.electricity?.electricity,
+        uid:data?.uid?.uid,
         ageOfProperty: data.propertyStructureDetails.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
+        isVacantLandRented: data?.isVacantLandRented?.code || null,
         owners: data.owners,
       },
 
@@ -635,8 +664,9 @@ return true;
 
 export const setUpdateOwnerDetails = (data = []) => {
   const { institution, owners } = data;
-  if (data?.ownershipCategory?.value === "INSTITUTIONALPRIVATE" || data?.ownershipCategory?.value === "INSTITUTIONALGOVERNMENT") {
-    if (data?.ownershipCategory?.value === "INSTITUTIONALPRIVATE" || data?.ownershipCategory?.value === "INSTITUTIONALGOVERNMENT") {
+  const ownershipCategoryCode = getOwnershipCategoryCode(data?.ownershipCategory);
+  if (ownershipCategoryCode === "INSTITUTIONALPRIVATE" || ownershipCategoryCode === "INSTITUTIONALGOVERNMENT") {
+    if (ownershipCategoryCode === "INSTITUTIONALPRIVATE" || ownershipCategoryCode === "INSTITUTIONALGOVERNMENT") {
       institution.designation = owners[0]?.designation;
       institution.name = owners[0]?.inistitutionName;
       institution.nameOfAuthorizedPerson = owners[0]?.name;
@@ -657,7 +687,7 @@ export const setUpdateOwnerDetails = (data = []) => {
         });
       }
       data.owners.forEach((owner) => {
-        owner.altContactNumber = owners[0]?.altContactNumber;
+        owner.altContactNumber = owners[0]?.altContactNumber || owners[0]?.mobileNumber;
         owner.correspondenceAddress = owners[0]?.permanentAddress;
         owner.designation = owners[0]?.designation;
         owner.emailId = owners[0]?.emailId;
@@ -774,12 +804,13 @@ export const convertToUpdateProperty = (data = {}, t) => {
       tenantId: data.tenantId,
       address: data.address,
 
-      ownershipCategory: data?.ownershipCategory?.value,
+      ownershipCategory: getOwnershipCategoryCode(data?.ownershipCategory),
       owners: data.owners,
       institution: data.institution || null,
 
       documents: data.documents || [],
       ...data.propertyDetails,
+      structureType: data?.structureType || null,
 
       additionalDetails: {
         inflammable: false,
@@ -796,8 +827,9 @@ export const convertToUpdateProperty = (data = {}, t) => {
         unit: unit,
         basement1: basement1,
         basement2: basement2,
-        ageOfProperty: data.propertyStructureDetails.ageOfProperty,
+        ageOfProperty: data?.propertyStructureDetails?.ageOfProperty,
         structureType:data?.propertyStructureDetails?.structureType,
+        isVacantLandRented: data?.isVacantLandRented?.code || null,
       },
 
       creationReason: window.location.href.includes("edit-application")?"UPDATE":getCreationReason(data),
@@ -830,7 +862,7 @@ export const convertToUpdateProperty = (data = {}, t) => {
     formdata.Property.owners = [...propertyInitialObject.owners];
   } */
 
-  if (checkArrayLength(propertyInitialObject?.owners) && checkIsAnArray(formdata.Property?.owners)) {
+  if (checkArrayLength(propertyInitialObject?.owners) && checkIsAnArray(formdata.Property?.owners) && data?.isEditProperty) {
     formdata.Property.owners = [...propertyInitialObject.owners];
   }
   if (propertyInitialObject?.auditDetails) {

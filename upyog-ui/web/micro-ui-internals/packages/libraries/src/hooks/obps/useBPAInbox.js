@@ -7,6 +7,7 @@ const useBPAInbox = ({ tenantId, filters, config={} }) => {
     const { mobileNumber, applicationNo } = searchForm;
     const { sortBy, limit, offset, sortOrder } = tableForm;
     let applicationNumber = "";
+    const ulbTenantId = tenantId; // preserve ULB tenantId before BPAREG override
     if (window.location.href.includes("stakeholder-inbox")) moduleName = "BPAREG";
     if (moduleName == "BPAREG") {
       applicationNumber = applicationNo;
@@ -19,12 +20,13 @@ const useBPAInbox = ({ tenantId, filters, config={} }) => {
     let _filters = {
         tenantId,
         processSearchCriteria: {
-          assignee : assignee === "ASSIGNED_TO_ME"?user?.info?.uuid:"",
+          ...(assignee === "ASSIGNED_TO_ME" ? {assignee: user?.info?.uuid} : {}),
           moduleName: moduleName !== "BPAREG"  ? "bpa-services" : "BPAREG", 
           businessService: moduleName !== "BPAREG"  ? (businessService ? [businessService] : ["BPA_LOW", "BPA", "BPA_OC", "BPA-PAP"] ) : (businessService ? [businessService.identifier] : ["ARCHITECT","BUILDER","ENGINEER","STRUCTURALENGINEER", "TOWNPLANNER", "SUPERVISOR"]),
           ...(applicationStatus?.length > 0 ? {status: applicationStatus} : {}),
         },
         moduleSearchCriteria: {
+          ...(moduleName === "BPAREG" ? { tenantId: ulbTenantId } : {}),
           ...(mobileNumber ? {mobileNumber}: {}),
           ...(!applicationNumber ? applicationNo ? {applicationNo} : {} : (applicationNumber ? {applicationNumber} : {})),
           ...(applicationNumber ? {applicationNumber} : {}),

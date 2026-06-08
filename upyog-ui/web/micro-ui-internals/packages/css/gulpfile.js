@@ -12,8 +12,29 @@ if (process.env.NODE_ENV === "production") {
   output = "./dist";
 }
 
+let prodOutput = "./dist";
+
 function cleanStyles() {
   return src(`${output}/*.css`, { read: false }).pipe(clean());
+}
+
+function cleanProdStyles() {
+  return src(`${prodOutput}/*.css`, { read: false }).pipe(clean());
+}
+
+function prodStyles() {
+  const plugins = [
+    require("postcss-import"),
+    require("tailwindcss"),
+    postcssPresetEnv({ stage: 2, autoprefixer: { cascade: false }, features: { "custom-properties": true } }),
+    require("autoprefixer"),
+    require("cssnano"),
+  ];
+  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass()).pipe(dest(prodOutput));
+}
+
+function minifyProd() {
+  return src(`${prodOutput}/index.css`).pipe(cleanCSS()).pipe(rename(`index.min.css`)).pipe(dest(prodOutput));
 }
 
 function styles() {
@@ -43,6 +64,7 @@ function livereloadStyles() {
 exports.styles = styles;
 exports.default = series(styles);
 exports.watch = livereloadStyles;
+exports.buildprod = series(cleanProdStyles, prodStyles, minifyProd);
 if (process.env.NODE_ENV === "production") {
   exports.build = series(cleanStyles, styles, minify);
 } else {

@@ -6,6 +6,7 @@ const useLocalities = (tenant, boundaryType = "admin", config, t) => {
   boundaryType = boundaryType.toLocaleLowerCase();
   return useQuery(["BOUNDARY_DATA", tenant, boundaryType], () => getLocalities[boundaryType](tenant), {
     select: (data) => {
+      if (!data) return [];
       return LocalityService?.get(data).map((key) => {
         return { ...key, i18nkey: t(key.i18nkey) };
       });

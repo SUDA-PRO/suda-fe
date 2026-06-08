@@ -20,7 +20,7 @@ const Search = ({ path }) => {
   const [searchData, setSearchData] = useState({});
 
   useEffect(()=>{
-    if (location.pathname === "/upyog-ui/citizen/obps/search/application" || location.pathname === "/upyog-ui/employee/obps/search/application") {
+    if (location.pathname === "/suda-ui/citizen/obps/search/application" || location.pathname === "/suda-ui/employee/obps/search/application") {
       Digit.SessionStorage.del("OBPS.INBOX")
       Digit.SessionStorage.del("STAKEHOLDER.INBOX")
     }
@@ -85,7 +85,7 @@ const Search = ({ path }) => {
         payload["tradeType"] = payload["serviceType"]
         delete payload["serviceType"];
       }
-      params = { ...payload, tenantId: Digit.ULBService.getStateId() };
+      params = { ...payload, tenantId: Digit.ULBService.getCurrentTenantId() };
     }
   } else {
     if (Object.keys(payload).length === 0) {
@@ -107,7 +107,7 @@ const Search = ({ path }) => {
     tenantId,
     filters,
     params,
-    {enabled:paramerror===""}
+    {enabled:paramerror==="" && !(selectedType && selectedType.includes("STAKEHOLDER") && Object.keys(params).length === 0)}
   );
   return (
     <Search

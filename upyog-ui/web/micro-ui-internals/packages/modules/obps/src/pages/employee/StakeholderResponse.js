@@ -20,7 +20,7 @@ const StakeholderResponse = (props) => {
   }
 
   const onSubmit = () => {
-    history.push(`/upyog-ui/employee`);
+    history.push(`/suda-ui/employee`);
   }
 
   return (

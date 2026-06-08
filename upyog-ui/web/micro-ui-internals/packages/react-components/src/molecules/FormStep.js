@@ -100,8 +100,14 @@ const FormStep = ({
       }
   });
 
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && e.target?.type !== "submit") {
+      e.preventDefault();
+    }
+  };
+
   return (
-    <form onSubmit={handleSubmit(goNext)}>
+    <form onSubmit={handleSubmit(goNext)} onKeyDown={handleKeyDown}>
       <InputCard
         {...{ isDisable: isDisable, isMultipleAllow: isMultipleAllow , isMandatory:isMandatory}}
         {...config}

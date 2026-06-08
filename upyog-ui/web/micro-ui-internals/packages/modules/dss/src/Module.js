@@ -18,32 +18,32 @@ const DssBreadCrumb = ({ location }) => {
 
   const crumbs = [
     {
-      path: "/upyog-ui/employee",
+      path: "/suda-ui/employee",
       content: t("ES_COMMON_HOME"),
       show: true,
     },
     {
-      path: checkCurrentScreen() || window.location.href.includes("NURT_DASHBOARD") ? "/upyog-ui/employee/dss/landing/NURT_DASHBOARD" : "/upyog-ui/employee/dss/landing/home",
+      path: checkCurrentScreen() || window.location.href.includes("NURT_DASHBOARD") ? "/suda-ui/employee/dss/landing/NURT_DASHBOARD" : "/suda-ui/employee/dss/landing/home",
       content: t("ES_LANDING_PAGE"),
       show: true,
     },
     {
-      path: fromModule?`/upyog-ui/employee/dss/dashboard/${fromModule}`:`/upyog-ui/employee/dss/dashboard/${Digit.Utils.dss.getCurrentModuleName()}`,
+      path: fromModule?`/suda-ui/employee/dss/dashboard/${fromModule}`:`/suda-ui/employee/dss/dashboard/${Digit.Utils.dss.getCurrentModuleName()}`,
       content: t(`ES_COMMON_DSS_${Digit.Utils.locale.getTransformedLocale(fromModule?fromModule:moduleName)}`),
       show: location.pathname.includes("dashboard") ? true : false,
     },
     {
-      path: "/upyog-ui/employee/dss/drilldown",
+      path: "/suda-ui/employee/dss/drilldown",
       content:location.pathname.includes("drilldown")?t(title): t("ES_COMMON_DSS_DRILL"),
       show: location.pathname.includes("drilldown") ? true : false,
     },
     {
-      path: "/upyog-ui/employee/dss/national-faqs",
+      path: "/suda-ui/employee/dss/national-faqs",
       content: t("ES_COMMON_DSS_FAQS"),
       show: location.pathname.includes("national-faqs") ? true : false,
     } ,
     {
-      path: "/upyog-ui/employee/dss/national-about",
+      path: "/suda-ui/employee/dss/national-about",
       content: t("ES_COMMON_DSS_ABOUT"),
       show: location.pathname.includes("national-about") ? true : false,
     } 
@@ -62,7 +62,7 @@ const Routes = ({ path, stateCode }) => {
   }
   return (
     <div style={{display:"flex"}}>
-      <div className="chart-sidebar" style={{width:"300px",marginLeft:"-80px", backgroundImage:"url(https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/top-green-card.png), url(https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/top-red-card.png)", backgroundSize:"cover",backgroundBlendMode:"lighten",display:window.location.href.includes("main-dashboard-landing")?"":"none"}}>
+      <div className="chart-sidebar" style={{width:"300px",marginLeft:"-80px", backgroundImage: "linear-gradient(to bottom, #FFA500, #FF6A00) !important", backgroundSize:"cover",backgroundBlendMode:"lighten",display:window.location.href.includes("main-dashboard-landing")?"":"none"}}>
         <div style={{width:"90%",margin:"5%",backgroundColor:"white",fontWeight:"700",textAlign:"center",height:"50px",lineHeight:"3",cursor:"pointer",marginTop:"10%"}}  onClick = {(e)=>handClick(e,"home")}className="dashBoard">View dashboard</div>
         <div style={{width:"90%",margin:"5%",backgroundColor:"white",fontWeight:"700",textAlign:"center",height:"50px",cursor:"pointer"}} className="dashBoard" onClick = {(e)=>handClick(e,"national-propertytax")}>
 Property Tax Assessment and Payment</div>
@@ -81,7 +81,7 @@ Desludging Service</div>
       <DssBreadCrumb location={location} />
       <Switch>
         <PrivateRoute path={`${path}/landing/:moduleCode`} component={() => <Home stateCode={stateCode} />} />
-        <PrivateRoute path={`${path}/dashboard/:moduleCode`} component={() => <DashBoard stateCode={stateCode} />} />
+        {/* <PrivateRoute path={`${path}/dashboard/:moduleCode`} component={() => <DashBoard stateCode={stateCode} />} /> */}
         <PrivateRoute path={`${path}/main-dashboard-landing`} component={() => <NewDashBoard stateCode={stateCode} />} />
         <PrivateRoute path={`${path}/drilldown`} component={() => <DrillDown  stateCode={stateCode}  />} />
         <Route key={"national-faq"} path={`${path}/national-faqs`}>

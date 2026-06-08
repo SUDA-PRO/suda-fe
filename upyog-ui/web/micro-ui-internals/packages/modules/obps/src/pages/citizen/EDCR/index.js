@@ -36,7 +36,7 @@ const CreateEDCR = ({ parentRoute }) => {
         ts: "",
         action: "",
         did: "",
-        authToken: "",
+        authToken: loggedInuserInfo?.access_token || "",
         key: "",
         msgId: "",
         correlationId: "",
@@ -67,7 +67,7 @@ const CreateEDCR = ({ parentRoute }) => {
         if (result?.data?.edcrDetail) {
           setParams(result?.data?.edcrDetail);
           history.replace(
-            `/upyog-ui/citizen/obps/edcrscrutiny/apply/acknowledgement`, ///${result?.data?.edcrDetail?.[0]?.edcrNumber}
+            `/suda-ui/citizen/obps/edcrscrutiny/apply/acknowledgement`, ///${result?.data?.edcrDetail?.[0]?.edcrNumber}
             { data: result?.data?.edcrDetail }
           );
         }

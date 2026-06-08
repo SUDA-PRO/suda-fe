@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { Redirect, Route, Switch, useHistory, useLocation } from "react-router-dom";
 import EmployeeApp from "./pages/employee";
 import CitizenApp from "./pages/citizen";
+import SudaLoginPage from "./pages/employee/Login/SudaLoginPage";
+import Dashboard from "./pages/citizen/Home/Dashboard";
 
 export const DigitApp = ({ stateCode, modules, appTenants, logoUrl, initData }) => {
   const history = useHistory();
@@ -31,11 +33,11 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
     if (!pathname?.includes("landing")) {
       Digit.SessionStorage.del("DSS_FILTERS_CUMILATIVETRANSACTIONS");
     }
-    if (pathname?.toString() === "/upyog-ui/employee") {
+    if (pathname?.toString() === "/suda-ui/employee") {
       Digit.SessionStorage.del("SEARCH_APPLICATION_DETAIL");
       Digit.SessionStorage.del("WS_EDIT_APPLICATION_DETAILS");
     }
-    if (pathname?.toString() === "/upyog-ui/citizen" || pathname?.toString() === "/upyog-ui/employee") {
+    if (pathname?.toString() === "/suda-ui/dashboard" || pathname?.toString() === "/suda-ui/citizen" || pathname?.toString() === "/suda-ui/employee") {
       Digit.SessionStorage.del("WS_DISCONNECTION");
     }
   }, [pathname]);
@@ -67,16 +69,91 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
     initData,
   };
   return (
-    <Switch>
-      <Route path="/upyog-ui/employee">
-        <EmployeeApp {...commonProps} />
-      </Route>
-      <Route path="/upyog-ui/citizen">
-        <CitizenApp {...commonProps} />
-      </Route>
-      <Route>
-        <Redirect to="/upyog-ui/citizen" />
-      </Route>
-    </Switch>
+    <React.Fragment>
+      <style>
+        {`
+          .navbar {
+            font-family: monospace;
+            postion: relative;
+            background: #1f45a4 !important;
+            padding: 5px;
+          }
+
+          .navbar .RightMostTopBarOptions .EventNotificationWrapper {
+            align-self: center;
+          }
+
+          .navbar .RightMostTopBarOptions .select-wrap svg path:first-child {
+            fill: transparent;
+          }
+
+          .primary-label-btn, .drawer-desktop .sidebar-list.active .menu-label, .link {
+            color: orange !important;
+          }
+
+          .submit-bar, .submit-bar-disabled {
+            background-color: orange !important;
+          }
+
+          .radio-wrap .radio-btn-wrap input:checked ~ .radio-btn-checkmark:after, .radio-wrap .radio-btn-wrap .checkbox-wrap .input-emp:checked ~ .radio-btn-checkmark:after, .checkbox-wrap .radio-wrap .radio-btn-wrap .input-emp:checked ~ .radio-btn-checkmark:after, .icon-banner-employee svg {
+            background-color: orange !important;
+          }
+
+          .radio-wrap .radio-btn-wrap input:checked ~ .radio-btn-checkmark, .radio-wrap .radio-btn-wrap .checkbox-wrap .input-emp:checked ~ .radio-btn-checkmark, .checkbox-wrap .radio-wrap .radio-btn-wrap .input-emp:checked ~ .radio-btn-checkmark, .drawer-desktop .sidebar-list.active {
+            border-color: orange !important;  
+          }
+
+          .CardBasedOptions .mainContent .CardBasedOptionsMainChildOption .ChildOptionImageWrapper svg, .drawer-desktop .sidebar-list.active .icon, .fill-path-primary-main path {
+            fill: orange !important;
+          }
+
+          .ChildOptionImageWrapper svg path {
+            fill: orange !important;
+          }
+
+          .checkbox-wrap input:checked ~ .custom-checkbox,
+          .checkbox-wrap input:hover ~ .custom-checkbox,
+          .checkbox-wrap input:checked ~ .custom-checkbox-emp,
+          .checkbox-wrap input:hover ~ .custom-checkbox-emp {
+            border: 2px solid #FF6600 !important;
+          }
+
+          .checkbox-wrap input:checked ~ .custom-checkbox svg,
+          .checkbox-wrap input:checked ~ .custom-checkbox-emp svg {
+            fill: #FF6600 !important;
+          }
+
+          .employee .topbar {
+            background: #1f45a4 !important;
+          }
+
+          .selector-button-primary, selector-button-primary-disabled {
+            background-color: orange;
+            border-radius: 20px;
+          }
+
+          .selector-button-border, selector-button-primary-disabled {
+            border-radius: 20px;
+          }
+        `}
+      </style>
+      <Switch>
+        <Route path="/suda-ui/login" exact>
+          <SudaLoginPage />
+        </Route>
+        <Route path="/suda-ui/employee">
+          <EmployeeApp {...commonProps} />
+        </Route>
+        <Route path="/suda-ui/citizen">
+          <CitizenApp {...commonProps} />
+        </Route>
+        <Route path="/suda-ui/dashboard">
+          <Dashboard {...commonProps} />
+        </Route>
+        <Route>
+          <Redirect to="/suda-ui/dashboard" />
+        </Route>
+      </Switch>
+    </React.Fragment>
   );
 };

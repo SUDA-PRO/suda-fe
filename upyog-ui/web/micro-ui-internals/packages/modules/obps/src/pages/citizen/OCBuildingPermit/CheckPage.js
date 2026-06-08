@@ -76,7 +76,7 @@ const CheckPage = ({ onSubmit, value }) => {
   );
 
 
-  let routeLink = !isEditApplication?`/upyog-ui/citizen/obps/ocbpa/${additionalDetails?.applicationType.toLowerCase()}/${additionalDetails?.serviceType.toLowerCase()}`:`/upyog-ui/citizen/obps/editApplication/ocbpa/${value?.tenantId}/${value?.applicationNo}`;
+  let routeLink = !isEditApplication?`/suda-ui/citizen/obps/ocbpa/${additionalDetails?.applicationType.toLowerCase()}/${additionalDetails?.serviceType.toLowerCase()}`:`/suda-ui/citizen/obps/editApplication/ocbpa/${value?.tenantId}/${value?.applicationNo}`;
 
   const tableHeader = [
     {
@@ -183,7 +183,7 @@ const CheckPage = ({ onSubmit, value }) => {
       <Card style={{paddingRight:"16px"}}>
         <CardHeader>{t(`BPA_BASIC_DETAILS_TITLE`)}</CardHeader>
         <StatusTable>
-          <Row className="border-none" label={`${t(`BPA_BASIC_DETAILS_APP_DATE_LABEL`)}`} text={convertEpochToDateDMY(Number(data?.applicationDate))} />
+          <Row className="border-none" label={`${t(`BPA_BASIC_DETAILS_APP_DATE_LABEL`)}`} text={data?.applicationDate ? getdate(data?.applicationDate) : ""} />
           <Row className="border-none" label={`${t(`BPA_BASIC_DETAILS_APPLICATION_TYPE_LABEL`)}`} text={t(`WF_BPA_${data?.applicationType}`)} />
           <Row className="border-none" label={`${t(`BPA_BASIC_DETAILS_SERVICE_TYPE_LABEL`)}`} text={t(data?.serviceType)} />
           <Row className="border-none" label={`${t(`BPA_BASIC_DETAILS_OCCUPANCY_LABEL`)}`} text={data?.occupancyType} />

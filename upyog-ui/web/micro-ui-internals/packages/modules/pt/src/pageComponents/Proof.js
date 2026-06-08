@@ -39,7 +39,12 @@ const Proof = ({ t, config, onSelect, userType, formData, isMandatory}) => {
   }
 
   function setTypeOfDropdownValue(dropdownValue) {
-    dropdownValue?.digiLockerFetch == true ?  setDigilockerUpload(true) : setDigilockerUpload(false),setUploadedFile(null)
+    if (dropdownValue?.digiLockerFetch == true) {
+      setDigilockerUpload(true);
+      setUploadedFile(null);
+    } else {
+      setDigilockerUpload(false);
+    }
     setDropdownValue(dropdownValue);
   }
 
@@ -52,7 +57,7 @@ const Proof = ({ t, config, onSelect, userType, formData, isMandatory}) => {
     if (address && address.documents) {
       address.documents["ProofOfAddress"] = fileDetails;
     } else {
-      address["documents"] = [];
+      address["documents"] = {};
       address.documents["ProofOfAddress"] = fileDetails;
     }
     if (!isMutation) onSelect(config.key, address, "", index);
@@ -75,6 +80,11 @@ const Proof = ({ t, config, onSelect, userType, formData, isMandatory}) => {
     (async () => {
       setError(null);
       if (file) {
+        if (file.fileStoreId) {
+          // Already a stored document — reflect existing fileStoreId without re-uploading
+          setUploadedFile(file.fileStoreId);
+          return;
+        }
         if (file.size >= 2000000) {
           setError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED"));
         } else {

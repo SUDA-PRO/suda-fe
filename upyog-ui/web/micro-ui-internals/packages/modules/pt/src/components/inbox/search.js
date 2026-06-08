@@ -139,7 +139,7 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                       {!input.type ? (
                         <Controller
                           render={(props) => {
-                            return <TextInput onChange={props.onChange} value={props.value} />;
+                            return <TextInput onChange={props.onChange} value={props.value} placeholder={input.placeholder || ""} textInputStyle={{ height: "42px", display: "flex", alignItems: "stretch" }} style={{ height: "42px", margin: 0, boxSizing: "border-box" }} />;
                           }}
                           name={input.name}
                           control={control}
@@ -149,7 +149,7 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                         <Controller
                           render={(props) => {
                             const Comp = fieldComponents?.[input.type];
-                            return <Comp formValue={form} setValue={setValue} onChange={props.onChange} value={props.value} />;
+                            return <Comp formValue={form} setValue={setValue} onChange={props.onChange} value={props.value} placeholder={input.placeholder || ""} style={{ height: "42px", margin: 0, boxSizing: "border-box" }} />;
                           }}
                           name={input.name}
                           control={control}
@@ -159,7 +159,7 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
                     </span>
                     {formState?.dirtyFields?.[input.name] ? (
                       <span
-                        style={{ fontWeight: "700", color: "rgba(212, 53, 28)", paddingLeft: "8px", marginTop: "-20px", fontSize: "12px" }}
+                        style={{ fontWeight: "700", color: "rgba(212, 53, 28)", paddingLeft: "8px", marginTop: "4px", fontSize: "12px", display: "block", position: "static" }}
                         className="inbox-search-form-error"
                       >
                         {formState?.errors?.[input.name]?.message}
@@ -175,7 +175,7 @@ const SearchApplication = ({ onSearch, type, onClose, searchFields, searchParams
               )}
 
               {type === "desktop" && !mobileView && (
-                <div style={{ maxWidth: "unset", marginLeft: "unset" }} className="search-submit-wrapper">
+                <div style={{ maxWidth: "unset", marginLeft: "unset", marginTop: "16px" }} className="search-submit-wrapper">
                   <SubmitBar
                     className="submit-bar-search"
                     label={t("ES_COMMON_SEARCH")}

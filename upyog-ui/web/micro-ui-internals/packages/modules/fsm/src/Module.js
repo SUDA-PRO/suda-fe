@@ -96,7 +96,7 @@ const FSMLinks = ({ matchPath, userType }) => {
   const roleBasedLoginRoutes = [
     {
       role: "FSM_DSO",
-      from: "/upyog-ui/citizen/fsm/dso-dashboard",
+      from: "/suda-ui/citizen/fsm/dso-dashboard",
       dashoardLink: "CS_LINK_DSO_DASHBOARD",
       loginLink: "CS_LINK_LOGIN_DSO",
     },
@@ -122,7 +122,7 @@ const FSMLinks = ({ matchPath, userType }) => {
         });
       else
         links.push({
-          link: `/upyog-ui/citizen/login`,
+          link: `/suda-ui/login`,
           state: { role: "FSM_DSO", from },
           i18nKey: t(loginLink),
         });

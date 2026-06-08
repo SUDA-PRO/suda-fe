@@ -1,7 +1,7 @@
 .card {
   @apply bg-white m-sm px-md pt-md pb-lg shadow-card;
   border-radius: 4px;
-  max-width: 960px;
+  max-width: 100%;
 
   .card-header {
     @apply text-text-primary text-heading-xl font-bold font-rc align-middle text-left mb-md;
@@ -175,8 +175,9 @@
   }
 
   header {
-    @apply font-rc font-medium text-legend text-white leading-10;
-    line-height: 2rem !important;
+    @apply font-rc font-medium text-legend text-white;
+    line-height: normal !important;
+    white-space: nowrap !important;
   }
 }
 
@@ -185,7 +186,10 @@
   .submit-bar-disabled {
     width: 240px;
     background-color: #882636 !important;
-    height: 2rem !important
+    height: auto !important;
+    min-height: 2.5rem !important;
+    padding: 0.5rem 1rem !important;
+    white-space: nowrap !important;
   }
 
   .card {

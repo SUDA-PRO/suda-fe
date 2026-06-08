@@ -5,8 +5,6 @@ import { TextInput, LabelFieldPair, Dropdown } from "@upyog/digit-ui-react-compo
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import useMCollectMDMS from "../../../../../../libraries/src/hooks/mcollect/useMCollectMDMS";
-import ServiceCategory from "../../../components/inbox/ServiceCategory";
 
 const SearchChallan = ({ config: propsConfig, formData }) => {
   const { t } = useTranslation();
@@ -27,7 +25,7 @@ const SearchChallan = ({ config: propsConfig, formData }) => {
     return <Loader />;
   }
   const onChallanSearch = async (data) => {
-    //history.push(`/upyog-ui/citizen/mcollect/search-results`);
+    //history.push(`/suda-ui/citizen/mcollect/search-results`);
     if (!mobileNumber && !challanNo && !Servicecateogry && !city) {
       return alert("Provide at least one parameter");
     } else if (!Servicecateogry) {
@@ -38,7 +36,7 @@ const SearchChallan = ({ config: propsConfig, formData }) => {
     }
      else {
       history.push(
-        `/upyog-ui/citizen/mcollect/search-results?mobileNumber=${mobileNumber}&challanNo=${challanNo}&Servicecategory=${
+        `/suda-ui/citizen/mcollect/search-results?mobileNumber=${mobileNumber}&challanNo=${challanNo}&Servicecategory=${
           Servicecateogry ? Servicecateogry.code.replace("BILLINGSERVICE_BUSINESSSERVICE_","") : ""
         }&tenantId=${city.code}`
       );

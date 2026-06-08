@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   HomeIcon,
   EditPencilIcon,
@@ -29,6 +29,9 @@ import LogoutDialog from "../../Dialog/LogoutDialog";
 import ChangeCity from "../../ChangeCity";
 import { APPLICATION_PATH } from "../../../pages/citizen/Home/EDCR/utils";
 
+const placeholderLogo =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23ffffff22'/%3E%3Ccircle cx='40' cy='30' r='14' fill='%23ffffff55'/%3E%3Cellipse cx='40' cy='70' rx='24' ry='18' fill='%23ffffff55'/%3E%3C/svg%3E";
+
 const defaultImage =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAO4AAADUCAMAAACs0e/bAAAAM1BMVEXK0eL" +
   "/" +
@@ -54,49 +57,55 @@ const defaultImage =
 /* 
 Feature :: Citizen Webview sidebar
 */
-const Profile = ({ info, stateName, t, profilePhotoUrl }) => (
-  <div className="profile-section">
-    <div className="imageloader imageloader-loaded">
-      <img className="img-responsive img-circle img-Profile" src={profilePhotoUrl ? profilePhotoUrl : defaultImage} />
+const OrgHeader = ({ stateInfo, t, onClose }) => (
+  <div className="sidebar-nav__header">
+    <button className="sidebar-nav__close" onClick={onClose} aria-label="Close menu">&times;</button>
+    <div className="sidebar-nav__logo-wrapper">
+      <img src="https://tfstatee8aog.blob.core.windows.net/filestore/Coat_of_arms_of_Chhattisgarh.svg" className="sidebar-nav__logo-img" alt="logo" />
     </div>
-    <div id="profile-name" className="label-container name-Profile">
-      <div className="label-text"> {info?.name} </div>
+    <div className="sidebar-nav__org-name">
+      URBAN ADMINISTRATION &amp; DEPARTMENT
     </div>
-    <div id="profile-location" className="label-container loc-Profile">
-      <div className="label-text"> {info?.mobileNumber} </div>
+    <div className="sidebar-nav__org-short" style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", letterSpacing: "1.5px", marginTop: "-4px", marginBottom: "4px" }}>
+      UAD
     </div>
-    {info?.emailId && (
-      <div id="profile-emailid" className="label-container loc-Profile">
-        <div className="label-text"> {info.emailId} </div>
-      </div>
-    )}
-    <div className="profile-divider"></div>
-    {window.location.href.includes("/employee") &&
-      !window.location.href.includes("/employee/user/login") &&
-      !window.location.href.includes("employee/user/language-selection") && <ChangeCity t={t} mobileView={true} />}
+    <div className="sidebar-nav__divider" />
   </div>
 );
+
+const iconStyle = { width: 20, height: 20, display: "block" };
+
+const DashboardIcon = () => (
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="white" xmlns="http://www.w3.org/2000/svg">
+    <rect x="3" y="3" width="8" height="8" rx="1.5" />
+    <rect x="13" y="3" width="8" height="8" rx="1.5" />
+    <rect x="3" y="13" width="8" height="8" rx="1.5" />
+    <rect x="13" y="13" width="8" height="8" rx="1.5" />
+  </svg>
+);
+
 const IconsObject = {
-  CommonPTIcon: <PTIcon className="icon" />,
-  OBPSIcon: <OBPSIcon className="icon" />,
-  propertyIcon: <PropertyHouse className="icon" />,
-  TLIcon: <CaseIcon className="icon" />,
-  PGRIcon: <PGRIcon className="icon" />,
-  FSMIcon: <FSMIcon className="icon" />,
-  WSIcon: <WSICon className="icon" />,
-  MCollectIcon: <MCollectIcon className="icon" />,
-  CHBIcon:<CHBIcon className="icon" />,
-  BillsIcon: <CollectionIcon className="icon" />,
-  BirthIcon: <BirthIcon className="icon" />,
-  DeathIcon: <DeathIcon className="icon" />,
-  FirenocIcon: <FirenocIcon className="icon" />,
-  HomeIcon: <HomeIcon className="icon" />,
-  EditPencilIcon: <EditPencilIcon className="icon" />,
-  LogoutIcon: <LogoutIcon className="icon" />,
-  Phone: <Phone className="icon" />,
-  LoginIcon: <LoginIcon className="icon" />,
+  CommonPTIcon: <PTIcon className="icon" style={iconStyle} />,
+  OBPSIcon: <OBPSIcon className="icon" style={iconStyle} />,
+  propertyIcon: <PropertyHouse className="icon" style={iconStyle} />,
+  TLIcon: <CaseIcon className="icon" style={iconStyle} />,
+  PGRIcon: <PGRIcon className="icon" style={iconStyle} />,
+  FSMIcon: <FSMIcon className="icon" style={iconStyle} />,
+  WSIcon: <WSICon className="icon" style={iconStyle} />,
+  MCollectIcon: <MCollectIcon className="icon" style={iconStyle} />,
+  CHBIcon: <CHBIcon className="icon" style={iconStyle} />,
+  BillsIcon: <CollectionIcon className="icon" style={iconStyle} />,
+  BirthIcon: <BirthIcon className="icon" style={iconStyle} />,
+  DeathIcon: <DeathIcon className="icon" style={iconStyle} />,
+  FirenocIcon: <FirenocIcon className="icon" style={iconStyle} />,
+  HomeIcon: <HomeIcon className="icon" style={iconStyle} />,
+  DashboardIcon: <DashboardIcon />,
+  EditPencilIcon: <EditPencilIcon className="icon" style={iconStyle} />,
+  LogoutIcon: <LogoutIcon className="icon" style={iconStyle} />,
+  Phone: <Phone className="icon" style={iconStyle} />,
+  LoginIcon: <LoginIcon className="icon" style={iconStyle} />,
 };
-const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
+const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const location = useLocation();
@@ -110,24 +119,6 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
   const [isSidebarOpen, toggleSidebar] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const tenantId = Digit.ULBService.getCitizenCurrentTenant();
-  const [profilePhotoUrl, setProfilePhotoUrl] = useState(null);
-  useEffect(() => {
-    const fetchPhoto = async () => {
-      const usersResponse = await Digit.UserService.userSearch(user?.info?.tenantId, { uuid: [user?.info?.uuid||user?.user?.[0]?.uuid] }, {});
-      if (usersResponse?.user?.[0]?.photo) {
-        try {
-          const file = await Digit.UploadServices.Filefetch([usersResponse?.user?.[0]?.photo], "pg");
-          if (file?.data?.fileStoreIds?.[0]?.url) {
-            setProfilePhotoUrl(file?.data?.fileStoreIds?.[0]?.url.split(",")[0]);
-          }
-        } catch (err) {
-          console.error("Error fetching profile photo:", err);
-        }
-      }
-    };
-
-    fetchPhoto();
-  }, [user?.info?.photo, tenantId]);
   const handleLogout = () => {
     toggleSidebar(false);
     setShowDialog(true);
@@ -147,7 +138,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
   const redirectToLoginPage = () => {
     // localStorage.clear();
     // sessionStorage.clear();
-    history.push(`${APPLICATION_PATH}/citizen/login`);
+    history.push(`${APPLICATION_PATH}/login`);
   };
   // Function to redirect the user to the EDCR scrutiny page
   const redirectToScrutinyPage = () => {
@@ -175,9 +166,13 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
       itemComponent = item.text;
     }
     const Item = () => (
-      <span className="menu-item" {...item.populators}>
-        {leftIcon}
-        <div className="menu-label">{itemComponent}</div>
+      <span className="sidebar-nav__item-inner" {...item.populators}>
+        <span className="sidebar-nav__item-icon">
+          {leftIcon}
+        </span>
+        <span className="sidebar-nav__item-label">
+          {itemComponent}
+        </span>
       </span>
     );
     if (item.type === "external-link") {
@@ -189,7 +184,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
     }
     if (item.type === "link") {
       return (
-        <Link to={item?.link.replace("/digit-ui/","/upyog-ui/")}>
+        <Link to={item?.link.replace("/digit-ui/","/suda-ui/").replace("/upyog-ui/","/suda-ui/")}>
           <Item />
         </Link>
       );
@@ -197,10 +192,8 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
 
     return <Item />;
   };
-  let profileItem;
 
   if (isFetched && user && user.access_token) {
-    profileItem = <Profile info={user?.info} stateName={stateInfo?.name} t={t} profilePhotoUrl={profilePhotoUrl}/>;
     menuItems = menuItems.filter((item) => item?.id !== "login-btn" && item?.id !== "help-line");
     menuItems = [
       ...menuItems,
@@ -234,12 +227,13 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
       },
     ];
   }
-  Object.keys(linkData)
+  Object.keys(linkData || {})
     ?.sort((x, y) => y.localeCompare(x))
     ?.map((key) => {
-      if (linkData[key][0]?.sidebar === "digit-ui-links") {
+      console.log("[Sidebar] key:", key, "sidebar:", linkData[key][0]?.sidebar, "sidebarURL:", linkData[key][0]?.sidebarURL);
+      if (linkData[key][0]?.sidebar === "digit-ui-links" || linkData[key][0]?.sidebar === "suda-ui-links") {
         menuItems.splice(1, 0, {
-          type: linkData[key][0]?.sidebarURL?.includes("digit-ui") ? "link" : "external-link",
+          type: (linkData[key][0]?.sidebarURL?.includes("digit-ui") || linkData[key][0]?.sidebarURL?.includes("upyog-ui") || linkData[key][0]?.sidebarURL?.includes("suda-ui")) ? "link" : "external-link",
           text: t(`ACTION_TEST_${Digit.Utils.locale.getTransformedLocale(key)}`),
           links: linkData[key],
           icon: linkData[key][0]?.leftIcon,
@@ -250,34 +244,122 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading }) => {
 
   return (
     <React.Fragment>
-      <div>
-        <div
-          style={{
-            height: "100%",
-            width: "100%",
-            top: "0px",
-            backgroundColor: "rgba(0, 0, 0, 0.54)",
-            pointerzevents: "auto",
-          }}
-        ></div>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            height: isMobile ? "calc(100vh - 56px)" : "auto",
-            zIndex: "99",
-          }}
-        >
-          {profileItem}
-          <div className="drawer-desktop" style={{"backgroundColor":"white"}}>
-            {menuItems?.map((item, index) => (
-              <div className={`sidebar-list ${pathname === item?.link || pathname === item?.sidebarURL ? "active" : ""}`} key={index}>
+      <style>
+        {`
+            // Citizen static sidebar
+            .sidebar-nav {
+              background-color: #091E64;
+              min-height: 100vh;
+              display: flex;
+              flex-direction: column;
+            }
+
+            .sidebar-nav__header {
+              background-color: #091E64;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              padding: 65px 12px 0;
+            }
+
+            .sidebar-nav__logo-wrapper {
+              width: 72px;
+              height: 72px;
+              border-radius: 50%;
+              border: 3px solid rgba(255, 255, 255, 0.4);
+              overflow: hidden;
+              margin-bottom: 12px;
+              background: rgba(255, 255, 255, 0.1);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            }
+
+            .sidebar-nav__logo-img {
+              width: 100%;
+              height: 100%;
+              object-fit: contain;
+            }
+
+            .sidebar-nav__org-name {
+              color: #ffffff;
+              font-weight: 700;
+              font-size: 21px;
+              text-align: center;
+              line-height: 1.3;
+              padding: 0 8px;
+              margin-bottom: 20px;
+            }
+
+            .sidebar-nav__divider {
+              border-top: 1px solid rgba(255, 255, 255, 0.2);
+              width: 100%;
+            }
+
+            .sidebar-nav__menu {
+              background-color: #091E64;
+              padding-top: 8px;
+              padding-bottom: 8px;
+              flex: 1;
+            }
+
+            .sidebar-nav__item {
+              margin: 2px 8px;
+              border-radius: 6px;
+              background-color: transparent;
+              border-left: none;
+
+              &.active {
+                background-color: #F47738;
+              }
+            }
+
+            .sidebar-nav__item-inner {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding: 0 12px;
+              min-height: 48px;
+              cursor: pointer;
+              color: #ffffff;
+              font-size: 14px;
+              text-decoration: none;
+            }
+
+            .sidebar-nav__item-icon {
+              display: flex;
+              align-items: center;
+              flex-shrink: 0;
+              width: 20px;
+              height: 20px;
+              filter: brightness(0) invert(1);
+            }
+
+            .sidebar-nav__item-label {
+              color: #ffffff;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              white-space: nowrap;
+            } 
+        `}
+      </style>
+      <div className="sidebar-nav">
+        <OrgHeader stateInfo={stateInfo} t={t} onClose={onClose} />
+        <div className="sidebar-nav__menu">
+          {menuItems?.map((item, index) => {
+            const normalizedLink = item?.link?.replace("/digit-ui/", "/suda-ui/");
+            const isActive = pathname === normalizedLink || pathname === item?.sidebarURL;
+            return (
+              <div
+                key={index}
+                className={`sidebar-nav__item${isActive ? " active" : ""}`}
+              >
                 <MenuItem item={item} />
               </div>
-            ))}
-          </div>
+            );
+          })}
         </div>
-        <div>{showDialog && <LogoutDialog onSelect={handleOnSubmit} onCancel={handleOnCancel} onDismiss={handleOnCancel}></LogoutDialog>}</div>
+        {showDialog && <LogoutDialog onSelect={handleOnSubmit} onCancel={handleOnCancel} onDismiss={handleOnCancel} />}
       </div>
     </React.Fragment>
   );

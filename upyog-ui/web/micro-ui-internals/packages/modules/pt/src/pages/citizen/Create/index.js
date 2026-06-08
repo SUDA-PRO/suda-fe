@@ -106,7 +106,7 @@ const CreateProperty = ({ parentRoute }) => {
     if (!isNaN(nextStep.split("/").pop())) {
       nextPage = `${match.path}/${nextStep}`;
     } else {
-      nextPage = isMultiple && nextStep !== "map" ? `${match.path}/${nextStep}/${index}` : `${match.path}/${nextStep}`;
+      nextPage = (isMultiple || isAddMultiple) && nextStep !== "map" && index !== undefined ? `${match.path}/${nextStep}/${index}` : `${match.path}/${nextStep}`;
     }
 
     redirectWithHistory(nextPage);
@@ -163,6 +163,31 @@ const CreateProperty = ({ parentRoute }) => {
 let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetail}
       setParams({ ...params, ...propertyStructureDetails });
 
+    } else if (key === "allPropertyDetails") {
+      const { isResdential, usageCategoryMajor, PropertyType, structureType, electricity, propertyStructureDetails, landArea, noOofBasements, noOfFloors, units, address } = data;
+      let newParams = { ...params };
+      if (isResdential !== undefined) newParams.isResdential = isResdential;
+      if (usageCategoryMajor !== undefined) newParams.usageCategoryMajor = usageCategoryMajor;
+      if (PropertyType !== undefined) newParams.PropertyType = PropertyType;
+      if (structureType !== undefined) newParams.structureType = structureType;
+      if (electricity !== undefined) newParams.electricity = electricity;
+      if (propertyStructureDetails !== undefined) newParams.propertyStructureDetails = propertyStructureDetails;
+      if (landArea !== undefined) newParams.landArea = landArea;
+      if (noOofBasements !== undefined && noOofBasements !== null) newParams.noOofBasements = noOofBasements;
+      if (noOfFloors !== undefined && noOfFloors !== null) newParams.noOfFloors = noOfFloors;
+      if (units !== undefined) newParams.units = units;
+      if (address !== undefined) newParams.address = address;
+      setParams(newParams);
+    } else if (key === "allOwnerDetails") {
+      const { ownershipCategory, ownerData, ownerIndex, addNewOwnerIndex } = data;
+      let owners = [...(params.owners || [])];
+      owners[ownerIndex] = ownerData;
+      const newParams = { ...params, ownershipCategory, owners: [...owners] };
+      setParams(newParams);
+      if (addNewOwnerIndex !== undefined) {
+        goNext(false, addNewOwnerIndex, true, "owner-all-details");
+        return;
+      }
     } else {
       setParams({ ...params, ...{ [key]: { ...params[key], ...data } } });
     }

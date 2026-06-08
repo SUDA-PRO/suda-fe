@@ -18,17 +18,27 @@ export const TableConfig = (t) => ({
         // accessor: "searchData.propertyId",
         disableSortBy: true,
         Cell: ({ row }) => {
+          const pid = row.original?.searchData?.["propertyId"];
+          const ackNo = row.original?.searchData?.["acknowldgementNumber"];
+          // If propertyId is not yet assigned (pre-approval), link to application-details
+          // using the acknowledgement number so the employee can view and act on it.
+          const linkPath = pid
+            ? `${props.parentRoute}/property-details/${pid}`
+            : `${props.parentRoute}/application-details/${ackNo}`;
+          const label = pid || `${ackNo} (${t("PT_PROPERTY_ID_PENDING_APPROVAL")})`;
           return (
             <div>
               <span className="link">
-                <Link to={`${props.parentRoute}/property-details/` + row.original?.searchData?.["propertyId"]}>
-                  {row.original?.searchData?.["propertyId"]}
-                </Link>
+                <Link to={linkPath}>{label}</Link>
               </span>
             </div>
           );
         },
-        mobileCell: (original) => GetMobCell(original?.searchData?.["propertyId"]),
+        mobileCell: (original) => {
+          const pid = original?.searchData?.["propertyId"];
+          const ackNo = original?.searchData?.["acknowldgementNumber"];
+          return GetMobCell(pid || `${ackNo} (${t("PT_PROPERTY_ID_PENDING_APPROVAL")})`);
+        },
       },
       {
         Header: t("ES_INBOX_OWNER_NAME"),
@@ -76,7 +86,7 @@ export const TableConfig = (t) => ({
             <div>
               {row.original?.searchData?.due_tax > 0 && Digit.Utils.didEmployeeHasRole("PT_CEMP") ? (
                 <span className="link">
-                  <Link to={`/upyog-ui/employee/payment/collect/PT/` + row.original?.searchData?.["propertyId"]}>{t("ES_PT_COLLECT_TAX")}</Link>
+                  <Link to={`/suda-ui/employee/payment/collect/PT/` + row.original?.searchData?.["propertyId"]}>{t("ES_PT_COLLECT_TAX")}</Link>
                 </span>
               ) : null}
             </div>
@@ -88,19 +98,28 @@ export const TableConfig = (t) => ({
     ],
     inboxColumns: (props) => [
       {
-        Header: t("ES_INBOX_UNIQUE_PROPERTY_ID"),
+        Header: t("ES_INBOX_APPLICATION_NO"),
         Cell: ({ row }) => {
           return (
             <div>
               <span className="link">
-                <Link to={`${props.parentRoute}/application-details/` + row.original?.searchData?.["propertyId"]}>
-                  {row.original?.searchData?.["propertyId"]}
+                <Link to={`${props.parentRoute}/application-details/` + row.original?.searchData?.["acknowldgementNumber"]}>
+                  {row.original?.searchData?.["acknowldgementNumber"]}
                 </Link>
               </span>
             </div>
           );
         },
-        mobileCell: (original) => GetMobCell(original?.searchData?.["propertyId"]),
+        mobileCell: (original) => GetMobCell(original?.searchData?.["acknowldgementNumber"]),
+      },
+      {
+        Header: t("ES_INBOX_UNIQUE_PROPERTY_ID"),
+        disableSortBy: true,
+        Cell: ({ row }) => {
+          const pid = row.original?.searchData?.["propertyId"];
+          return GetCell(pid || t("PT_PROPERTY_ID_PENDING_APPROVAL"));
+        },
+        mobileCell: (original) => GetMobCell(original?.searchData?.["propertyId"] || t("PT_PROPERTY_ID_PENDING_APPROVAL")),
       },
       {
         Header: t("ES_INBOX_OWNER"),

@@ -55,9 +55,32 @@ const NewBuildingPermit = () => {
     else if(key=== "")
     setParams({...data});
     else setParams({ ...params, ...{ [key]: { ...params[key], ...data }}});
-    goNext(skipStep);
+    // Defer navigation to after React commits the state update.
+    // Calling history.push synchronously after setParams in React 16/17 causes
+    // "Cannot update StaticCitizenSideBar while rendering LocationDetails" because
+    // useLocation-dependent components try to update mid-render.
+    setTimeout(() => goNext(skipStep), 0);
   };
-  const handleSkip = () => {};
+  const handleSkip = () => {
+    const currentPath = pathname.split("/").pop();
+    const currentConfig = newConfig1.find((routeObj) => routeObj.route === currentPath);
+    
+    console.log("handleSkip called - currentPath:", currentPath);
+    console.log("handleSkip - match.path:", match.path);
+    console.log("handleSkip - match.params:", match.params);
+    
+    if (currentPath === "search-property") {
+      // Clear PT session storage when skipping property search
+      sessionStorage.removeItem("Digit_OBPS_PT");
+      const targetPath = `${getPath(match.path, match.params)}/location`;
+      console.log("handleSkip - Navigating to:", targetPath);
+      setTimeout(() => history.push(targetPath), 0);
+    } else if (currentConfig && currentConfig.nextStep) {
+      const targetPath = `${getPath(match.path, match.params)}/${currentConfig.nextStep}`;
+      console.log("handleSkip - Navigating to:", targetPath);
+      setTimeout(() => history.push(targetPath), 0);
+    }
+  };
 
   // const state = tenantId.split(".")[0];
   let config = [];

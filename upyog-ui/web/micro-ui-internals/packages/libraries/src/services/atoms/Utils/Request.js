@@ -17,18 +17,18 @@ Axios.interceptors.response.use(
           localStorage.clear();
           sessionStorage.clear();
           window.location.href =
-            (isEmployee ? "/upyog-ui/employee/user/login" : "/upyog-ui/citizen/login") +
+            (isEmployee ? "/suda-ui/employee/user/login" : "/suda-ui/login") +
             `?from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
         } else if (
           error?.message?.toLowerCase()?.includes("internal server error") ||
           error?.message?.toLowerCase()?.includes("some error occured")
         ) {
           window.location.href =
-            (isEmployee ? "/upyog-ui/employee/user/error" : "/upyog-ui/citizen/error") +
+            (isEmployee ? "/suda-ui/employee/user/error" : "/suda-ui/citizen/error") +
             `?type=maintenance&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
         } else if (error.message.includes("ZuulRuntimeException")) {
           window.location.href =
-            (isEmployee ? "/upyog-ui/employee/user/error" : "/upyog-ui/citizen/error") +
+            (isEmployee ? "/suda-ui/employee/user/error" : "/suda-ui/citizen/error") +
             `?type=notfound&from=${encodeURIComponent(window.location.pathname + window.location.search)}`;
         }
       }
@@ -67,7 +67,8 @@ export const Request = async ({
   multipartFormData = false,
   multipartData = {},
   reqTimestamp = false,
-  plainAccessRequest = null
+  plainAccessRequest = null,
+  excludeRoles = []
 }) => {
   if (method.toUpperCase() === "POST") {
     const ts = new Date().getTime();
@@ -78,7 +79,11 @@ export const Request = async ({
       data.RequestInfo = { ...data.RequestInfo, ...requestInfo() };
     }
     if (userService) {
-      data.RequestInfo = { ...data.RequestInfo, ...userServiceData() };
+      const baseUserInfo = Digit.UserService.getUser()?.info;
+      const filteredUserInfo = excludeRoles.length && baseUserInfo?.roles
+        ? { ...baseUserInfo, roles: baseUserInfo.roles.filter((r) => !excludeRoles.includes(r.code)) }
+        : baseUserInfo;
+      data.RequestInfo = { ...data.RequestInfo, userInfo: filteredUserInfo };
     }
     if (locale) {
       data.RequestInfo = { ...data.RequestInfo, msgId: `${ts}|${Digit.StoreData.getCurrentLanguage()}` };

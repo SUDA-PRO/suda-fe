@@ -27,7 +27,11 @@ module.exports = function (app) {
     "/requester-services-dx",
     "/bpa-services/v1/preapprovedplan/_search",
     "/bpa-calculator/_estimate",
-    "/requester-services-dx/eSign/filestoreId/v1/_search"
+    "/requester-services-dx/eSign/filestoreId/v1/_search",
+    "/inbox",
+    "/ws-services",
+    "/sw-services",
+    "/ws-calculator"
   ].forEach((location) =>
     app.use(location, createProxy)
   );

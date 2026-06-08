@@ -87,7 +87,7 @@ const ApplicationDetails = () => {
     workflowDetails?.data?.actionState?.nextActions?.forEach(data => {
       if(data.action == "RESUBMIT") {
         data.redirectionUrl = {
-          pathname: `/upyog-ui/employee/tl/edit-application-details/${applicationNumber}`,
+          pathname: `/suda-ui/employee/tl/edit-application-details/${applicationNumber}`,
           state: applicationDetails
         },
         data.tenantId = stateId
@@ -134,7 +134,7 @@ const ApplicationDetails = () => {
           isToast : allowedToNextYear == false || applicationDetails?.applicationData?.status === "CANCELLED" || (applicationDetails?.applicationData?.status === "MANUALEXPIRED" /* && latestRenewalYearofAPP */) ? true : false,
           toastMessage : getToastMessages(),
           redirectionUrl: {
-            pathname: `/upyog-ui/employee/tl/renew-application-details/${applicationNumber}`,
+            pathname: `/suda-ui/employee/tl/renew-application-details/${applicationNumber}`,
             state: applicationDetails
           },
           tenantId: stateId,
@@ -150,7 +150,7 @@ const ApplicationDetails = () => {
       //         {
       //           action: "RENEWAL_SUBMIT_BUTTON",
       //           redirectionUrl: {
-      //             pathname: `/upyog-ui/employee/tl/renew-application-details/${applicationNumber}`,
+      //             pathname: `/suda-ui/employee/tl/renew-application-details/${applicationNumber}`,
       //             state: applicationDetails
       //           },
       //           tenantId: stateId,

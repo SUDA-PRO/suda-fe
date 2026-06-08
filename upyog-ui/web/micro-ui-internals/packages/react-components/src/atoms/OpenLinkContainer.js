@@ -6,13 +6,14 @@ const OpenLinkContainer = ({ img,}) => {
   return (
     <div className="navbar">
       <div className="center-container">
-        <img
+        {/* <img
           className="city"
           id="topbar-logo" 
           crossOrigin="anonymous"
           src={"https://in-egov-assets.s3.ap-south-1.amazonaws.com/images/Upyog-logo.png"}
           alt="mSeva"
-        />
+        /> */}
+        <h2 style={{fontSize:30, color:'orange', fontWeight:'bold'}}>SUDA</h2>
       </div>
     </div>
   );

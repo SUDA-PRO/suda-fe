@@ -92,7 +92,7 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
     if (state?.workflow?.action === "OPEN") {
       formData.units = formData.units.filter((unit) => unit.active);
     }
-    history.push("/upyog-ui/employee/pt/response", { Property: formData, key: "UPDATE", action: "SUBMIT" });
+    history.push("/suda-ui/employee/pt/response", { Property: formData, key: "UPDATE", action: "SUBMIT" });
 
   };
 
@@ -190,7 +190,8 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
                     "header": "PT_PROOF_OF_ADDRESS_HEADER",
                     "cardText": "",
                     "nextText": "PT_COMMONS_NEXT",
-                    "submitBarLabel": "PT_COMMONS_NEXT"
+                    "submitBarLabel": "PT_COMMONS_NEXT",
+                    "skipText": "CORE_COMMON_SKIP_CONTINUE"
                 },
                 "key": "address",
                 "nextStep": "owner-ship-details@0",

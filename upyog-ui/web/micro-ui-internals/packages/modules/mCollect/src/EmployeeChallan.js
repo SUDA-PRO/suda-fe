@@ -25,10 +25,10 @@ const EmployeeChallan = (props) => {
       case "CANCEL_CHALLAN":
         return setShowModal(true);
       case "UPDATE_CHALLAN":
-        return history.push(`/upyog-ui/employee/mcollect/modify-challan/${challanno}`);
+        return history.push(`/suda-ui/employee/mcollect/modify-challan/${challanno}`);
       case "BUTTON_PAY":
         return history.push(
-          `/upyog-ui/employee/payment/collect/${challanDetails?.businessService}/${challanno}/tenantId=${tenantId}?workflow=mcollect`
+          `/suda-ui/employee/payment/collect/${challanDetails?.businessService}/${challanno}/tenantId=${tenantId}?workflow=mcollect`
         );
       default:
         break;
@@ -52,7 +52,7 @@ const EmployeeChallan = (props) => {
           const challan = result.challans[0];
           let LastModifiedTime = Digit.SessionStorage.set("isMcollectAppChanged", challan.challanNo);
           history.push(
-            `/upyog-ui/employee/mcollect/acknowledgement?purpose=challan&status=success&tenantId=${challan?.tenantId}&serviceCategory=${challan.businessService}&challanNumber=${challan.challanNo}&applicationStatus=${challan.applicationStatus}`,
+            `/suda-ui/employee/mcollect/acknowledgement?purpose=challan&status=success&tenantId=${challan?.tenantId}&serviceCategory=${challan.businessService}&challanNumber=${challan.challanNo}&applicationStatus=${challan.applicationStatus}`,
             { from: url }
           );
         }
@@ -191,9 +191,52 @@ const EmployeeChallan = (props) => {
               )}`}
             />
           </StatusTable>
+
+          {/* Take Action — inside the card, only when ACTIVE */}
+          {challanDetails?.applicationStatus == "ACTIVE" && (
+            <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 16 }}>
+              <div style={{ position: "relative", display: "inline-block" }}>
+                {displayMenu && (
+                  <div style={{
+                    position: "absolute",
+                    bottom: "calc(100% + 4px)",
+                    right: 0,
+                    background: "#fff",
+                    border: "1px solid #d6d5d4",
+                    borderRadius: 4,
+                    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+                    zIndex: 100,
+                    minWidth: 160,
+                    overflow: "hidden",
+                  }}>
+                    {workflowActions.map((action) => (
+                      <div
+                        key={action}
+                        onClick={() => onActionSelect(action)}
+                        style={{
+                          padding: "10px 16px",
+                          cursor: "pointer",
+                          fontSize: 14,
+                          color: "#0b0c0c",
+                          borderBottom: "1px solid #f0ebe8",
+                          background: "#fff",
+                        }}
+                        onMouseEnter={e => e.currentTarget.style.background = "#f5f5f5"}
+                        onMouseLeave={e => e.currentTarget.style.background = "#fff"}
+                      >
+                        {t(`UC_${action}`)}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <SubmitBar label={t("ES_COMMON_TAKE_ACTION")} onSubmit={() => setDisplayMenu(!displayMenu)} />
+              </div>
+            </div>
+          )}
         </Card>
       </div>
-      {showModal ? (
+
+      {/* {showModal ? (
         <ActionModal
           t={t}
           action={selectedAction}
@@ -214,7 +257,21 @@ const EmployeeChallan = (props) => {
           {displayMenu && workflowActions ? <Menu localeKeyPrefix="UC" options={workflowActions} t={t} onSelect={onActionSelect} /> : null}
           <SubmitBar label={t("ES_COMMON_TAKE_ACTION")} onSubmit={() => setDisplayMenu(!displayMenu)} />
         </ActionBar>
-      )}
+      )} */}
+
+      {showModal ? (
+        <ActionModal
+          t={t}
+          action={selectedAction}
+          applicationData={challanDetails}
+          billData={challanBillDetails}
+          closeModal={closeModal}
+          submitAction={submitAction}
+        />
+      ) : null}
+      {showToast && <Toast error={showToast.key} label={t(showToast.label)} onClose={() => setShowToast(null)} />}
+    
+    
     </React.Fragment>
   );
 };

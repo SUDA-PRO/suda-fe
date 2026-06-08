@@ -67,7 +67,7 @@ export const newConfig = [
         component: "CPTPropertyDetails",
         key: "propertydetails",
         withoutLabel: true,
-        nextStep: 'connection-holder',
+        nextStep: 'connection-details',
         hideInEmployee: true,
       },
     ],
@@ -146,6 +146,17 @@ export const newConfig = [
       //     submitBarLabel: "CS_COMMON_NEXT",
       //   }
       // },
+      {
+        route: "connection-details",
+        component: "WSConnectionStep",
+        key: "ConnectionHolderDetails",
+        nextStep: "document-details",
+        texts: {
+          headerCaption: "WS_COMMON_CONNECTION_DETAIL",
+          header: "WS_COMMON_CONNECTION_DETAIL",
+          submitBarLabel: "CS_COMMON_NEXT",
+        }
+      },
       {
         route: "document-details",
         component: "WSDocumentDetails",

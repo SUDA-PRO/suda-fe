@@ -157,12 +157,12 @@ export const getBPAFormData = async (data, mdmsData, history, t) => {
   if (data?.businessService.includes("OC")) {
     sessionStorage.setItem("BPAintermediateValue", JSON.stringify({ ...data }));
     history.push(
-      `/upyog-ui/citizen/obps/ocbpa/${data?.additionalDetails?.applicationType.toLowerCase()}/${data?.additionalDetails?.serviceType.toLowerCase()}`
+      `/suda-ui/citizen/obps/ocbpa/${data?.additionalDetails?.applicationType.toLowerCase()}/${data?.additionalDetails?.serviceType.toLowerCase()}`
     );
   } else {
     sessionStorage.setItem("BPAintermediateValue", JSON.stringify({ ...data }));
     history.push(
-      `/upyog-ui/citizen/obps/bpa/${data?.additionalDetails?.applicationType.toLowerCase()}/${data?.additionalDetails?.serviceType.toLowerCase()}`
+      `/suda-ui/citizen/obps/bpa/${data?.additionalDetails?.applicationType.toLowerCase()}/${data?.additionalDetails?.serviceType.toLowerCase()}`
     );
   }
 };
@@ -359,9 +359,11 @@ export const getOwnerShipCategory = (data, isOCBPA) => {
 export const convertToBPAObject = (data, isOCBPA = false, isSendBackTOCitizen = false) => {
   if (isOCBPA) {
     data.landInfo = data.landInfo;
-    data.landInfo.owners.forEach((owner, index) => {
-      if (owner?.gender?.code) data.landInfo.owners[index].gender = owner?.gender?.code;
-    });
+    if (data.landInfo && data.landInfo.owners) {
+      data.landInfo.owners.forEach((owner, index) => {
+        if (owner?.gender?.code) data.landInfo.owners[index].gender = owner?.gender?.code;
+      });
+    }
   } else {
     data.landInfo.owners.map((owner, index) => {
       data.landInfo.owners[index].gender = owner?.gender?.code;
@@ -746,12 +748,15 @@ export const getOrderedDocs = (docs) => {
 };
 
 export const showHidingLinksForStakeholder = (roles = []) => {
-  let userInfos = sessionStorage.getItem("Digit.citizen.userRequestObject");
-  const userInfo = userInfos ? JSON.parse(userInfos) : {};
+  // let userInfos = sessionStorage.getItem("Digit.citizen.userRequestObject");
+  // const userInfo = userInfos ? JSON.parse(userInfos) : {};
+    const userInfo = Digit.UserService.getUser();
   let checkedRoles = [];
   const rolearray = roles?.map((role) => {
-    userInfo?.value?.info?.roles?.map((item) => {
-      if (item.code === role.code && item.tenantId === role.tenantId) {
+    // userInfo?.value?.info?.roles?.map((item) => {
+    //   if (item.code === role.code && item.tenantId === role.tenantId) {
+        userInfo?.info?.roles?.map((item) => {
+      if (item.code === role.code && item.tenantId.startsWith(role.tenantId)) {
         checkedRoles.push(item);
       }
     });
@@ -817,6 +822,8 @@ export const ocScrutinyDetailsData = async (edcrNumber, tenantId) => {
   const bpaDetails = await Digit.OBPSService.BPASearch(tenantId, {approvalNo: scrutinyDetails?.edcrDetail?.[0]?.permitNumber});
   const bpaEdcrNumber = bpaDetails?.BPA?.[0]?.edcrNumber;
   tenantId = bpaDetails?.BPA?.[0]?.tenantId;
+  // Re-fetch BPA with the correct city tenantId to get full data (landInfo, drawingDetail)
+  const bpaFullDetails = tenantId ? await Digit.OBPSService.BPASearch(tenantId, {approvalNo: scrutinyDetails?.edcrDetail?.[0]?.permitNumber}) : bpaDetails;
   const edcrDetails = await Digit.OBPSService.scrutinyDetails(tenantId, { edcrNumber: bpaEdcrNumber });
   const bpaResponse = await Digit.OBPSService.BPASearch(tenantId, {edcrNumber: edcrNumber});
 
@@ -828,7 +835,7 @@ export const ocScrutinyDetailsData = async (edcrNumber, tenantId) => {
     return {
       ocEdcrDetails: scrutinyDetails?.edcrDetail?.[0],
       otherDetails : {
-        bpaApprovalResponse: bpaDetails?.BPA,
+        bpaApprovalResponse: bpaFullDetails?.BPA,
         edcrDetails: edcrDetails?.edcrDetail,
         bpaResponse: bpaResponse?.BPA,
       }

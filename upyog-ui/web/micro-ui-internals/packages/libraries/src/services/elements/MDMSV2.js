@@ -1125,22 +1125,16 @@ const GetPropertyOwnerType = (MdmsRes) =>
   });
 
 const getSubPropertyOwnerShipCategory = (MdmsRes) => {
-  MdmsRes["PropertyTax"].SubOwnerShipCategory.filter((category) => category.active).map((subOwnerShipDetails) => {
+  return MdmsRes["PropertyTax"].SubOwnerShipCategory.filter((category) => category.active).map((subOwnerShipDetails) => {
     return {
       ...subOwnerShipDetails,
       i18nKey: `PROPERTYTAX_BILLING_SLAB_${subOwnerShipDetails.code}`,
     };
   });
-  sessionStorage.setItem("getSubPropertyOwnerShipCategory", JSON.stringify(MdmsRes));
 };
 
 const getDocumentRequiredScreen = (MdmsRes) => {
-  MdmsRes["PropertyTax"].Documents.filter((Documents) => Documents.active).map((dropdownData) => {
-    return {
-      ...Documents,
-      i18nKey: `${dropdownData.code}`,
-    };
-  });
+  return MdmsRes;
 };
 
 const getTLDocumentRequiredScreen = (MdmsRes) => {

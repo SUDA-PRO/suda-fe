@@ -112,7 +112,7 @@ const BillDetails = ({ paymentRules, businessService }) => {
   if (authorization === "true" && !userInfo?.access_token) {
     localStorage.clear();
     sessionStorage.clear();
-    window.location.href = `/upyog-ui/citizen/login?from=${encodeURIComponent(pathname + search)}`;
+    window.location.href = `/suda-ui/login?from=${encodeURIComponent(pathname + search)}`;
   }
   useEffect(() => {
     window.scroll({ top: 0, behavior: "smooth" });
@@ -152,26 +152,26 @@ const BillDetails = ({ paymentRules, businessService }) => {
         ? application?.pdfData?.advanceAmount
         : amount;
     if (window.location.href.includes("mcollect")) {
-      history.push(`/upyog-ui/citizen/payment/collect/${businessService}/${consumerCode}?workflow=mcollect`, {
+      history.push(`/suda-ui/citizen/payment/collect/${businessService}/${consumerCode}?workflow=mcollect`, {
         paymentAmount,
         tenantId: billDetails.tenantId,
       });
     } else if (wrkflow === "WNS") {
-      history.push(`/upyog-ui/citizen/payment/billDetails/${businessService}/${consumerCode}/${paymentAmount}?workflow=WNS&ConsumerName=${ConsumerName}`, {
+      history.push(`/suda-ui/citizen/payment/billDetails/${businessService}/${consumerCode}/${paymentAmount}?workflow=WNS&ConsumerName=${ConsumerName}`, {
         paymentAmount,
         tenantId: billDetails.tenantId,
         name: bill.payerName,
         mobileNumber: bill.mobileNumber && bill.mobileNumber?.includes("*") ? userData?.user?.[0]?.mobileNumber : bill.mobileNumber,
       });
     } else if (businessService === "PT") {
-      history.push(`/upyog-ui/citizen/payment/billDetails/${businessService}/${consumerCode}/${paymentAmount}`, {
+      history.push(`/suda-ui/citizen/payment/billDetails/${businessService}/${consumerCode}/${paymentAmount}`, {
         paymentAmount,
         tenantId: billDetails.tenantId,
         name: bill.payerName,
         mobileNumber: bill.mobileNumber && bill.mobileNumber?.includes("*") ? userData?.user?.[0]?.mobileNumber : bill.mobileNumber,      });
     } 
     else if (timerEnabledForBusinessService(businessService)) {
-      history.push(`/upyog-ui/citizen/payment/collect/${businessService}/${consumerCode}`, {
+      history.push(`/suda-ui/citizen/payment/collect/${businessService}/${consumerCode}`, {
         paymentAmount, 
         tenantId: billDetails.tenantId, 
         propertyId: propertyId ,
@@ -180,7 +180,7 @@ const BillDetails = ({ paymentRules, businessService }) => {
       });
       } 
     else {
-      history.push(`/upyog-ui/citizen/payment/collect/${businessService}/${consumerCode}`, { paymentAmount, tenantId: billDetails.tenantId, propertyId: propertyId });
+      history.push(`/suda-ui/citizen/payment/collect/${businessService}/${consumerCode}`, { paymentAmount, tenantId: billDetails.tenantId, propertyId: propertyId });
     }
   };
   

@@ -47,25 +47,49 @@ const getPropertyEditDetails = (inputData = {}) => {
     data.owners[0].permanentAddress = data?.owners[0]?.correspondenceAddress;
     data.owners[0].isCorrespondenceAddress = data?.owners[0]?.isCorrespondenceAddress;
   } else {
-    data.owners.map((owner) => {
-      let document = [];
-      owner.documents &&
-        owner.documents.map((doc) => {
-          if (doc?.documentType && typeof doc?.documentType == "string" && doc?.documentType?.includes("SPECIALCATEGORYPROOF")) {
-            doc.documentType = { code: doc?.documentType, i18nKey: stringReplaceAll(doc?.documentType, ".", "_") };
-            document["specialProofIdentity"] = doc;
+    data.owners.map((owner, idx) => {
+      let document = {};
+
+      console.log(`[EditProperty] owner[${idx}].documents (owner-level):`, owner.documents);
+      console.log(`[EditProperty] data.documents (property-level):`, data.documents);
+
+      // 1. Try owner-level documents array (populated on edit/update)
+      if (Array.isArray(owner.documents)) {
+        owner.documents.forEach((doc) => {
+          const dt = typeof doc?.documentType === "string" ? doc.documentType : doc?.documentType?.code || "";
+          if (dt.includes("SPECIALCATEGORYPROOF")) {
+            document["specialProofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
           }
-          if (doc?.documentType && typeof doc?.documentType == "string" && doc?.documentType?.includes("IDENTITYPROOF")) {
-            doc.documentType = { code: doc?.documentType, i18nKey: stringReplaceAll(doc?.documentType, ".", "_") };
-            document["proofIdentity"] = doc;
+          if (dt.includes("IDENTITYPROOF")) {
+            document["proofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
           }
         });
+      }
+
+      // 2. Fallback: property-level documents array (populated on create)
+      if (!document["proofIdentity"] || !document["specialProofIdentity"]) {
+        const propDocs = Array.isArray(data.documents) ? data.documents : [];
+        propDocs.forEach((doc) => {
+          const dt = typeof doc?.documentType === "string" ? doc.documentType : doc?.documentType?.code || "";
+          if (dt.includes("SPECIALCATEGORYPROOF") && !document["specialProofIdentity"]) {
+            document["specialProofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
+          }
+          if (dt.includes("IDENTITYPROOF") && !document["proofIdentity"]) {
+            document["proofIdentity"] = { ...doc, documentType: { code: dt, i18nKey: stringReplaceAll(dt, ".", "_") } };
+          }
+        });
+      }
+
       owner.emailId = owner?.emailId;
       owner.fatherOrHusbandName = owner?.fatherOrHusbandName;
-      owner.isCorrespondenceAddress = owner?.isCorrespondenceAddress;
+      owner.isCorrespondenceAddress = (owner?.isCorrespondenceAddress != null)
+        ? owner.isCorrespondenceAddress
+        : (data?.additionalDetails?.owners?.[idx]?.isCorrespondenceAddress != null
+            ? data.additionalDetails.owners[idx].isCorrespondenceAddress
+            : false);
       owner.mobileNumber = owner?.mobileNumber;
       owner.name = owner?.name;
-      owner.permanentAddress = owner?.permanentAddress;
+      owner.permanentAddress = owner?.permanentAddress || data?.additionalDetails?.owners?.[idx]?.permanentAddress;
       owner.gender = { code: owner?.gender };
       owner.ownerType = { code: owner?.ownerType };
       owner.relationship = { code: owner?.relationship };
@@ -102,7 +126,7 @@ const getPropertyEditDetails = (inputData = {}) => {
   if (data?.address?.documents) {
     data.address.documents["ProofOfAddress"] = addressDocs[0];
   } else {
-    data.address.documents = [];
+    data.address.documents = {};
     data.address.documents["ProofOfAddress"] = addressDocs && Array.isArray(addressDocs) && addressDocs.length > 0 && addressDocs[0];
   }
   data.documents["ProofOfAddress"] = addressDocs && Array.isArray(addressDocs) && addressDocs.length > 0 && addressDocs[0];
@@ -189,6 +213,7 @@ const getPropertyEditDetails = (inputData = {}) => {
           : { code: "NONRESIDENTIAL", i18nKey: "PT_COMMON_NO" };
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
       data.landarea = { floorarea: data?.landArea };
+      data.landArea = { floorarea: data?.landArea };
     } else if (data?.propertyType === "BUILTUP.SHAREDPROPERTY") {
       let extraunitsFPB = [];
       let selfoccupiedtf = false,
@@ -271,6 +296,11 @@ const getPropertyEditDetails = (inputData = {}) => {
         unoccupiedtf == true ? { i18nKey: "PT_COMMON_YES", code: "UNOCCUPIED" } : { i18nKey: "PT_COMMON_NO", code: "UNOCCUPIED" };
       data.floordetails = { plotSize: data?.landArea, builtUpArea: getSuperBuiltUpareafromob(data) };
       data["extraunitFPB"] = extraunitsFPB;
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     } else if (data?.propertyType === "BUILTUP.INDEPENDENTPROPERTY") {
       let nooffloor = 0,
         noofbasemement = 0;
@@ -383,7 +413,14 @@ const getPropertyEditDetails = (inputData = {}) => {
       data.PropertyType = data?.additionalDetails?.propertyType;
       data.isResdential = data?.additionalDetails?.isResdential;
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
-      data.landarea = { floorarea: data?.landArea };
+      const _vacantLandArea = data?.landArea;
+      data.landarea = { floorarea: _vacantLandArea };
+      data.landArea = { floorarea: _vacantLandArea };
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     } else if (data?.additionalDetails?.propertyType?.code === "BUILTUP.SHAREDPROPERTY" || data?.propertyType?.code === "BUILTUP.SHAREDPROPERTY") {
       data.isResdential = data?.additionalDetails?.isResdential;
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
@@ -406,7 +443,18 @@ const getPropertyEditDetails = (inputData = {}) => {
             data.landarea = { floorarea: unit?.constructionDetail?.builtUpArea };
           }
         });
-      data.floordetails = { plotSize: data?.landArea, builtUpArea: data?.additionalDetails?.builtUpArea };
+      // Always use Properties[0].landArea for Area (sq ft)* field
+      // PTLandArea reads formData.landArea?.floorarea (capital A); also set landarea (lowercase) for utils
+      const _landAreaVal = data?.landArea;
+      data.landarea = { floorarea: _landAreaVal };
+      data.landArea = { floorarea: _landAreaVal };
+      data.floordetails = { plotSize: _landAreaVal, builtUpArea: data?.additionalDetails?.builtUpArea || data?.superBuiltUpArea || data?.units?.reduce((acc, u) => acc + (parseFloat(u?.constructionDetail?.builtUpArea) || 0), 0) };
+      // Prefill structureType and ageOfProperty so PropertyStructureDetails reads them on first render
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     } else if (data?.additionalDetails?.propertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" || data?.propertyType?.code === "BUILTUP.INDEPENDENTPROPERTY" || data?.propertyType === "BUILTUP.INDEPENDENTPROPERTY") {
       data.isResdential = data?.additionalDetails?.isResdential;
       data.usageCategoryMajor = { code: data?.usageCategory, i18nKey: `PROPERTYTAX_BILLING_SLAB_${data?.usageCategory?.split(".").pop()}` };
@@ -417,7 +465,13 @@ const getPropertyEditDetails = (inputData = {}) => {
      // data.units[0].selfOccupied = data?.additionalDetails?.unit[0]?.selfOccupied;
       // data.units["-1"] = data?.additionalDetails?.basement1 || "";
       // data.units["-2"] = data?.additionalDetails?.basement2 || "";
-      // data.landArea = { floorarea:data?.landArea}
+      data.landArea = { floorarea: data?.landArea };
+      data.landarea = { floorarea: data?.landArea };
+      data.propertyStructureDetails = {
+        usageCategory: "",
+        structureType: data?.additionalDetails?.structureType,
+        ageOfProperty: data?.additionalDetails?.ageOfProperty,
+      };
     }
   }
   return data;
@@ -430,6 +484,7 @@ const EditProperty = ({ parentRoute }) => {
   const history = useHistory();
   let config = [];
   const [params, setParams, clearParams] = Digit.Hooks.useSessionStorage("PT_CREATE_PROPERTY", { });
+  const isParamsInitialized = React.useRef(false);
   const stateId = Digit.ULBService.getStateId();
   let { data: commonFields, isLoading } = Digit.Hooks.pt.useMDMS(stateId, "PropertyTax", "CommonFieldsConfig");
   const tenantId = Digit.ULBService.getCurrentTenantId();
@@ -461,6 +516,8 @@ console.log("property search data", data);
 
   useEffect(() => {
     if (!data?.Properties?.length) return;
+    if (isParamsInitialized.current) return; // prevent overwriting user edits on re-fetch
+    isParamsInitialized.current = true;
   
     const clonedProperty = JSON.parse(JSON.stringify(data.Properties[0]));
   
@@ -475,6 +532,10 @@ console.log("property search data", data);
     const propertyEditDetails = getPropertyEditDetails(clonedProperty);
     console.log("clonedProperty",clonedProperty,propertyEditDetails)
     propertyEditDetails.units =clonedProperty.units
+    // Set sessionStorage routing keys so wizard routes correctly (e.g. uid → area for VACANT)
+    if (propertyEditDetails.PropertyType?.i18nKey) {
+      sessionStorage.setItem("PropertyType", propertyEditDetails.PropertyType.i18nKey);
+    }
     setParams((prev) => ({ ...prev, ...propertyEditDetails }));
   }, [data, updateProperty]);
   
@@ -573,6 +634,7 @@ console.log("property search data", data);
   };
 
   function handleSelect(key, data, skipStep, index, isAddMultiple = false) {
+    console.log("[handleSelect] key:", key, "data:", data);
     if (key === "owners") {
       let owners = params.owners || [];
       owners[index] = data;
@@ -583,7 +645,28 @@ console.log("property search data", data);
       // setParams({ ...params, units });
       setParams({ ...params, ...{ [key]: [...data] } });
     } else {
-      setParams({ ...params, ...{ [key]: { ...params[key], ...data } } });
+      let newParams = { ...params, [key]: { ...params[key], ...data } };
+      // Keep landarea (lowercase) and landArea (uppercase) in sync — Area.js saves "landarea" but CheckPage reads "landArea"
+      if (key === "landarea") {
+        newParams.landArea = { ...params.landArea, ...data };
+      } else if (key === "landArea") {
+        newParams.landarea = { ...params.landarea, ...data };
+      }
+      // PTAllPropertyDetails saves everything nested under "allPropertyDetails" but CheckPage reads top-level keys
+      if (key === "allPropertyDetails") {
+        if (data.landArea) {
+          newParams.landArea = data.landArea;
+          newParams.landarea = data.landArea;
+        }
+        if (data.address) newParams.address = { ...params.address, ...data.address };
+        if (data.PropertyType) newParams.PropertyType = data.PropertyType;
+        if (data.isResdential) newParams.isResdential = data.isResdential;
+        if (data.usageCategoryMajor) newParams.usageCategoryMajor = data.usageCategoryMajor;
+        if (data.electricity) newParams.electricity = data.electricity;
+        if (data.propertyStructureDetails) newParams.propertyStructureDetails = data.propertyStructureDetails;
+        if (data.units !== undefined) newParams.units = data.units;
+      }
+      setParams(newParams);
     }
     goNext(skipStep, index, isAddMultiple, key);
   }
@@ -593,6 +676,7 @@ console.log("property search data", data);
 
   const onSuccess = () => {
     clearParams();
+    isParamsInitialized.current = false;
     queryClient.invalidateQueries("PT_CREATE_PROPERTY");
     sessionStorage.setItem("propertyInitialObject", JSON.stringify({ }));
     sessionStorage.setItem("pt-property", JSON.stringify({ }));
@@ -608,6 +692,8 @@ console.log("property search data", data);
   commonFields.forEach((obj) => {
     config = config.concat(obj.body.filter((a) => !a.hideInCitizen));
   });
+  // In edit mode, after updating VACANT area send user straight to check page
+  config = config.map((routeObj) => routeObj.route === "area" ? { ...routeObj, nextStep: null } : routeObj);
   config.indexRoute = `info`;
   const  CheckPage = Digit?.ComponentRegistryService?.getComponent('PTCheckPage');
   const PTAcknowledgement = Digit?.ComponentRegistryService?.getComponent('PTAcknowledgement');

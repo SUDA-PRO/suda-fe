@@ -9,7 +9,7 @@ const LanguageSelection = () => {
 
   const { data: { languages, stateInfo } = {}, isLoading } = Digit.Hooks.useStore.getInitData();
   const selectedLanguage = Digit.StoreData.getCurrentLanguage();
-console.log("languageslanguages",languages)
+
   const texts = useMemo(
     () => ({
       header: t("CS_COMMON_CHOOSE_LANGUAGE"),
@@ -30,7 +30,7 @@ console.log("languageslanguages",languages)
   );
 
   function onSubmit() {
-    history.push(`/upyog-ui/citizen/select-location`);
+    history.push(`/suda-ui/citizen/select-location`);
   }
 
   return isLoading ? (

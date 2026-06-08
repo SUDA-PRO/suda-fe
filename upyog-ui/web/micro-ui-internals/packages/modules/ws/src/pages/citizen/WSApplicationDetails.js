@@ -51,6 +51,8 @@ const WSApplicationDetails = () => {
   Digit.Hooks.useClickOutside(menuRef, closeModal, showOptions);
 
   // const fetchBillParams = { consumerCode: data?.WaterConnection?.[0]?.connectionNo };
+  const isReconnection = data?.WaterConnection?.[0]?.applicationType?.includes("RECONNECT") || data?.SewerageConnections?.[0]?.applicationType?.includes("RECONNECT");
+  const isSWApplication = applicationNobyData?.includes("SW");
   const fetchBillParams = { consumerCode: applicationNobyData?.includes("DC") ? (data?.WaterConnection?.[0]?.connectionNo || data?.SewerageConnections?.[0]?.connectionNo) : (data?.WaterConnection?.[0]?.applicationNo || data?.SewerageConnections?.[0]?.applicationNo) };
 
   const { data: generatePdfKey } = Digit.Hooks.useCommonMDMS(tenantId, "common-masters", "ReceiptKey", {
@@ -59,7 +61,7 @@ const WSApplicationDetails = () => {
   });
 
   const paymentDetails = Digit.Hooks.useFetchBillsForBuissnessService(
-    { businessService: applicationNobyData?.includes("SW") ? (applicationNobyData?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (applicationNobyData?.includes("DC") ? "WS" : "WS.ONE_TIME_FEE"), ...fetchBillParams, tenantId: tenantId },
+    { businessService: isReconnection ? (isSWApplication ? "SWReconnection" : "WSReconnection") : (isSWApplication ? (applicationNobyData?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (applicationNobyData?.includes("DC") ? "WS" : "WS.ONE_TIME_FEE")), ...fetchBillParams, tenantId: tenantId },
     {
       enabled: data?.WaterConnection?.[0]?.applicationNo || data?.SewerageConnections?.[0]?.applicationNo ? true : false,
       retry: false,
@@ -392,7 +394,7 @@ let serviceType = data && data?.WaterConnection?.[0] ? "WATER" : "SEWERAGE";
               }}
             />
             <Link
-              to={`/upyog-ui/citizen/commonpt/view-property?propertyId=${
+              to={`/suda-ui/citizen/commonpt/view-property?propertyId=${
                 data?.WaterConnection?.[0]?.propertyId || data?.SewerageConnections?.[0]?.propertyId
               }&tenantId=${data?.WaterConnection?.[0]?.tenantId || data?.SewerageConnections?.[0]?.tenantId}`}
             >
@@ -575,7 +577,7 @@ let serviceType = data && data?.WaterConnection?.[0] ? "WATER" : "SEWERAGE";
                 textStyle={{ whiteSpace: "pre" }}
               />
 
-              <Link to={`/upyog-ui/citizen/ws/connection/additional/${data?.WaterConnection?.[0]?.applicationNo}`}>
+              <Link to={`/suda-ui/citizen/ws/connection/additional/${data?.WaterConnection?.[0]?.applicationNo}`}>
                 <LinkButton style={{ textAlign: "left" }} label={t("WS_ADDITIONAL_DETAILS")} />
               </Link>
             </StatusTable>
@@ -594,7 +596,7 @@ let serviceType = data && data?.WaterConnection?.[0] ? "WATER" : "SEWERAGE";
                 text={data?.SewerageConnections?.[0]?.proposedToilets || t("CS_NA")}
                 textStyle={{ whiteSpace: "pre" }}
               />
-              <Link to={`/upyog-ui/citizen/ws/connection/additional/${data?.SewerageConnections?.[0]?.applicationNo}`}>
+              <Link to={`/suda-ui/citizen/ws/connection/additional/${data?.SewerageConnections?.[0]?.applicationNo}`}>
                 <LinkButton style={{ textAlign: "left" }} label={t("WS_ADDITIONAL_DETAILS")} />
               </Link>
             </StatusTable>
@@ -654,7 +656,7 @@ let serviceType = data && data?.WaterConnection?.[0] ? "WATER" : "SEWERAGE";
           data?.SewerageConnections?.[0]?.applicationStatus === "PENDING_FOR_PAYMENT" ? (
             <Link
               to={{
-                pathname: `/upyog-ui/citizen/payment/my-bills/${
+                pathname: `/suda-ui/citizen/payment/my-bills/${
                   paymentDetails?.data?.Bill?.[0]?.businessService
                 }/${applicationNobyData?.includes("DC") ? (stringReplaceAll(data?.WaterConnection?.[0]?.connectionNo, "/", "+") || stringReplaceAll(data?.SewerageConnections?.[0]?.connectionNo, "/", "+")) :
                   (stringReplaceAll(data?.WaterConnection?.[0]?.applicationNo, "/", "+") ||
@@ -670,7 +672,7 @@ let serviceType = data && data?.WaterConnection?.[0] ? "WATER" : "SEWERAGE";
           (!data?.SewerageConnections?.[0]?.applicationType.includes("DISCONNECT") && data?.SewerageConnections?.[0]?.applicationStatus.includes("PENDING_FOR_CITIZEN_ACTION")) ? (
             <Link
               to={{
-                pathname: `/upyog-ui/citizen/ws/edit-application/${data?.WaterConnection?.[0]?.tenantId || data?.SewerageConnections?.[0]?.tenantId}`,
+                pathname: `/suda-ui/citizen/ws/edit-application/${data?.WaterConnection?.[0]?.tenantId || data?.SewerageConnections?.[0]?.tenantId}`,
                 state: { id: `${data?.WaterConnection?.[0]?.applicationNo || data?.SewerageConnections?.[0]?.applicationNo}` },
               }}
             >
@@ -681,7 +683,7 @@ let serviceType = data && data?.WaterConnection?.[0] ? "WATER" : "SEWERAGE";
           ( data?.SewerageConnections?.[0]?.applicationType.includes("DISCONNECT") && data?.SewerageConnections?.[0]?.applicationStatus.includes("PENDING_FOR_CITIZEN_ACTION")) ? (
             <Link
               to={{
-                pathname: `/upyog-ui/citizen/ws/resubmit-disconnect-application`,
+                pathname: `/suda-ui/citizen/ws/resubmit-disconnect-application`,
                 state: { id: `${data?.WaterConnection?.[0]?.applicationNo || data?.SewerageConnections?.[0]?.applicationNo}` },
               }}
             >

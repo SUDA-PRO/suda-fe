@@ -1,42 +1,33 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useState } from "react";
 import SubMenu from "./SubMenu";
-import { Loader, SearchIcon } from "@upyog/digit-ui-react-components";
+import { Loader, SearchIcon, LogoutIcon } from "@upyog/digit-ui-react-components";
+import LogoutDialog from "../../Dialog/LogoutDialog";
 import { useTranslation } from "react-i18next";
 import NavItem from "./NavItem";
 import _, { findIndex } from "lodash";
+
+const OrgHeader = () => (
+  <div style={{ backgroundColor: "#091E64", display: "flex", flexDirection: "column", alignItems: "center", padding: "40px 12px 0" }}>
+    <div style={{ width: "72px", height: "72px", borderRadius: "50%", border: "3px solid rgba(255,255,255,0.4)", overflow: "hidden", marginBottom: "12px", background: "rgba(255,255,255,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <img src="https://tfstatee8aog.blob.core.windows.net/filestore/Coat_of_arms_of_Chhattisgarh.svg" style={{ width: "100%", height: "100%", objectFit: "contain" }} alt="logo" />
+    </div>
+    <div style={{ color: "#ffffff", fontWeight: 700, fontSize: "21px", textAlign: "center", lineHeight: 1.3, padding: "0 8px", marginBottom: "20px", whiteSpace: "normal" }}>
+      URBAN ADMINISTRATION &amp; DEPARTMENT
+    </div>
+    <div style={{ borderTop: "1px solid rgba(255,255,255,0.2)", width: "100%" }} />
+  </div>
+);
 
 const EmployeeSideBar = () => {
   const sidebarRef = useRef(null);
   const { isLoading, data } = Digit.Hooks.useAccessControl();
   const [search, setSearch] = useState("");
   const { t } = useTranslation();
-  useEffect(() => {
-    if (isLoading) {
-      return <Loader />;
-    }
-    sidebarRef.current.style.cursor = "pointer";
-    collapseNav();
-  }, [isLoading]);
+  const [showDialog, setShowDialog] = useState(false);
+  const handleLogout = () => { setShowDialog(true); };
+  const handleOnSubmit = () => { Digit.UserService.logout(); setShowDialog(false); };
+  const handleOnCancel = () => { setShowDialog(false); };
 
-  const expandNav = () => {
-    sidebarRef.current.style.width = "260px";
-    sidebarRef.current.style.overflow = "auto";
-
-    sidebarRef.current.querySelectorAll(".dropdown-link").forEach((element) => {
-      element.style.display = "flex";
-    });
-  };
-  const collapseNav = () => {
-    sidebarRef.current.style.width = "55px";
-    sidebarRef.current.style.overflow = "hidden";
-
-    sidebarRef.current.querySelectorAll(".dropdown-link").forEach((element) => {
-      element.style.display = "none";
-    });
-    sidebarRef.current.querySelectorAll(".actions").forEach((element) => {
-      element.style.padding = "0";
-    });
-  };
 
   const configEmployeeSideBar = {};
 
@@ -80,7 +71,7 @@ const EmployeeSideBar = () => {
       result.push({label : key,children, icon:children?.[0]?.icon, to:""});
       }
       else{
-        result.push({label: key, value, icon:value?.leftIcon, to: key === "Home" ? "/upyog-ui/employee" : value?.navigationURL});
+        result.push({label: key, value, icon:value?.leftIcon, to: key === "Home" ? "/suda-ui/employee" : value?.navigationURL});
       }
     }
 
@@ -92,7 +83,7 @@ const EmployeeSideBar = () => {
     for (let i = 0; i < keys.length; i++) {
       if (configEmployeeSideBar[keys[i]][0].path.indexOf(".") === -1) {
         if (configEmployeeSideBar[keys[i]][0].displayName === "Home") {
-          const homeURL = "/upyog-ui/employee";
+          const homeURL = "/suda-ui/employee";
           res.unshift({
             moduleName: keys[i].toUpperCase(),
             icon: configEmployeeSideBar[keys[i]][0],
@@ -147,19 +138,12 @@ const EmployeeSideBar = () => {
     });
   };
 
-  if (isLoading) {
-    return <Loader />;
-  }
-  if (!res) {
-    return "";
-  }
-
   const renderSearch = () => {
     return (
       <div className="submenu-container">
-        <div className="sidebar-link">
-          <div className="actions search-icon-wrapper">
-            <SearchIcon className="search-icon" />
+        <div className="sidebar-link" style={{ padding: "10px 16px" }}>
+          <div className="actions search-icon-wrapper" style={{ width: "100%", gap: "8px" }}>
+            <SearchIcon className="search-icon" style={{ flexShrink: 0 }} />
             <input
               className="employee-search-input"
               type="text"
@@ -167,6 +151,7 @@ const EmployeeSideBar = () => {
               name="search"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
+              style={{ flex: 1, minWidth: 0, width: "100%" }}
             />
           </div>
         </div>
@@ -175,9 +160,85 @@ const EmployeeSideBar = () => {
   };
 
   return (
-    <div className="sidebar" ref={sidebarRef} onMouseOver={expandNav} onMouseLeave={collapseNav} style={{display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
-      {renderSearch()}
-      {splitKeyValue()}
+    <div className="sidebar" ref={sidebarRef} style={{width:"300px",overflow:"auto",cursor:"pointer",display:window.location.href.includes("main-dashboard-landing")?"none":""}}>
+      <OrgHeader />
+      {isLoading ? <Loader /> : null}
+      {!isLoading && renderSearch()}
+      {!isLoading && splitKeyValue()}
+      
+      <style>
+      {`
+        .citizen .sidebar, .employee .sidebar {
+          background-color: #091E64 !important;
+          background-image: none !important;
+        }
+        .employee .sidebar .submenu-container .sidebar-link {
+          color: #ffffff !important;
+        }
+        .employee .sidebar .submenu-container .sidebar-link .actions span,
+        .employee .sidebar .submenu-container .sidebar-link .actions a,
+        .employee .sidebar .dropdown-link .actions span {
+          color: #ffffff !important;
+        }
+        .employee .sidebar .submenu-container .sidebar-link svg path,
+        .employee .sidebar .submenu-container .sidebar-link svg rect,
+        .employee .sidebar .submenu-container .sidebar-link svg circle {
+          
+        }
+        .employee .sidebar .submenu-container .sidebar-link:hover,
+        .employee .sidebar .dropdown-link:hover {
+          background-color: rgba(255,255,255,0.1) !important;
+          border-radius: 6px;
+        }
+        .employee .sidebar .submenu-container .sidebar-link.active,
+        .employee .sidebar .dropdown-link.active {
+          background-color: #F47738 !important;
+          border-radius: 6px;
+        }
+        .employee .sidebar .employee-search-input {
+          color: #ffffff !important;
+          background: transparent !important;
+          border-bottom: 1px solid rgba(255,255,255,0.4) !important;
+        }
+        .employee .sidebar .employee-search-input::placeholder {
+          color: rgba(255,255,255,0.6) !important;
+        }
+        .employee .sidebar .search-icon-wrapper {
+          width: 100% !important;
+          display: flex !important;
+          align-items: center !important;
+        }
+        .employee .sidebar .search-icon-wrapper svg path {
+          fill: rgba(255,255,255,0.7) !important;
+        }
+        .employee .sidebar .employee-search-input {
+          width: 100% !important;
+        }
+        .employee .sidebar .logout-btn svg path,
+        .employee .sidebar .logout-btn svg rect,
+        .employee .sidebar .logout-btn svg circle {
+          fill: #ffffff !important;
+        }
+        .employee .popup-module .card-text,
+        .employee .popup-module p,
+        .employee .popup-module span:not(.icon) {
+          color: #0B0C0C !important;
+        }
+        .employee .popup-module strong {
+          color: #0B0C0C !important;
+        }
+      `}
+      </style>
+
+      <div className="submenu-container" style={{ borderTop: "1px solid rgba(255,255,255,0.2)", marginTop: "16px" }}>
+        <div className="sidebar-link logout-btn" onClick={handleLogout} style={{ cursor: "pointer" }}>
+          <div className="actions">
+            <LogoutIcon style={{ width: 20, height: 20, flexShrink: 0 }} />
+            <span style={{ marginLeft: "8px", whiteSpace: "nowrap" }}>{t("CORE_COMMON_LOGOUT")}</span>
+          </div>
+        </div>
+      </div>
+      {showDialog && <LogoutDialog onSelect={handleOnSubmit} onCancel={handleOnCancel} onDismiss={handleOnCancel} />}
     </div>
   );
 };

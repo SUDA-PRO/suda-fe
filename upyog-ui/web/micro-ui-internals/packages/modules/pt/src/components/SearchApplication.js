@@ -71,7 +71,7 @@ const PTSearchApplication = ({tenantId, isLoading, t, onSubmit, data, count, set
               return (
                 <div>
                   <span className="link">
-                    <Link to={`/upyog-ui/employee/pt/applicationsearch/application-details/${row.original["propertyId"]}`}>
+                    <Link to={`/suda-ui/employee/pt/applicationsearch/application-details/${row.original["acknowldgementNumber"]}`}>
                       {row.original["acknowldgementNumber"]}
                     </Link>
                   </span>

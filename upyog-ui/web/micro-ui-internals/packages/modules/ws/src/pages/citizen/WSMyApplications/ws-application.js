@@ -28,7 +28,9 @@ const WSApplication = ({ application }) => {
     { filters: { propertyIds: application?.propertyId } },
     { filters: { propertyIds: application?.propertyId }, privacy: Digit.Utils.getPrivacyObject() }
   );
-  const businessService = application?.applicationNo?.includes("SW") ? (application?.applicationNo?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (application?.applicationNo?.includes("DC")? "WS" :"WS.ONE_TIME_FEE")
+  const isReconnection = application?.applicationType?.includes("RECONNECT");
+  const isSWApplication = application?.applicationNo?.includes("SW");
+  const businessService = isReconnection ? (isSWApplication ? "SWReconnection" : "WSReconnection") : (isSWApplication ? (application?.applicationNo?.includes("DC") ? "SW" : "SW.ONE_TIME_FEE") : (application?.applicationNo?.includes("DC")? "WS" :"WS.ONE_TIME_FEE"))
   const fetchBillParams = { consumerCode: application?.applicationNo?.includes("DC") ? application?.connectionNo : application?.connectionNo };
   if (isLoading) {
     return <Loader />;
@@ -61,13 +63,13 @@ const WSApplication = ({ application }) => {
         },
        }}
       /> 
-      <Link to={`/upyog-ui/citizen/ws/connection/application/${encodeApplicationNo}`}>
+      <Link to={`/suda-ui/citizen/ws/connection/application/${encodeApplicationNo}`}>
         <SubmitBar label={t("WS_VIEW_DETAILS_LABEL")} />
       </Link>
       {application?.applicationStatus === "PENDING_FOR_PAYMENT"  ? (
             <Link
               to={{
-                pathname: `/upyog-ui/citizen/payment/my-bills/${
+                pathname: `/suda-ui/citizen/payment/my-bills/${
                   businessService
                 }/${application?.applicationNo?.includes("DC") ? (stringReplaceAll(application?.connectionNo, "/", "+") || stringReplaceAll(application?.connectionNo, "/", "+")) :
                   (stringReplaceAll(application?.applicationNo, "/", "+") ||

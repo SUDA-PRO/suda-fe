@@ -3,7 +3,6 @@ import {
   CardHeader,
   CardSubHeader,
   CardText,
-  CheckBox,
   LinkButton,
   Row,
   StatusTable,
@@ -19,26 +18,74 @@ import {
 } from "../../../utils";
 import Timeline from "../../../components/TLTimeline";
 
-const ActionButton = ({ jumpTo }) => {
-  const { t } = useTranslation();
-  const history = useHistory();
-  function routeTo() {
-    history.push(jumpTo);
-  }
+const ActionButton = ({ jumpTo }) => null;
 
-  return <LinkButton label={t("CS_COMMON_CHANGE")} className="check-page-link-button" onClick={routeTo} />;
+/* ─── inline style constants ─────────────────────────────────────────────── */
+const GOLD    = "#e07b00";
+const NAVY    = "#d95f00";
+const LIGHT   = "#f5f5f5";
+const BORDER  = "#ddd";
+const WHITE   = "#ffffff";
+const DARK_GREY = "#1a3a5c";
+
+const sectionWrap = {
+  background: WHITE,
+  borderRadius: "12px",
+  border: `1px solid ${BORDER}`,
+  boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
+  marginBottom: "20px",
+  overflow: "hidden",
 };
+
+const sectionHeader = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  background: DARK_GREY,
+  color: WHITE,
+  padding: "14px 20px",
+  fontWeight: 700,
+  fontSize: "15px",
+  letterSpacing: "0.4px",
+};
+
+const sectionBody = {
+  padding: "4px 16px 4px 20px",
+};
+
+const iconCircle = (icon) => (
+  <span style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "28px",
+    height: "28px",
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.15)",
+    fontSize: "14px",
+    flexShrink: 0,
+  }}>{icon}</span>
+);
+
+const SectionCard = ({ icon, title, children }) => (
+  <div style={sectionWrap}>
+    <div style={sectionHeader}>
+      {iconCircle(icon)}
+      <span>{title}</span>
+    </div>
+    <div style={sectionBody}>{children}</div>
+  </div>
+);
 
 const CheckPage = ({ onSubmit, value = {} }) => {
   const { t } = useTranslation();
   const history = useHistory();
-  console.log("value",value)
+  console.log("[CheckPage] landArea:", value?.landArea, "landarea:", value?.landarea, "PropertyType:", value?.PropertyType?.code);
   const {
     address,
     isResdential,
     PropertyType,
     electricity,
-    uid,
     noOfFloors,
     noOofBasements,
     additionalDetails,
@@ -85,117 +132,176 @@ const CheckPage = ({ onSubmit, value = {} }) => {
   const setdeclarationhandler = () => {
     setAgree(!agree);
   };
+
+  const ownershipCode = ownershipCategory?.code || ownershipCategory?.value || ownershipCategory;
+  const ownershipLabelKey = ownershipCode ? `PT_OWNERSHIP_${String(ownershipCode).split(".").pop()}` : null;
+  const isInstitutional = ownershipCode === "INSTITUTIONALPRIVATE" || ownershipCode === "INSTITUTIONALGOVERNMENT";
+
   return (
     <React.Fragment>
-     {window.location.href.includes("/citizen") ? <Timeline currentStep={4}/> : null}
-    <Card>
-      <CardHeader>{t("PT_CHECK_CHECK_YOUR_ANSWERS")}</CardHeader>
-      <div>
-        <CardText>{t("PT_CHECK_CHECK_YOUR_ANSWERS_TEXT")}</CardText>
-        <CardSubHeader>{t("PT_PROPERTY_ADDRESS_SUB_HEADER")}</CardSubHeader>
-        <StatusTable>
-          <Row
-            label={t("PT_PROPERTY_ADDRESS_SUB_HEADER")}
-            text={`${address?.doorNo ? `${address?.doorNo}, ` : ""} ${address?.street ? `${address?.street}, ` : ""}${
-              address?.landmark ? `${address?.landmark}, ` : ""
-            }${t(address?.locality.code)}, ${t(address?.city.code)},${t(address?.pincode) ? `${address.pincode}` : " "}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/pincode`} />}
-          />
-          <Row
-            label={t("PT_PROOF_OF_ADDRESS_SUB_HEADER")}
-            text={`${(address?.documents?.ProofOfAddress?.name && getFixedFilename(address.documents.ProofOfAddress.name)) || "na"}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/proof`} />}
-          />
-        </StatusTable>
-        <CardSubHeader>{t("PT_OWNERSHIP_DETAILS_SUB_HEADER")}</CardSubHeader>
-        <StatusTable>
-          <Row
-            label={t("PT_FORM3_OWNERSHIP_TYPE")}
-            text={t(checkForNA(`PT_OWNERSHIP_${ownershipCategory?.code}`))}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-ship-details@0`} />}
-          />
-        </StatusTable>
-        <div>
+      {window.location.href.includes("/citizen") ? <Timeline currentStep={4}/> : null}
+
+      {/* ── Page wrapper ─────────────────────────────────────────── */}
+      <div style={{ width: "100%", padding: "4px 0 32px" }}>
+
+        {/* ── Page title banner ──────────────────────────────────── */}
+        <div style={{
+          background: `linear-gradient(135deg, #d95f00 0%, #f07e1a 100%)`,
+          borderRadius: "14px",
+          padding: "24px 28px",
+          marginBottom: "24px",
+          display: "flex",
+          alignItems: "center",
+          gap: "16px",
+          boxShadow: "0 4px 18px rgba(217,95,0,0.25)",
+        }}>
+          <div style={{
+            width: "52px", height: "52px", borderRadius: "50%",
+            background: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center",
+            justifyContent: "center", fontSize: "24px", flexShrink: 0,
+          }}>🏠</div>
+          <div>
+            <div style={{ color: WHITE, fontSize: "20px", fontWeight: 700, lineHeight: 1.2 }}>
+              {t("PT_CHECK_CHECK_YOUR_ANSWERS")}
+            </div>
+            <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "13px", marginTop: "4px" }}>
+              {t("PT_CHECK_CHECK_YOUR_ANSWERS_TEXT")}
+            </div>
+          </div>
+          <div style={{ marginLeft: "auto", textAlign: "right" }}>
+            <span style={{
+              background: "rgba(255,255,255,0.25)", color: WHITE, borderRadius: "20px",
+              padding: "4px 14px", fontSize: "12px", fontWeight: 600,
+              border: "1px solid rgba(255,255,255,0.5)",
+            }}>Step 4 of 4</span>
+          </div>
+        </div>
+
+        {/* ── Property Address ───────────────────────────────────── */}
+        <SectionCard icon="📍" title={t("PT_PROPERTY_ADDRESS_SUB_HEADER")}>
+          <StatusTable>
+            <Row
+              label={t("PT_PROPERTY_ADDRESS_SUB_HEADER")}
+              text={`${address?.doorNo ? `${address?.doorNo}, ` : ""} ${address?.street ? `${address?.street}, ` : ""}${
+                address?.landmark ? `${address?.landmark}, ` : ""
+              }${t(address?.locality?.code)}, ${t(address?.city?.code)},${t(address?.pincode) ? `${address.pincode}` : " "}`}
+              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/pincode`} />}
+            />
+            {address?.roadType && (
+              <Row
+                label={t("PT_ROAD_TYPE")}
+                text={t(`PROPERTYTAX_ROAD_TYPE_${address.roadType}`)}
+                actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/pincode`} />}
+              />
+            )}
+            <Row
+              label={t("PT_PROOF_OF_ADDRESS_SUB_HEADER")}
+              text={address?.documents?.ProofOfAddress?.documentType?.i18nKey ? t(address.documents.ProofOfAddress.documentType.i18nKey) : t("CS_NA")}
+              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/proof`} />}
+            />
+          </StatusTable>
+        </SectionCard>
+
+        {/* ── Ownership Details ─────────────────────────────────── */}
+        <SectionCard icon="👤" title={t("PT_OWNERSHIP_DETAILS_SUB_HEADER")}>
+          <StatusTable>
+            <Row
+              label={t("PT_FORM3_OWNERSHIP_TYPE")}
+              text={t(checkForNA(`PT_OWNERSHIP_${ownershipCategory?.code}`))}
+              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-ship-details@0`} />}
+            />
+          </StatusTable>
           {owners &&
             owners.map &&
             owners.map((owner, index) => (
               <div key={index}>
-                {owners.length != 1 && (
-                  <CardSubHeader>
-                    {t("PT_OWNER_SUB_HEADER")} - {index + 1}
-                  </CardSubHeader>
+                {owners.length > 1 && (
+                  <div style={{
+                    background: LIGHT, borderTop: `3px solid ${DARK_GREY}`,
+                    padding: "8px 16px", fontWeight: 600, color: DARK_GREY,
+                    fontSize: "13px", letterSpacing: "0.3px",
+                  }}>
+                    {t("PT_OWNER_SUB_HEADER")} — {index + 1}
+                  </div>
                 )}
-                {ownershipCategory?.value == "INSTITUTIONALPRIVATE" || ownershipCategory?.value == "INSTITUTIONALGOVERNMENT" ? (
+                {isInstitutional ? (
                   <div>
                     <StatusTable>
                       <Row
                         label={t("PT_COMMON_INSTITUTION_NAME")}
                         text={`${t(checkForNA(owner?.inistitutionName))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
                         label={t("PT_TYPE_OF_INSTITUTION")}
-                        text={`${t(checkForNA(owner?.inistitutetype?.code))}`}
+                        text={owner?.inistitutetype?.label || t("CS_NA")}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
                         label={t("PT_OWNER_NAME")}
                         text={`${t(checkForNA(owner?.name))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
                         label={`${t("PT_COMMON_AUTHORISED_PERSON_DESIGNATION")}`}
                         text={`${t(checkForNA(owner?.designation))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
                         label={`${t("PT_FORM3_MOBILE_NUMBER")}`}
                         text={`${t(checkForNA(owner?.mobileNumber))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
-                        label={`${t("PT_OWNERSHIP_INFO_TEL_PHONE_NO")}`}
+                        label={t("PT_FORM3_ALT_MOBILE_NUMBER") || "Alternate Mobile Number"}
+                        text={`${t(checkForNA(owner?.alternatemobilenumber))}`}
+                        actionButton={
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                        }
+                      />
+                      <Row
+                        label={t("PT_LANDLINE_NUMBER_FLOATING_LABEL") || "Landline Number"}
                         text={`${t(checkForNA(owner?.altContactNumber))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
                         label={`${t("PT_FORM3_EMAIL_ID")}`}
                         text={`${t(checkForNA(owner?.emailId))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/inistitution-details/`}${index}`} />
                         }
                       />
                       <Row
                         label={`${t("PT_OWNERSHIP_INFO_CORR_ADDR")}`}
                         text={`${t(checkForNA(owner?.permanentAddress))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/institutional-owner-address/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/institutional-owner-address/`}${index}`} />
                         }
                       />
                       <Row
                         label={`${t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}`}
                         text={`${t(checkForNA(owner?.isCorrespondenceAddress))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/institutional-owner-address/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/institutional-owner-address/`}${index}`} />
                         }
                       />
                       <Row
                         label={t("PT_PROOF_IDENTITY_HEADER")}
-                        text={`${(owner?.documents["proofIdentity"]?.name && getFixedFilename(owner.documents["proofIdentity"].name)) || "na"}`}
+                        text={owner?.documents["proofIdentity"]?.documentType?.i18nKey ? t(owner.documents["proofIdentity"].documentType.i18nKey) : t("CS_NA")}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/institutional-proof-of-identity/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/institutional-proof-of-identity/`}${index}`} />
                         }
                       />
                     </StatusTable>
@@ -206,55 +312,58 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                       <Row
                         label={t("PT_OWNER_NAME")}
                         text={`${t(checkForNA(owner?.name))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
                       <Row
                         label={t("PT_FORM3_GENDER")}
                         text={`${t(checkForNA(owner?.gender?.code))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
                       <Row
                         label={`${t("PT_FORM3_MOBILE_NUMBER")}`}
                         text={`${t(checkForNA(owner?.mobileNumber))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
                       <Row
-                        label={t("PT_FORM3_GUARDIAN_NAME")}
+                        label={t("PT_FORM3_ALT_MOBILE_NUMBER")}
+                        text={`${t(checkForNA(owner?.alternatemobilenumber))}`}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                      />
+                      <Row
+                        label={t("PT_FORM3_FATHER_HUSBAND_NAME")}
                         text={`${t(checkForNA(owner?.fatherOrHusbandName))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
                       <Row
                         label={t("PT_FORM3_RELATIONSHIP")}
                         text={`${t(checkForNA(owner?.relationship?.code))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
                       <Row
                         label={t("PT_FORM3_EMAIL_ID")}
                         text={`${t(checkForNA(owner?.emailId))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-details/`}${index}`} />}
                       />
 
                       <Row
                         label={t("PT_SPECIAL_OWNER_CATEGORY")}
                         text={`${t(checkForNA(owner?.ownerType?.code))}`}
                         actionButton={
-                          <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/special-owner-category/`}${index}`} />
+                          <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/special-owner-category/`}${index}`} />
                         }
                       />
                       <Row
                         label={`${t("PT_OWNERS_ADDRESS")}`}
                         text={`${t(checkForNA(owner?.permanentAddress))}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/owner-address/`}${index}`} />}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/owner-address/`}${index}`} />}
                       />
                       
                       {owner?.ownerType?.code !== "NONE" ? (
                         <Row
                           label={t("PT_SPECIAL_OWNER_CATEGORY_PROOF_HEADER")}
-                          text={`${
-                            (owner?.documents["specialProofIdentity"]?.name && getFixedFilename(owner.documents["specialProofIdentity"].name)) || "na"
-                          }`}
+                          text={owner?.documents["specialProofIdentity"]?.documentType?.i18nKey ? t(owner.documents["specialProofIdentity"].documentType.i18nKey) : t("CS_NA")}
                           actionButton={
-                            <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/special-owner-category-proof/`}${index}`} />
+                            <ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/special-owner-category-proof/`}${index}`} />
                           }
                         />
                       ) : (
@@ -262,47 +371,39 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                       )}
                       <Row
                         label={t("PT_PROOF_IDENTITY_HEADER")}
-                        text={`${(owner?.documents["proofIdentity"]?.name && getFixedFilename(owner.documents["proofIdentity"].name)) || "na"}`}
-                        actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/proof-of-identity/`}${index}`} />}
+                        text={owner?.documents["proofIdentity"]?.documentType?.i18nKey ? t(owner.documents["proofIdentity"].documentType.i18nKey) : t("CS_NA")}
+                        actionButton={<ActionButton jumpTo={`${`/suda-ui/citizen/pt/property/${typeOfApplication}/proof-of-identity/`}${index}`} />}
                       />
                     </StatusTable>
                   </div>
                 )}
               </div>
             ))}
-        </div>
-        <CardSubHeader>{t("PT_ASSESMENT_INFO_SUB_HEADER")}</CardSubHeader>
-        <StatusTable>
-          {/* <Row
-            label={t("PT_RESIDENTIAL_PROP_LABEL")}
-            text={`${t(checkForNA(isResdential?.i18nKey))}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/isResidential`} />}
-          /> */}
-          <Row
-            label={t("PT_ASSESMENT1_PROPERTY_TYPE")}
-            text={`${t(checkForNA(PropertyType?.i18nKey))}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/property-type`} />}
+        </SectionCard>
+
+        {/* ── Assessment Info ───────────────────────────────────── */}
+        <SectionCard icon="📋" title={t("PT_ASSESMENT_INFO_SUB_HEADER")}>
+          <StatusTable>
+            <Row
+              label={t("PT_ASSESMENT1_PROPERTY_TYPE")}
+              text={`${t(checkForNA(PropertyType?.i18nKey))}`}
+              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/property-type`} />}
           />
           <Row
-            label={t("PT_ASSESMENT1_ELECTRICITY_NUMBER")}
+            label={t("PT_BP_NUMBER")}
             text={`${t(checkForNA(electricity?.electricity))}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/electricity-number`} />}
-          />
-          <Row
-            label={t("PT_ASSESMENT1_ELECTRICITY_UID")}
-            text={`${t(checkForNA(uid?.uid))}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/electricity-uid`} />}
+            actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/electricity-number`} />}
           />
           {PropertyType?.code !== "VACANT" &&<Row
             label={t("PT_ASSESMENT1_PLOT_SIZE")}
             text={`${landArea?.floorarea}`}
-            actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/landarea`} />}
+            actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/landarea`} />}
           />}
           {PropertyType?.code === "VACANT" && (
-            <Row
+            <Row 
               label={t("PT_ASSESMENT1_PLOT_SIZE")}
-              text={`${landarea?.floorarea}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+              text={`${landArea?.floorarea || landarea?.floorarea}`}
+              actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/area`} />}
             />
           )}
           {PropertyType?.code !== "VACANT" &&
@@ -310,17 +411,25 @@ const CheckPage = ({ onSubmit, value = {} }) => {
               .sort((x, y) => x.floorNo - y.floorNo)
               .map((unit, unitIndex) => {
                 return (
-                  <div>
-                    {units.length > 1 && <CardSubHeader>{t(`PT_UNIT`)}-{unitIndex}</CardSubHeader>}
+                  <div key={unitIndex}>
+                    {units.length > 1 && (
+                      <div style={{
+                        background: LIGHT, borderTop: `3px solid ${DARK_GREY}`,
+                        padding: "8px 16px", fontWeight: 600, color: DARK_GREY,
+                        fontSize: "13px",
+                      }}>
+                        {t("PT_UNIT")} — {unitIndex + 1}
+                      </div>
+                    )}
                     <Row
                       label={t("PT_BUILT_UP_AREA")}
                       text={`${unit?.constructionDetail?.builtUpArea}`}
-                      actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+                      actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
                     />
                     <Row
                       label={t("PT_ASSESMENT_INFO_OCCUPLANCY")}
                       text={t(`PROPERTYTAX_OCCUPANCYTYPE_${unit?.occupancyType}`)}
-                      actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+                      actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
                     />
                     <Row
                       label={t("PT_FORM2_USAGE_TYPE")}
@@ -329,286 +438,75 @@ const CheckPage = ({ onSubmit, value = {} }) => {
                           unit?.usageCategory?.split(".").length > 2 ? unit?.usageCategory?.split(".")[1] : unit?.usageCategory?.split(".")[0]
                         }`
                       )}
-                      actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+                      actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
                     />{" "}
                     {unit?.unitType && (
                       <Row
                         label={t("PT_FORM2_SUB_USAGE_TYPE")}
                         text={t(`PROPERTYTAX_BILLING_SLAB_${unit?.unitType}`)}
-                        actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+                        actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
                       />
                     )}
                     <Row
                       label={t("PT_FLOOR_NO")}
                       text={unit?.floorNo===0? t("PT_GROUND_FLOOR_OPTION") :( unit?.floorNo<0) ? `${unit?.floorNo} and Ground floor` : `Ground floor +${unit?.floorNo}`}
-                      actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+                      actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
                     />
                     {unit?.arv && (
                       <Row
                         label={t("PT_PROPERTY_ANNUAL_RENT_LABEL")}
                         text={`${unit?.arv}`}
-                        actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
+                        actionButton={<ActionButton jumpTo={`/suda-ui/citizen/pt/property/${typeOfApplication}/PtUnits`} />}
                       />
                     )}
                   </div>
                 );
               })}
-          {/* {!isPropertyVacant(PropertyType?.i18nKey) && !isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) && (
-            <Row
-              label={t("PT_ASSESMENT_INFO_NO_OF_FLOOR")}
-              text={`${t(checkForNA(noOfFloors?.i18nKey))}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/number-of-floors`} />}
-            />
-          )}
-          {!isPropertyVacant(PropertyType?.i18nKey) && !isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) && (
-            <Row
-              label={t("PT_PROPERTY_DETAILS_NO_OF_BASEMENTS_LABEL")}
-              text={`${t(checkForNA(noOofBasements?.i18nKey))}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/number-of-basements@0`} />}
-            />
-          )}
-          {isPropertyVacant(PropertyType?.i18nKey) && !isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) && (
-            <Row
-              label={t("PT_ASSESMENT1_PLOT_SIZE")}
-              text={`${t(checkForNA(landarea?.floorarea))} ${(landarea?.floorarea && "sq.ft") || ""}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/area`} />}
-            />
-          )}
-          {isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) && (
-            <Row
-              label={t("PT_ASSESMENT1_PLOT_SIZE")}
-              text={`${t(checkForNA(floordetails?.plotSize))} ${(floordetails?.plotSize && "sq.ft") || ""}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails`} />}
-            />
-          )}
-          {isPropertyIndependent(PropertyType?.i18nKey) && (
-            <Row
-              label={t("PT_ASSESMENT1_PLOT_SIZE")}
-              text={`${t(checkForNA(units[0]?.plotSize))} ${(units[0]?.plotSize && "sq.ft") || ""}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails/0`} />}
-            />
-          )} */}
-        </StatusTable>
-        {/* {!isPropertyVacant(PropertyType?.i18nKey) && isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) && (
-          <CardSubHeader>{`${t(Floorno?.i18nKey)} ${t("PT_DETAILS_HEADER")}`}</CardSubHeader>
-        )} */}
-        {/* {!isPropertyVacant(PropertyType?.i18nKey) && isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) && (
-          <StatusTable>
-            // {/* <Row
-            //   label={t("PT_ASSESMENT1_PLOT_SIZE")}
-            //   text={`${t(checkForNA(units[0]?.plotSize))} ${(units[0]?.plotSize && "sq.ft") || ""}`}
-            //   actionButton={<ActionButton jumpTo="/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails/0" />}
-            // /> 
-            <Row
-              label={t("PT_ASSESMENT_INFO_OCCUPLANCY")}
-              //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-              text={`${t(checkForNA(selfOccupied?.i18nKey))}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/is-this-floor-self-occupied`} />}
-            />
-            <Row
-              label={t("PT_BUILT_UP_AREA_LABEL")}
-              //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-              text={`${t(checkForNA(floordetails?.builtUpArea))} ${(floordetails?.builtUpArea && "sq.ft") || ""}`}
-              actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails`} />}
-            />
-            {!isPropertyselfoccupied(selfOccupied?.i18nKey) && (
-              <Row
-                label={t("PT_PROPERTY_RENTED_AREA_LABEL")}
-                text={`${t(checkForNA(Constructiondetails?.RentArea))} ${(Constructiondetails?.RentArea && "sq.ft") || ""}`}
-                actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details`} />}
-              />
-            )}
-            {!isPropertyselfoccupied(selfOccupied?.i18nKey) && (
-              <Row
-                label={t("PT_PROPERTY_ANNUAL_RENT_LABEL")}
-                text={`₹${t(checkForNA(Constructiondetails?.AnnualRent))}`}
-                actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details`} />}
-              />
-            )}
-            {isPropertyPartiallyrented(selfOccupied?.i18nKey) && (
-              <Row
-                label={`${t("PROPERTYTAX_OCCUPANCYTYPE_SELFOCCUPIED")} ${t("PT_ASSESSMENT_FLOW_AREA_HEADER")}`}
-                text={`${t(checkForNA(landarea?.floorarea))} ${(landarea?.floorarea && "sq.ft") || ""}`}
-                actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/area`} />}
-              />
-            )}
-            {ispropertyunoccupied(IsAnyPartOfThisFloorUnOccupied?.i18nKey) && (
-              <Row
-                label={t("PT_PROPERTY_UNOCCUPIED_AREA_LABEL")}
-                text={`${t(checkForNA(UnOccupiedArea?.UnOccupiedArea))} ${(UnOccupiedArea?.UnOccupiedArea && "sq.ft") || ""}`}
-                actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/un-occupied-area`} />}
-              />
-            )}
           </StatusTable>
-        )} */}
-        {/* <div>
-          {!isPropertyVacant(PropertyType?.i18nKey) &&
-            !isPropertyFlatorPartofBuilding(PropertyType?.i18nKey) &&
-            units &&
-            units.map &&
-            units.map((owner, index) => (
-              <div key={index}>
-                <CardSubHeader>
-                  {t(`PROPERTYTAX_FLOOR_${units[index].floorNo ? units[index].floorNo : index}`)} {t("PT_DETAILS_HEADER")}
-                </CardSubHeader>
-                <StatusTable>
-                  <Row
-                    label={t("PT_ASSESMENT_INFO_OCCUPLANCY")}
-                    //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-                    text={`${t(checkForNA(units[index]?.selfOccupied?.i18nKey))}`}
-                    actionButton={
-                      <ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/is-this-floor-self-occupied/`}${index}`} />
-                    }
-                  />
-                  <Row
-                    label={t("PT_BUILT_UP_AREA_LABEL")}
-                    //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-                    text={`${t(checkForNA(units[index]?.builtUpArea))} ${(units[index]?.builtUpArea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails/`}${index}`} />}
-                  />
-                  {!isPropertyselfoccupied(units[index]?.selfOccupied?.i18nKey) && (
-                    <Row
-                      label={t("PT_PROPERTY_RENTED_AREA_LABEL")}
-                      text={`${t(checkForNA(units[index]?.RentArea))} ${(units[index]?.RentArea && "sq.ft") || ""}`}
-                      actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details/`}${index}`} />}
-                    />
-                  )}
-                  {!isPropertyselfoccupied(units[index]?.selfOccupied?.i18nKey) && (
-                    <Row
-                      label={t("PT_PROPERTY_ANNUAL_RENT_LABEL")}
-                      text={`₹${t(checkForNA(units[index]?.AnnualRent))}`}
-                      actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details/`}${index}`} />}
-                    />
-                  )}
-                  {isPropertyPartiallyrented(units[index]?.selfOccupied?.i18nKey) && (
-                    <Row
-                      label={`${t("PROPERTYTAX_OCCUPANCYTYPE_SELFOCCUPIED")} ${t("PT_ASSESSMENT_FLOW_AREA_HEADER")}`}
-                      text={`${t(checkForNA(units[index]?.floorarea))} ${(units[index]?.floorarea && "sq.ft") || ""}`}
-                      actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/area/`}${index}`} />}
-                    />
-                  )}
-                  {ispropertyunoccupied(units[index]?.IsAnyPartOfThisFloorUnOccupied?.i18nKey) && (
-                    <Row
-                      label={t("PT_PROPERTY_UNOCCUPIED_AREA_LABEL")}
-                      text={`${t(checkForNA(units[index]?.UnOccupiedArea))} ${(units[index]?.UnOccupiedArea && "sq.ft") || ""}`}
-                      actionButton={<ActionButton jumpTo={`${`/upyog-ui/citizen/pt/property/${typeOfApplication}/un-occupied-area/`}${index}`} />}
-                    />
-                  )}
-                </StatusTable>
-              </div>
-            ))}
-        </div> */}
-        {/* <div>
-          {(isthere1Basement(noOofBasements?.i18nKey) || isthere2Basement(noOofBasements?.i18nKey)) && (
-            <div>
-              <CardSubHeader>
-                {t("PROPERTYTAX_FLOOR__1")} {t("PT_DETAILS_HEADER")}
-              </CardSubHeader>
-              <StatusTable>
-                <Row
-                  label={t("PT_ASSESMENT_INFO_OCCUPLANCY")}
-                  //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-                  text={`${t(checkForNA(units["-1"]?.selfOccupied?.i18nKey))}`}
-                  actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/is-this-floor-self-occupied/-1`} />}
-                />
-                <Row
-                  label={t("PT_BUILT_UP_AREA_LABEL")}
-                  //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-                  text={`${t(checkForNA(units["-1"]?.builtUpArea))} ${(units["-1"]?.builtUpArea && "sq.ft") || ""}`}
-                  actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails/-1`} />}
-                />
-                {!isPropertyselfoccupied(units["-1"]?.selfOccupied?.i18nKey) && (
-                  <Row
-                    label={t("PT_PROPERTY_RENTED_AREA_LABEL")}
-                    text={`${t(checkForNA(units["-1"]?.RentArea))} ${(units["-1"]?.RentArea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details/-1`} />}
-                  />
-                )}
-                {!isPropertyselfoccupied(units["-1"]?.selfOccupied?.i18nKey) && (
-                  <Row
-                    label={t("PT_PROPERTY_ANNUAL_RENT_LABEL")}
-                    text={`₹${t(checkForNA(units["-1"]?.AnnualRent))} || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details/-1`} />}
-                  />
-                )}
-                {isPropertyPartiallyrented(units["-1"]?.selfOccupied?.i18nKey) && (
-                  <Row
-                    label={`${t("PROPERTYTAX_OCCUPANCYTYPE_SELFOCCUPIED")} ${t("PT_ASSESSMENT_FLOW_AREA_HEADER")}`}
-                    text={`${t(checkForNA(units["-1"]?.floorarea))} ${(units["-1"]?.floorarea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/area/-1`} />}
-                  />
-                )}
-                {ispropertyunoccupied(units["-1"]?.IsAnyPartOfThisFloorUnOccupied?.i18nKey) && (
-                  <Row
-                    label={t("PT_PROPERTY_UNOCCUPIED_AREA_LABEL")}
-                    text={`${t(checkForNA(units["-1"]?.UnOccupiedArea))} ${(units["-1"]?.UnOccupiedArea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/un-occupied-area/-1`} />}
-                  />
-                )}
-              </StatusTable>
+        </SectionCard>
+
+        {/* ── Declaration ───────────────────────────────────────── */}
+        <div style={{
+          background: agree
+            ? "linear-gradient(135deg, #e8f5e9 0%, #f1f8f1 100%)"
+            : "linear-gradient(135deg, #fff4e8 0%, #fffbf4 100%)",
+          border: `2px solid ${agree ? "#66bb6a" : GOLD}`,
+          borderRadius: "12px",
+          padding: "20px 24px",
+          marginBottom: "24px",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "14px",
+          boxShadow: agree
+            ? "0 2px 12px rgba(102,187,106,0.15)"
+            : "0 2px 12px rgba(198,146,47,0.12)",
+          transition: "all 0.25s ease",
+        }}>
+          <span style={{ fontSize: "22px", marginTop: "2px", flexShrink: 0 }}>
+            {agree ? "✅" : "📜"}
+          </span>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 700, color: NAVY, fontSize: "14px", marginBottom: "6px" }}>
+              {t("PT_DECLARATION_HEADER") || "Declaration"}
             </div>
-          )}
+            <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", userSelect: "none" }}>
+              <input
+                type="checkbox"
+                checked={agree}
+                onChange={setdeclarationhandler}
+                style={{
+                  width: "18px", height: "18px", accentColor: GOLD,
+                  cursor: "pointer", flexShrink: 0,
+                }}
+              />
+              <span style={{ color: "#555", fontSize: "13px", lineHeight: 1.5 }}>
+                {t("PT_FINAL_DECLARATION_MESSAGE")}
+              </span>
+            </label>
+          </div>
         </div>
-        <div>
-          {isthere2Basement(noOofBasements?.i18nKey) && (
-            <div>
-              <CardSubHeader>
-                {t("PROPERTYTAX_FLOOR__2")} {t("PT_DETAILS_HEADER")}
-              </CardSubHeader>
-              <StatusTable>
-                <Row
-                  label={t("PT_ASSESMENT_INFO_OCCUPLANCY")}
-                  //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-                  text={`${t(checkForNA(units["-2"]?.selfOccupied?.i18nKey))}`}
-                  actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/is-this-floor-self-occupied/-2`} />}
-                />
-                <Row
-                  label={t("PT_BUILT_UP_AREA_LABEL")}
-                  //text={`${t(checkForNA(units[0]?.builtUpArea))} ${(units[0]?.builtUpArea && "sq.ft") || ""}`}
-                  text={`${t(checkForNA(units["-2"]?.builtUpArea))} ${(units["-2"]?.builtUpArea && "sq.ft") || ""}`}
-                  actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/floordetails/-2`} />}
-                />
-                {!isPropertyselfoccupied(units["-2"]?.selfOccupied?.i18nKey) && (
-                  <Row
-                    label={t("PT_PROPERTY_RENTED_AREA_LABEL")}
-                    text={`${t(checkForNA(units["-2"]?.RentArea))} ${(units["-2"]?.RentArea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details/-2`} />}
-                  />
-                )}
-                {!isPropertyselfoccupied(units["-2"]?.selfOccupied?.i18nKey) && (
-                  <Row
-                    label={t("PT_PROPERTY_ANNUAL_RENT_LABEL")}
-                    text={`₹${t(checkForNA(units["-2"]?.AnnualRent))}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/rental-details/-2`} />}
-                  />
-                )}
-                {isPropertyPartiallyrented(units["-2"]?.selfOccupied?.i18nKey) && (
-                  <Row
-                    label={`${t("PROPERTYTAX_OCCUPANCYTYPE_SELFOCCUPIED")} ${t("PT_ASSESSMENT_FLOW_AREA_HEADER")}`}
-                    text={`${t(checkForNA(units["-2"]?.floorarea))} ${(units["-2"]?.floorarea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/area/-2`} />}
-                  />
-                )}
-                {ispropertyunoccupied(units["-2"]?.IsAnyPartOfThisFloorUnOccupied?.i18nKey) && (
-                  <Row
-                    label={t("PT_PROPERTY_UNOCCUPIED_AREA_LABEL")}
-                    text={`${t(checkForNA(units["-2"]?.UnOccupiedArea))} ${(units["-2"]?.UnOccupiedArea && "sq.ft") || ""}`}
-                    actionButton={<ActionButton jumpTo={`/upyog-ui/citizen/pt/property/${typeOfApplication}/un-occupied-area/-2`} />}
-                  />
-                )}
-              </StatusTable>
-            </div>
-          )}
-        </div> */}
-        <CheckBox
-          label={t("PT_FINAL_DECLARATION_MESSAGE")}
-          onChange={setdeclarationhandler}
-          styles={{ height: "auto" }}
-          //disabled={!agree}
-        />
       </div>
       <SubmitBar label={t("PT_COMMON_BUTTON_SUBMIT")} onSubmit={onSubmit} disabled={!agree} />
-    </Card>
    </React.Fragment>
   );
 };

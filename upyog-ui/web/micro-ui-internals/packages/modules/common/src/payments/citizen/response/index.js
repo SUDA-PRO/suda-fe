@@ -122,19 +122,19 @@ export const convertEpochToDate = (dateEpoch) => {
         />
         <CardText>{t("CS_PAYMENT_FAILURE_MESSAGE")}</CardText>
         {!(business_service?.includes("PT")) && !(business_service?.includes("TL")) ? (
-          <Link to={`/upyog-ui/citizen`}>
+          <Link to={`/suda-ui/citizen`}>
             <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
           </Link>
         ) : (
           <React.Fragment>
-            <Link to={(applicationNo && `/upyog-ui/citizen/payment/my-bills/${business_service}/${applicationNo}`) || "/upyog-ui/citizen"}>
+            <Link to={(applicationNo && `/suda-ui/citizen/payment/my-bills/${business_service}/${applicationNo}`) || "/suda-ui/citizen"}>
               <SubmitBar label={t("CS_PAYMENT_TRY_AGAIN")} />
             </Link>
-            {/* {business_service?.includes("PT") &&<div style={{marginTop:"10px"}}><Link to={`/upyog-ui/citizen/feedback?redirectedFrom=${"digit-ui/citizen/payment/success"}&propertyId=${consumerCode? consumerCode : ""}&acknowldgementNumber=${egId ? egId : ""}&tenantId=${tenantId}&creationReason=${business_service?.split(".")?.[1]}`}>
+            {/* {business_service?.includes("PT") &&<div style={{marginTop:"10px"}}><Link to={`/suda-ui/citizen/feedback?redirectedFrom=${"digit-ui/citizen/payment/success"}&propertyId=${consumerCode? consumerCode : ""}&acknowldgementNumber=${egId ? egId : ""}&tenantId=${tenantId}&creationReason=${business_service?.split(".")?.[1]}`}>
               <SubmitBar label={t("CS_REVIEW_AND_FEEDBACK")} />
             </Link></div>} */}
             <div className="link" style={isMobile ? { marginTop: "8px", width: "100%", textAlign: "center" } : { marginTop: "8px" }}>
-              <Link to={`/upyog-ui/citizen`}>{t("CORE_COMMON_GO_TO_HOME")}</Link>
+              <Link to={`/suda-ui/citizen`}>{t("CORE_COMMON_GO_TO_HOME")}</Link>
             </div>
           </React.Fragment>
         )}
@@ -219,7 +219,7 @@ export const convertEpochToDate = (dateEpoch) => {
           if(business_service=="WS" || business_service=="SW"){
             response = await Digit.PaymentService.generatePdf(state, { Payments: [{...paymentData}] }, generatePdfKeyForWs);
           }
-          else if(businessServ.includes("BPA")){
+          else if(businessServ.includes("BPA") && businessServ !== "BPAREG"){
             let queryObj = { applicationNo: payments.Payments[0].paymentDetails[0]?.bill?.consumerCode };
             let bpaResponse = await Digit.OBPSService.BPASearch( payments.Payments[0].tenantId, queryObj);
             const formattedStakeholderType=bpaResponse?.BPA[0]?.additionalDetails?.typeOfArchitect
@@ -803,7 +803,8 @@ export const convertEpochToDate = (dateEpoch) => {
   if ((window.location.href.includes("bpa") || window.location.href.includes("BPA")) && isBpaSearchLoading) return <Loader />
 
   return (
-    <Card>
+    <div>
+      <div style={{ margin: "0 16px 20px" }}>
       <Banner
         svg={
           <svg className="payment-svg" xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" fill="none">
@@ -818,6 +819,8 @@ export const convertEpochToDate = (dateEpoch) => {
         applicationNumber={paymentData?.paymentDetails[0].receiptNumber}
         successful={true}
       />
+      </div>
+    <Card>
       <CardText></CardText>
       <StatusTable>
         <Row rowContainerStyle={rowContainerStyle} last label={business_service==="TL" ? t("CS_PAYMENT_APPLICATION_NUMBER") : t(label)} text={applicationNo} />
@@ -954,7 +957,7 @@ export const convertEpochToDate = (dateEpoch) => {
           </div>
         ) : null}
       </div>
-      {business_service?.includes("PT") &&<div style={{marginTop:"10px"}}><Link to={`/upyog-ui/citizen/feedback?redirectedFrom=${"upyog-ui/citizen/payment/success"}&propertyId=${consumerCode? consumerCode : ""}&acknowldgementNumber=${egId ? egId : ""}&tenantId=${tenantId}&creationReason=${business_service?.split(".")?.[1]}`}>
+      {business_service?.includes("PT") &&<div style={{marginTop:"10px"}}><Link to={`/suda-ui/citizen/feedback?redirectedFrom=${"suda-ui/citizen/payment/success"}&propertyId=${consumerCode? consumerCode : ""}&acknowldgementNumber=${egId ? egId : ""}&tenantId=${tenantId}&creationReason=${business_service?.split(".")?.[1]}`}>
           <SubmitBar label={t("CS_REVIEW_AND_FEEDBACK")} />
       </Link></div>}
       {business_service?.includes("PT") ? (
@@ -1048,35 +1051,36 @@ export const convertEpochToDate = (dateEpoch) => {
       {!(business_service?.includes("TL")) || !(business_service?.includes("PT")) && <SubmitBar onSubmit={printReciept} label={t("COMMON_DOWNLOAD_RECEIPT")} />}
       {!(business_service == "TL") || !(business_service?.includes("PT")) && (
         <div className="link" style={isMobile ? { marginTop: "8px", width: "100%", textAlign: "center" } : { marginTop: "8px" }}>
-          <Link to={`/upyog-ui/citizen`}>{t("CORE_COMMON_GO_TO_HOME")}</Link>
+          <Link to={`/suda-ui/citizen`}>{t("CORE_COMMON_GO_TO_HOME")}</Link>
         </div>
       )}
       {/* {business_service == "TL" && (
-        <Link to={`/upyog-ui/citizen`}>
+        <Link to={`/suda-ui/citizen`}>
           <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
         </Link>
       )} */}
       {business_service == "pet-services" && (
-        <Link to={`/upyog-ui/citizen`}>
+        <Link to={`/suda-ui/citizen`}>
           <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
         </Link>
       )}
       {business_service == "chb-services" && (
-        <Link to={`/upyog-ui/citizen`}>
+        <Link to={`/suda-ui/citizen`}>
           <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
         </Link>
       )}
       {business_service == "adv-services" && (
-        <Link to={`/upyog-ui/citizen`}>
+        <Link to={`/suda-ui/citizen`}>
           <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} />
         </Link>
       )}
       {business_service == "sv-services" && (
-        <Link to={`/upyog-ui/citizen`}>
+        <Link to={`/suda-ui/citizen`}>
           <SubmitBar label={t("CORE_COMMON_GO_TO_HOME")} style={{marginTop:"15px"}} />
         </Link>
       )}
     </Card>
+    </div>
   );
 };
 

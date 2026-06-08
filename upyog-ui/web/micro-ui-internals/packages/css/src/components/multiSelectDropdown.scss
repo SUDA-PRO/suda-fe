@@ -61,7 +61,7 @@
             }
             input:checked ~ .custom-checkbox,
             input:hover ~ .custom-checkbox {
-                @apply border-2 border-primary-main;
+                border: 2px solid #FF6600;
             }
 
             input:checked ~ .custom-checkbox svg {

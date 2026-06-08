@@ -29,7 +29,7 @@ const OCBasicDetails = ({ formData, onSelect, config }) => {
     setData(null);
     setBpaData(null);
     setIsLoadingApplication(true);
-    const details = await ocScrutinyDetailsData(scrutinyNumber?.edcrNumber, state);
+    const details = await ocScrutinyDetailsData(scrutinyNumber?.edcrNumber, tenantId);
     setIsLoadingApplication(false);
     if (details?.type == "ERROR") {
       setShowToast({ key: "true", message: details?.message });
@@ -40,8 +40,11 @@ const OCBasicDetails = ({ formData, onSelect, config }) => {
     let otherData = details?.otherDetails;
     let ocData = details?.ocEdcrDetails;
 
-    if (otherData && ocData && ocData?.tenantId && otherData?.edcrDetails?.[0]?.tenantId) {
-      if (otherData?.edcrDetails?.[0]?.tenantId != ocData?.tenantId) {
+    if (otherData && ocData && otherData?.edcrDetails?.[0]?.tenantId) {
+      // Use BPA application tenantId (resolved via permitNumber lookup) for city comparison.
+      // This avoids false mismatches when the OC eDCR was stored with a state-level tenantId.
+      const permitTenantId = otherData?.bpaApprovalResponse?.[0]?.tenantId || ocData?.tenantId;
+      if (permitTenantId && otherData?.edcrDetails?.[0]?.tenantId != permitTenantId) {
         setShowToast({ key: "true", message: "BPA_INVALID_PERMIT_CITY" });
         return;
       } else if (otherData?.bpaApprovalResponse?.[0]?.edcrNumber === ocData?.edcrNumber && ((otherData?.bpaResponse?.[0]?.status != "REJECTED") && (otherData?.bpaResponse?.[0]?.status != "PERMIT REVOCATION") || (otherData?.bpaResponse?.[0]?.status != "INITIATED"))) {
@@ -161,12 +164,12 @@ const OCBasicDetails = ({ formData, onSelect, config }) => {
       onSelect(
         config?.key,
         {
-          scrutinyNumber, applicantName: data?.planDetail?.planInformation?.applicantName,
-          occupancyType: data?.planDetail?.planInformation?.occupancy,
+          scrutinyNumber,
+          applicantName: data?.planDetail?.planInformation?.applicantName || bpaData?.bpaApprovalResponse?.[0]?.landInfo?.owners?.filter(o => o.isPrimaryOwner && o.isPrimaryOwner !== "false")?.[0]?.name || bpaData?.bpaApprovalResponse?.[0]?.landInfo?.owners?.[0]?.name || bpaData?.bpaApprovalResponse?.[0]?.additionalDetails?.applicantName,
+          occupancyType: data?.planDetail?.planInformation?.occupancy || bpaData?.bpaApprovalResponse?.[0]?.drawingDetail?.occupancy,
           applicationType: data?.appliactionType, serviceType: data?.applicationSubType,
           applicationDate: data?.applicationDate,
-          riskType: Digit.Utils.obps.calculateRiskType(mdmsData?.BPA?.RiskTypeComputation,
-            data?.planDetail?.plot?.area, data?.planDetail?.blocks),
+          riskType: Digit.Utils.obps.calculateRiskType(mdmsData?.BPA?.RiskTypeComputation, data?.planDetail?.plot?.area, data?.planDetail?.blocks) || bpaData?.bpaApprovalResponse?.[0]?.riskType,
           bpaData: bpaData,
           edcrDetails: data
         }
@@ -198,9 +201,9 @@ const OCBasicDetails = ({ formData, onSelect, config }) => {
           <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APP_DATE_LABEL`)} text={data?.applicationDate ? format(new Date(data?.applicationDate), 'dd/MM/yyyy') : data?.applicationDate} />
           <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APPLICATION_TYPE_LABEL`)} text={t(`WF_BPA_${data?.appliactionType}`)} />
           <Row className="border-none" label={t(`BPA_BASIC_DETAILS_SERVICE_TYPE_LABEL`)} text={t(data?.applicationSubType)} />
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_OCCUPANCY_LABEL`)} text={data?.planDetail?.planInformation?.occupancy} />
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_RISK_TYPE_LABEL`)} text={t(`WF_BPA_${Digit.Utils.obps.calculateRiskType(mdmsData?.BPA?.RiskTypeComputation, data?.planDetail?.plot?.area, data?.planDetail?.blocks)}`)} />
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APPLICATION_NAME_LABEL`)} text={data?.planDetail?.planInformation?.applicantName} />
+          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_OCCUPANCY_LABEL`)} text={data?.planDetail?.planInformation?.occupancy || bpaData?.bpaApprovalResponse?.[0]?.drawingDetail?.occupancy} />
+          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_RISK_TYPE_LABEL`)} text={t(`WF_BPA_${Digit.Utils.obps.calculateRiskType(mdmsData?.BPA?.RiskTypeComputation, data?.planDetail?.plot?.area, data?.planDetail?.blocks) || bpaData?.bpaApprovalResponse?.[0]?.riskType}`)} />
+          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APPLICATION_NAME_LABEL`)} text={data?.planDetail?.planInformation?.applicantName || bpaData?.bpaApprovalResponse?.[0]?.landInfo?.owners?.filter(o => o.isPrimaryOwner && o.isPrimaryOwner !== "false")?.[0]?.name || bpaData?.bpaApprovalResponse?.[0]?.landInfo?.owners?.[0]?.name || bpaData?.bpaApprovalResponse?.[0]?.additionalDetails?.applicantName} />
         </StatusTable>
         <SubmitBar label={t(`CS_COMMON_NEXT`)} onSubmit={handleSubmit} />
       </Card>

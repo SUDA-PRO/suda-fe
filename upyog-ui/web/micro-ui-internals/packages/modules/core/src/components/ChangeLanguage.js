@@ -11,19 +11,21 @@ const ChangeLanguage = (prop) => {
   const handleChangeLanguage = (language) => {
     setselected(language.value);
     Digit.LocalizationService.changeLanguage(language.value, stateInfo.code);
+    window.location.reload();
   };
 
   if (isLoading) return null;
 
   if (isDropdown) {
     return (
-      <div>
+      <div style={{ marginBottom: 0 }}>
         <Dropdown
           option={languages}
           selected={languages.find((language) => language.value === selectedLanguage)}
           optionKey={"label"}
           select={handleChangeLanguage}
           freeze={true}
+          style={{ marginBottom: 0 }}
           customSelector={<label className="cp">{languages.find((language) => language.value === selected).label}</label>}
         />
       </div>

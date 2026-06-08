@@ -42,7 +42,7 @@ const MutationApplicationDetails = ({ propertyId, acknowledgementIds, workflowDe
   const { isLoading: auditDataLoading, isError: isAuditError, data: auditResponse } = Digit.Hooks.pt.usePropertySearch(
     {
       tenantId,
-      filters: { propertyIds: propertyId, audit: true },
+      filters: { propertyIds: application?.propertyId, audit: true },
     },
     {
       enabled: true,
@@ -150,14 +150,14 @@ const MutationApplicationDetails = ({ propertyId, acknowledgementIds, workflowDe
           setIsEnableLoader(false);
           if (isOBPS?.bpa) {
             data.selectedAction = selectedAction;
-            history.replace(`/upyog-ui/employee/obps/response`, { data: data });
+            history.replace(`/suda-ui/employee/obps/response`, { data: data });
           }
           if (isOBPS?.isStakeholder) {
             data.selectedAction = selectedAction;
-            history.push(`/upyog-ui/employee/obps/stakeholder-response`, { data: data });
+            history.push(`/suda-ui/employee/obps/stakeholder-response`, { data: data });
           }
           if (isOBPS?.isNoc) {
-            history.push(`/upyog-ui/employee/noc/response`, { data: data });
+            history.push(`/suda-ui/employee/noc/response`, { data: data });
           }
           setShowToast({ key: "success", action: selectedAction });
           setTimeout(closeToast, 5000);
@@ -201,7 +201,7 @@ const MutationApplicationDetails = ({ propertyId, acknowledgementIds, workflowDe
     }
     else if (action) {
       if (action?.redirectionUrll) {
-        window.location.assign(`${window.location.origin}/upyog-ui/employee/payment/collect/${action?.redirectionUrll?.pathname}`);
+        window.location.assign(`${window.location.origin}/suda-ui/employee/payment/collect/${action?.redirectionUrll?.pathname}`);
       } else if (!action?.redirectionUrl) {
         setShowModal(true);
       } else {

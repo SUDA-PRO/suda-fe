@@ -76,8 +76,8 @@ const MobileSearchApplication = ({ Controller, register, control, t, reset, prev
       return [];
       }
       return data?.map((data) => ({
-        [t("PT_SEARCHPROPERTY_TABEL_PID")]: data?.propertyId,
         [t("PT_APPLICATION_NO_LABEL")]: data?.acknowldgementNumber || "-",
+        [t("PT_SEARCHPROPERTY_TABEL_PID")]: data?.propertyId || t("PT_PROPERTY_ID_PENDING_APPROVAL"),
         [t("PT_SEARCHPROPERTY_TABEL_APPLICATIONTYPE")]: data?.creationReason || "",
         [t("PT_COMMON_TABLE_COL_OWNER_NAME")]: data?.owners?.map( o => o.name ). join(",") || "" ,
         [t("ES_SEARCH_PROPERTY_STATUS")]: t( data?.status &&`WF_PT_${data?.status}`|| "NA") || "",
@@ -128,8 +128,8 @@ const MobileSearchApplication = ({ Controller, register, control, t, reset, prev
         <DetailsCard
           {...{
             data: propsMobileInboxCards,
-            linkPrefix: `/upyog-ui/employee/pt/applicationsearch/application-details/`,
-            serviceRequestIdKey: t("PT_SEARCHPROPERTY_TABEL_PID"),
+            linkPrefix: `/suda-ui/employee/pt/applicationsearch/application-details/`,
+            serviceRequestIdKey: t("PT_APPLICATION_NO_LABEL"),
           }}
         />
       )}

@@ -1,14 +1,25 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
+// Proxy for Finance ERP requests. ERPFinance component targets /erp-proxy/...
+// (same-origin, no CORS) and this proxy forwards to the main API gateway.
+const erpProxy = createProxyMiddleware({
+  target: "https://suda.digitalgovernance.digital",
+  changeOrigin: true,
+  secure: false,
+  pathRewrite: { "^/erp-proxy": "" },
+});
+
 const createProxy = createProxyMiddleware({
   //target: process.env.REACT_APP_PROXY_API || "https://uat.digit.org",
   // target: process.env.REACT_APP_PROXY_API || "https://qa.digit.org",
-  target: process.env.REACT_APP_PROXY_API || "https://qa.digit.org",
+  target: process.env.REACT_APP_PROXY_API || "https://suda.digitalgovernance.digital",
   changeOrigin: true,
+  secure: false
 });
 const assetsProxy = createProxyMiddleware({
-  target: process.env.REACT_APP_PROXY_ASSETS || "https://qa.digit.org",
+  target: process.env.REACT_APP_PROXY_ASSETS || "https://suda.digitalgovernance.digital",
   changeOrigin: true,
+  secure: false
 });
 module.exports = function (app) {
   [
@@ -122,4 +133,5 @@ module.exports = function (app) {
     "/requester-services-dx/eSign/filestoreId/v1/_search"
   ].forEach((location) => app.use(location, createProxy));
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
+  app.use("/erp-proxy", erpProxy);
 };

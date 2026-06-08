@@ -1,5 +1,6 @@
 import React from "react";
 import { Card, CardHeader } from "@upyog/digit-ui-react-components";
+import cgLogo from "./src/utils/cgLogo";
 
 const getMohallaLocale = (value = "", tenantId = "") => {
     let convertedValue = convertDotValues(tenantId);
@@ -77,6 +78,8 @@ const getMohallaLocale = (value = "", tenantId = "") => {
     return{
         t: t,
         tenantId: tenantInfo?.code,
+        logo: cgLogo,
+        watermark: cgLogo,
         name: `${t(tenantInfo?.i18nKey)} ${ulbCamel(t(`ULBGRADE_${tenantInfo?.city?.ulbGrade.toUpperCase().replace(" ", "_").replace(".", "_")}`))}`,
         email: tenantInfo?.emailId,
         phoneNumber: tenantInfo?.contactNumber,

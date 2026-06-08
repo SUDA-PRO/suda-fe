@@ -55,7 +55,7 @@ const EditEvents = () => {
         }
       ]
     }
-    history.push("/upyog-ui/employee/engagement/event/response?update=true", details)
+    history.push("/suda-ui/employee/engagement/event/response?update=true", details)
   }
 
   if (isLoading) {

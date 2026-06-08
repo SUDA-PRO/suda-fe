@@ -98,6 +98,8 @@
 
 @import "./pages/citizen/payment/payment-type.scss";
 @import "./pages/citizen/container.scss";
+
+@import "./pages/pt.scss";
 @import "./pages/citizen/HomePageWrapper.scss";
 @import "./pages/citizen/CitizenEngagementNotificationWrapper.scss";
 @import "./pages/citizen/Events.scss";
@@ -230,6 +232,38 @@
     position: unset;
   }
 }
+
+/* PT Property Details form – remove 540px cap, lighter border & rounded corners */
+.pt-property-details-form {
+  .text-input-width {
+    max-width: none !important;
+  }
+  .select-wrap,
+  .employee-select-wrap {
+    max-width: none !important;
+    .select,
+    .select-active {
+      border: 1px solid #b1b4b6 !important;
+      border-radius: 8px !important;
+      overflow: hidden;
+      &:hover {
+        border: 1px solid #b1b4b6 !important;
+        border-radius: 8px !important;
+      }
+    }
+  }
+  .citizen-card-input,
+  .employee-card-input,
+  .employee-card-input-error,
+  .card-input,
+  .card-input-error {
+    border: 1px solid #b1b4b6 !important;
+    border-radius: 8px !important;
+    height: 40px !important;
+    line-height: 40px !important;
+  }
+}
+
 .application-table-container {
   @apply mt-lg ml-lg flex-1;
 }
@@ -722,7 +756,7 @@ input[type="number"] {
 min-height: calc(100vh - 8em);
 }
 .submit-bar header{
-  line-height: 2.0rem !important;
+  line-height: 2.0rem !important; 
 }
 .logo-removeBorderRadiusLogo svg{
   width: 50px;

@@ -1,6 +1,6 @@
 import {
     Card, CardHeader, CardSubHeader, CardText,
-    CitizenInfoLabel, LinkButton, Row, StatusTable, SubmitBar, EditIcon, Header, CardSectionHeader, Loader
+    CitizenInfoLabel, LinkButton, Row, StatusTable, SubmitBar, EditIcon, Header, CardSectionHeader, Loader, Toast
   } from "@upyog/digit-ui-react-components";
   import React, { useState } from "react";
   import { useTranslation } from "react-i18next";
@@ -15,14 +15,15 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSReSubmitDiscon
     const match = useRouteMatch();
     const value = Digit.SessionStorage.get("WS_DISCONNECTION");
     const [documents, setDocuments] = useState( value.WSDisconnectionForm.documents || []);
-    let routeLink = `/upyog-ui/citizen/ws/resubmit-disconnect-application`;
+    let routeLink = `/suda-ui/citizen/ws/resubmit-disconnect-application`;
     if(window.location.href.includes("/resubmit"))
-    routeLink=`/upyog-ui/citizen/ws/resubmit-disconnect-application`
+    routeLink=`/suda-ui/citizen/ws/resubmit-disconnect-application`
 
     function routeTo(jumpTo) {
         location.href=jumpTo;
     }
     const [isEnableLoader, setIsEnableLoader] = useState(false);
+    const [error, setError] = useState(null);
   
     const {
       isLoading: updatingWaterApplicationLoading,
@@ -40,7 +41,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSReSubmitDiscon
       mutate: sewerageUpdateMutation,
     } = Digit.Hooks.ws.useWSApplicationActions("SEWERAGE");
     
-    const closeToastOfError = () => { setShowToast(null); };
+    const closeToastOfError = () => { setError(null); };
 
     const onSubmit = async (data) => {
       const payload = await createPayloadOfWSReSubmitDisconnection(data, value, value.serviceType);
@@ -55,7 +56,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSReSubmitDiscon
             },
             onSuccess: async (data, variables) => {
                 Digit.SessionStorage.set("WS_DISCONNECTION", { ...value?.applicationData, ...value?.WSDisconnectionForm , DisconnectionResponse: data?.WaterConnection?.[0]});
-                history.push(`/upyog-ui/citizen/ws/disconnect-acknowledge?applicationNumber=${data?.WaterConnection?.[0]?.applicationNo}`);
+                history.push(`/suda-ui/citizen/ws/disconnect-acknowledge?applicationNumber=${data?.WaterConnection?.[0]?.applicationNo}`);
             },
           });
         }
@@ -71,7 +72,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSReSubmitDiscon
             },
             onSuccess: async (data, variables) => {
                 Digit.SessionStorage.set("WS_DISCONNECTION", {...value?.applicationData, ...value?.WSDisconnectionForm , DisconnectionResponse: data?.SewerageConnections?.[0]});
-                history.push(`/upyog-ui/citizen/ws/disconnect-acknowledge?applicationNumber=${data?.SewerageConnections?.[0]?.applicationNo}`);
+                history.push(`/suda-ui/citizen/ws/disconnect-acknowledge?applicationNumber=${data?.SewerageConnections?.[0]?.applicationNo}`);
             },
           });
         }
@@ -100,7 +101,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSReSubmitDiscon
         <Row className="border-none" label={t("WS_DISCONNECTION_CONSUMER_NUMBER")} text={value.connectionNo || value?.applicationData?.connectionNo}/>
         <Row className="border-none" label={t("WS_DISCONNECTION_TYPE")} text={t(value.WSDisconnectionForm.type.value.i18nKey)}/>
         <Row className="border-none" label={t("WS_DISCONNECTION_PROPOSED_DATE")} text={convertEpochToDate(convertDateToEpoch(value.WSDisconnectionForm.date))}/>
-        <Row className="border-none" label={t("WS_DISCONNECTION_REASON")} text={value.WSDisconnectionForm.reason.value}/>         
+        <Row className="border-none" label={t("WS_DISCONNECTION_REASON")} text={typeof value.WSDisconnectionForm.reason?.value === "object" ? (value.WSDisconnectionForm.reason?.value?.name || value.WSDisconnectionForm.reason?.value?.code || "") : (value.WSDisconnectionForm.reason?.value || "")}/>         
       </StatusTable>
     </Card>
  
@@ -126,6 +127,7 @@ import { convertDateToEpoch, convertEpochToDate, createPayloadOfWSReSubmitDiscon
         ))}
         <SubmitBar label={t("CS_COMMON_SUBMIT")} onSubmit={() => onSubmit(value?.WSDisconnectionForm)} />
       </Card>
+      {error && <Toast error={error?.key === "error" ? true : false} label={t(error?.message)} onClose={() => setError(null)} />}
     </React.Fragment>
     )
   }

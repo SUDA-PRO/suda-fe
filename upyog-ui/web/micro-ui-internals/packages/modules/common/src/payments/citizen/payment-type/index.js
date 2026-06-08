@@ -83,8 +83,8 @@ export const SelectPaymentType = (props) => {
         },
         // success
         callbackUrl: window.location.href.includes("mcollect") || wrkflow === "WNS"
-          ? `${window.location.protocol}//${window.location.host}/upyog-ui/citizen/payment/success/${businessService}/${wrkflow === "WNS"? consumerCode:consumerCode}/${tenantId}?workflow=${wrkflow === "WNS"? wrkflow : "mcollect"}`
-          : `${window.location.protocol}//${window.location.host}/upyog-ui/citizen/payment/success/${businessService}/${wrkflow === "WNS"? encodeURIComponent(consumerCode):consumerCode}/${tenantId}?propertyId=${consumerCode}`,
+          ? `${window.location.protocol}//${window.location.host}/suda-ui/citizen/payment/success/${businessService}/${wrkflow === "WNS"? consumerCode:consumerCode}/${tenantId}?workflow=${wrkflow === "WNS"? wrkflow : "mcollect"}`
+          : `${window.location.protocol}//${window.location.host}/suda-ui/citizen/payment/success/${businessService}/${wrkflow === "WNS"? encodeURIComponent(consumerCode):consumerCode}/${tenantId}?propertyId=${consumerCode}`,
         additionalDetails: {
           isWhatsapp: false,
         },
@@ -97,8 +97,10 @@ export const SelectPaymentType = (props) => {
       if (d?.paymentType == "AXIS") {
         window.location = redirectUrl;
       }
-      else if (d?.paymentType == "NTTDATA") {
-        let redirect= redirectUrl.split("returnURL=")
+      else if (d?.paymentType == "MOCK") {
+        window.location = redirectUrl;
+      }
+      else if (d?.paymentType == "NTTDATA") {        let redirect= redirectUrl.split("returnURL=")
         let url=redirect[0].split("?")[1].split("&")
         const options = {
           "atomTokenId": url[0].split("=")[1],
@@ -192,7 +194,7 @@ export const SelectPaymentType = (props) => {
   if (authorization === "true" && !userInfo.access_token) {
     localStorage.clear();
     sessionStorage.clear();
-    window.location.href = `/upyog-ui/citizen/login?from=${encodeURIComponent(pathname + search)}`;
+    window.location.href = `/suda-ui/login?from=${encodeURIComponent(pathname + search)}`;
   }
 
   if (isLoading || paymentLoading) {

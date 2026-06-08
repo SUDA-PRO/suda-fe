@@ -9,11 +9,14 @@
     "packages/react-components",
     "packages/modules/core",
     "packages/modules/common",
+    "packages/modules/asset",
     "packages/modules/hrms",
     "packages/modules/dss",
     "packages/modules/engagement",
     "packages/modules/pt",
-    "packages/modules/obps"
+    "packages/modules/obps",
+    "packages/modules/ws",
+    "packages/modules/mCollect"
   ],
   "license": "MIT",
   "private": true,
@@ -57,6 +60,7 @@
     "dev:vendor": "cd packages/modules/vendor && yarn start",
     "dev:pgrai": "cd packages/modules/pgrai && yarn start",
     "build": "run-p build:**",
+    "build:css": "cd packages/css && yarn build:prod",
     "build:libraries": "cd packages/libraries && yarn build",
     "buildD:asset": "cd packages/modules/asset && yarn build",
     "build:components": "cd packages/react-components && yarn build",
@@ -68,14 +72,14 @@
     "buildD:pgr": "cd packages/modules/pgr && yarn build",
     "buildD:fsm": "cd packages/modules/fsm && yarn build",
     "build:dss": "cd packages/modules/dss && yarn build",
-    "buildD:mcollect": "cd packages/modules/mCollect && yarn build",
+    "build:mcollect": "cd packages/modules/mCollect && yarn build",
     "buildD:receipts": "cd packages/modules/receipts && yarn build",
     "buildD:tl": "cd packages/modules/tl && yarn build",
     "build:hrms": "cd packages/modules/hrms && yarn build",
     "build:obps": "cd packages/modules/obps && yarn build",
     "build:engagement": "cd packages/modules/engagement && yarn build",
     "buildD:noc": "cd packages/modules/noc && yarn build",
-    "buildD:ws": "cd packages/modules/ws && yarn build",
+    "build:ws": "cd packages/modules/ws && yarn build",
     "buildD:bills": "cd packages/modules/bills && yarn build",
     "buildD:chb": "cd packages/modules/chb && yarn build",
     "buildD:ads": "cd packages/modules/ads && yarn build",
@@ -116,3 +120,4 @@
     "minimatch":"3.1.2"
   }
 }
+ 

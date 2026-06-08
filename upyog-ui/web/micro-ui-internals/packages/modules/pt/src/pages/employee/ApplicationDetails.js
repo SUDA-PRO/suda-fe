@@ -1,4 +1,4 @@
-import { Header, LinkButton, MultiLink } from "@upyog/digit-ui-react-components";
+
 import _ from "lodash";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,7 +18,6 @@ const ApplicationDetails = () => {
   const { id: propertyId } = useParams();
   const [showToast, setShowToast] = useState(null);
   const [appDetailsToShow, setAppDetailsToShow] = useState({});
-  const [showOptions, setShowOptions] = useState(false);
   const [enableAudit, setEnableAudit] = useState(false);
   const [businessService, setBusinessService] = useState("PT.CREATE");
   sessionStorage.setItem("applicationNoinAppDetails",propertyId);
@@ -43,7 +42,7 @@ const ApplicationDetails = () => {
   const { isLoading: auditDataLoading, isError: isAuditError, data: auditData } = Digit.Hooks.pt.usePropertySearch(
     {
       tenantId,
-      filters: { propertyIds: propertyId, audit: true },
+      filters: { acknowledgementIds: propertyId, audit: true },
     },
     { enabled: enableAudit, select: (data) => data.Properties?.filter((e) => e.status === "ACTIVE") }
   );
@@ -105,7 +104,7 @@ const ApplicationDetails = () => {
             {
               action: "VIEW_DETAILS",
               redirectionUrl: {
-                pathname: `/upyog-ui/employee/pt/property-details/${propertyId}`,
+                pathname: `/suda-ui/employee/pt/property-details/${appDetailsToShow?.applicationData?.propertyId}`,
               },
               tenantId: Digit.ULBService.getStateId(),
             },
@@ -124,7 +123,7 @@ const ApplicationDetails = () => {
     workflowDetails?.data?.actionState?.nextActions.push({
       action: "UPDATE",
       redirectionUrl: {
-        pathname: `/upyog-ui/employee/pt/modify-application/${propertyId}`,
+        pathname: `/suda-ui/employee/pt/modify-application/${propertyId}`,
         state: { workflow: { action: "REOPEN", moduleName: "PT", businessService } },
       },
       tenantId: Digit.ULBService.getStateId(),
@@ -135,7 +134,7 @@ const ApplicationDetails = () => {
     appDetailsToShow?.applicationDetails?.unshift({
       values: [
         { title: "PT_PROPERTY_APPLICATION_NO", value: appDetailsToShow?.applicationData?.acknowldgementNumber },
-        { title: "PT_SEARCHPROPERTY_TABEL_PTUID", value: appDetailsToShow?.applicationData?.propertyId },
+        { title: "PT_SEARCHPROPERTY_TABEL_PTUID", value: appDetailsToShow?.applicationData?.propertyId || t("PT_PROPERTY_ID_PENDING_APPROVAL") },
         { title: "ES_APPLICATION_CHANNEL", value: `ES_APPLICATION_DETAILS_APPLICATION_CHANNEL_${appDetailsToShow?.applicationData?.channel}` },
       ],
     });
@@ -151,7 +150,7 @@ const ApplicationDetails = () => {
         return {
           action: "PAY",
           forcedName: "WF_EMPLOYEE_PT.MUTATION_PAY",
-          redirectionUrl: { pathname: `/upyog-ui/employee/payment/collect/PT.MUTATION/${appDetailsToShow?.applicationData?.acknowldgementNumber}` },
+          redirectionUrl: { pathname: `/suda-ui/employee/payment/collect/PT.MUTATION/${appDetailsToShow?.applicationData?.acknowldgementNumber}` },
         };
       }
       return act;
@@ -181,12 +180,6 @@ const ApplicationDetails = () => {
     Digit.Utils.pdf.generate(data);
   };
 
-  const propertyDetailsPDF = {
-    order: 1,
-    label: t("PT_APPLICATION"),
-    onClick: () => handleDownloadPdf(),
-  };
-  let dowloadOptions = [propertyDetailsPDF];
   const handleViewTimeline=()=>{
     setViewTimeline(true);
       const timelineSection=document.getElementById('timeline');
@@ -228,28 +221,104 @@ const ApplicationDetails = () => {
   if (appDetailsToShow?.applicationData) {
     appDetailsToShow?.applicationDetails?.[3]?.additionalDetails?.owners.sort(() => { return appDetailsToShow?.applicationDetails?.[3]?.additionalDetails?.owners})
   }
+  const statusColor = () => {
+    const s = appDetailsToShow?.applicationData?.status;
+    if (!s) return { bg: "#e8f5e9", color: "#2e7d32" };
+    const upper = s.toUpperCase();
+    if (upper.includes("ACTIVE")) return { bg: "#e8f5e9", color: "#2e7d32" };
+    if (upper.includes("APPROVED")) return { bg: "#e8f5e9", color: "#2e7d32" };
+    if (upper.includes("PENDING")) return { bg: "#fff8e1", color: "#e65100" };
+    if (upper.includes("REJECT")) return { bg: "#fdecea", color: "#c62828" };
+    return { bg: "#e3f2fd", color: "#1565c0" };
+  };
+  const sc = statusColor();
+  const appStatus = appDetailsToShow?.applicationData?.status;
+  const ackNo = appDetailsToShow?.applicationData?.acknowldgementNumber;
+  const propId = appDetailsToShow?.applicationData?.propertyId;
+
   return (
-    <div>
-        <div className={"employee-application-details"} style={{ marginBottom: "15px" }}>
-      <Header styles={{ marginLeft: "0px", paddingTop: "10px", fontSize: "32px" }}>{t("PT_APPLICATION_TITLE")}</Header>
-      <div style={{zIndex: "10",display:"flex",flexDirection:"row-reverse",alignItems:"center",marginTop:"-25px"}}>
-         
-      <div style={{zIndex: "10",  position: "relative"}}>
-      {dowloadOptions && dowloadOptions.length > 0 && (
-            <MultiLink
-              className="multilinkWrapper"
-              onHeadClick={() => setShowOptions(!showOptions)}
-              displayOptions={showOptions}
-              options={dowloadOptions}
-              downloadBtnClassName={"employee-download-btn-className"}
-              optionsClassName={"employee-options-btn-className"}
-              // ref={menuRef}
-            />
-          )}
+    <div style={{ background: "#f5f6fa", minHeight: "100vh" }}>
+
+      {/* ── Beautiful Page Header ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)",
+        borderRadius: "0 0 20px 20px",
+        padding: "28px 32px 32px",
+        marginBottom: "24px",
+        position: "relative",
+        overflow: "hidden",
+        boxShadow: "0 4px 24px rgba(212,79,10,0.18)",
+      }}>
+        {/* Decorative circles */}
+        <div style={{ position: "absolute", right: "-40px", top: "-40px", width: "180px", height: "180px", borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", right: "60px", bottom: "-60px", width: "220px", height: "220px", borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+
+        {/* Title row */}
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", position: "relative" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <div style={{ width: "48px", height: "48px", borderRadius: "12px", background: "rgba(255,255,255,0.18)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+            </div>
+            <div>
+              <div style={{ fontSize: "11px", fontWeight: "600", color: "rgba(255,255,255,0.75)", letterSpacing: "1.2px", textTransform: "uppercase", marginBottom: "4px" }}>
+                {t("PT_PROPERTY_TAX") || "Property Tax"}
+              </div>
+              <h1 style={{ margin: 0, fontSize: "22px", fontWeight: "700", color: "#fff", lineHeight: "1.2" }}>
+                {t("PT_APPLICATION_TITLE") || "Application Details"}
+              </h1>
+            </div>
           </div>
-      <LinkButton label={t("VIEW_TIMELINE")} style={{ color:"#A52A2A"}} onClick={handleViewTimeline}></LinkButton>
-      </div>      
+
+          {/* Actions */}
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+            <button
+              onClick={handleViewTimeline}
+              style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "8px", color: "#fff", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+              </svg>
+              {t("VIEW_TIMELINE") || "View Timeline"}
+            </button>
+            <button
+              onClick={handleDownloadPdf}
+              style={{ display: "flex", alignItems: "center", gap: "6px", padding: "8px 16px", background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "8px", color: "#fff", fontSize: "13px", fontWeight: "600", cursor: "pointer" }}
+            >
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+              </svg>
+              {t("PT_DOWNLOAD_APPLICATION") || "Download Application"}
+            </button>
+          </div>
+        </div>
+
+        {/* Info chips row */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginTop: "20px", position: "relative" }}>
+          {ackNo && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.15)", borderRadius: "8px", padding: "6px 12px" }}>
+              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: "500" }}>{t("PT_PROPERTY_APPLICATION_NO") || "Application No"}</span>
+              <span style={{ fontSize: "13px", color: "#fff", fontWeight: "700" }}>{ackNo}</span>
+            </div>
+          )}
+          {propId && (
+            <div style={{ display: "flex", alignItems: "center", gap: "6px", background: "rgba(255,255,255,0.15)", borderRadius: "8px", padding: "6px 12px" }}>
+              <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: "500" }}>{t("PT_SEARCHPROPERTY_TABEL_PTUID") || "Property ID"}</span>
+              <span style={{ fontSize: "13px", color: "#fff", fontWeight: "700" }}>{propId}</span>
+            </div>
+          )}
+          {appStatus && (
+            <div style={{ display: "inline-flex", alignItems: "center", gap: "5px", background: sc.bg, borderRadius: "8px", padding: "6px 12px" }}>
+              <span style={{ width: "7px", height: "7px", borderRadius: "50%", background: sc.color, display: "inline-block" }} />
+              <span style={{ fontSize: "12px", color: sc.color, fontWeight: "700", letterSpacing: "0.3px" }}>{t(`ES_PT_COMMON_STATUS_${appStatus}`) || appStatus}</span>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* ── Content ── */}
+      <div style={{ padding: "0 16px 32px" }} className="pt-app-details-body">
       <ApplicationDetailsTemplate
         applicationDetails={appDetailsToShow}
         isLoading={isLoading}
@@ -268,7 +337,7 @@ const ApplicationDetails = () => {
         statusAttribute={"state"}
         MenuStyle={{ color: "#FFFFFF", fontSize: "18px" }}
       />
-    
+      </div>
     </div>
   );
 };

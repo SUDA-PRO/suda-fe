@@ -104,7 +104,7 @@ export const CitizenSideBar = ({ isOpen, isMobile = false, toggleSidebar, onLogo
   const redirectToLoginPage = () => {
     // localStorage.clear();
     // sessionStorage.clear();
-    history.push(`${APPLICATION_PATH}/citizen/login`);
+    history.push(`${APPLICATION_PATH}/login`);
     closeSidebar();
   };
   // Function to redirect the user to the EDCR scrutiny page
@@ -173,11 +173,11 @@ export const CitizenSideBar = ({ isOpen, isMobile = false, toggleSidebar, onLogo
       ?.map((key) => {
         if (linkData[key][0]?.sidebar === "digit-ui-links")
           menuItems.splice(1, 0, {
-            type: linkData[key][0]?.sidebarURL?.includes("upyog-ui") ? "link" : "external-link",
+            type: (linkData[key][0]?.sidebarURL?.includes("suda-ui") || linkData[key][0]?.sidebarURL?.includes("upyog-ui") || linkData[key][0]?.sidebarURL?.includes("digit-ui")) ? "link" : "external-link",
             text: t(`ACTION_TEST_${Digit.Utils.locale.getTransformedLocale(key)}`),
             links: linkData[key],
             icon: linkData[key][0]?.leftIcon,
-            link: linkData[key][0]?.sidebarURL,
+            link: linkData[key][0]?.sidebarURL?.replace("digit-ui", "suda-ui")?.replace("upyog-ui", "suda-ui"),
           });
       });
   } else {

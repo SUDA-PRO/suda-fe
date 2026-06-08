@@ -1,102 +1,82 @@
-import React, { useState } from "react"
-import { TextInput, Label, SubmitBar, LinkLabel, ActionBar, CloseSvg, DatePicker, CardLabelError, SearchForm, SearchField, Dropdown, Toast } from "@upyog/digit-ui-react-components";
-import { useForm, Controller } from "react-hook-form";
-import { useParams } from "react-router-dom"
+import React, { useState } from "react";
+import { Toast } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import UlbAssesmentSearch from "../../components/UlbAssesmentSearch";
 
-const UlbAssesment = ({path}) => {
-    const { variant } = useParams();
-    const { t } = useTranslation();
-    const tenantId = Digit.ULBService.getCurrentTenantId();
-    const [payload, setPayload] = useState({})
-    const [showToast, setShowToast] = useState(null);
+const UlbAssesment = ({ path }) => {
+  const { t } = useTranslation();
+  const stateId = Digit.ULBService.getStateId();
+  const [showToast, setShowToast] = useState(null);
+  const [resultInfo, setResultInfo] = useState(null);
 
-    function onSubmit (_data) {
-        console.log("data",_data)
-        let payload= {
-            "tenantId":_data?.creationReason?.code,
-            "assessmentYear":_data?.status?.code
+  // Use state-level tenantId for URL param; actual ULB tenantId goes in the request body
+  const { isLoading, mutate: assessmentMutate } = Digit.Hooks.pt.UseAssessmentCreateUlb(stateId);
+
+  const closeToast = () => setShowToast(null);
+
+  function onSubmit(payload) {
+    setResultInfo(null);
+    assessmentMutate(payload, {
+      onError: (error) => {
+        setShowToast({
+          key: "error",
+          label: error?.response?.data?.Errors?.[0]?.message || error.message,
+        });
+        setTimeout(closeToast, 5000);
+      },
+      onSuccess: async (data) => {
+        const assessments = data?.Assessments || [];
+        const assessed = assessments.length;
+
+        // Fetch demand amounts for all assessed properties in one bulk call
+        let amountMap = {};
+        if (assessed > 0) {
+          try {
+            const tenantId = assessments[0].tenantId;
+            const consumerCodes = assessments.map((a) => a.propertyId).join(",");
+            const demandResp = await Digit.PaymentService.demandSearch(tenantId, consumerCodes, "PT");
+            (demandResp?.Demands || []).forEach((d) => {
+              const total = (d.demandDetails || []).reduce((sum, dd) => sum + (dd.taxAmount || 0), 0);
+              const paid = (d.demandDetails || []).reduce((sum, dd) => sum + (dd.collectionAmount || 0), 0);
+              amountMap[d.consumerCode] = {
+                totalAmount: total,
+                balanceDue: Math.max(0, total - paid),
+                demandDetails: d.demandDetails || [],
+              };
+            });
+          } catch (_) {
+            // Amount fetch failed — still show table without amounts
+          }
         }
-        setPayload(payload)
-        assessmentMutate(
-            { assessmentYear:_data?.status?.code,
-                tenantId:_data?.creationReason?.code
-            },
-            {
-              onError: (error, variables) => {
-                console.log("error:123 ",error)
-                setShowToast({ key: "error", action: error?.response?.data?.Errors[0]?.message || error.message, error : {  message:error?.response?.data?.Errors[0]?.code || error.message } });
-                setTimeout(closeToast, 5000);
-              },
-              onSuccess: (data, variables) => {
-                sessionStorage.setItem("IsPTAccessDone", data?.Assessments?.[0]?.auditDetails?.lastModifiedTime);
-              console.log("success",data)
-                
-              },
-            }
-          );
-        // var fromDate = new Date(_data?.fromDate)
-        // fromDate?.setSeconds(fromDate?.getSeconds() - 19800 )
-        // var toDate = new Date(_data?.toDate)
-        // toDate?.setSeconds(toDate?.getSeconds() + 86399 - 19800)
-        // const data = {
-        //     ..._data,
-        //     ...(_data.toDate ? {toDate: toDate?.getTime()} : {}),
-        //     ...(_data.fromDate ? {fromDate: fromDate?.getTime()} : {})
-        // }
 
-        // let payload = Object.keys(data).filter( k => data[k] ).reduce( (acc, key) => ({...acc,  [key]: typeof data[key] === "object" ? data[key].code : data[key] }), {} );
-        // if(Object.entries(payload).length>0 && !payload.acknowledgementIds && !payload.creationReason && !payload.fromDate && !payload.mobileNumber && !payload.propertyIds && !payload.status && !payload.toDate)
-        // setShowToast({ warning: true, label: "ERR_PT_FILL_VALID_FIELDS" });
-        // else if(Object.entries(payload).length>0 && (payload.creationReason || payload.status ) && (!payload.acknowledgementIds && !payload.fromDate && !payload.mobileNumber && !payload.propertyIds && !payload.toDate))
-        // setShowToast({ warning: true, label: "ERR_PROVIDE_MORE_PARAM_WITH_TYPE_STATUS" });
-        // else if(Object.entries(payload).length>0 && (payload.fromDate && !payload.toDate) || (!payload.fromDate && payload.toDate))
-        // setShowToast({ warning: true, label: "ERR_PROVIDE_BOTH_FORM_TO_DATE" });
-        // else
-        // setPayload(payload)
-    }
+        const enriched = assessments.map((a) => ({ ...a, ...(amountMap[a.propertyId] || {}) }));
+        setResultInfo({ count: assessed, assessments: enriched });
+        setShowToast({ label: "PT_BULK_DEMAND_SUCCESS" });
+        setTimeout(closeToast, 5000);
+      },
+    });
+  }
 
-    const config = {
-        enabled: false
-    }
-
-    // const {isLoading, isSuccess,error,count, data: AssesmentData = {} } = Digit.Hooks.pt.UseAssessmentCreateUlb(
-    //     { tenantId,
-    //       filters: payload
-    //     },
-    //    config,
-
-    //   );
-      const { isLoading, isSuccess,error,count, mutate: assessmentMutate } = Digit.Hooks.pt.UseAssessmentCreateUlb("pg.citya");
-      const { isLoading: financialYearsLoading, data: financialYearsData } = Digit.Hooks.pt.useMDMS(
-        tenantId,
-        "pt",
-        "FINANCIAL_YEARLS",
-        {},
-        {
-          details: {
-            tenantId: Digit.ULBService.getStateId(),
-            moduleDetails: [{ moduleName: "egf-master", masterDetails: [{ name: "FinancialYear", filter: "[?(@.module == 'PT')]" }] }],
-          },
-        }
-      );
-      console.log("mutate",assessmentMutate)
-    return <React.Fragment>
-        <UlbAssesmentSearch t={t} isLoading={isLoading} tenantId={tenantId} setShowToast={setShowToast} onSubmit={onSubmit} data={  isSuccess && !isLoading ? (searchReult.length>0? searchReult : { display: "ES_COMMON_NO_DATA" } ):""} count={count} financialYearsData={financialYearsData} /> 
-        {showToast && (
+  return (
+    <React.Fragment>
+      <UlbAssesmentSearch
+        t={t}
+        isLoading={isLoading}
+        onSubmit={onSubmit}
+        resultInfo={resultInfo}
+        setShowToast={setShowToast}
+      />
+      {showToast && (
         <Toast
-          error={showToast.error}
-          warning={showToast.warning}
+          error={showToast.key === "error"}
+          warning={showToast.key === "warning"}
           label={t(showToast.label)}
           isDleteBtn={true}
-          onClose={() => {
-            setShowToast(null);
-          }}
+          onClose={closeToast}
         />
       )}
     </React.Fragment>
-
-}
+  );
+};
 
 export default UlbAssesment
