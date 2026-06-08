@@ -163,8 +163,14 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   }
   console.log("allCities",allCities)
   const [cityCode, setCityCode] = useState();
-  const [formValue, setFormValue] = useState();
   const [errorShown, seterrorShown] = useState(false);
+  const [formCity, setFormCity] = useState(null);
+  const [formLocality, setFormLocality] = useState(null);
+  const [formMobile, setFormMobile] = useState("");
+  const [formPropertyId, setFormPropertyId] = useState("");
+  const [formOldPropertyId, setFormOldPropertyId] = useState("");
+  const [formDoorNo, setFormDoorNo] = useState("");
+  const [formOwnerName, setFormOwnerName] = useState("");
   let isMobile = window.Digit.Utils.browser.isMobile();
   const { data: propertyData, isLoading: propertyDataLoading, error, isSuccess, billData } = Digit.Hooks.pt.usePropertySearchWithDue({
     tenantId: searchData?.city,
@@ -454,6 +460,30 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
     },
   ];
 
+  const handleModeChange = (newMode) => {
+    setFormCity(null);
+    setFormLocality(null);
+    setCityCode(undefined);
+    setFormMobile("");
+    setFormPropertyId("");
+    setFormOldPropertyId("");
+    setFormDoorNo("");
+    setFormOwnerName("");
+    history.replace(`${history.location.pathname}?action=${newMode}`);
+  };
+
+  const handleSubmit = () => {
+    onPropertySearch({
+      city: formCity,
+      locality: formLocality,
+      mobileNumber: formMobile,
+      propertyIds: formPropertyId,
+      oldPropertyId: formOldPropertyId,
+      doorNumber: formDoorNo,
+      name: formOwnerName,
+    });
+  };
+
   const onPropertySearch = async (data) => {
     if (
       ptSearchConfig?.maxResultValidation &&
@@ -540,36 +570,6 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
 
     return;
   };
- const onFormValueChange = (setValue, data, formState) => {
-    const mobileNumberLength = data?.[mobileNumber.name]?.length;
-    const oldPropId = data?.[oldProperty.name];
-    const propId = data?.[property.name];
-    const city = data?.city || allCities[0];
-console.log("citycity",city)
-setCityCode(city.code);
-    // if ((city!=null && Object.keys(city).length !=0) && !(mobileNumberLength > 0 || oldPropId!="" || propId!="")){
-    //   setShowToast({ warning: true, label: "ERR_PT_FILL_VALID_FIELDS" });
-    // }
-
-    // if (mobileNumberLength > 0 || oldPropId!="" || propId!="") {
-    // setShowToast(null);
-    // }
-    // if (city!=null && Object.keys(city).length !=0 && (mobileNumberLength > 0 || oldPropId!="" || propId!="")){
-    //   setShowToast(null)
-    // }
-    const locality = data?.locality;
-    if (city?.code !== cityCode) {
-      setCityCode(city?.code);
-    }
-
-    if (!_.isEqual(data, formValue)) {
-      setFormValue(data);
-    }
-
-    if (!locality || !city) {
-      return;
-    }
-  };
 
   if (isLoading) {
     return <Loader />;
@@ -636,47 +636,388 @@ setCityCode(city.code);
   if (error) {
     !showToast && setShowToast({ error: true, label: error?.response?.data?.Errors?.[0]?.code || error });
   }
-  if (action == 1) {
-    config[0].body = [...config[0].body1];
-  }
+
+  // ── Reusable styled input ──
+  const inputStyle = {
+    width: "100%",
+    padding: "11px 14px",
+    border: "1.5px solid #e5e7eb",
+    borderRadius: "9px",
+    fontSize: "14px",
+    color: "#1a2b49",
+    background: "#fafbfc",
+    boxSizing: "border-box",
+    outline: "none",
+    fontFamily: "inherit",
+    transition: "border-color 0.15s, box-shadow 0.15s",
+  };
+  const inputFocus = (e) => {
+    e.target.style.borderColor = "#f47738";
+    e.target.style.boxShadow = "0 0 0 3px rgba(244,119,56,0.10)";
+    e.target.style.background = "#fff";
+  };
+  const inputBlur = (e) => {
+    e.target.style.borderColor = "#e5e7eb";
+    e.target.style.boxShadow = "none";
+    e.target.style.background = "#fafbfc";
+  };
+
+  const FieldLabel = ({ text }) => (
+    <div style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.45px", marginBottom: "7px" }}>
+      {text}
+    </div>
+  );
+
+  const StepBadge = ({ n }) => (
+    <span style={{ width: "22px", height: "22px", borderRadius: "7px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "11px", fontWeight: "800", flexShrink: 0 }}>
+      {n}
+    </span>
+  );
+
+  const SectionHeader = ({ step, title, required }) => (
+    <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "16px" }}>
+      <StepBadge n={step} />
+      <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151", letterSpacing: "0.2px" }}>
+        {title}
+        {required && <span style={{ color: "#ef4444", marginLeft: "3px" }}>*</span>}
+      </span>
+    </div>
+  );
+
+  const sectionCard = {
+    background: "#fff",
+    borderRadius: "14px",
+    border: "1px solid #eaedf3",
+    padding: "20px 24px",
+    boxShadow: "0 1px 6px rgba(26,43,73,0.05)",
+  };
+
+  const currentAction = parseInt(action);
+
+  const getBottomLink = () => {
+    if (window.location.href.includes("/obps/bpa/") && onSkip) {
+      return (
+        <button type="button" onClick={() => onSkip()}
+          style={{ padding: "8px 16px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}>
+          {t("CORE_COMMON_SKIP_CONTINUE")}
+        </button>
+      );
+    }
+    if (window.location.href.includes("/obps/bpa/")) {
+      return (
+        <Link to={"/suda-ui/citizen/obps/bpa/building_plan_scrutiny/new_construction/location"} style={{ textDecoration: "none" }}>
+          <button type="button" style={{ padding: "8px 16px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}>
+            {t("CORE_COMMON_SKIP_CONTINUE")}
+          </button>
+        </Link>
+      );
+    }
+    if (window.location.href.includes("/fsm/new-application/")) {
+      return (
+        <Link to={"/suda-ui/citizen/fsm/new-application/property-type"} style={{ textDecoration: "none" }}>
+          <button type="button" style={{ padding: "8px 16px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}>
+            {t("CORE_COMMON_SKIP_CONTINUE")}
+          </button>
+        </Link>
+      );
+    }
+    const registerPath = "/suda-ui/citizen/pt/property/new-application/info";
+    return (
+      <Link to={registerPath} style={{ textDecoration: "none", flexShrink: 0 }}>
+        <button type="button" style={{ padding: "8px 16px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}>
+          {t("CPT_REG_NEW_PROPERTY")}
+        </button>
+      </Link>
+    );
+  };
 
   return (
-    <div style={{ marginTop: "16px", marginBottom: "16px" ,backgroundColor:"white", maxWidth:"960px"}}>
-      <FormComposer
-        onSubmit={onPropertySearch}
-        noBoxShadow
-        inline
-        config={config}
-        label={propsConfig.texts.submitButtonLabel}
-        heading={t(propsConfig.texts.header)}
-        text={t(propsConfig.texts.text)}
-        headingStyle={{ fontSize: "32px", marginBottom: "16px", fontFamily: "Roboto Condensed,sans-serif" }}
-        onFormValueChange={onFormValueChange}
-        cardStyle={{marginBottom:"0",maxWidth:"960px"}}
-      ></FormComposer>
-       <div style={{display:"flex"}}>
- 
-      {window.location.href.includes("/obps/bpa/") && onSkip ? (
-        <span 
-          className="link" 
-          style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px", cursor:"pointer"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px", cursor:"pointer"}}
-          onClick={() => {
-            console.log("Skip button clicked - calling onSkip()");
-            onSkip();
+    <div style={{ minHeight: "100vh", background: "#f5f6fa" }}>
+
+      {/* ── Top Hero Banner ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #ff8c42 0%, #f47738 50%, #d44f0a 100%)",
+        padding: isMobile ? "24px 20px 28px" : "28px 32px 32px",
+        position: "relative",
+        overflow: "hidden",
+      }}>
+        <div style={{ position: "absolute", right: "-60px", top: "-60px", width: "220px", height: "220px", borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none" }} />
+        <div style={{ position: "absolute", left: "-50px", bottom: "-50px", width: "180px", height: "180px", borderRadius: "50%", background: "rgba(0,0,0,0.08)", pointerEvents: "none" }} />
+
+        <div style={{ position: "relative", display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
+          <div>
+            <div style={{ fontSize: "clamp(20px, 2.5vw, 28px)", fontWeight: "800", color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.2 }}>
+              {t("SEARCH_PROPERTY")}
+            </div>
+            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", marginTop: "4px" }}>
+              {t("CS_PT_HOME_SEARCH_RESULTS_DESC")}
+            </div>
+          </div>
+        </div>
+        <div style={{ position: "relative", display: "flex", gap: "10px", flexWrap: "wrap" }}>
+          {[
+            { svg: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>, text: "Search by mobile, ID or owner name" },
+          ].map((f, i) => (
+            <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "5px 12px", background: "rgba(255,255,255,0.14)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.2)" }}>
+              {f.svg}
+              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.92)", fontWeight: "500" }}>{f.text}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Form Body ── */}
+      <div style={{ padding: isMobile ? "20px 16px 48px" : "24px 32px 56px" }}>
+
+        {/* ── Search Mode Toggle ── */}
+        <div style={{ ...sectionCard, marginBottom: "16px" }}>
+          <div style={{ fontSize: "11px", fontWeight: "700", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "12px" }}>
+            {t("PT_HOME_SEARCH_PROPERTY_BY")}
+          </div>
+          <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+            {[
+              {
+                code: 0,
+                label: t("PT_KNOW_PTID"),
+                icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>,
+              },
+              {
+                code: 1,
+                label: t("PT_SEARCH_DOOR_NO"),
+                icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
+              },
+            ].map((opt) => {
+              const isActive = currentAction === opt.code;
+              return (
+                <button
+                  key={opt.code}
+                  type="button"
+                  onClick={() => { if (!isActive) handleModeChange(opt.code); }}
+                  style={{
+                    flex: 1,
+                    minWidth: "160px",
+                    padding: "13px 20px",
+                    borderRadius: "10px",
+                    border: isActive ? "2px solid #f47738" : "2px solid #e5e7eb",
+                    background: isActive ? "linear-gradient(135deg, #fff8f4 0%, #fff3ec 100%)" : "#f9fafb",
+                    color: isActive ? "#d44f0a" : "#6b7280",
+                    fontWeight: "700",
+                    fontSize: "13px",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    transition: "all 0.15s",
+                    boxShadow: isActive ? "0 2px 10px rgba(244,119,56,0.18)" : "none",
+                  }}
+                >
+                  {opt.icon}
+                  {opt.label}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── City (+ Locality for mode 1) ── */}
+        <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : currentAction === 1 ? "1fr 1fr" : "1fr", gap: "16px", marginBottom: "16px" }}>
+
+          {/* City */}
+          <div style={sectionCard}>
+            <SectionHeader step="1" title={t("PT_SELECT_CITY")} required />
+            <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "10px" }}>
+              {t("CS_LOCATION_SUBTEXT")}
+            </div>
+            <Dropdown
+              t={t}
+              isMandatory
+              option={allCities}
+              optionKey="i18nKey"
+              selected={formCity}
+              optionCardStyles={{ maxHeight: "220px", overflowY: "auto", zIndex: 20 }}
+              select={(d) => {
+                Digit.LocalizationService.getLocale({
+                  modules: [`rainmaker-${d?.code}`],
+                  locale: Digit.StoreData.getCurrentLanguage(),
+                  tenantId: `${d?.code}`,
+                });
+                if (d?.code !== cityCode) setFormLocality(null);
+                setCityCode(d?.code);
+                setFormCity(d);
+              }}
+            />
+          </div>
+
+          {/* Locality — mode 1 only */}
+          {currentAction === 1 && (
+            <div style={sectionCard}>
+              <SectionHeader step="2" title={t("PT_SELECT_LOCALITY")} required />
+              <Localities
+                selectLocality={(d) => setFormLocality(d)}
+                tenantId={cityCode}
+                boundaryType="revenue"
+                keepNull={false}
+                optionCardStyles={{ maxHeight: "220px", overflowY: "auto", zIndex: 20 }}
+                selected={formLocality}
+                disable={!cityCode}
+                disableLoader={true}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* ── Additional fields ── */}
+        <div style={{ ...sectionCard, marginBottom: "20px" }}>
+          <SectionHeader
+            step={currentAction === 1 ? "3" : "2"}
+            title={t("PT_PROVIDE_ONE_MORE_PARAM")}
+            required={false}
+          />
+
+          {currentAction === 0 ? (
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "18px" }}>
+              {/* Mobile */}
+              <div>
+                <FieldLabel text={t(mobileNumber.label)} />
+                <input
+                  type="tel"
+                  value={formMobile}
+                  onChange={(e) => setFormMobile(e.target.value)}
+                  placeholder="e.g. 9876543210"
+                  style={inputStyle}
+                  onFocus={inputFocus}
+                  onBlur={inputBlur}
+                />
+              </div>
+              {/* Property ID */}
+              <div>
+                <div style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.45px", marginBottom: "7px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  {t(property.label)}
+                  <div className="tooltip" style={{ display: "inline-flex", cursor: "help" }}>
+                    <InfoBannerIcon fill="#9ca3af" />
+                    <span className="tooltiptext" style={{ width: "160px", fontSize: "12px" }}>
+                      {t(property.description) + " PG-PT-xxxx-xxxxxx"}
+                    </span>
+                  </div>
+                </div>
+                <input
+                  type="text"
+                  value={formPropertyId}
+                  onChange={(e) => setFormPropertyId(e.target.value)}
+                  placeholder="PG-PT-2024-01-01-000001"
+                  style={inputStyle}
+                  onFocus={inputFocus}
+                  onBlur={inputBlur}
+                />
+              </div>
+              {/* Old Property ID */}
+              <div>
+                <FieldLabel text={t(oldProperty.label)} />
+                <input
+                  type="text"
+                  value={formOldPropertyId}
+                  onChange={(e) => setFormOldPropertyId(e.target.value)}
+                  placeholder=""
+                  style={inputStyle}
+                  onFocus={inputFocus}
+                  onBlur={inputBlur}
+                />
+              </div>
+            </div>
+          ) : (
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", gap: "18px" }}>
+              {/* Door No */}
+              <div>
+                <FieldLabel text={t(doorNumber.label)} />
+                <input
+                  type="text"
+                  value={formDoorNo}
+                  onChange={(e) => setFormDoorNo(e.target.value)}
+                  placeholder=""
+                  style={inputStyle}
+                  onFocus={inputFocus}
+                  onBlur={inputBlur}
+                />
+              </div>
+              {/* Owner Name */}
+              <div>
+                <FieldLabel text={t(name.label)} />
+                <input
+                  type="text"
+                  value={formOwnerName}
+                  onChange={(e) => setFormOwnerName(e.target.value)}
+                  placeholder=""
+                  style={inputStyle}
+                  onFocus={inputFocus}
+                  onBlur={inputBlur}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ── Search Button ── */}
+        <button
+          type="button"
+          onClick={handleSubmit}
+          disabled={propertyDataLoading}
+          style={{
+            width: "100%",
+            padding: "15px 32px",
+            background: propertyDataLoading
+              ? "#d1d5db"
+              : "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)",
+            border: "none",
+            borderRadius: "12px",
+            color: "#fff",
+            fontSize: "15px",
+            fontWeight: "700",
+            cursor: propertyDataLoading ? "not-allowed" : "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "10px",
+            boxShadow: propertyDataLoading ? "none" : "0 4px 20px rgba(244,119,56,0.35)",
+            marginBottom: "20px",
+            letterSpacing: "0.3px",
+            transition: "opacity 0.15s",
           }}
         >
-          <span>{t("CORE_COMMON_SKIP_CONTINUE")}</span>
-        </span>
-      ) : window.location.href.includes("/obps/bpa/") ?<span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
-        <Link to={"/suda-ui/citizen/obps/bpa/building_plan_scrutiny/new_construction/location"}>{t("CORE_COMMON_SKIP_CONTINUE")}</Link>
-      </span>: window.location.href.includes("/fsm/new-application/") ? <span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
-        <Link to={"/suda-ui/citizen/fsm/new-application/property-type"}>{t("CORE_COMMON_SKIP_CONTINUE")}</Link>
-      </span>:
-           <span className="link" style={isMobile ? {display:"flex", justifyContent:"center",paddingBottom:"16px"} : {display:"flex", justifyContent:"left",paddingBottom:"16px", marginLeft: "45px"}}>
-       
-           <Link to={window.location.href.includes("/ws/")?"/suda-ui/citizen/ws/create-application/create-property" : window.location.href.includes("/tl/tradelicence/") ? "/suda-ui/citizen/tl/tradelicence/new-application/create-property":window.location.href.includes("/fsm/")? "/suda-ui/citizen/fsm/new-application/create-property":"/suda-ui/citizen/commonpt/property/new-application"}>{t("CPT_REG_NEW_PROPERTY")}</Link>
-         </span>}
+          {propertyDataLoading ? (
+            <span>{t("PT_COMMON_TABLE_COL_ACTION")}</span>
+          ) : (
+            <React.Fragment>
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+              {t(propsConfig.texts.submitButtonLabel)}
+            </React.Fragment>
+          )}
+        </button>
+
+        {/* ── Register / Skip Row ── */}
+        <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #eaedf3", padding: "14px 20px", display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap", boxShadow: "0 1px 8px rgba(26,43,73,0.05)" }}>
+          <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#fff5ef", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+            </svg>
+          </div>
+          <div style={{ flex: 1 }}>
+            {window.location.href.includes("/obps/bpa/") || window.location.href.includes("/fsm/new-application/") ? (
+              <span style={{ fontSize: "13px", fontWeight: "600", color: "#374151" }}>{t("CORE_COMMON_SKIP_CONTINUE")}</span>
+            ) : (
+              <React.Fragment>
+                <span style={{ fontSize: "13px", fontWeight: "600", color: "#374151" }}>{t("PT_REGISTER_NEW_PROPERTY_MSG")}</span>
+                <span style={{ fontSize: "12px", color: "#9ca3af", marginLeft: "6px" }}>{t("PT_HOME_NEW_APP_DESC")}</span>
+              </React.Fragment>
+            )}
+          </div>
+          {getBottomLink()}
+        </div>
+
       </div>
+
       {showToast && (
         <Toast
           isDleteBtn={true}

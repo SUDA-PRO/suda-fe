@@ -1,5 +1,6 @@
 import {
-  CardHeader, FormStep, LinkButton, Loader, Row, StatusTable, SubmitBar
+  CardHeader,
+  FormStep, LinkButton, Loader, Row, StatusTable
 } from "@upyog/digit-ui-react-components";
 import React from "react";
 import { Link } from "react-router-dom";
@@ -84,6 +85,24 @@ const PropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         {propertyDetails && propertyDetails?.Properties.length && (
           <React.Fragment>
             <CardHeader>{t("PT_DETAILS")}</CardHeader>
+
+            {/* ── Property Details Card ── */}
+            <div style={{
+              background: "#ffffff",
+              borderRadius: "10px",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              padding: "24px 28px",
+              marginBottom: "24px",
+              border: "1px solid #e8ecf0",
+              fontFamily: "'Roboto', sans-serif",
+            }}>
+              <div style={{
+                fontSize: "15px", fontWeight: "700", color: "#1a2b49",
+                marginBottom: "20px", paddingBottom: "10px",
+                borderBottom: "2px solid #f47738", letterSpacing: "0.3px",
+              }}>
+                🏠 {t("PT_DETAILS")}
+              </div>
             <StatusTable>
               <Row className="border-none" label={t(`PROPERTY_ID`)} text={propertyDetails?.Properties[0]?.propertyId} />
               <Row className="border-none" label={t(`OWNER_NAME`)} text={reversedOwners?.[0]?.name} />
@@ -119,7 +138,28 @@ const PropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 </Link>
               </div>
             </StatusTable>
-            <SubmitBar style={{ marginTop: "10px" }} onSubmit={goNext} label={t("CS_COMMON_NEXT")} />
+            </div>
+
+            {/* ── Action button ── */}
+            <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
+              <button
+                onClick={goNext}
+                style={{
+                  flex: 1, minWidth: "180px",
+                  background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
+                  color: "#fff", border: "none",
+                  borderRadius: "8px", padding: "14px 28px",
+                  fontSize: "15px", fontWeight: "700",
+                  cursor: "pointer", letterSpacing: "0.3px",
+                  boxShadow: "0 4px 12px rgba(244,119,56,0.35)",
+                  transition: "all 0.2s",
+                  fontFamily: "'Roboto', sans-serif",
+                }}
+              >
+                {t("CS_COMMON_NEXT")} →
+              </button>
+            </div>
+
           </React.Fragment>
         )}
       </FormStep>
