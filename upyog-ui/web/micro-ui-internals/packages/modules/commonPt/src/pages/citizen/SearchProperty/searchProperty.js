@@ -23,6 +23,14 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   const { action = 0 } = Digit.Hooks.useQueryParams();
   const [searchData, setSearchData] = useState({});
   const [showToast, setShowToast] = useState(null);
+  const [uiCity, setUiCity] = useState(null);
+  const [uiLocality, setUiLocality] = useState(null);
+  const [uiCityCode, setUiCityCode] = useState(undefined);
+  const [uiMobile, setUiMobile] = useState("");
+  const [uiPropertyId, setUiPropertyId] = useState("");
+  const [uiOldPropertyId, setUiOldPropertyId] = useState("");
+  const [uiDoorNo, setUiDoorNo] = useState("");
+  const [uiOwnerName, setUiOwnerName] = useState("");
   
   // Debug: Log if onSkip is provided
   console.log("SearchProperty - onSkip prop:", onSkip ? "Provided" : "Not provided");
@@ -1019,15 +1027,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
       </div>
 
       {showToast && (
-        <Toast
-          isDleteBtn={true}
-          error={showToast.error}
-          warning={showToast.warning}
-          label={t(showToast.label)}
-          onClose={() => {
-            setShowToast(null);
-          }}
-        />
+        <Toast isDleteBtn={true} error={showToast.error} warning={showToast.warning} label={t(showToast.label)} onClose={() => setShowToast(null)} />
       )}
     </div>
   );

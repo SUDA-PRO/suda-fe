@@ -20,6 +20,7 @@ RUN cd web/ \
     && node -e 'console.log(v8.getHeapStatistics().heap_size_limit/(20480*20480))' \
     &&  ./install-deps.sh \
     && yarn install \
+    && cp micro-ui-internals/packages/css/dist/index.css node_modules/@upyog-niua/upyog-css/dist/index.css \
     && yarn build 
     
 

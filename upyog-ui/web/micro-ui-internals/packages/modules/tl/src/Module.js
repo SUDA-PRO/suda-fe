@@ -62,6 +62,7 @@ import TLTradeUnitsEmployeeInitial from "./pageComponents/TLTradeUnitsEmployeeIn
 import CommonRedirect from "./pageComponents/CommonRedirect"
 import CitizenApp from "./pages/citizen";
 import EmployeeApp from "./pages/employee";
+import TLHomePage from "./pages/citizen/TLHome";
 
 export const TLModule = ({ stateCode, userType, tenants }) => {
   const { path, url } = useRouteMatch();
@@ -162,7 +163,8 @@ const componentsToRegister = {
   SelectOtherTradeDetails,
   SelectTradeUnitsInitial,
   TLTradeUnitsEmployeeInitial,
-  CommonRedirect
+  CommonRedirect,
+  TLHomePage
 };
 
 export const initTLComponents = () => {

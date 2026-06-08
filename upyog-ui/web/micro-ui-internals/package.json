@@ -17,6 +17,7 @@
     "packages/modules/obps",
     "packages/modules/ws",
     "packages/modules/mCollect",
+    "packages/modules/tl",
     "packages/modules/commonPt"
   ],
   "license": "MIT",
@@ -61,6 +62,7 @@
     "dev:vendor": "cd packages/modules/vendor && yarn start",
     "dev:pgrai": "cd packages/modules/pgrai && yarn start",
     "build": "run-p build:**",
+    "build:css": "cd packages/css && yarn build:prod",
     "build:libraries": "cd packages/libraries && yarn build",
     "buildD:asset": "cd packages/modules/asset && yarn build",
     "build:components": "cd packages/react-components && yarn build",

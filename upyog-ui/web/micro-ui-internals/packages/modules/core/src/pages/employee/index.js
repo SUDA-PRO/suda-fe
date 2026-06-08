@@ -10,6 +10,7 @@ import LanguageSelection from "./LanguageSelection";
 import EmployeeLogin from "./Login";
 import UserProfile from "../citizen/Home/UserProfile";
 import ErrorComponent from "../../components/ErrorComponent";
+import ERPFinance from "./ERPFinance";
 import { PrivateRoute, TopBar } from "@upyog/digit-ui-react-components";
 
 const userScreensExempted = ["user/profile", "user/error"];
@@ -186,6 +187,10 @@ const EmployeeApp = ({
                     </PrivateRoute>
                     <Route path={`${path}/user/error`}>
                       <ErrorComponent initData={initData} goToHome={() => { history.push("/suda-ui/employee"); }} />
+                    </Route>
+                    {/* Finance ERP — all services/* paths handled here via iframe POST */}
+                    <Route path={`${path}/services`}>
+                      <ERPFinance />
                     </Route>
                     <Route>
                       <AppModules stateCode={stateCode} userType="employee" modules={modules} appTenants={appTenants} />

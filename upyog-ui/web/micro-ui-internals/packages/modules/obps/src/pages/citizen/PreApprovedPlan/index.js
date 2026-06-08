@@ -81,6 +81,7 @@ const PreApprovedPlan=()=>{
       <Route path={`${path}/acknowledgement`}>
         <OBPSAcknowledgement data={params} onSuccess={onSuccess} />
       </Route>
+      <Redirect to={`${path}/${config.indexRoute}`} />
         </Switch>
 
         

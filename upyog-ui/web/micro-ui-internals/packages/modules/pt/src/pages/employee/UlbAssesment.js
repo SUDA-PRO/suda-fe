@@ -24,9 +24,33 @@ const UlbAssesment = ({ path }) => {
         });
         setTimeout(closeToast, 5000);
       },
-      onSuccess: (data) => {
-        const assessed = data?.Assessments?.length || 0;
-        setResultInfo({ count: assessed, assessments: data?.Assessments || [] });
+      onSuccess: async (data) => {
+        const assessments = data?.Assessments || [];
+        const assessed = assessments.length;
+
+        // Fetch demand amounts for all assessed properties in one bulk call
+        let amountMap = {};
+        if (assessed > 0) {
+          try {
+            const tenantId = assessments[0].tenantId;
+            const consumerCodes = assessments.map((a) => a.propertyId).join(",");
+            const demandResp = await Digit.PaymentService.demandSearch(tenantId, consumerCodes, "PT");
+            (demandResp?.Demands || []).forEach((d) => {
+              const total = (d.demandDetails || []).reduce((sum, dd) => sum + (dd.taxAmount || 0), 0);
+              const paid = (d.demandDetails || []).reduce((sum, dd) => sum + (dd.collectionAmount || 0), 0);
+              amountMap[d.consumerCode] = {
+                totalAmount: total,
+                balanceDue: Math.max(0, total - paid),
+                demandDetails: d.demandDetails || [],
+              };
+            });
+          } catch (_) {
+            // Amount fetch failed — still show table without amounts
+          }
+        }
+
+        const enriched = assessments.map((a) => ({ ...a, ...(amountMap[a.propertyId] || {}) }));
+        setResultInfo({ count: assessed, assessments: enriched });
         setShowToast({ label: "PT_BULK_DEMAND_SUCCESS" });
         setTimeout(closeToast, 5000);
       },
