@@ -42,7 +42,7 @@ const ApplicationDetails = () => {
   const { isLoading: auditDataLoading, isError: isAuditError, data: auditData } = Digit.Hooks.pt.usePropertySearch(
     {
       tenantId,
-      filters: { propertyIds: propertyId, audit: true },
+      filters: { acknowledgementIds: propertyId, audit: true },
     },
     { enabled: enableAudit, select: (data) => data.Properties?.filter((e) => e.status === "ACTIVE") }
   );
@@ -104,7 +104,7 @@ const ApplicationDetails = () => {
             {
               action: "VIEW_DETAILS",
               redirectionUrl: {
-                pathname: `/suda-ui/employee/pt/property-details/${propertyId}`,
+                pathname: `/suda-ui/employee/pt/property-details/${appDetailsToShow?.applicationData?.propertyId}`,
               },
               tenantId: Digit.ULBService.getStateId(),
             },
@@ -134,7 +134,7 @@ const ApplicationDetails = () => {
     appDetailsToShow?.applicationDetails?.unshift({
       values: [
         { title: "PT_PROPERTY_APPLICATION_NO", value: appDetailsToShow?.applicationData?.acknowldgementNumber },
-        { title: "PT_SEARCHPROPERTY_TABEL_PTUID", value: appDetailsToShow?.applicationData?.propertyId },
+        { title: "PT_SEARCHPROPERTY_TABEL_PTUID", value: appDetailsToShow?.applicationData?.propertyId || t("PT_PROPERTY_ID_PENDING_APPROVAL") },
         { title: "ES_APPLICATION_CHANNEL", value: `ES_APPLICATION_DETAILS_APPLICATION_CHANNEL_${appDetailsToShow?.applicationData?.channel}` },
       ],
     });

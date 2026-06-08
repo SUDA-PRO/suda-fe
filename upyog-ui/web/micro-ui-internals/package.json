@@ -9,6 +9,7 @@
     "packages/react-components",
     "packages/modules/core",
     "packages/modules/common",
+    "packages/modules/asset",
     "packages/modules/hrms",
     "packages/modules/dss",
     "packages/modules/engagement",

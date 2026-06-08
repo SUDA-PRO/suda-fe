@@ -157,7 +157,8 @@ const ScrutinyDetails = ({ onSelect, userType, formData, config }) => {
 
         const userInfo = Digit.UserService.getUser();
         const accountId = userInfo?.info?.uuid;
-        payload.tenantId = formData?.data?.bpaData?.bpaApprovalResponse?.[0]?.landInfo?.tenantId;
+        payload.tenantId = formData?.data?.bpaData?.bpaApprovalResponse?.[0]?.landInfo?.tenantId
+          || formData?.data?.bpaData?.bpaApprovalResponse?.[0]?.tenantId;
         payload.workflow = { action: "INITIATE", assignes : [userInfo?.info?.uuid] };
         payload.accountId = accountId;
         payload.documents = null;

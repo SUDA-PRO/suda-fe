@@ -322,7 +322,7 @@ export const PTSearch = {
     ];
   },
   applicationDetails: async (t, tenantId, propertyIds, userType, args) => {
-    const filter = { propertyIds, ...args };
+    const filter = { acknowledgementIds: propertyIds, ...args };
     const response = await PTSearch.application(tenantId, filter);
 
     return {
