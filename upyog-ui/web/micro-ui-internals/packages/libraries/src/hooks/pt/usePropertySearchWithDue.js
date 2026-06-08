@@ -31,7 +31,10 @@ const usePropertySearchWithDue = ({ tenantId, filters, auth = true, configs }) =
         locality: `${property?.tenantId?.replace(".", "_")?.toUpperCase()}_REVENUE_${property?.address?.locality?.code}`,
         owners: property?.owners,
         documents: property?.documents,
-        ownerNames: getOwnerNames(property)
+        ownerNames: getOwnerNames(property),
+        landArea: property?.landArea,
+        noOfFloors: property?.noOfFloors,
+        units: property?.units,
       };
     });
     data["ConsumerCodes"] = consumerCodes;
