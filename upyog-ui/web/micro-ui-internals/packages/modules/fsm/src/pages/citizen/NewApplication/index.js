@@ -32,14 +32,20 @@ const FileComplaint = ({ parentRoute }) => {
     }
   }, []);
 
-  const goNext = (skipStep) => {
+  const goNext = (skipStep, data) => {
     const currentPath = pathname.split("/").pop();
-    const { nextStep } = configs.find((routeObj) => routeObj.route === currentPath);
+    const currentRouteObj = configs.find((routeObj) => routeObj.route === currentPath);
+    if (!currentRouteObj) return;
+    let { nextStep } = currentRouteObj;
+    if (typeof nextStep === "object" && nextStep !== null) {
+      const selectedKey = data && Object.keys(data).length > 0 ? Object.values(data)[0]?.i18nKey : null;
+      nextStep = selectedKey && nextStep[selectedKey] ? nextStep[selectedKey] : Object.values(nextStep)[0];
+    }
     let redirectWithHistory = history.push;
     if (skipStep) {
       redirectWithHistory = history.replace;
     }
-    if (nextStep === null) {
+    if (nextStep === null || nextStep === undefined) {
       return redirectWithHistory(`${parentRoute}/new-application/check`);
     }
     redirectWithHistory(`${match.path}/${nextStep}`);
@@ -51,7 +57,7 @@ const FileComplaint = ({ parentRoute }) => {
 
   function handleSelect(key, data, skipStep) {
     setParams({ ...params, ...{ [key]: { ...params[key], ...data } }, ...{ source: "ONLINE" } });
-    goNext(skipStep);
+    goNext(skipStep, data);
   }
 
   const handleSkip = () => { };
@@ -62,12 +68,14 @@ const FileComplaint = ({ parentRoute }) => {
     setMutationHappened(true);
   };
 
-  if (isLoading) {
+  if (isLoading || !commonFields) {
     return <Loader />;
   }
 
   commonFields.forEach((obj) => {
-    config = config.concat(obj.body.filter((a) => !a.hideInCitizen));
+    if (obj.body) {
+      config = config.concat(obj.body.filter((a) => !a.hideInCitizen));
+    }
   });
 
   configs = [...config]
@@ -76,8 +84,10 @@ const FileComplaint = ({ parentRoute }) => {
   return (
     <Switch>
       {configs.map((routeObj, index) => {
+        if (!routeObj.route) return null;
         const { component, texts, inputs, key } = routeObj;
         const Component = typeof component === "string" ? Digit.ComponentRegistryService.getComponent(component) : component;
+        if (!Component) return null;
         return (
           <Route path={`${match.path}/${routeObj.route}`} key={index}>
             <Component config={{ texts, inputs, key }} onSelect={handleSelect} onSkip={handleSkip} t={t} formData={params} />

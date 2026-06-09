@@ -11,7 +11,6 @@ import {
   LinkButton,
   PDFSvg,
   EditIcon,
-  ViewsIcon,
   DeleteIcon,
 } from "@upyog/digit-ui-react-components";
 import { values } from "lodash";

@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
+import L from "leaflet";
 
 /**
  * PTMapPicker
@@ -124,6 +125,10 @@ out tags;`;
         city:        a.city || a.town || a.municipality || a.city_district || a.village || "",
         street:      a.road || a.pedestrian || a.footway || a.path || a.street || "",
         fullAddress: a.display_name || "",
+        // Pass coordinates so handleAddressResolve can use them for KML detection
+        // even before React state updates settle
+        _lat: pLat,
+        _lng: pLng,
       });
     } catch { /* silently ignore reverse geocode failures */ }
     finally { setReverseLoading(false); }
@@ -261,7 +266,7 @@ out tags;`;
     setSearchResults([]);
     setShowResults(false);
     if (!mapRef.current) return;
-    import("leaflet").then((L) => placeMarker(L, rLat, rLng));
+    placeMarker(L, rLat, rLng);
   };
 
   // Build a readable label from Photon feature properties
@@ -295,7 +300,7 @@ out tags;`;
       const gLng = position.coords.longitude;
       setGeolocating(false);
       if (!mapRef.current) return;
-      import("leaflet").then((L) => placeMarker(L, gLat, gLng));
+      placeMarker(L, gLat, gLng);
     };
 
     const onError = (err, retried) => {
@@ -351,7 +356,7 @@ out tags;`;
     // Avoid double-init (React StrictMode / HMR)
     if (mapRef.current) return;
 
-    import("leaflet").then((L) => {
+    (() => {
       // Fix default icon path broken by bundlers
       delete L.Icon.Default.prototype._getIconUrl;
       L.Icon.Default.mergeOptions({
@@ -404,7 +409,7 @@ out tags;`;
       });
 
       mapRef.current = map;
-    });
+    })();
 
     return () => {
       if (mapRef.current) {
@@ -419,7 +424,7 @@ out tags;`;
   /* ── Sync external lat/lng changes (e.g. form restore) ── */
   useEffect(() => {
     if (!mapRef.current || !lat || !lng) return;
-    import("leaflet").then((L) => {
+    (() => {
       const pos = [parseFloat(lat), parseFloat(lng)];
       if (markerRef.current) {
         markerRef.current.setLatLng(pos);
@@ -439,7 +444,7 @@ out tags;`;
       }
       mapRef.current.setView(pos, PLACED_ZOOM);
       setPinLabel(`${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}`);
-    });
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lat, lng]);
 

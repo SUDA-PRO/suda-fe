@@ -73,7 +73,7 @@ const SelectTripNo = ({ config, formData, t, onSelect, userType }) => {
     }
   };
 
-  if (isLoading || vehicleMenu.length === 0) {
+  if (isLoading || isDsoLoading || isVehicleMenuLoading) {
     return <Loader />;
   }
 

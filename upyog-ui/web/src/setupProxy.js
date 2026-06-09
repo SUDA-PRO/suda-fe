@@ -1,9 +1,32 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
+const path = require("path");
+const fs   = require("fs");
+
 const createProxy = createProxyMiddleware({
   target: process.env.REACT_APP_PROXY_URL,
   changeOrigin: true,
 });
+
 module.exports = function (app) {
+  // ── Local dev: serve kml-geo files at the PUBLIC_URL-prefixed path ──────
+  // CRA 4 sets PUBLIC_URL="/suda-ui" (from homepage) even in dev, but the
+  // dev server serves public/ at "/" with no prefix.  This middleware serves
+  // /suda-ui/kml-geo/* directly from public/kml-geo/* so fetches succeed.
+  const kmlGeoDir = path.join(__dirname, "..", "public", "kml-geo");
+  app.use("/suda-ui/kml-geo", function (req, res, next) {
+    const filePath = path.join(kmlGeoDir, decodeURIComponent(req.path));
+    try {
+      const stat = fs.statSync(filePath);
+      if (stat.isFile()) {
+        const content = fs.readFileSync(filePath);
+        res.setHeader("Content-Type", "application/json; charset=utf-8");
+        res.setHeader("Cache-Control", "public, max-age=86400");
+        return res.end(content);
+      }
+    } catch (_) {}
+    next();
+  });
+
   [
     "/egov-mdms-service",
     "/egov-location",

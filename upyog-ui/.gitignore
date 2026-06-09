@@ -30,3 +30,7 @@ dist
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+
+# GeoJSON source files — data is bundled in geoDataBundle.js
+web/public/kml-geo/
+web/scripts/

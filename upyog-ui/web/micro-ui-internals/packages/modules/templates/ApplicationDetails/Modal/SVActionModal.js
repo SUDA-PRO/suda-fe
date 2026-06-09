@@ -1,5 +1,5 @@
 import { Loader, Modal, FormComposer } from "@upyog/digit-ui-react-components";
-import React, { useState, useEffect, act } from "react";
+import React, { useState, useEffect } from "react";
 import { configSVApproverApplication } from "../config";
 
 /* This component, ActionModal, is responsible for displaying a modal dialog 
