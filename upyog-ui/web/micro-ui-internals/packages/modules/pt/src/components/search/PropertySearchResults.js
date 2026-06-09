@@ -123,6 +123,37 @@ const SearchPTID = ({ tenantId, t, payload, showToast, setShowToast,ptSearchConf
         Cell: ({ row }) => GetCell(row.original.owners.additionalDetails!==null ? `${row?.original?.owners.sort((a,b)=>a?.additionalDetails?.ownerSequence-b?.additionalDetails?.ownerSequence).map((ob) => ob.name).join(",")}`: `${row.original.owners.map((ob) => ob.name).join(",")}` || ""),
       },
       {
+        Header: t("PT_COMMON_TABLE_COL_FATHER_HUSBAND_NAME"),
+        disableSortBy: true,
+        Cell: ({ row }) => GetCell(
+          row.original.owners
+            ?.map((o) => o.fatherOrHusbandName)
+            .filter(Boolean)
+            .join(", ") || t("PT_NA")
+        ),
+      },
+      {
+        Header: t("PT_COMMON_TABLE_COL_AREA"),
+        disableSortBy: true,
+        Cell: ({ row }) => GetCell(row.original.landArea != null ? row.original.landArea : t("PT_NA")),
+      },
+      {
+        Header: t("PT_COMMON_TABLE_COL_TOTAL_BUILDUP_AREA"),
+        disableSortBy: true,
+        Cell: ({ row }) => {
+          const total = (row.original.units || []).reduce(
+            (sum, u) => sum + (u?.constructionDetail?.builtUpArea || 0),
+            0
+          );
+          return GetCell(total > 0 ? total : t("PT_NA"));
+        },
+      },
+      {
+        Header: t("PT_COMMON_TABLE_COL_NO_OF_FLOORS"),
+        disableSortBy: true,
+        Cell: ({ row }) => GetCell(row.original.noOfFloors != null ? row.original.noOfFloors : t("PT_NA")),
+      },
+      {
         Header: t("ES_INBOX_LOCALITY"),
         disableSortBy: true,
         Cell: ({ row }) => GetCell(t(row.original.locality) || ""),
@@ -201,6 +232,8 @@ const SearchPTID = ({ tenantId, t, payload, showToast, setShowToast,ptSearchConf
               },
             };
           }}
+          styles={{ width: "max-content" }}
+          customTableWrapperClassName="dss-table-wrapper"
           manualPagination={false}
           disableSort={true}
         />
