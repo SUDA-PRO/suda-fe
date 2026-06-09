@@ -170,7 +170,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
   const firstName = userName.split(" ")[0];
 
   const paymentModule = modules.filter(({ code }) => code === "Payment")[0];
-  const moduleArr = modules.filter(({ code }) => code !== "Payment");
+  const moduleArr = modules.filter(({ code }) => code !== "Payment" && code !== "FSM");
   const moduleArray = [paymentModule, ...moduleArr];
 
   if (isLoading) {
