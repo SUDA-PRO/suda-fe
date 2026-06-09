@@ -21,6 +21,7 @@ const EditForm = ({ applicationData }) => {
 let propertyStructureDetails= {"usageCategory":"","structureType":applicationData?.additionalDetails?.structureType,"ageOfProperty":applicationData?.additionalDetails?.ageOfProperty}
   const defaultValues = {
     originalData: applicationData,
+    ownershipCategory: applicationData?.ownershipCategory,
     address: applicationData?.address,
     propertyStructureDetails:propertyStructureDetails,
     owners: applicationData?.owners.map((owner) => ({
@@ -61,6 +62,7 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
         ...applicationData?.address,
         ...data?.address,
         city: data?.address?.city?.name,
+        roadType: data?.address?.roadType?.code || data?.address?.roadType || applicationData?.address?.roadType || null,
       },
       propertyType: data?.PropertyType?.code,
       creationReason: state?.workflow?.businessService === "PT.UPDATE" || (applicationData?.documents == null )  ? "UPDATE" : applicationData?.creationReason,
@@ -86,7 +88,13 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
           return { ...unit, active: true };
         }) || []),
       ],
-      workflow: state?.workflow,
+      owners: (data?.owners || applicationData?.owners)?.map((o) => ({
+        ...o,
+        gender: o?.gender?.code || o?.gender || null,
+        ownerType: o?.ownerType?.code || o?.ownerType || null,
+        relationship: o?.relationship?.code || o?.relationship || null,
+      })),
+      workflow: state?.workflow || { action: "OPEN", businessService: "PT.UPDATE", moduleName: "PT", tenantId: applicationData?.tenantId },
       applicationStatus: "UPDATE",
     };
     if (state?.workflow?.action === "OPEN") {
@@ -300,13 +308,6 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
                 "isMandatory": true,
                 "component": "Electricity",
                 "key": "electricity",
-                "withoutLabel": true
-            },
-            {
-                "type": "component",
-                "isMandatory": true,
-                "component": "UID",
-                "key": "uid",
                 "withoutLabel": true
             },
                         {
@@ -720,9 +721,10 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
   ]
   return (
     <FormComposer
-      heading={t("PT_UPDATE_PROPERTY")}
       isDisabled={!canSubmit}
       label={t("ES_COMMON_APPLICATION_SUBMIT")}
+      sectionWrapperClass="pt-section-card"
+      cardStyle={{ background: "transparent", boxShadow: "none", border: "none", padding: "0", margin: "0" }}
       config={conf.map((config) => {
         return {
           ...config,

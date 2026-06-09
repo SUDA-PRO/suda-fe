@@ -322,8 +322,15 @@ export const PTSearch = {
     ];
   },
   applicationDetails: async (t, tenantId, propertyIds, userType, args) => {
-    const filter = { acknowledgementIds: propertyIds, ...args };
+    // Property IDs: "PG-PT-1013-000103" (4 segments), "CGBASJDP0000227" (no dashes)
+    // Acknowledgement IDs: "PG-PT-2024-01-000001" (5 segments: XX-PT-YYYY-MM-NNNNNN) — use acknowledgementIds
+    const isAcknowledgementId = /^[A-Z]{2}-PT-\d{4}-\d{2}-\d+$/.test(propertyIds);
+    const filter = isAcknowledgementId ? { acknowledgementIds: propertyIds, ...args } : { propertyIds, ...args };
     const response = await PTSearch.application(tenantId, filter);
+
+    if (!response) {
+      throw new Error(`No property found for id: ${propertyIds}`);
+    }
 
     return {
       tenantId: response.tenantId,
