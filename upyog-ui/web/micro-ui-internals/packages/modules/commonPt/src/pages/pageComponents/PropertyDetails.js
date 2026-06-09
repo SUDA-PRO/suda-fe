@@ -5,6 +5,7 @@ import {
 import React from "react";
 import { Link } from "react-router-dom";
 import Timeline from "../../components/CPTTimeline";
+import PTMapPicker from "./PTMapPicker";
 
 const PropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const tenantId = (formData?.knowyourproperty?.KnowProperty?.code === "YES" || sessionStorage.getItem("VisitedLightCreate") === "false" ? formData?.cptSearchQuery?.city : formData?.cpt?.details?.tenantId ) || Digit.ULBService.getCitizenCurrentTenant();
@@ -139,6 +140,34 @@ const PropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               </div>
             </StatusTable>
             </div>
+
+            {/* ── Property Location Map ── */}
+            {(propertyDetails?.Properties[0]?.address?.geoLocation?.latitude || propertyDetails?.Properties[0]?.address?.geoLocation?.longitude) && (
+              <div style={{
+                background: "#ffffff",
+                borderRadius: "10px",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+                padding: "24px 28px",
+                marginBottom: "24px",
+                border: "1px solid #e8ecf0",
+                fontFamily: "'Roboto', sans-serif",
+              }}>
+                <div style={{
+                  fontSize: "15px", fontWeight: "700", color: "#1a2b49",
+                  marginBottom: "12px", paddingBottom: "8px",
+                  borderBottom: "2px solid #f47738", letterSpacing: "0.3px",
+                }}>
+                  📍 {t("PT_PROPERTY_LOCATION_ON_MAP") || "Property Location on Map"}
+                </div>
+                <PTMapPicker
+                  lat={propertyDetails?.Properties[0]?.address?.geoLocation?.latitude}
+                  lng={propertyDetails?.Properties[0]?.address?.geoLocation?.longitude}
+                  onLocationSelect={() => {}}
+                  t={t}
+                />
+                {console.log("[PropertyDetails] geoLocation:", propertyDetails?.Properties[0]?.address?.geoLocation)}
+              </div>
+            )}
 
             {/* ── Action button ── */}
             <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
