@@ -219,8 +219,16 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return String(val);
   };
 
-  const createEmptyFlatUnit = () => ({
-    usageCategory: null,
+  const getDerivedUsageCategory = () => {
+    if (!usageCategoryMajor) return null;
+    const majorCode = usageCategoryMajor.code || "";
+    const minorCode = majorCode.includes(".") ? majorCode.split(".")[1] : majorCode;
+    if (["MIXED", "OTHERS"].includes(minorCode.toUpperCase())) return null;
+    return { code: minorCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${minorCode}` };
+  };
+
+  const createEmptyFlatUnit = (prefillUsageCategory = null) => ({
+    usageCategory: prefillUsageCategory,
     unitType: null,
     occupancyType: null,
     builtUpArea: "",
@@ -259,8 +267,8 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return list;
   };
 
-  const createEmptyUnit = (floorNo) => ({
-    usageCategory: null,
+  const createEmptyUnit = (floorNo, prefillUsageCategory = null) => ({
+    usageCategory: prefillUsageCategory,
     unitType: null,
     occupancyType: null,
     builtUpArea: "",
@@ -483,7 +491,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddFlatUnit = () => {
-    setFlatUnits((prev) => [...prev, createEmptyFlatUnit()]);
+    setFlatUnits((prev) => [...prev, createEmptyFlatUnit(getDerivedUsageCategory())]);
   };
 
   const handleRemoveFlatUnit = (idx) => {
@@ -494,13 +502,14 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddIndependentUnit = (floorNo) => {
+    const prefill = getDerivedUsageCategory();
     setFloorUnits((prev) => {
       const insertionIndex = prev.reduce((lastIdx, u, idx) => (Number(u.floorNo?.code) === Number(floorNo) ? idx : lastIdx), -1);
       const updated = [...prev];
       if (insertionIndex === -1) {
-        updated.push(createEmptyUnit(floorNo));
+        updated.push(createEmptyUnit(floorNo, prefill));
       } else {
-        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo));
+        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo, prefill));
       }
       return updated;
     });
