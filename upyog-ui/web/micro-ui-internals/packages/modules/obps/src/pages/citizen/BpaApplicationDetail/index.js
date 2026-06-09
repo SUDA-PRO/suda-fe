@@ -397,219 +397,280 @@ const BpaApplicationDetail = () => {
       </div>
     )
   }
-  const handleViewTimeline=()=>{ 
-    const timelineSection=document.getElementById('timeline');
-      if(timelineSection){
-        timelineSection.scrollIntoView({behavior: 'smooth'});
-      } 
-      setViewTimeline(true);   
+  const handleViewTimeline = () => {
+    const timelineSection = document.getElementById("timeline");
+    if (timelineSection) timelineSection.scrollIntoView({ behavior: "smooth" });
+    setViewTimeline(true);
   };
 
-  const results = data?.applicationDetails?.filter(element => {
-    if (Object.keys(element).length !== 0) {
-      return true;
-    }
-    return false;
-  });
+  const bpaStatusConfig = {
+    APPROVED:                   { bg: "#ecfdf5", color: "#059669", border: "#a7f3d0" },
+    INPROGRESS:                 { bg: "#fffbeb", color: "#d97706", border: "#fcd34d" },
+    PENDINGPAYMENT:             { bg: "#fffbeb", color: "#d97706", border: "#fcd34d" },
+    CITIZEN_APPROVAL_INPROCESS: { bg: "#eff6ff", color: "#2563eb", border: "#bfdbfe" },
+    REJECTED:                   { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" },
+    REVOKED:                    { bg: "#fef2f2", color: "#dc2626", border: "#fecaca" },
+    INITIATED:                  { bg: "#f3f4f6", color: "#6b7280", border: "#d1d5db" },
+  };
+  const bpaStatus = data?.applicationData?.status?.toUpperCase();
+  const statusStyle = bpaStatusConfig[bpaStatus] || { bg: "#f3f4f6", color: "#6b7280", border: "#d1d5db" };
 
-  if (results?.length > 0) {
-    data.applicationDetails = results;
-  }
-  
+  const InfoRow = ({ label, value }) => (
+    <div style={{ display: "flex", flexDirection: "column", padding: "10px 12px", borderRadius: "8px", marginBottom: "6px", background: "#fafbfc" }}>
+      <span style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{label}</span>
+      <span style={{ fontSize: "13px", color: "#1a2b49", fontWeight: "600", wordBreak: "break-word" }}>{value || t("CS_NA")}</span>
+    </div>
+  );
+
+  const SectionCard = ({ title, icon, children }) => (
+    <div style={{ background: "#fff", borderRadius: "16px", boxShadow: "0 2px 12px rgba(26,43,73,0.07)", marginBottom: "16px", overflow: "hidden", border: "1px solid #f0f2f5" }}>
+      {title && (
+        <div style={{ padding: "14px 20px", borderBottom: "1px solid #f5f6f8", display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+            {icon || <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>}
+          </div>
+          <span style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49" }}>{title}</span>
+        </div>
+      )}
+      <div style={{ padding: "16px 20px" }}>{children}</div>
+    </div>
+  );
+
+  const filteredDetails = data?.applicationDetails?.filter(d => Object.keys(d).length > 0 && !d.isNotAllowed) || [];
 
   return (
     <Fragment>
-      <div className="cardHeaderWithOptions" style={{ marginRight: "auto", maxWidth: "960px" }}>
-        <Header styles={{fontSize: "32px", marginLeft: "10px"}}>{t("CS_TITLE_APPLICATION_DETAILS")}</Header>
-        <div >
-        {dowloadOptions && dowloadOptions.length > 0 && <MultiLink
-          className="multilinkWrapper"
-          onHeadClick={() => setShowOptions(!showOptions)}
-          displayOptions={showOptions}
-          options={dowloadOptions}
-        />}
-        <LinkButton label={t("VIEW_TIMELINE")} style={{ color:"#A52A2A"}} onClick={handleViewTimeline}></LinkButton>
-        </div>
-        
-      </div>
-      {data?.applicationDetails?.filter((ob) => Object.keys(ob).length > 0).map((detail, index, arr) => {
+      <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #f0f4ff 0%, #fef6f0 100%)", padding: "20px 16px 100px" }}>
+        <div style={{ maxWidth: "960px", margin: "0 auto" }}>
 
-        return (
-          <div>
-            {!detail?.isNotAllowed ? <Card key={index} style={!detail?.additionalDetails?.fiReport && detail?.title === "" ? { marginTop: "-30px" } : {}}>
-
-              {!detail?.isTitleVisible ? <CardSubHeader style={{fontSize: "24px"}}>{t(detail?.title)}</CardSubHeader> : null}
-              
-              <div style={detail?.isBackGroundColor ? { marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "950px", minWidth: "280px" } : {}}>
-
-              <StatusTable>
-                {/* to get common values */}
-                {(detail?.isCommon && detail?.values?.length > 0) ? detail?.values?.map((value) => {
-                  if (value?.isUnit) return <Row className="border-none" label={t(value?.title)} text={value?.value ? `${getTranslatedValues(value?.value, value?.isNotTranslated)} ${t(value?.isUnit)}` : t("CS_NA")} />
-                  if (value?.isLink) return <Row className="border-none" label={t(value?.title)} text={<div><Link to={value?.to}><span className="link" style={{color: "#a82227"}}>{value?.value}</span></Link></div>} />
-                  else return <Row className="border-none" label={t(value?.title)} text={getTranslatedValues(value?.value, value?.isNotTranslated) || t("CS_NA")} />
-                }) : null}
-                {/* to get additional common values */}
-                {!detail?.isFeeDetails && detail?.additionalDetails?.values?.length > 0 ? detail?.additionalDetails?.values?.map((value) => (
-                    <div>
-                    {!detail?.isTitleRepeat && !value?.isHeader && !value?.isUnit ? <Row className="border-none" label={t(value?.title)} textStyle={value?.value === "Paid"?{color:"darkgreen"}:(value?.value === "Unpaid"?{color:"red"}:{})} text={value?.value ? getTranslatedValues(value?.value, value?.isNotTranslated) : t("CS_NA")} /> : null}
-                    {!detail?.isTitleRepeat && value?.isUnit ? <Row className="border-none" label={t(value?.title)} text={value?.value ? `${getTranslatedValues(value?.value, value?.isNotTranslated)} ${t(value?.isUnit)}` : t("CS_NA")} /> : null}
-                    {!detail?.isTitleRepeat && value?.isHeader ? <CardSubHeader style={{fontSize: "20px"}}>{t(value?.title)}</CardSubHeader> : null}
-                    </div>
-                )) : null}
-
-                {/* to get subOccupancyValues values */}
-                {(detail?.isSubOccupancyTable && detail?.additionalDetails?.subOccupancyTableDetails) ? <SubOccupancyTable edcrDetails={detail?.additionalDetails} applicationData={data?.applicationData} /> : null}
-
-                {/* to get Scrutiny values */}
-                {(detail?.isScrutinyDetails && detail?.additionalDetails?.scruntinyDetails?.length > 0) ?
-                  detail?.additionalDetails?.scruntinyDetails.map((scrutiny) => (
-                    <Fragment>
-                      <Row className="border-none" label={t(scrutiny?.title)} />
-                      <LinkButton
-                        onClick={() => downloadDiagram(scrutiny?.value)}
-                        label={<PDFSvg />}>
-                      </LinkButton>
-                      <p style={{ marginTop: "8px", marginBottom: "20px", fontWeight: "bold", fontSize: "16px", lineHeight: "19px", color: "#505A5F", fontWeight: "400" }}>{t(scrutiny?.text)}</p>
-                    </Fragment>
-                  )) : null}
-
-                {/* to get Owner values */}
-                {(detail?.isOwnerDetails && detail?.additionalDetails?.owners?.length > 0) ? detail?.additionalDetails?.owners.map((owner, index) => (
-                  <div key={index} style={detail?.additionalDetails?.owners?.length > 1 ? { marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "950px", minWidth: "280px" } : {}}>
-                    {detail?.additionalDetails?.owners?.length > 1 ? <Row className="border-none" label={`${t("Owner")} - ${index + 1}`} /> : null }
-                    {owner?.values.map((value) => (
-                      <Row className="border-none" label={t(value?.title)} text={getTranslatedValues(value?.value, value?.isNotTranslated) || t("CS_NA")} />
-                    ))}
-                  </div>
-                )) : null}
-
-                {/* to get Document values */}
-                {(detail?.isDocumentDetails && detail?.additionalDetails?.obpsDocuments?.[0]?.values) && (
-                  <div style={{marginTop: "-8px"}}>
-                    {<DocumentsPreview documents={getOrderDocuments(detail?.additionalDetails?.obpsDocuments?.[0]?.values)} svgStyles = {{}} isSendBackFlow = {false} isHrLine = {true} titleStyles ={{fontSize: "20px", lineHeight: "24px", "fontWeight": 700, marginBottom: "10px"}}/>}
-                  </div>
-                )}
-
-                {/* to get FieldInspection values */}
-                {(detail?.isFieldInspection && data?.applicationData?.additionalDetails?.fieldinspection_pending?.length > 0) ? <InspectionReport isCitizen={true} fiReport={data?.applicationData?.additionalDetails?.fieldinspection_pending} /> : null}
-
-                {/* to get NOC values */}
-                {detail?.additionalDetails?.noc?.length > 0 ? detail?.additionalDetails?.noc.map((nocob, ind) => (
-                  <div key={ind} style={{ marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "960px", minWidth: "280px" }}>
-                    <StatusTable>
-                      <Row className="border-none" label={t(`${`BPA_${detail?.additionalDetails?.data?.nocType}_HEADER`}`)} labelStyle={{fontSize: "20px"}}></Row>
-                      <Row className="border-none" label={t(`${detail?.values?.[0]?.title}`)} textStyle={{ marginLeft: "10px" }} text={getTranslatedValues(detail?.values?.[0]?.value, detail?.values?.[0]?.isNotTranslated)} />
-                      <Row className="border-none" label={t(`${detail?.values?.[1]?.title}`)} textStyle={detail?.values?.[1]?.value == "APPROVED" || detail?.values?.[1]?.value == "AUTO_APPROVED" ? { marginLeft: "10px", color: "#00703C" } : { marginLeft: "10px", color: "#D4351C" }} text={getTranslatedValues(detail?.values?.[1]?.value, detail?.values?.[1]?.isNotTranslated)} />
-                      { detail?.values?.[2]?.value ? <Row className="border-none" label={t(`${detail?.values?.[2]?.title}`)} textStyle={{ marginLeft: "10px" }} text={getTranslatedValues(detail?.values?.[2]?.value, detail?.values?.[2]?.isNotTranslated)} /> : null }
-                      { detail?.values?.[3]?.value ? <Row className="border-none" label={t(`${detail?.values?.[3]?.title}`)} textStyle={{ marginLeft: "10px" }} text={getTranslatedValues(detail?.values?.[3]?.value, detail?.values?.[3]?.isNotTranslated)} /> : null }
-                      { detail?.values?.[3]?.value ? <Row className="border-none" label={t(`${detail?.values?.[4]?.title}`)} textStyle={{ marginLeft: "10px" }} text={getTranslatedValues(detail?.values?.[4]?.value, detail?.values?.[4]?.isNotTranslated)} /> : null }
-                      <Row className="border-none" label={t(`${nocob?.title}`)}></Row>
-                    </StatusTable>
-                    <StatusTable>
-                      {nocob?.values ? <DocumentsPreview documents={getOrderDocuments(nocob?.values, true)} svgStyles = {{}} isSendBackFlow = {false} isHrLine = {true} titleStyles ={{fontSize: "18px", lineHeight: "24px", "fontWeight": 700, marginBottom: "10px"}}/> :
-                        <div><CardText>{t("BPA_NO_DOCUMENTS_UPLOADED_LABEL")}</CardText></div>}
-                    </StatusTable>
-                  </div>
-                )) : null}
-
-                {/* to get permit values */}
-                {(!detail?.isTitleVisible && detail?.additionalDetails?.permit?.length > 0) ? detail?.additionalDetails?.permit?.map((value) => (
-                  <CardText >{value?.title}</CardText>
-                )) : null}
-
-                {/* to get Fee values */}
-                {detail?.additionalDetails?.inspectionReport && detail?.isFeeDetails && <ScruntinyDetails scrutinyDetails={detail?.additionalDetails} paymentsList={[]}/>}
-
-              </StatusTable>
+          {/* ── Hero Card ── */}
+          <div style={{ background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", borderRadius: "20px", padding: "22px 24px", marginBottom: "20px", position: "relative", overflow: "hidden", boxShadow: "0 6px 24px rgba(244,119,56,0.3)" }}>
+            <div style={{ position: "absolute", right: "-30px", top: "-30px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.08)", pointerEvents: "none" }} />
+            <div style={{ position: "absolute", right: "40px", bottom: "-40px", width: "90px", height: "90px", borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
+            <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", position: "relative", gap: "12px", flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: "14px", alignItems: "center" }}>
+                <div style={{ width: "48px", height: "48px", borderRadius: "14px", background: "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", color: "rgba(255,255,255,0.75)", fontWeight: "600", letterSpacing: "0.6px", textTransform: "uppercase" }}>{t("BPA_APPLICATION_NUMBER_LABEL")}</div>
+                  <div style={{ fontSize: "18px", color: "#fff", fontWeight: "800", marginTop: "2px", letterSpacing: "0.2px" }}>{id}</div>
+                </div>
               </div>
-            </Card> : null }
-
-            {/* to get Timeline values */}
-            {index === arr.length - 1 && (
-              <Card>
-                <Fragment>
-                  <div id="timeline">
-                  <BPAApplicationTimeline application={data?.applicationData} id={id} />
-                  {!workflowDetails?.isLoading && workflowDetails?.data?.nextActions?.length > 0 && !isFromSendBack && checkBoxVisible && (
-                    <CheckBox
-                      styles={{ margin: "20px 0 40px", paddingTop: "10px" }}
-                      checked={isTocAccepted}
-                      label={getCheckBoxLable()}
-                      // label={getCheckBoxLabelData(t, data?.applicationData, workflowDetails?.data?.nextActions)}
-                      onChange={() => { setIsTocAccepted(!isTocAccepted); isTocAccepted ? setDisplayMenu(!isTocAccepted) : "" }}
-                    />
-                  )}
-                  </div>
-                  {!workflowDetails?.isLoading && workflowDetails?.data?.nextActions?.length > 1 && (
-                    //removed this styles to fix the action button in application details UM-5347
-                    <ActionBar /*style={{ position: "relative", boxShadow: "none", minWidth: "240px", maxWidth: "310px", padding: "0px" }}*/>
-                      <div style={{ width: "100%" }}>
-                        {displayMenu && workflowDetails?.data?.nextActions ? (
-                          <Menu
-                            //style={{ bottom: "37px", minWidth: "240px", maxWidth: "310px", width: "100%", right: "0px" }}
-                            localeKeyPrefix={"WF_BPA"}
-                            options={workflowDetails?.data?.nextActions.map((action) => action.action)}
-                            t={t}
-                            onSelect={onActionSelect}
-                          />
-                        ) : null}
-                        <SubmitBar /*style={{ width: "100%" }}*/ disabled={checkForSubmitDisable(isFromSendBack, isTocAccepted)} label={t("ES_COMMON_TAKE_ACTION")} onSubmit={() => setDisplayMenu(!displayMenu)} />
-                      </div>
-                    </ActionBar>
-                  )}
-                  {!workflowDetails?.isLoading && workflowDetails?.data?.nextActions?.length == 1 && (
-                    //removed this style to fix the action button in application details UM-5347
-                    <ActionBar /*style={{ position: "relative", boxShadow: "none", minWidth: "240px", maxWidth: "310px", padding: "0px" }}*/>
-                      <div style={{ width: "100%" }}>
-                        <button 
-                        style={{  color: "#FFFFFF", fontSize: isMobile ? "19px" : "initial" }}
-                        className={`${checkForSubmitDisable(isFromSendBack, isTocAccepted) ? "submit-bar-disabled" : "submit-bar"}`}
-                        disabled={checkForSubmitDisable(isFromSendBack, isTocAccepted)} 
-                        name={workflowDetails?.data?.nextActions?.[0]?.action} 
-                        value={workflowDetails?.data?.nextActions?.[0]?.action}
-                        onClick={(e) => {onActionSelect(e.target.value)}}>
-                        {t(`WF_BPA_${workflowDetails?.data?.nextActions?.[0]?.action}`)}
-                        </button>
-                      </div>
-                    </ActionBar>
-                  )}
-                </Fragment>
-              </Card>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                {data?.applicationData?.status && (
+                  <span style={{ padding: "5px 14px", borderRadius: "20px", fontSize: "11px", fontWeight: "700", letterSpacing: "0.4px", background: statusStyle.bg, color: statusStyle.color, border: `1px solid ${statusStyle.border}`, textTransform: "uppercase", flexShrink: 0 }}>
+                    {t(`WF_BPA_${data.applicationData.status}`)}
+                  </span>
+                )}
+                <button onClick={handleViewTimeline} style={{ padding: "6px 14px", background: "rgba(255,255,255,0.2)", border: "1px solid rgba(255,255,255,0.4)", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}>
+                  {t("VIEW_TIMELINE")}
+                </button>
+              </div>
+            </div>
+            {dowloadOptions.length > 0 && (
+              <div style={{ marginTop: "16px", display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                {dowloadOptions.map((opt, i) => (
+                  <button key={i} onClick={opt.onClick} style={{ padding: "8px 14px", background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer", display: "flex", alignItems: "center", gap: "6px" }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             )}
           </div>
-        )
-      })}
-      {showTermsModal ? (
-        <ActionModal
-          t={t}
-          action={"TERMS_AND_CONDITIONS"}
-          tenantId={tenantId}
-          id={id}
-          closeModal={closeTermsModal}
-          submitAction={submitAction}
-          applicationData={data?.applicationData || {}}
-        />
-      ) : null}
-      {showModal ? (
-        <ActionModal
-          t={t}
-          action={selectedAction}
-          tenantId={tenantId}
-          // state={state}
-          id={id}
-          closeModal={closeModal}
-          submitAction={submitAction}
-          actionData={workflowDetails?.data?.timeline}
-        />
-      ) : null}
+
+          {/* ── Detail Sections ── */}
+          {filteredDetails.map((detail, index, arr) => {
+            const simpleValues = [
+              ...(detail.isCommon ? (detail.values || []).filter(v => !v.isLink) : []),
+              ...(!detail.isFeeDetails ? (detail.additionalDetails?.values || []).filter(v => !v.isHeader) : []),
+            ];
+            const linkValues = detail.isCommon ? (detail.values || []).filter(v => v.isLink) : [];
+            const headerValues = !detail.isFeeDetails ? (detail.additionalDetails?.values || []).filter(v => v.isHeader) : [];
+
+            return (
+              <div key={index}>
+                <SectionCard title={!detail.isTitleVisible && detail.title ? t(detail.title) : null}>
+                  {/* Sub-headers */}
+                  {headerValues.map((v, i) => (
+                    <div key={i} style={{ fontSize: "13px", fontWeight: "700", color: "#1a2b49", marginBottom: "8px", marginTop: i > 0 ? "12px" : "0" }}>{t(v.title)}</div>
+                  ))}
+
+                  {/* Key-value grid */}
+                  {(simpleValues.length > 0 || linkValues.length > 0) && (
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0 16px" }}>
+                      {simpleValues.map((v, i) => (
+                        <div key={i} style={{ display: "flex", flexDirection: "column", padding: "10px 12px", background: "#fafbfc", borderRadius: "8px", marginBottom: "6px" }}>
+                          <span style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{t(v.title)}</span>
+                          <span style={{ fontSize: "13px", color: "#1a2b49", fontWeight: "600", wordBreak: "break-word" }}>
+                            {v.isUnit
+                              ? (v.value ? `${getTranslatedValues(v.value, v.isNotTranslated)} ${t(v.isUnit)}` : t("CS_NA"))
+                              : (getTranslatedValues(v.value, v.isNotTranslated) || t("CS_NA"))}
+                          </span>
+                        </div>
+                      ))}
+                      {linkValues.map((v, i) => (
+                        <div key={`lnk${i}`} style={{ display: "flex", flexDirection: "column", padding: "10px 12px", background: "#fafbfc", borderRadius: "8px", marginBottom: "6px" }}>
+                          <span style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{t(v.title)}</span>
+                          <Link to={v.to}><span style={{ fontSize: "13px", color: "#f47738", fontWeight: "600" }}>{v.value}</span></Link>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Owner details */}
+                  {detail.isOwnerDetails && detail.additionalDetails?.owners?.map((owner, oi) => (
+                    <div key={oi} style={{ background: "#f8f9fb", borderRadius: "12px", padding: "14px 16px", border: "1px solid #e5e7eb", marginBottom: oi < detail.additionalDetails.owners.length - 1 ? "12px" : "0" }}>
+                      {detail.additionalDetails.owners.length > 1 && (
+                        <div style={{ fontSize: "11px", fontWeight: "700", color: "#f47738", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "10px" }}>{t("Owner")} - {oi + 1}</div>
+                      )}
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "0 16px" }}>
+                        {owner.values.map((v, vi) => (
+                          <div key={vi} style={{ display: "flex", flexDirection: "column", padding: "10px 12px", background: "#fafbfc", borderRadius: "8px", marginBottom: "6px" }}>
+                            <span style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{t(v.title)}</span>
+                            <span style={{ fontSize: "13px", color: "#1a2b49", fontWeight: "600", wordBreak: "break-word" }}>{getTranslatedValues(v.value, v.isNotTranslated) || t("CS_NA")}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Documents */}
+                  {detail.isDocumentDetails && detail.additionalDetails?.obpsDocuments?.[0]?.values && (
+                    <div style={{ marginTop: "4px" }}>
+                      <DocumentsPreview documents={getOrderDocuments(detail.additionalDetails.obpsDocuments[0].values)} svgStyles={{}} isSendBackFlow={false} isHrLine={true} titleStyles={{ fontSize: "16px", fontWeight: 700, marginBottom: "10px" }} />
+                    </div>
+                  )}
+
+                  {/* SubOccupancy */}
+                  {detail.isSubOccupancyTable && detail.additionalDetails?.subOccupancyTableDetails && (
+                    <SubOccupancyTable edcrDetails={detail.additionalDetails} applicationData={data?.applicationData} />
+                  )}
+
+                  {/* Scrutiny */}
+                  {detail.isScrutinyDetails && detail.additionalDetails?.scruntinyDetails?.map((s, si) => (
+                    <Fragment key={si}>
+                      <div style={{ fontSize: "13px", fontWeight: "600", color: "#1a2b49", marginBottom: "4px" }}>{t(s.title)}</div>
+                      <LinkButton onClick={() => downloadDiagram(s.value)} label={<PDFSvg />} />
+                      <p style={{ marginTop: "8px", marginBottom: "16px", fontSize: "14px", color: "#505A5F" }}>{t(s.text)}</p>
+                    </Fragment>
+                  ))}
+
+                  {/* Field Inspection */}
+                  {detail.isFieldInspection && data?.applicationData?.additionalDetails?.fieldinspection_pending?.length > 0 && (
+                    <InspectionReport isCitizen={true} fiReport={data.applicationData.additionalDetails.fieldinspection_pending} />
+                  )}
+
+                  {/* NOC */}
+                  {detail.additionalDetails?.noc?.map((nocob, ni) => (
+                    <div key={ni} style={{ background: "#f8f9fb", borderRadius: "12px", padding: "14px 16px", border: "1px solid #e5e7eb", marginBottom: "12px" }}>
+                      <div style={{ fontSize: "13px", fontWeight: "700", color: "#1a2b49", marginBottom: "10px" }}>{t(`BPA_${detail.additionalDetails?.data?.nocType}_HEADER`)}</div>
+                      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "0 16px", marginBottom: "12px" }}>
+                        {[0, 1, 2, 3, 4].filter(i => detail?.values?.[i]?.value).map(i => (
+                          <div key={i} style={{ display: "flex", flexDirection: "column", padding: "10px 12px", background: "#fafbfc", borderRadius: "8px", marginBottom: "6px" }}>
+                            <span style={{ fontSize: "10px", color: "#9ca3af", fontWeight: "700", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>{t(detail.values[i].title)}</span>
+                            <span style={{ fontSize: "13px", color: "#1a2b49", fontWeight: "600" }}>{getTranslatedValues(detail.values[i].value, detail.values[i].isNotTranslated)}</span>
+                          </div>
+                        ))}
+                      </div>
+                      {nocob?.values ? (
+                        <DocumentsPreview documents={getOrderDocuments(nocob.values, true)} svgStyles={{}} isSendBackFlow={false} isHrLine={true} titleStyles={{ fontSize: "16px", fontWeight: 700, marginBottom: "10px" }} />
+                      ) : (
+                        <p style={{ margin: 0, fontSize: "13px", color: "#9ca3af" }}>{t("BPA_NO_DOCUMENTS_UPLOADED_LABEL")}</p>
+                      )}
+                    </div>
+                  ))}
+
+                  {/* Permit text */}
+                  {!detail.isTitleVisible && detail.additionalDetails?.permit?.map((v, pi) => (
+                    <p key={pi} style={{ margin: "0 0 8px", fontSize: "13px", color: "#505A5F" }}>{v.title}</p>
+                  ))}
+
+                  {/* Fee / Scrutiny report */}
+                  {detail.additionalDetails?.inspectionReport && detail.isFeeDetails && (
+                    <ScruntinyDetails scrutinyDetails={detail.additionalDetails} paymentsList={[]} />
+                  )}
+                </SectionCard>
+
+                {/* Timeline after last detail */}
+                {index === arr.length - 1 && (
+                  <div style={{ background: "#fff", borderRadius: "16px", boxShadow: "0 2px 12px rgba(26,43,73,0.07)", marginBottom: "16px", overflow: "hidden", border: "1px solid #f0f2f5" }}>
+                    <div style={{ padding: "14px 20px", borderBottom: "1px solid #f5f6f8", display: "flex", alignItems: "center", gap: "10px" }}>
+                      <div style={{ width: "32px", height: "32px", borderRadius: "8px", background: "#fff7ed", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                        </svg>
+                      </div>
+                      <span style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49" }}>{t("BPA_APPLICATION_TIMELINE_HEADER") || "Application Timeline"}</span>
+                    </div>
+                    <div style={{ padding: "16px 20px" }} id="timeline">
+                      <BPAApplicationTimeline application={data?.applicationData} id={id} />
+                      {!workflowDetails?.isLoading && workflowDetails?.data?.nextActions?.length > 0 && !isFromSendBack && checkBoxVisible && (
+                        <CheckBox
+                          styles={{ margin: "20px 0 40px", paddingTop: "10px" }}
+                          checked={isTocAccepted}
+                          label={getCheckBoxLable()}
+                          onChange={() => { setIsTocAccepted(!isTocAccepted); isTocAccepted ? setDisplayMenu(!isTocAccepted) : ""; }}
+                        />
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+
+          {/* ── Action Buttons ── */}
+          {!workflowDetails?.isLoading && workflowDetails?.data?.nextActions?.length > 0 && (
+            <div style={{ position: "sticky", bottom: "20px", zIndex: 10 }}>
+              {workflowDetails.data.nextActions.length > 1 && (
+                <div style={{ position: "relative" }}>
+                  {displayMenu && (
+                    <div style={{ position: "absolute", bottom: "56px", left: 0, right: 0, background: "#fff", borderRadius: "12px", boxShadow: "0 8px 24px rgba(26,43,73,0.15)", overflow: "hidden", border: "1px solid #e5e7eb" }}>
+                      {workflowDetails.data.nextActions.map((action, ai) => (
+                        <button key={ai} onClick={() => onActionSelect(action.action)} style={{ width: "100%", padding: "14px 20px", background: "transparent", border: "none", borderBottom: ai < workflowDetails.data.nextActions.length - 1 ? "1px solid #f0f2f5" : "none", textAlign: "left", fontSize: "14px", fontWeight: "600", color: "#1a2b49", cursor: "pointer" }}>
+                          {t(`WF_BPA_${action.action}`)}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                  <button
+                    disabled={checkForSubmitDisable()}
+                    onClick={() => setDisplayMenu(!displayMenu)}
+                    style={{ width: "100%", height: "52px", background: checkForSubmitDisable() ? "#f3f4f6" : "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", border: "none", borderRadius: "14px", color: checkForSubmitDisable() ? "#9ca3af" : "#fff", fontSize: "16px", fontWeight: "700", cursor: checkForSubmitDisable() ? "not-allowed" : "pointer", boxShadow: checkForSubmitDisable() ? "none" : "0 4px 16px rgba(244,119,56,0.4)" }}
+                  >
+                    {t("ES_COMMON_TAKE_ACTION")}
+                  </button>
+                </div>
+              )}
+              {workflowDetails.data.nextActions.length === 1 && (
+                <button
+                  disabled={checkForSubmitDisable()}
+                  name={workflowDetails.data.nextActions[0].action}
+                  value={workflowDetails.data.nextActions[0].action}
+                  onClick={e => onActionSelect(e.target.value)}
+                  style={{ width: "100%", height: "52px", background: checkForSubmitDisable() ? "#f3f4f6" : "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", border: "none", borderRadius: "14px", color: checkForSubmitDisable() ? "#9ca3af" : "#fff", fontSize: "16px", fontWeight: "700", cursor: checkForSubmitDisable() ? "not-allowed" : "pointer", boxShadow: checkForSubmitDisable() ? "none" : "0 4px 16px rgba(244,119,56,0.4)" }}
+                >
+                  {t(`WF_BPA_${workflowDetails.data.nextActions[0].action}`)}
+                </button>
+              )}
+            </div>
+          )}
+
+        </div>
+      </div>
+
+      {showTermsModal && (
+        <ActionModal t={t} action={"TERMS_AND_CONDITIONS"} tenantId={tenantId} id={id} closeModal={closeTermsModal} submitAction={submitAction} applicationData={data?.applicationData || {}} />
+      )}
+      {showModal && (
+        <ActionModal t={t} action={selectedAction} tenantId={tenantId} id={id} closeModal={closeModal} submitAction={submitAction} actionData={workflowDetails?.data?.timeline} />
+      )}
       {showToast && (
-        <Toast
-          error={showToast.key === "error" ? true : false}
-          label={t(showToast.key === "success" ? `ES_OBPS_${showToast.action}_UPDATE_SUCCESS` : showToast.action)}
-          onClose={closeToast}
-          style={{ zIndex: "1000" }}
-        />
+        <Toast error={showToast.key === "error"} label={t(showToast.key === "success" ? `ES_OBPS_${showToast.action}_UPDATE_SUCCESS` : showToast.action)} onClose={closeToast} style={{ zIndex: "1000" }} />
       )}
     </Fragment>
   );

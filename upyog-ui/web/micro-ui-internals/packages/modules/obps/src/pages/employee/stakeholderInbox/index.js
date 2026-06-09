@@ -11,7 +11,7 @@ const Inbox = ({ parentRoute }) => {
 
   const { t } = useTranslation()
 
-  const tenantId = Digit.ULBService.getStateId();
+  const tenantId = Digit.UserService.getUser()?.info?.tenantId || Digit.ULBService.getStateId();
   const stateCode = Digit.ULBService.getStateId();
   const userRoles = Digit.UserService.getUser()?.info?.roles || [];
   const hasBPAREGRole = userRoles.some(r => ["BPAREG_DOC_VERIFIER", "BPAREG_APPROVER", "BPAREG_EMPLOYEE"].includes(r.code) && r.tenantId.startsWith(stateCode));
