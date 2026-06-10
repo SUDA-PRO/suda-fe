@@ -104,7 +104,13 @@ const SelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onBlu
               ownerShipdropDown.push(formDropdown(SubOwnerShipCategory[linkedCategory]));
             });
         } else {
-          ownerShipdropDown.push(formDropdown(OwnerShipCategory[category]));
+          // Skip dotted sub-codes (e.g. "INDIVIDUAL.SINGLEOWNER") whose parent is already
+          // expanded from SubOwnerShipCategory — they would create duplicate dropdown entries.
+          const parentCode = categoryCode.split(".")[0];
+          const isDotted = parentCode !== categoryCode;
+          if (!isDotted || !subCategoriesInOwnersType.includes(parentCode)) {
+            ownerShipdropDown.push(formDropdown(OwnerShipCategory[category]));
+          }
         }
       });
     }

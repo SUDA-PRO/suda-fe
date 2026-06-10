@@ -107,13 +107,19 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
           });
         }
       } else {
+        // Skip dotted sub-codes (e.g. "INDIVIDUAL.SINGLEOWNER") whose parent is already
+        // expanded from SubOwnerShipCategory — they would create duplicate dropdown entries.
         const { name, code: catCode } = OwnerShipCategory[category];
-        result.push({
-          label: name,
-          value: catCode,
-          code: catCode,
-          i18nKey: `PT_OWNERSHIP_${catCode.split(".")[1] || catCode.split(".")[0]}`,
-        });
+        const parentCode = catCode.split(".")[0];
+        const isDotted = parentCode !== catCode;
+        if (!isDotted || !subCategoriesInOwnersType.includes(parentCode)) {
+          result.push({
+            label: name,
+            value: catCode,
+            code: catCode,
+            i18nKey: `PT_OWNERSHIP_${catCode.split(".")[1] || catCode.split(".")[0]}`,
+          });
+        }
       }
     });
     return result.splice(0, 10);
