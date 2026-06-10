@@ -18,7 +18,7 @@ const SelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onBlu
   const stateId = Digit.ULBService.getStateId();
   const isUpdateProperty = formData?.isUpdateProperty || false;
   let isEditProperty = formData?.isEditProperty || false;
-  const [ownershipCategory, setOwnershipCategory] = useState(formData?.ownershipCategory);
+  const [ownershipCategory, setOwnershipCategory] = useState(null);
   const [loader, setLoader] = useState(true);
   const { data: SubOwnerShipCategoryOb, isLoading } = Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "SubOwnerShipCategory");
   const { data: OwnerShipCategoryOb, isLoading: ownerShipCatLoading } = Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "OwnerShipCategory");
@@ -29,23 +29,23 @@ const SelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onBlu
   const { pathname: url } = useLocation();
   const editScreen = url.includes("/modify-application/");
 
+  /* Single effect — waits for both MDMS calls, finds the matching dropdown option */
   useEffect(() => {
-    if (!isLoading && SubOwnerShipCategoryOb && OwnerShipCategoryOb) {
-      const preFilledPropertyType = SubOwnerShipCategoryOb.filter(
-        (ownershipCategory) => ownershipCategory.code === (formData?.ownershipCategory?.value || formData?.ownershipCategory)
-      )[0];
-      setOwnershipCategory(preFilledPropertyType);
-    }
-  }, [formData?.ownershipCategory, SubOwnerShipCategoryOb]);
-
-  useEffect(() => {
-    if (userType === "employee" && editScreen && !isLoading && !ownerShipCatLoading && OwnerShipCategoryOb) {
+    if (!isLoading && !ownerShipCatLoading && OwnerShipCategoryOb && SubOwnerShipCategoryOb) {
       const arr = getDropdwonForProperty(ownerShipdropDown);
-      const defaultValue = arr.filter((e) => e.code === formData?.originalData?.ownershipCategory)[0];
-      selectedValue(defaultValue);
+      if (!arr || arr.length === 0) return;
+      /* Try originalData first (edit screen), then formData ownershipCategory */
+      const targetCode =
+        formData?.originalData?.ownershipCategory ||
+        formData?.ownershipCategory?.value ||
+        formData?.ownershipCategory;
+      if (targetCode) {
+        const matched = arr.find((e) => e.code === targetCode);
+        if (matched) selectedValue(matched);
+      }
       setLoader(false);
     }
-  }, [isLoading, ownerShipCatLoading, OwnerShipCategoryOb]);
+  }, [isLoading, ownerShipCatLoading, OwnerShipCategoryOb, SubOwnerShipCategoryOb]);
 
   OwnerShipCategoryOb &&
     OwnerShipCategoryOb.length > 0 &&
@@ -73,7 +73,7 @@ const SelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onBlu
     if (userType === "employee") {
       const arr = ownerShipdropDown
         ?.filter((e) => e.code.split(".").length <= 2)
-        ?.splice(0, 10)
+        ?.slice(0, 10)
         ?.map((ownerShipDetails) => ({
           ...ownerShipDetails,
           i18nKey: `PT_OWNERSHIP_${
@@ -86,7 +86,7 @@ const SelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onBlu
     return (
       ownerShipdropDown &&
       ownerShipdropDown.length &&
-      ownerShipdropDown.splice(0, 10).map((ownerShipDetails) => ({
+      ownerShipdropDown.slice(0, 10).map((ownerShipDetails) => ({
         ...ownerShipDetails,
         i18nKey: `PT_OWNERSHIP_${ownerShipDetails.value.split(".")[1] ? ownerShipDetails.value.split(".")[1] : ownerShipDetails.value.split(".")[0]}`,
       }))

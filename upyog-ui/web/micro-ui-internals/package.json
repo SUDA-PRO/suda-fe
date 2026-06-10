@@ -16,7 +16,9 @@
     "packages/modules/pt",
     "packages/modules/obps",
     "packages/modules/ws",
-    "packages/modules/mCollect"
+    "packages/modules/mCollect",
+        "packages/modules/tl"
+
   ],
   "license": "MIT",
   "private": true,

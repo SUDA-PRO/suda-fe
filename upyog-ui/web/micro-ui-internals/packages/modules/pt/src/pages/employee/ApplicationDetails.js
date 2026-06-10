@@ -71,7 +71,7 @@ const ApplicationDetails = () => {
 
   useEffect(() => {
     if (applicationDetails) {
-      appDetailsToShow?.applicationData?.owners.sort((item, item2) => { return item?.additionalDetails?.ownerSequence - item2?.additionalDetails?.ownerSequence })
+      appDetailsToShow?.applicationData?.owners?.sort((item, item2) => { return item?.additionalDetails?.ownerSequence - item2?.additionalDetails?.ownerSequence })
       setAppDetailsToShow(_.cloneDeep(applicationDetails));
       if (applicationDetails?.applicationData?.status !== "ACTIVE" && applicationDetails?.applicationData?.creationReason === "MUTATION") {
         setEnableAudit(true);
@@ -130,7 +130,7 @@ const ApplicationDetails = () => {
     });
   }
 
-  if (!(appDetailsToShow?.applicationDetails?.[0]?.values?.[0].title === "PT_PROPERTY_APPLICATION_NO")) {
+  if (!(appDetailsToShow?.applicationDetails?.[0]?.values?.[0]?.title === "PT_PROPERTY_APPLICATION_NO")) {
     appDetailsToShow?.applicationDetails?.unshift({
       values: [
         { title: "PT_PROPERTY_APPLICATION_NO", value: appDetailsToShow?.applicationData?.acknowldgementNumber },
@@ -200,20 +200,20 @@ const ApplicationDetails = () => {
     />
    )
  } 
-  if (applicationDetails?.applicationDetails[1].title == "PT_ASSESMENT_INFO_SUB_HEADER") {
-    if (applicationDetails?.applicationDetails[1].values.length == 4) {
+  if (applicationDetails?.applicationDetails?.[1]?.title == "PT_ASSESMENT_INFO_SUB_HEADER") {
+    if (applicationDetails?.applicationDetails?.[1]?.values?.length == 4) {
       let obj = {
         "title": "PT_ASSESMENT_ELECTRICITY",
         "value": applicationDetails?.additionalDetails?.electricity || "NA"
       }
-      applicationDetails?.applicationDetails[1].values.push(obj)
+      applicationDetails?.applicationDetails?.[1]?.values?.push(obj)
     }
-    if (applicationDetails?.applicationDetails[1].values.length == 5) {
+    if (applicationDetails?.applicationDetails?.[1]?.values?.length == 5) {
       let obj = {
         "title": "PT_ASSESMENT_ELECTRICITY_UID",
         "value": applicationDetails?.additionalDetails?.uid || "NA"
       }
-      applicationDetails?.applicationDetails[1].values.push(obj)
+      applicationDetails?.applicationDetails?.[1]?.values?.push(obj)
     }
   }
 

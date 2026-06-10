@@ -28,14 +28,7 @@ const getUsageCategoryParsed = (code = "") => {
 const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const stateId = Digit.ULBService.getStateId();
 
-  /* ── Is Residential ── */
-  const isResOptions = [
-    { i18nKey: "PT_COMMON_YES", code: "RESIDENTIAL" },
-    { i18nKey: "PT_COMMON_NO", code: "NONRESIDENTIAL" },
-  ];
-  const [isResdential, setIsResdential] = useState(formData?.isResdential || null);
-
-  /* ── Usage Category Major (Non-residential only) ── */
+  /* ── Usage Category Major ── */
   const { data: usageCatMDMS = {}, isLoading: usageCatLoading } =
     Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "UsageCategory") || {};
   const usagecat = usageCatMDMS?.PropertyTax?.UsageCategory || [];
@@ -212,12 +205,35 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   );
 
   /* ── Flat Units (Shared/Flat property) ── */
-  const createEmptyFlatUnit = () => ({
-    usageCategory: null,
+  const epochToDateInput = (val) => {
+    if (!val) return "";
+    const ts = Number(val);
+    if (!isNaN(ts) && ts > 0) {
+      const d = new Date(ts);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    // already a YYYY-MM-DD string
+    return String(val);
+  };
+
+  const getDerivedUsageCategory = () => {
+    if (!usageCategoryMajor) return null;
+    const majorCode = usageCategoryMajor.code || "";
+    const minorCode = majorCode.includes(".") ? majorCode.split(".")[1] : majorCode;
+    if (["MIXED", "OTHERS"].includes(minorCode.toUpperCase())) return null;
+    return { code: minorCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${minorCode}` };
+  };
+
+  const createEmptyFlatUnit = (prefillUsageCategory = null) => ({
+    usageCategory: prefillUsageCategory,
     unitType: null,
     occupancyType: null,
     builtUpArea: "",
     floorNo: null,
+    dateOfConstruction: "",
   });
 
   const [flatUnits, setFlatUnits] = useState(() => {
@@ -233,6 +249,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           occupancyType: unit?.occupancyType ? { code: unit.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${unit.occupancyType}` } : null,
           builtUpArea: unit?.constructionDetail?.builtUpArea || "",
           floorNo: unit?.floorNo !== undefined ? { code: unit.floorNo, i18nKey: `PROPERTYTAX_FLOOR_${unit.floorNo}` } : null,
+          dateOfConstruction: epochToDateInput(unit?.constructionDetail?.constructionDate),
         };
       });
     }
@@ -250,12 +267,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return list;
   };
 
-  const createEmptyUnit = (floorNo) => ({
-    usageCategory: null,
+  const createEmptyUnit = (floorNo, prefillUsageCategory = null) => ({
+    usageCategory: prefillUsageCategory,
     unitType: null,
     occupancyType: null,
     builtUpArea: "",
     floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
+    dateOfConstruction: "",
   });
 
   const mapExistingUnitToForm = (existing, floorNo) => {
@@ -268,6 +286,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       occupancyType: existing.occupancyType ? { code: existing.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${existing.occupancyType}` } : null,
       builtUpArea: existing.constructionDetail?.builtUpArea || "",
       floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
+      dateOfConstruction: epochToDateInput(existing.constructionDetail?.constructionDate),
     };
   };
 
@@ -298,7 +317,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const isIndependent = PropertyType?.code === "BUILTUP.INDEPENDENTPROPERTY";
   const isShared = PropertyType?.code === "BUILTUP.SHAREDPROPERTY";
   const isVacant = PropertyType?.code === "VACANT";
-  const isNonResidential = isResdential?.i18nKey === "PT_COMMON_NO";
+  const isNonResidential = !!(usageCategoryMajor?.code && usageCategoryMajor.code !== "RESIDENTIAL");
 
   /* -- Compute sum of all built-up areas -- */
   const builtUpAreaSum = (() => {
@@ -324,6 +343,22 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       });
     }
   }, [noOofBasements, noOfFloors, PropertyType]);
+
+  /* ── Pre-populate unit usage category from the Use field ── */
+  useEffect(() => {
+    if (!usageCategoryMajor) return;
+    const majorCode = usageCategoryMajor.code || "";
+    const minorCode = majorCode.includes(".") ? majorCode.split(".")[1] : majorCode;
+    // Clear unit usage for Mixed and Others
+    if (["MIXED", "OTHERS"].includes(minorCode.toUpperCase())) {
+      setFloorUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: null, unitType: null })));
+      setFlatUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: null, unitType: null })));
+      return;
+    }
+    const derivedUsageCategory = { code: minorCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${minorCode}` };
+    setFloorUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: derivedUsageCategory, unitType: null })));
+    setFlatUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: derivedUsageCategory, unitType: null })));
+  }, [usageCategoryMajor]);
 
   /* ── Address: update city list when pincode/allCities changes ── */
   useEffect(() => {
@@ -456,7 +491,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddFlatUnit = () => {
-    setFlatUnits((prev) => [...prev, createEmptyFlatUnit()]);
+    setFlatUnits((prev) => [...prev, createEmptyFlatUnit(getDerivedUsageCategory())]);
   };
 
   const handleRemoveFlatUnit = (idx) => {
@@ -467,13 +502,14 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddIndependentUnit = (floorNo) => {
+    const prefill = getDerivedUsageCategory();
     setFloorUnits((prev) => {
       const insertionIndex = prev.reduce((lastIdx, u, idx) => (Number(u.floorNo?.code) === Number(floorNo) ? idx : lastIdx), -1);
       const updated = [...prev];
       if (insertionIndex === -1) {
-        updated.push(createEmptyUnit(floorNo));
+        updated.push(createEmptyUnit(floorNo, prefill));
       } else {
-        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo));
+        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo, prefill));
       }
       return updated;
     });
@@ -541,8 +577,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
   /* ── Validation ── */
   const isFormValid = () => {
-    if (!isResdential) return false;
-    if (isNonResidential && !usageCategoryMajor) return false;
+    if (!usageCategoryMajor) return false;
     if (!PropertyType) return false;
     if (!isVacant && (!electricity || electricity.length !== 10)) return false;
     if (isVacant && electricity && electricity.length !== 10) return false;
@@ -555,6 +590,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea) return false;  
         if (unit.usageCategory?.code !== "RESIDENTIAL" && !unit.unitType) return false;
         if (unit.occupancyType?.code === "RENTED" && !unit.builtUpArea) return false;
+        if (!unit.dateOfConstruction) return false;
         return true;
       });
       if (!allValid) return false;
@@ -564,6 +600,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       const allValid = flatUnits.every((unit) => {
         if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea || !unit.floorNo) return false;
         if (unit.usageCategory?.code !== "RESIDENTIAL" && !unit.unitType) return false;
+        if (!unit.dateOfConstruction) return false;
         return true;
       });
       if (!allValid) return false;
@@ -588,12 +625,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   /* ── Submit ── */
   const goNext = () => {
     sessionStorage.setItem("PropertyType", PropertyType?.i18nKey);
-    sessionStorage.setItem("isResdential", isResdential?.i18nKey);
     if (noOofBasements) sessionStorage.setItem("noOofBasements", noOofBasements?.i18nKey);
 
-    const finalUsageCategory = isNonResidential
-      ? usageCategoryMajor
-      : { i18nKey: "PROPERTYTAX_BILLING_SLAB_RESIDENTIAL", code: "RESIDENTIAL" };
+    const finalUsageCategory = usageCategoryMajor;
+    const isResdential = usageCategoryMajor?.code === "RESIDENTIAL"
+      ? { i18nKey: "PT_COMMON_YES", code: "RESIDENTIAL" }
+      : { i18nKey: "PT_COMMON_NO", code: "NONRESIDENTIAL" };
 
     const unitsData =
       isIndependent && floorUnits.length > 0
@@ -612,7 +649,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 );
               })?.code || field.usageCategory?.code;
             unit.occupancyType = field.occupancyType?.code;
-            unit.constructionDetail = { builtUpArea: field.builtUpArea };
+            unit.constructionDetail = { builtUpArea: field.builtUpArea, ...(field.dateOfConstruction ? { constructionDate: new Date(field.dateOfConstruction).getTime() } : {}) };
             if (field.unitType?.code) unit.unitType = field.unitType.code;
             return unit;
           })
@@ -632,7 +669,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 );
               })?.code || field.usageCategory?.code;
             unit.occupancyType = field.occupancyType?.code;
-            unit.constructionDetail = { builtUpArea: field.builtUpArea };
+            unit.constructionDetail = { builtUpArea: field.builtUpArea, ...(field.dateOfConstruction ? { constructionDate: new Date(field.dateOfConstruction).getTime() } : {}) };
             if (field.unitType?.code) unit.unitType = field.unitType.code;
             return unit;
           })
@@ -864,6 +901,21 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         .pt-property-details-form .upload-file .tag-container {
           width: 65% !important;
         }
+        .pt-property-details-form input[type="date"]::-webkit-calendar-picker-indicator {
+          width: 16px !important;
+          height: 16px !important;
+          margin-right: 14px !important;
+          opacity: 0.7 !important;
+          transform: scale(1.2) !important;
+          transform-origin: center !important;
+          cursor: pointer !important;
+          border-radius: 4px !important;
+          transition: opacity 0.18s, background 0.18s, transform 0.18s !important;
+        }
+        .pt-property-details-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+          opacity: 1 !important;
+          transform: scale(1.35) !important;
+        }
       `}</style>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={1} /> : null}
 
@@ -911,19 +963,11 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           <div style={sectionTitleStyle}>{t("PT_PROPERTY_DETAILS_HEADER") || "Property Details"}</div>
           <div style={rowStyle}>
 
-            {/* Is Residential */}
+            {/* Usage Category */}
             <div style={col3}>
-              <label style={labelStyle}>{t("PT_PROPERTY_DETAILS_RESIDENTIAL_PROPERTY_HEADER")}<span style={requiredMark}>*</span></label>
-              <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={isResOptions} selected={isResdential} select={setIsResdential} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+              <label style={labelStyle}>{t("PT_ASSESMENT_INFO_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
+              <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={usageCategoryOptions} selected={usageCategoryMajor} select={setUsageCategoryMajor} placeholder={t("PT_SELECT_PLACEHOLDER")} />
             </div>
-
-            {/* Usage Category – Non-residential only */}
-            {isNonResidential && (
-              <div style={col3}>
-                <label style={labelStyle}>{t("PT_ASSESMENT_INFO_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
-                <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={usageCategoryOptions} selected={usageCategoryMajor} select={setUsageCategoryMajor} placeholder={t("PT_SELECT_PLACEHOLDER")} />
-              </div>
-            )}
 
             {/* Property Type */}
             <div style={col3}>
@@ -1027,6 +1071,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                           <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
                           <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
                         </div>
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_FORM2_DATE_OF_CONSTRUCTION")}<span style={requiredMark}>*</span></label>
+                          <TextInput t={t} type="date" value={unit.dateOfConstruction || ""} onChange={(e) => updateUnit(idx, "dateOfConstruction", e.target.value)} isRequired={true} title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1082,6 +1130,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === "") { updateFlatUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
                   </div>
                   <div style={col3}>
+                    <label style={labelStyle}>{t("PT_FORM2_DATE_OF_CONSTRUCTION")}<span style={requiredMark}>*</span></label>
+                    <TextInput t={t} type="date" value={unit.dateOfConstruction || ""} onChange={(e) => updateFlatUnit(idx, "dateOfConstruction", e.target.value)} isRequired={true} title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                  </div>
+                  <div style={col3}>
                     <label style={labelStyle}>{t("PT_FORM2_SELECT_FLOOR")}<span style={requiredMark}>*</span></label>
                     <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.Floor || []} selected={unit.floorNo} select={(val) => updateFlatUnit(idx, "floorNo", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
                   </div>
@@ -1126,7 +1178,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     selected={selectedLocality}
                     option={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
                     select={setSelectedLocality}
-                    optionKey="i18nkey"
+                    optionKey="name"
                     t={t}
                     optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
                   />

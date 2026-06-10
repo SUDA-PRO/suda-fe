@@ -117,9 +117,6 @@ const DocsRequired = ({ onSelect, onSkip, config }) => {
           </svg>
         </div>
         <div>
-          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>
-            {checkingUrl ? t("BPA_OC_APPLICATION") || "OC Application" : t("BPA_NEW_BUILDING_PERMIT") || "New Building Permit"}
-          </div>
           <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>
             {checkingUrl ? t("BPA_OOCUPANCY_CERTIFICATE_APP_LABEL") : t("OBPS_NEW_BUILDING_PERMIT")}
           </h2>

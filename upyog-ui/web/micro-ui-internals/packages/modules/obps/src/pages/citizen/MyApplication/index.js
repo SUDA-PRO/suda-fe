@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { Card, KeyNote, Loader, SubmitBar, Header } from "@upyog/digit-ui-react-components";
-import { Fragment } from "react";
+import { Loader } from "@upyog/digit-ui-react-components";
 import { Link, useHistory } from "react-router-dom";
 import { getBPAFormData } from "../../../utils/index";
+import MyApplicationCard from "./my-application";
 
 const getServiceType = () => {
   return `BPA_APPLICATIONTYPE_BUILDING_PLAN_SCRUTINY`;
@@ -120,92 +120,88 @@ const MyApplication = () => {
     return <Loader />;
   }
 
-  const getTotalCount = (LicensesLength, bpaDataLength) => {
-    let count = 0;
-    if (typeof LicensesLength == "number") {
-      count = count + LicensesLength
-    }
+  const count = finalData.length;
 
-    if (typeof bpaDataLength == "number") {
-      count = count + bpaDataLength
+  const handleCompleteWorkflow = (application) => {
+    if (application.type === "BPAREG") {
+      getBPAREGFormData(application);
+    } else {
+      getBPAFormData(application, mdmsData, history, t);
     }
-
-    if (count > 0) return `(${count})`;
-    else return ""
-  }
+  };
 
   return (
-    <Fragment>
-      <Header styles={{marginLeft: "10px"}}>{`${t("BPA_MY_APPLICATIONS")} ${getTotalCount(data?.Licenses?.length, bpaData?.length)}`}</Header>
-      {finalData?.map((application, index) => {
-        if (application.type === "BPAREG") {
-          return (
-            <Card key={index}>
-              <KeyNote keyValue={t("BPA_APPLICATION_NUMBER_LABEL")} note={application?.applicationNumber} />
-              <KeyNote keyValue={t("BPA_LICENSE_TYPE")} note={t(`TRADELICENSE_TRADETYPE_${application?.tradeLicenseDetail?.tradeUnits?.[0]?.tradeType?.split('.')[0]}`)} />
-              {application?.tradeLicenseDetail?.tradeUnits?.[0]?.tradeType.includes('ARCHITECT') &&
-                <KeyNote keyValue={t("BPA_COUNCIL_OF_ARCH_NO_LABEL")} note={application?.tradeLicenseDetail?.additionalDetail?.counsilForArchNo} />
-              }
-              <KeyNote keyValue={t("BPA_APPLICANT_NAME_LABEL")} note={application?.tradeLicenseDetail?.owners?.[0]?.name} />
-              <KeyNote keyValue={t("TL_COMMON_TABLE_COL_STATUS")} note={t(`WF_ARCHITECT_${application?.status}`)} noteStyle={application?.status === "APPROVED" ? { color: "#00703C" } : { color: "#D4351C" }} />
-              {application.status !== "INITIATED" ? <Link to={{ pathname: `/suda-ui/citizen/obps/stakeholder/${application?.applicationNumber}`, state: { tenantId: '' } }}>
-                <SubmitBar label={t("TL_VIEW_DETAILS")} />
-              </Link> :
-                <SubmitBar label={t("BPA_COMP_WORKFLOW")} onSubmit={() => getBPAREGFormData(application)} />}
-              {application.status==="PENDINGPAYMENT" ? (
-              <Link
-                to={{
-                  pathname : `/suda-ui/citizen/payment/collect/${application?.businessService}/${application?.applicationNumber}`,
-                }}>
-              <div style={{marginTop:"10px"}}>
-                <SubmitBar label ={t("COMMON_MAKE_PAYMENT")}/>
-              </div>
-              </Link>
-              ) : null}
-            </Card>
-          )
-        } else {
-          return (
-            <Card key={index}>
-              <KeyNote keyValue={t("BPA_APPLICATION_NUMBER_LABEL")} note={application?.applicationNo} />
-              <KeyNote keyValue={t("BPA_BASIC_DETAILS_APPLICATION_TYPE_LABEL")} note={application?.businessService !== "BPA_OC" ? t(`WF_BPA_BUILDING_PLAN_SCRUTINY`) : t(`WF_BPA_BUILDING_OC_PLAN_SCRUTINY`)} />
-              <KeyNote keyValue={t("BPA_IS_PREAPPROVED")} note={t(application?.additionalDetails?.isPreApproved ? application?.additionalDetails?.isPreApproved : application?.businessService==="BPA-PAP" ? true : false)} />
-              <KeyNote keyValue={t("BPA_COMMON_SERVICE")} note={t(`BPA_SERVICETYPE_NEW_CONSTRUCTION`)} />
-              <KeyNote keyValue={t("TL_COMMON_TABLE_COL_STATUS")} note={t(`WF_BPA_${application?.state}`)} noteStyle={application?.status === "APPROVED" ? { color: "#00703C" } : { color: "#D4351C" }} />
-              <KeyNote keyValue={t("BPA_COMMON_SLA")} note={typeof(application?.sla) == "string" && application?.sla?.includes("NA") ? t(`${`CS_NA`}`) : application?.sla} />
-              {application.action === "SEND_TO_ARCHITECT" || application.status !== "INITIATED" ? <Link to={{ pathname: `/suda-ui/citizen/obps/bpa/${application?.applicationNo}`, state: { tenantId: '' } }}>
-                <SubmitBar label={t("TL_VIEW_DETAILS")} />
-              </Link> :
-                <div>
-                  {labelMessage ?
-                    <Link to={{ pathname: `/suda-ui/citizen/obps/bpa/${application?.applicationNo}`, state: { tenantId: '' } }}>
-                      <SubmitBar label={t("TL_VIEW_DETAILS")} />
-                    </Link> : <SubmitBar label={t("BPA_COMP_WORKFLOW")} onSubmit={() => getBPAFormData(application, mdmsData, history, t)} />}
-                </div>
-              }
-              {application.status==="PENDINGPAYMENT" ? (
-              <Link
-                to={{
-                  pathname : `/suda-ui/citizen/payment/collect/${application?.businessService}/${application?.applicationNumber}`,
+    <div style={{ minHeight: "100vh", background: "linear-gradient(135deg, #f0f4ff 0%, #fef6f0 100%)", padding: "24px 16px 40px" }}>
 
-                }}>
-              <div style={{marginTop:"10px"}}>
-                <SubmitBar label ={t("COMMON_MAKE_PAYMENT")}/>
-              </div>
-              </Link>
-              ) : null}
-            </Card>
-          )
-        }
-      })}
-
-      <div style={{ marginLeft: "16px", marginTop: "16px", marginBottom: "46px" }}>
-        <span>{`${t("BPA_NOT_ABLE_TO_FIND_APP_MSG")} `} </span>
-        <span className="link">
-          <Link to="/suda-ui/citizen/obps/search/obps-application">{t("BPA_CLICK_HERE_TO_SEARCH_LINK")}</Link>
-        </span>
+      {/* Page header */}
+      <div style={{ maxWidth: "960px", margin: "0 auto 28px auto" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+          <div>
+            <h1 style={{ margin: 0, fontSize: "22px", fontWeight: "800", color: "#1a2b49", letterSpacing: "-0.3px" }}>
+              {t("BPA_MY_APPLICATIONS")}
+            </h1>
+            <p style={{ margin: "4px 0 0", fontSize: "13px", color: "#6b7280" }}>
+              {count > 0 ? `${count} ${t("BPA_APPLICATIONS_FOUND") || "applications found"}` : t("BPA_NO_APP_FOUND_MSG") || "No applications found"}
+            </p>
+          </div>
+          {count > 0 && (
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", padding: "6px 16px", background: "rgba(244,119,56,0.1)", borderRadius: "20px", border: "1px solid rgba(244,119,56,0.25)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+              <span style={{ fontSize: "13px", fontWeight: "700", color: "#f47738" }}>{count}</span>
+            </div>
+          )}
+        </div>
       </div>
-    </Fragment>
+
+      {/* Application cards grid */}
+      <div style={{ maxWidth: "960px", margin: "0 auto" }}>
+        {count > 0 ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: "20px" }}>
+            {finalData.map((application, index) => (
+              <MyApplicationCard
+                key={index}
+                application={application}
+                labelMessage={labelMessage}
+                onCompleteWorkflow={handleCompleteWorkflow}
+              />
+            ))}
+          </div>
+        ) : (
+          <div style={{ textAlign: "center", padding: "60px 20px", background: "#ffffff", borderRadius: "20px", boxShadow: "0 2px 12px rgba(26,43,73,0.07)" }}>
+            <div style={{ width: "72px", height: "72px", borderRadius: "50%", background: "linear-gradient(135deg, #f0f4ff 0%, #fef6f0 100%)", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+              </svg>
+            </div>
+            <p style={{ margin: "0 0 6px", fontSize: "16px", fontWeight: "700", color: "#1a2b49" }}>{t("BPA_NO_APP_FOUND_MSG") || "No applications found"}</p>
+            <p style={{ margin: 0, fontSize: "13px", color: "#9ca3af" }}>{t("BPA_SEARCH_FOR_APPLICATION") || "Search for an existing application below"}</p>
+          </div>
+        )}
+
+        {/* Search CTA */}
+        <div style={{ marginTop: "32px", padding: "24px", background: "#ffffff", borderRadius: "16px", border: "2px dashed #e5e7eb", textAlign: "center" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", marginBottom: "8px" }}>
+            <div style={{ width: "28px", height: "28px", borderRadius: "50%", background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+              </svg>
+            </div>
+            <span style={{ fontSize: "14px", color: "#4b5563", fontWeight: "600" }}>{t("BPA_NOT_ABLE_TO_FIND_APP_MSG")}</span>
+          </div>
+          <Link to="/suda-ui/citizen/obps/search/obps-application" style={{ textDecoration: "none" }}>
+            <button
+              style={{ padding: "10px 28px", background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)", border: "none", borderRadius: "10px", color: "#fff", fontSize: "14px", fontWeight: "700", cursor: "pointer", boxShadow: "0 3px 12px rgba(244,119,56,0.35)", transition: "transform 0.15s, box-shadow 0.15s" }}
+              onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 6px 18px rgba(244,119,56,0.45)"; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 3px 12px rgba(244,119,56,0.35)"; }}
+            >
+              {t("BPA_CLICK_HERE_TO_SEARCH_LINK")}
+            </button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 };
 

@@ -4,48 +4,10 @@ import { Link } from "react-router-dom";
 
 const actions = [
   {
-    key: "view-applications",
-    i18nKey: "BPA_CITIZEN_HOME_VIEW_APPS_LABEL",
-    label: "View applications by Citizen",
-    link: "/suda-ui/citizen/obps/my-applications",
+    key: "new-application",
+    i18nKey: "TL_CREATE_TRADE",
+    link: "/suda-ui/citizen/tl/tradelicence/new-application",
     gradient: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-      </svg>
-    ),
-  },
-  {
-    key: "register-stakeholder",
-    i18nKey: "BPA_CITIZEN_HOME_STAKEHOLDER_LOGIN_LABEL",
-    label: "Register as a Stakeholder",
-    link: "/suda-ui/citizen/obps/stakeholder/apply/stakeholder-docs-required",
-    gradient: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-      </svg>
-    ),
-  },
-  {
-    key: "architect-login",
-    i18nKey: "BPA_CITIZEN_HOME_ARCHITECT_LOGIN_LABEL",
-    label: "Registered Architect Login",
-    link: "/suda-ui/citizen/obps/home",
-    gradient: "linear-gradient(135deg, #059669 0%, #047857 100%)",
-    icon: (
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>
-      </svg>
-    ),
-  },
-  {
-    key: "pre-approved-plan",
-    i18nKey: "BPA_CITIZEN_HOME_PRE_APPROVED_PLAN_LABEL",
-    label: "Apply for Pre-approved Plan",
-    link: "/suda-ui/citizen/obps/preApprovedPlan",
-    gradient: "linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
@@ -54,10 +16,32 @@ const actions = [
     ),
   },
   {
+    key: "renewal",
+    i18nKey: "TL_RENEWAL_HEADER",
+    link: "/suda-ui/citizen/tl/tradelicence/renewal-list",
+    gradient: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+      </svg>
+    ),
+  },
+  {
+    key: "my-applications",
+    i18nKey: "TL_MY_APPLICATIONS_HEADER",
+    link: "/suda-ui/citizen/tl/tradelicence/my-application",
+    gradient: "linear-gradient(135deg, #059669 0%, #047857 100%)",
+    icon: (
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+    ),
+  },
+  {
     key: "faq",
-    i18nKey: "BPA_CITIZEN_HOME_FAQ_LABEL",
-    label: "FAQs",
-    link: "/suda-ui/citizen/obps-faq",
+    i18nKey: "TL_HOME_FAQ_LABEL",
+    link: "/suda-ui/citizen/tl-faq",
     gradient: "linear-gradient(135deg, #475569 0%, #334155 100%)",
     icon: (
       <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -69,7 +53,7 @@ const actions = [
   },
 ];
 
-const OBPSHomePage = () => {
+const TLHomePage = () => {
   const { t } = useTranslation();
 
   return (
@@ -78,9 +62,8 @@ const OBPSHomePage = () => {
 
         <div style={{ marginBottom: "28px" }}>
           <h2 style={{ margin: "0 0 4px", fontSize: "18px", fontWeight: "800", color: "#1a2b49" }}>
-            {t("OBPS_HOME_SERVICES_TITLE") }
+            {t("TL_HOME_SERVICES_TITLE")}
           </h2>
-          
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
@@ -123,7 +106,7 @@ const OBPSHomePage = () => {
                 </div>
                 <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: "600", color: "#f47738" }}>
-                    {t("PT_COMMON_CLICK_HERE") }
+                    {t("PT_COMMON_CLICK_HERE")}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6"/>
@@ -134,20 +117,6 @@ const OBPSHomePage = () => {
           ))}
         </div>
 
-        {/* Stakeholder info note */}
-        <div style={{
-          marginTop: "20px", padding: "12px 18px", background: "#fff8f4",
-          borderRadius: "10px", border: "1px solid #fde8d8",
-          display: "flex", alignItems: "center", gap: "10px"
-        }}>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0 }}>
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
-          </svg>
-          <span style={{ fontSize: "12px", color: "#6b7280" }}>
-            {t("BPA_CITIZEN_HOME_STAKEHOLDER_INCLUDES_INFO_LABEL") }
-          </span>
-        </div>
-
         {/* Helpline strip */}
         <div style={{ marginTop: "28px", borderRadius: "16px", overflow: "hidden", boxShadow: "0 4px 20px rgba(26,43,73,0.10)", border: "1px solid #f0e8e0" }}>
           <div style={{ background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", padding: "10px 20px", display: "flex", alignItems: "center", gap: "8px" }}>
@@ -155,8 +124,7 @@ const OBPSHomePage = () => {
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
             <span style={{ fontSize: "12px", fontWeight: "700", color: "#fff", letterSpacing: "0.5px", textTransform: "uppercase" }}>
-              {t("PT_HOME_HELP_TITLE") 
-              }
+              {t("PT_HOME_HELP_TITLE")}
             </span>
           </div>
           <div style={{ background: "#fffaf7", display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))" }}>
@@ -168,7 +136,7 @@ const OBPSHomePage = () => {
               </div>
               <div>
                 <div style={{ fontSize: "12px", fontWeight: "700", color: "#1a2b49", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.4px" }}>
-                  {t("PT_HOME_HELPLINE_TITLE") }
+                  {t("PT_HOME_HELPLINE_TITLE")}
                 </div>
                 <a href="tel:07712221955" style={{ fontSize: "13px", fontWeight: "600", color: "#f47738", textDecoration: "none" }}>
                   0771-2221955
@@ -183,7 +151,7 @@ const OBPSHomePage = () => {
               </div>
               <div>
                 <div style={{ fontSize: "12px", fontWeight: "700", color: "#1a2b49", marginBottom: "6px", textTransform: "uppercase", letterSpacing: "0.4px" }}>
-                  {t("PT_HOME_CSC_TITLE") }
+                  {t("PT_HOME_CSC_TITLE")}
                 </div>
                 <div style={{ fontSize: "13px", color: "#4b5563", lineHeight: 1.6 }}>
                   4th Floor, D-Block, Indravati Bhawan<br />
@@ -200,4 +168,4 @@ const OBPSHomePage = () => {
   );
 };
 
-export default OBPSHomePage;
+export default TLHomePage;
