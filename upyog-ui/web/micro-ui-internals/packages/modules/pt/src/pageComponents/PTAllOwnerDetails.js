@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   CardLabel,
   CardLabelDesc,
@@ -14,12 +14,56 @@ import {
 import Timeline from "../components/TLTimeline";
 import { stringReplaceAll } from "../utils";
 
+/* ─── Helper: empty owner form state ─── */
+const emptyOwner = () => ({
+  name: "", gender: null, mobileNumber: "",
+  fatherOrHusbandName: "", relationship: null,
+  email: "", emailError: "",
+  alternateMobileNumber: "", alternateMobileError: "",
+  institutionName: "", institutionType: null, designation: "",
+  landlineNumber: "", landlineError: "",
+  institutionAltMobile: "", institutionAltMobileError: "",
+  ownerType: null, permanentAddress: "", isCorrespondenceAddress: false,
+  specialProofDocType: null, specialProofFile: null, specialProofUploadedId: null, specialProofError: null,
+  identityProofDocType: null, identityProofFile: null, identityProofUploadedId: null, identityProofError: null,
+});
+
+/* ─── Helper: init owner form from saved data ─── */
+const initOwnerFromData = (saved) => {
+  if (!saved) return emptyOwner();
+  return {
+    name: saved.name || "",
+    gender: saved.gender || null,
+    mobileNumber: saved.mobileNumber || "",
+    fatherOrHusbandName: saved.fatherOrHusbandName || "",
+    relationship: saved.relationship || null,
+    email: saved.emailId || "",
+    emailError: "",
+    alternateMobileNumber: saved.alternatemobilenumber || "",
+    alternateMobileError: "",
+    institutionName: saved.inistitutionName || "",
+    institutionType: saved.inistitutetype || null,
+    designation: saved.designation || "",
+    landlineNumber: saved.altContactNumber || "",
+    landlineError: "",
+    institutionAltMobile: saved.alternatemobilenumber || "",
+    institutionAltMobileError: "",
+    ownerType: saved.ownerType || null,
+    permanentAddress: saved.permanentAddress || "",
+    isCorrespondenceAddress: saved.isCorrespondenceAddress || false,
+    specialProofDocType: saved.documents?.specialProofIdentity?.documentType || null,
+    specialProofFile: saved.documents?.specialProofIdentity || null,
+    specialProofUploadedId: saved.documents?.specialProofIdentity?.fileStoreId || null,
+    specialProofError: null,
+    identityProofDocType: saved.documents?.proofIdentity?.documentType || null,
+    identityProofFile: saved.documents?.proofIdentity || null,
+    identityProofUploadedId: saved.documents?.proofIdentity?.fileStoreId || null,
+    identityProofError: null,
+  };
+};
+
 const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
   const stateId = Digit.ULBService.getStateId();
-
-  /* ─── index from URL (supports multi-owner /owner-all-details/0, /1, …) ─── */
-  const rawLast = window.location.href.split("/").pop();
-  const index = isNaN(parseInt(rawLast)) ? 0 : parseInt(rawLast);
 
   /* ─── Ownership category (MDMS) ─── */
   const { data: SubOwnerShipCategoryOb, isLoading: subLoading } = Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "SubOwnerShipCategory");
@@ -99,26 +143,53 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     }
   }, [subLoading, SubOwnerShipCategoryOb, OwnerShipCategoryOb]);
 
-  /* ─── Owner basic details ─── */
-  const existingOwner = formData?.owners?.[index] || {};
-  const [name, setName] = useState(existingOwner.name || "");
-  const [gender, setGender] = useState(existingOwner.gender || null);
-  const [mobileNumber, setMobileNumber] = useState(existingOwner.mobileNumber || "");
-  const [fatherOrHusbandName, setFatherOrHusbandName] = useState(existingOwner.fatherOrHusbandName || "");
-  const [relationship, setRelationship] = useState(existingOwner.relationship || null);
-  const [email, setEmail] = useState(existingOwner.emailId || "");
-  const [emailError, setEmailError] = useState("");
-  const [alternateMobileNumber, setAlternateMobileNumber] = useState(existingOwner.alternatemobilenumber || "");
-  const [alternateMobileError, setAlternateMobileError] = useState("");
+  /* ─── Multiple owners state (one form per owner) ─── */
+  const [ownerForms, setOwnerForms] = useState(() => {
+    const saved = formData?.owners;
+    if (saved && saved.length > 0) return saved.map(initOwnerFromData);
+    return [emptyOwner()];
+  });
 
-  /* ─── Institution-specific state ─── */
-  const [institutionName, setInstitutionName] = useState(existingOwner.inistitutionName || "");
-  const [institutionType, setInstitutionType] = useState(existingOwner.inistitutetype || null);
-  const [designation, setDesignation] = useState(existingOwner.designation || "");
-  const [landlineNumber, setLandlineNumber] = useState(existingOwner.altContactNumber || "");
-  const [landlineError, setLandlineError] = useState("");
-  const [institutionAltMobile, setInstitutionAltMobile] = useState(existingOwner.alternatemobilenumber || "");
-  const [institutionAltMobileError, setInstitutionAltMobileError] = useState("");
+  /* trim extra owner forms when category changes away from MULTIPLEOWNERS */
+  useEffect(() => {
+    const code = ownershipCategory?.value || ownershipCategory?.code || ownershipCategory;
+    if (code !== "INDIVIDUAL.MULTIPLEOWNERS") {
+      setOwnerForms(prev => prev.length > 1 ? [prev[0]] : prev);
+    }
+  }, [ownershipCategory]);
+
+  const updateOwner = useCallback((ownerIdx, field, value) => {
+    setOwnerForms(prev => {
+      const updated = [...prev];
+      updated[ownerIdx] = { ...updated[ownerIdx], [field]: value };
+      return updated;
+    });
+  }, []);
+
+  /* ─── Async file upload handlers ─── */
+  const handleIdentityFileSelect = async (ownerIdx, file) => {
+    if (!file) return;
+    updateOwner(ownerIdx, "identityProofFile", file);
+    updateOwner(ownerIdx, "identityProofError", null);
+    if (file.size >= 2000000) { updateOwner(ownerIdx, "identityProofError", t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
+    try {
+      const res = await Digit.UploadServices.Filestorage("property-upload", file, stateId);
+      if (res?.data?.files?.length > 0) updateOwner(ownerIdx, "identityProofUploadedId", res.data.files[0].fileStoreId);
+      else updateOwner(ownerIdx, "identityProofError", t("PT_FILE_UPLOAD_ERROR"));
+    } catch (_) { updateOwner(ownerIdx, "identityProofError", t("PT_FILE_UPLOAD_ERROR")); }
+  };
+
+  const handleSpecialProofFileSelect = async (ownerIdx, file) => {
+    if (!file) return;
+    updateOwner(ownerIdx, "specialProofFile", file);
+    updateOwner(ownerIdx, "specialProofError", null);
+    if (file.size >= 2000000) { updateOwner(ownerIdx, "specialProofError", t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
+    try {
+      const res = await Digit.UploadServices.Filestorage("property-upload", file, stateId);
+      if (res?.data?.files?.length > 0) updateOwner(ownerIdx, "specialProofUploadedId", res.data.files[0].fileStoreId);
+      else updateOwner(ownerIdx, "specialProofError", t("PT_FILE_UPLOAD_ERROR"));
+    } catch (_) { updateOwner(ownerIdx, "specialProofError", t("PT_FILE_UPLOAD_ERROR")); }
+  };
 
   /* ─── Gender MDMS ─── */
   const { data: GenderMenu } = Digit.Hooks.pt.useGenderMDMS(stateId, "common-masters", "GenderType");
@@ -152,10 +223,9 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
       }));
   }, [SubOwnerShipCategoryOb, ownershipCategoryCode]);
 
-  const validateEmail = (value) => {
-    if (!value) { setEmailError(""); return; }
+  const validateEmail = (ownerIdx, value) => {
     const pattern = /^[a-zA-Z0-9._%+-]+@[a-z.-]+\.(com|org|in)$/;
-    setEmailError(pattern.test(value) ? "" : t("CORE_INVALID_EMAIL_ID_PATTERN"));
+    updateOwner(ownerIdx, "emailError", value && !pattern.test(value) ? t("CORE_INVALID_EMAIL_ID_PATTERN") : "");
   };
 
   /* ─── Owner Type / Special Category (MDMS) ─── */
@@ -168,14 +238,8 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     return menu;
   })();
 
-  const [ownerType, setOwnerType] = useState(existingOwner.ownerType || null);
-
-  /* ─── Owner Address ─── */
-  const [permanentAddress, setPermanentAddress] = useState(existingOwner.permanentAddress || "");
-  const [isCorrespondenceAddress, setIsCorrespondenceAddress] = useState(existingOwner.isCorrespondenceAddress || false);
-
-  function handleCorrespondenceAddress(e) {
-    if (e.target.checked) {
+  function handleCorrespondenceAddress(ownerIdx, checked) {
+    if (checked) {
       const addr = formData?.address;
       const parts = [
         addr?.doorNo,
@@ -185,52 +249,28 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
         addr?.city?.code,
         addr?.pincode,
       ].filter(Boolean);
-      setPermanentAddress(parts.join(", "));
+      updateOwner(ownerIdx, "permanentAddress", parts.join(", "));
     } else {
-      setPermanentAddress("");
+      updateOwner(ownerIdx, "permanentAddress", "");
     }
-    setIsCorrespondenceAddress(e.target.checked);
+    updateOwner(ownerIdx, "isCorrespondenceAddress", checked);
   }
 
   /* ─── Special Category Proof (MDMS) ─── */
   const { data: Documentsob = {} } = Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "Documents");
   const docs = Documentsob?.PropertyTax?.Documents;
 
-  /* special proof dropdown — filtered by ownerType */
-  const specialProofOptions = (() => {
+  /* special proof dropdown — filtered per owner type */
+  const getSpecialProofOptions = (ownerType) => {
     if (!docs || !ownerType || ownerType.code === "NONE") return [];
     const row = Array.isArray(docs) && docs.find((d) => d.code.includes("SPECIALCATEGORYPROOF"));
     if (!row) return [];
     return (row.dropdownData || [])
       .filter((d) => d.active !== false && d.parentValue?.includes(ownerType.code))
       .map((d) => ({ ...d, i18nKey: stringReplaceAll(d.code, ".", "_") }));
-  })();
+  };
 
-  const [specialProofDocType, setSpecialProofDocType] = useState(existingOwner.documents?.specialProofIdentity?.documentType || null);
-  const [specialProofFile, setSpecialProofFile] = useState(() => {
-    const doc = existingOwner.documents?.specialProofIdentity;
-    if (!doc) return null;
-    if (doc.name) return doc;
-    const n = sessionStorage.getItem(`pt-sp-name-${index}`); const s = sessionStorage.getItem(`pt-sp-size-${index}`);
-    return { ...doc, name: n || null, size: s ? Number(s) : null };
-  });
-  const [specialProofUploadedId, setSpecialProofUploadedId] = useState(existingOwner.documents?.specialProofIdentity?.fileStoreId || null);
-  const [specialProofError, setSpecialProofError] = useState(null);
-
-  useEffect(() => {
-    if (!specialProofFile) return;
-    if (specialProofFile.fileStoreId || specialProofUploadedId) return;
-    (async () => {
-      setSpecialProofError(null);
-      if (specialProofFile.size >= 2000000) { setSpecialProofError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
-      try {
-        const res = await Digit.UploadServices.Filestorage("property-upload", specialProofFile, stateId);
-        if (res?.data?.files?.length > 0) setSpecialProofUploadedId(res.data.files[0].fileStoreId);
-      } catch (_) {}
-    })();
-  }, [specialProofFile]);
-
-  /* ─── Identity Proof (MDMS) ─── */
+  /* ─── Identity Proof options (MDMS) ─── */
   const identityProofOptions = (() => {
     if (!docs) return [];
     const row = Array.isArray(docs) && docs.find((d) => d.code.includes("IDENTITYPROOF"));
@@ -238,178 +278,86 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
     return (row.dropdownData || []).map((d) => ({ ...d, i18nKey: stringReplaceAll(d.code, ".", "_") }));
   })();
 
-  const [identityProofDocType, setIdentityProofDocType] = useState(existingOwner.documents?.proofIdentity?.documentType || null);
-  const [identityProofFile, setIdentityProofFile] = useState(() => {
-    const doc = existingOwner.documents?.proofIdentity;
-    if (!doc) return null;
-    if (doc.name) return doc;
-    const n = sessionStorage.getItem(`pt-id-name-${index}`); const s = sessionStorage.getItem(`pt-id-size-${index}`);
-    return { ...doc, name: n || null, size: s ? Number(s) : null };
-  });
-  const [identityProofUploadedId, setIdentityProofUploadedId] = useState(existingOwner.documents?.proofIdentity?.fileStoreId || null);
-  const [identityProofError, setIdentityProofError] = useState(null);
-
-  useEffect(() => {
-    if (!identityProofFile) return;
-    if (identityProofFile.fileStoreId || identityProofUploadedId) return;
-    (async () => {
-      setIdentityProofError(null);
-      if (identityProofFile.size >= 2000000) { setIdentityProofError(t("PT_MAXIMUM_UPLOAD_SIZE_EXCEEDED")); return; }
-      try {
-        const res = await Digit.UploadServices.Filestorage("property-upload", identityProofFile, stateId);
-        if (res?.data?.files?.length > 0) setIdentityProofUploadedId(res.data.files[0].fileStoreId);
-      } catch (_) {}
-    })();
-  }, [identityProofFile]);
-
-  /* ─── Sync identity proof from async formData load ─── */
-  useEffect(() => {
-    const savedDoc = formData?.owners?.[index]?.documents?.proofIdentity;
-    if (!savedDoc) return;
-    if (!identityProofFile) setIdentityProofFile(savedDoc);
-    if (!identityProofUploadedId && savedDoc.fileStoreId) setIdentityProofUploadedId(savedDoc.fileStoreId);
-    if (savedDoc.documentType && identityProofOptions.length > 0) {
-      const savedCode = typeof savedDoc.documentType === "object" ? savedDoc.documentType.code : savedDoc.documentType;
-      const matched = identityProofOptions.find((o) => o.code === savedCode);
-      if (matched && matched !== identityProofDocType) setIdentityProofDocType(matched);
-    }
-  }, [formData?.owners?.[index]?.documents?.proofIdentity, identityProofOptions.length]);
-
-  /* ─── Sync special category proof from async formData load ─── */
-  useEffect(() => {
-    const savedDoc = formData?.owners?.[index]?.documents?.specialProofIdentity;
-    if (!savedDoc) return;
-    if (!specialProofFile) setSpecialProofFile(savedDoc);
-    if (!specialProofUploadedId && savedDoc.fileStoreId) setSpecialProofUploadedId(savedDoc.fileStoreId);
-    if (savedDoc.documentType && specialProofOptions.length > 0) {
-      const savedCode = typeof savedDoc.documentType === "object" ? savedDoc.documentType.code : savedDoc.documentType;
-      const matched = specialProofOptions.find((o) => o.code === savedCode);
-      if (matched && matched !== specialProofDocType) setSpecialProofDocType(matched);
-    }
-  }, [formData?.owners?.[index]?.documents?.specialProofIdentity, specialProofOptions.length, ownerType]);
-
-  /* auto-select special proof doc when only one option */
-  useEffect(() => {
-    if (specialProofOptions.length === 1 && specialProofDocType !== specialProofOptions[0]) {
-      setSpecialProofDocType(specialProofOptions[0]);
-    }
-  }, [ownerType, specialProofOptions.length]);
-
-  /* ─── Reset all owner fields when navigating to a new owner index (Add Owner clicked) ─── */
-  useEffect(() => {
-    const existing = formData?.owners?.[index] || {};
-    setName(existing.name || "");
-    setGender(existing.gender || null);
-    setMobileNumber(existing.mobileNumber || "");
-    setFatherOrHusbandName(existing.fatherOrHusbandName || "");
-    setRelationship(existing.relationship || null);
-    setEmail(existing.emailId || "");
-    setEmailError("");
-    setAlternateMobileNumber(existing.alternatemobilenumber || "");
-    setAlternateMobileError("");
-    setInstitutionName(existing.inistitutionName || "");
-    setInstitutionType(existing.inistitutetype || null);
-    setDesignation(existing.designation || "");
-    setLandlineNumber(existing.altContactNumber || "");
-    setLandlineError("");
-    setInstitutionAltMobile(existing.alternatemobilenumber || "");
-    setInstitutionAltMobileError("");
-    setOwnerType(existing.ownerType || null);
-    setPermanentAddress(existing.permanentAddress || "");
-    setIsCorrespondenceAddress(existing.isCorrespondenceAddress || false);
-    setSpecialProofDocType(existing.documents?.specialProofIdentity?.documentType || null);
-    setSpecialProofFile(existing.documents?.specialProofIdentity || null);
-    setSpecialProofUploadedId(existing.documents?.specialProofIdentity?.fileStoreId || null);
-    setSpecialProofError(null);
-    setIdentityProofDocType(existing.documents?.proofIdentity?.documentType || null);
-    setIdentityProofFile(existing.documents?.proofIdentity || null);
-    setIdentityProofUploadedId(existing.documents?.proofIdentity?.fileStoreId || null);
-    setIdentityProofError(null);
-  }, [index]);
-
   /* ─── Validation ─── */
-  const needsSpecialProof = ownerType && ownerType.code !== "NONE" && specialProofOptions.length > 0;
-
-  const isFormValid = () => {
+  const isOwnerValid = (owner) => {
     if (!ownershipCategory) return false;
+    const specialOpts = getSpecialProofOptions(owner.ownerType);
+    const ownerNeedsSpecialProof = owner.ownerType && owner.ownerType.code !== "NONE" && specialOpts.length > 0;
     if (isInstitutional) {
-      if (!institutionName || !institutionType || !name || !designation || !mobileNumber || !permanentAddress) return false;
-      if (emailError || landlineError || institutionAltMobileError) return false;
-      if (!identityProofDocType || !identityProofFile) return false;
+      if (!owner.institutionName || !owner.institutionType || !owner.name || !owner.designation || !owner.mobileNumber || !owner.permanentAddress) return false;
+      if (owner.emailError || owner.landlineError || owner.institutionAltMobileError) return false;
+      if (!owner.identityProofDocType || !owner.identityProofFile) return false;
       return true;
     }
-    if (!name || !mobileNumber || !gender?.code || !relationship?.code || !fatherOrHusbandName) return false;
-    if (emailError) return false;
-    if (alternateMobileError) return false;
-    if (!ownerType) return false;
-    if (!permanentAddress) return false;
-    if (needsSpecialProof && (!specialProofDocType || !specialProofFile)) return false;
-    if (!identityProofDocType || !identityProofFile) return false;
+    if (!owner.name || !owner.mobileNumber || !owner.gender?.code || !owner.relationship?.code || !owner.fatherOrHusbandName) return false;
+    if (owner.emailError || owner.alternateMobileError) return false;
+    if (!owner.ownerType) return false;
+    if (!owner.permanentAddress) return false;
+    if (ownerNeedsSpecialProof && (!owner.specialProofDocType || !owner.specialProofFile)) return false;
+    if (!owner.identityProofDocType || !owner.identityProofFile) return false;
     return true;
   };
 
-  /* ─── Build owner object and submit ─── */
-  function buildOwnerData() {
+  const isFormValid = () => ownerForms.every(isOwnerValid);
+
+  /* ─── Build owner data object ─── */
+  const buildOwnerData = (owner, ownerIdx) => {
     const documents = {};
-    if (identityProofFile) {
-      const f = { ...identityProofFile, name: identityProofFile?.name, size: identityProofFile?.size, documentType: identityProofDocType, fileStoreId: identityProofUploadedId || null };
-      documents["proofIdentity"] = f;
+    if (owner.identityProofFile) {
+      documents["proofIdentity"] = { ...owner.identityProofFile, documentType: owner.identityProofDocType, fileStoreId: owner.identityProofUploadedId || null };
     }
+    const specialOpts = getSpecialProofOptions(owner.ownerType);
+    const ownerNeedsSpecialProof = owner.ownerType && owner.ownerType.code !== "NONE" && specialOpts.length > 0;
     if (isInstitutional) {
       return {
-        ...(formData?.owners?.[index] || {}),
-        inistitutionName: institutionName,
-        inistitutetype: institutionType,
-        name,
-        designation,
-        altContactNumber: landlineNumber || mobileNumber || undefined,
-        alternatemobilenumber: institutionAltMobile || undefined,
-        mobileNumber,
-        emailId: email,
-        permanentAddress,
-        isCorrespondenceAddress,
+        ...(formData?.owners?.[ownerIdx] || {}),
+        inistitutionName: owner.institutionName,
+        inistitutetype: owner.institutionType,
+        name: owner.name,
+        designation: owner.designation,
+        altContactNumber: owner.landlineNumber || owner.mobileNumber || undefined,
+        alternatemobilenumber: owner.institutionAltMobile || undefined,
+        mobileNumber: owner.mobileNumber,
+        emailId: owner.email,
+        permanentAddress: owner.permanentAddress,
+        isCorrespondenceAddress: owner.isCorrespondenceAddress,
         documents,
       };
     }
-    if (needsSpecialProof && specialProofFile) {
-      const f = { ...specialProofFile, name: specialProofFile?.name, size: specialProofFile?.size, documentType: specialProofDocType, fileStoreId: specialProofUploadedId || null };
-      documents["specialProofIdentity"] = f;
+    if (ownerNeedsSpecialProof && owner.specialProofFile) {
+      documents["specialProofIdentity"] = { ...owner.specialProofFile, documentType: owner.specialProofDocType, fileStoreId: owner.specialProofUploadedId || null };
     }
     return {
-      ...(formData?.owners?.[index] || {}),
-      name,
-      gender,
-      mobileNumber,
-      alternatemobilenumber: alternateMobileNumber || undefined,
-      fatherOrHusbandName,
-      relationship,
-      emailId: email,
-      ownerType,
-      permanentAddress,
-      isCorrespondenceAddress,
+      ...(formData?.owners?.[ownerIdx] || {}),
+      name: owner.name,
+      gender: owner.gender,
+      mobileNumber: owner.mobileNumber,
+      alternatemobilenumber: owner.alternateMobileNumber || undefined,
+      fatherOrHusbandName: owner.fatherOrHusbandName,
+      relationship: owner.relationship,
+      emailId: owner.email,
+      ownerType: owner.ownerType,
+      permanentAddress: owner.permanentAddress,
+      isCorrespondenceAddress: owner.isCorrespondenceAddress,
       documents,
     };
-  }
+  };
 
   const goNext = () => {
     sessionStorage.setItem("ownershipCategory", ownershipCategoryCode);
+    const allBuilt = ownerForms.map((o, i) => buildOwnerData(o, i));
     onSelect("allOwnerDetails", {
       ownershipCategory,
-      ownerData: buildOwnerData(),
-      ownerIndex: index,
+      ownerData: allBuilt[0],
+      ownerIndex: 0,
+      allOwners: allBuilt,
     });
   };
 
   /* ─── Add another owner (MULTIPLE OWNERS only) ─── */
   function onAddOwner() {
-    sessionStorage.setItem("ownershipCategory", ownershipCategoryCode);
-    const newIndex = index + 1;
-    onSelect("allOwnerDetails", {
-      ownershipCategory,
-      ownerData: buildOwnerData(),
-      ownerIndex: index,
-      addNewOwnerIndex: newIndex,
-    }, false, newIndex, true);
+    setOwnerForms(prev => [...prev, emptyOwner()]);
+    setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }), 100);
   }
 
   const isMultipleOwners = ownershipCategory?.value === "INDIVIDUAL.MULTIPLEOWNERS";
@@ -648,15 +596,58 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
             isMultipleAllow={isMultipleOwners}
           >
             <div className="pt-owner-details-form">
+            {ownerForms.map((owner, ownerIdx) => {
+              /* ─── per-owner local aliases (keeps existing JSX intact) ─── */
+              const { name, gender, mobileNumber, fatherOrHusbandName, relationship, email, emailError,
+                      alternateMobileNumber, alternateMobileError, institutionName, institutionType,
+                      designation, landlineNumber, landlineError, institutionAltMobile, institutionAltMobileError,
+                      ownerType, permanentAddress, isCorrespondenceAddress,
+                      specialProofDocType, specialProofFile, specialProofUploadedId, specialProofError,
+                      identityProofDocType, identityProofFile, identityProofUploadedId, identityProofError } = owner;
+              const setName = (v) => updateOwner(ownerIdx, "name", v);
+              const setGender = (v) => updateOwner(ownerIdx, "gender", v);
+              const setMobileNumber = (v) => updateOwner(ownerIdx, "mobileNumber", v);
+              const setFatherOrHusbandName = (v) => updateOwner(ownerIdx, "fatherOrHusbandName", v);
+              const setRelationship = (v) => updateOwner(ownerIdx, "relationship", v);
+              const setEmail = (v) => updateOwner(ownerIdx, "email", v);
+              const setAlternateMobileNumber = (v) => updateOwner(ownerIdx, "alternateMobileNumber", v);
+              const setAlternateMobileError = (v) => updateOwner(ownerIdx, "alternateMobileError", v);
+              const setInstitutionName = (v) => updateOwner(ownerIdx, "institutionName", v);
+              const setInstitutionType = (v) => updateOwner(ownerIdx, "institutionType", v);
+              const setDesignation = (v) => updateOwner(ownerIdx, "designation", v);
+              const setLandlineNumber = (v) => updateOwner(ownerIdx, "landlineNumber", v);
+              const setLandlineError = (v) => updateOwner(ownerIdx, "landlineError", v);
+              const setInstitutionAltMobile = (v) => updateOwner(ownerIdx, "institutionAltMobile", v);
+              const setInstitutionAltMobileError = (v) => updateOwner(ownerIdx, "institutionAltMobileError", v);
+              const setOwnerType = (v) => updateOwner(ownerIdx, "ownerType", v);
+              const setPermanentAddress = (v) => updateOwner(ownerIdx, "permanentAddress", v);
+              const setIsCorrespondenceAddress = (v) => updateOwner(ownerIdx, "isCorrespondenceAddress", v);
+              const setSpecialProofDocType = (v) => updateOwner(ownerIdx, "specialProofDocType", v);
+              const setSpecialProofUploadedId = (v) => updateOwner(ownerIdx, "specialProofUploadedId", v);
+              const setSpecialProofFile = (v) => updateOwner(ownerIdx, "specialProofFile", v);
+              const setIdentityProofDocType = (v) => updateOwner(ownerIdx, "identityProofDocType", v);
+              const setIdentityProofUploadedId = (v) => updateOwner(ownerIdx, "identityProofUploadedId", v);
+              const setIdentityProofFile = (v) => updateOwner(ownerIdx, "identityProofFile", v);
+              const specialProofOptions = getSpecialProofOptions(ownerType);
+              const needsSpecialProof = ownerType && ownerType.code !== "NONE" && specialProofOptions.length > 0;
+              return (
+              <React.Fragment key={ownerIdx}>
+              {ownerIdx > 0 && (
+                <div style={{ display: "flex", alignItems: "center", gap: "12px", margin: "24px 0 16px", padding: "14px 20px", background: "linear-gradient(135deg, #1a2b49 0%, #2d4a7a 100%)", borderRadius: "10px", color: "#fff" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <span style={{ fontSize: "15px", fontWeight: "700", letterSpacing: "0.3px" }}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"} {ownerIdx + 1}</span>
+                </div>
+              )}
 
             {/* ══════════════════════════════════════
                 CARD 1 – Owner Basic Details
             ══════════════════════════════════════ */}
             <div style={cardStyle}>
-              <div style={sectionTitleStyle}>{t("PT_OWNER_DETAILS_HEADER") || "Owner Details"}</div>
+              <div style={sectionTitleStyle}>{ownerIdx === 0 ? (t("PT_OWNER_DETAILS_HEADER") || "Owner Details") : `${t("PT_OWNER_DETAILS_HEADER") || "Owner Details"} ${ownerIdx + 1}`}</div>
               <div style={rowStyle}>
 
-                {/* Ownership Type – always visible */}
+                {/* Ownership Type – only on first owner */}
+                {ownerIdx === 0 && (
                 <div style={col6}>
                   <label style={labelStyle}>{t("PT_PROVIDE_OWNERSHIP_DETAILS")}<span style={requiredMark}>*</span></label>
                   <select
@@ -668,6 +659,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                     {ownershipOptions.map(o => <option key={o.code} value={o.code}>{t(o.i18nKey)}</option>)}
                   </select>
                 </div>
+                )}
 
                 {isInstitutional ? (
                   <React.Fragment>
@@ -756,7 +748,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                       />
                       <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", marginTop: "12px", userSelect: "none" }}>
                         <div
-                          onClick={() => handleCorrespondenceAddress({ target: { checked: !isCorrespondenceAddress } })}
+                          onClick={() => handleCorrespondenceAddress(ownerIdx, !isCorrespondenceAddress)}
                           style={{ width: "20px", height: "20px", border: isCorrespondenceAddress ? "2px solid #1a2b49" : "2px solid #c0c8d4", borderRadius: "5px", background: isCorrespondenceAddress ? "#1a2b49" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s", flexShrink: 0, alignSelf: "center", boxShadow: isCorrespondenceAddress ? "0 0 0 3px rgba(26,43,73,0.12)" : "none" }}
                         >
                           {isCorrespondenceAddress && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -795,7 +787,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
                     <div style={col3}>
                       <label style={labelStyle}>{t("PT_FORM3_EMAIL_ID")}</label>
-                      <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(e.target.value); }} />
+                      <TextInput type="email" value={email} onChange={(e) => { setEmail(e.target.value); validateEmail(ownerIdx, e.target.value); }} />
                       {emailError && <span style={{ color: "#e54d42", fontSize: "12px", marginTop: "4px", display: "block" }}>{emailError}</span>}
                     </div>
 
@@ -805,7 +797,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "2px" }}>
                         {genderOptions.map(opt => (
                           <label key={opt.code} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 18px", border: gender?.code === opt.code ? "2px solid #1a2b49" : "1.5px solid #c0c8d4", borderRadius: "8px", cursor: "pointer", background: gender?.code === opt.code ? "#f0f4ff" : "#fff", fontSize: "13px", fontWeight: "600", color: gender?.code === opt.code ? "#1a2b49" : "#505a6e", transition: "all 0.15s", userSelect: "none", boxShadow: gender?.code === opt.code ? "0 0 0 3px rgba(26,43,73,0.1)" : "none" }}>
-                            <input type="radio" name="gender" value={opt.code} checked={gender?.code === opt.code} onChange={() => setGender(opt)} style={{ display: "none" }} />
+                            <input type="radio" name={`gender-${ownerIdx}`} value={opt.code} checked={gender?.code === opt.code} onChange={() => setGender(opt)} style={{ display: "none" }} />
                             {gender?.code === opt.code && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2b49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                             {t(`PT_COMMON_GENDER_${opt.code}`)}
                           </label>
@@ -819,7 +811,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                       <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "2px" }}>
                         {GuardianOptions.map(opt => (
                           <label key={opt.code} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 18px", border: relationship?.code === opt.code ? "2px solid #1a2b49" : "1.5px solid #c0c8d4", borderRadius: "8px", cursor: "pointer", background: relationship?.code === opt.code ? "#f0f4ff" : "#fff", fontSize: "13px", fontWeight: "600", color: relationship?.code === opt.code ? "#1a2b49" : "#505a6e", transition: "all 0.15s", userSelect: "none", boxShadow: relationship?.code === opt.code ? "0 0 0 3px rgba(26,43,73,0.1)" : "none" }}>
-                            <input type="radio" name="relationship" value={opt.code} checked={relationship?.code === opt.code} onChange={() => setRelationship(opt)} style={{ display: "none" }} />
+                            <input type="radio" name={`relationship-${ownerIdx}`} value={opt.code} checked={relationship?.code === opt.code} onChange={() => setRelationship(opt)} style={{ display: "none" }} />
                             {relationship?.code === opt.code && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2b49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                             {t(opt.i18nKey)}
                           </label>
@@ -851,7 +843,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                   <div style={{ display: "flex", gap: "10px", flexWrap: "wrap", marginTop: "2px" }}>
                     {sortedOwnerTypes.map(opt => (
                       <label key={opt.code} style={{ display: "flex", alignItems: "center", gap: "8px", padding: "9px 18px", border: ownerType?.code === opt.code ? "2px solid #1a2b49" : "1.5px solid #c0c8d4", borderRadius: "8px", cursor: "pointer", background: ownerType?.code === opt.code ? "#f0f4ff" : "#fff", fontSize: "13px", fontWeight: "600", color: ownerType?.code === opt.code ? "#1a2b49" : "#505a6e", transition: "all 0.15s", userSelect: "none", boxShadow: ownerType?.code === opt.code ? "0 0 0 3px rgba(26,43,73,0.1)" : "none" }}>
-                        <input type="radio" name="ownerType" value={opt.code} checked={ownerType?.code === opt.code} onChange={() => setOwnerType(opt)} style={{ display: "none" }} />
+                        <input type="radio" name={`ownerType-${ownerIdx}`} value={opt.code} checked={ownerType?.code === opt.code} onChange={() => setOwnerType(opt)} style={{ display: "none" }} />
                         {ownerType?.code === opt.code && <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1a2b49" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
                         {t(`PROPERTYTAX_OWNERTYPE_${opt.code}`)}
                       </label>
@@ -870,7 +862,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                   />
                   <label style={{ display: "flex", alignItems: "center", gap: "10px", cursor: "pointer", marginTop: "12px", userSelect: "none" }}>
                     <div
-                      onClick={() => handleCorrespondenceAddress({ target: { checked: !isCorrespondenceAddress } })}
+                      onClick={() => handleCorrespondenceAddress(ownerIdx, !isCorrespondenceAddress)}
                       style={{ width: "20px", height: "20px", border: isCorrespondenceAddress ? "2px solid #1a2b49" : "2px solid #c0c8d4", borderRadius: "5px", background: isCorrespondenceAddress ? "#1a2b49" : "#fff", display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s", flexShrink: 0, alignSelf: "center", boxShadow: isCorrespondenceAddress ? "0 0 0 3px rgba(26,43,73,0.12)" : "none" }}
                     >
                       {isCorrespondenceAddress && <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>}
@@ -928,7 +920,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                           </select>
                         </div>
                         <div>
-                          <div role="button" tabIndex={0} onClick={() => document.getElementById("pt-special-proof-native").click()} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById("pt-special-proof-native").click(); }} style={{ border: specialProofFile ? "2px solid #4caf50" : "2px dashed #c0c8d4", borderRadius: "12px", background: specialProofFile ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", minHeight: "64px", boxSizing: "border-box" }}>
+                          <div role="button" tabIndex={0} onClick={() => document.getElementById(`pt-special-proof-native-${ownerIdx}`).click()} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById(`pt-special-proof-native-${ownerIdx}`).click(); }} style={{ border: specialProofFile ? "2px solid #4caf50" : "2px dashed #c0c8d4", borderRadius: "12px", background: specialProofFile ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", minHeight: "64px", boxSizing: "border-box" }}>
                             <div style={{ width: "42px", height: "42px", borderRadius: "10px", flexShrink: 0, background: specialProofFile ? "linear-gradient(135deg, #43a047, #2e7d32)" : "linear-gradient(135deg, #ffe8d6, #fdd0b0)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                               {specialProofFile ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>}
                             </div>
@@ -937,7 +929,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                               <div style={{ fontSize: "11px", color: "#8a97a8", marginTop: "3px" }}>{specialProofFile?.size ? `${(specialProofFile.size / 1024).toFixed(1)} KB` : specialProofFile ? t("PT_ACTION_FILEUPLOADED") : "JPG · PNG · PDF · Max 5MB"}</div>
                             </div>
                             {specialProofFile ? <button type="button" onClick={(e) => { e.stopPropagation(); setSpecialProofUploadedId(null); setSpecialProofFile(null); }} style={{ background: "rgba(229,77,66,0.1)", border: "1px solid rgba(229,77,66,0.3)", borderRadius: "6px", cursor: "pointer", color: "#e54d42", fontSize: "16px", fontWeight: "700", lineHeight: 1, padding: "4px 8px", flexShrink: 0 }}>×</button> : <div style={{ background: "linear-gradient(135deg, #f47738, #e05a1a)", color: "#fff", fontSize: "12px", fontWeight: "600", padding: "8px 16px", borderRadius: "8px", whiteSpace: "nowrap", flexShrink: 0 }}>Browse</div>}
-                            <input type="file" id="pt-special-proof-native" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }} onChange={(e) => { if (e.target.files?.[0]) { const f = e.target.files[0]; sessionStorage.setItem(`pt-sp-name-${index}`, f.name); sessionStorage.setItem(`pt-sp-size-${index}`, String(f.size)); setSpecialProofFile(f); } }} />
+                            <input type="file" id={`pt-special-proof-native-${ownerIdx}`} accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }} onChange={(e) => { if (e.target.files?.[0]) handleSpecialProofFileSelect(ownerIdx, e.target.files[0]); }} />
                           </div>
                           {specialProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "5px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{specialProofError}</div>}
                         </div>
@@ -968,7 +960,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                         </select>
                       </div>
                       <div>
-                        <div role="button" tabIndex={0} onClick={() => document.getElementById("pt-identity-proof-native").click()} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById("pt-identity-proof-native").click(); }} style={{ border: identityProofFile ? "2px solid #4caf50" : "2px dashed #b0b8c1", borderRadius: "12px", background: identityProofFile ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", minHeight: "64px", boxSizing: "border-box" }}>
+                        <div role="button" tabIndex={0} onClick={() => document.getElementById(`pt-identity-proof-native-${ownerIdx}`).click()} onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") document.getElementById(`pt-identity-proof-native-${ownerIdx}`).click(); }} style={{ border: identityProofFile ? "2px solid #4caf50" : "2px dashed #b0b8c1", borderRadius: "12px", background: identityProofFile ? "linear-gradient(135deg, #f0fff4, #e8f5e9)" : "#ffffff", padding: "14px 16px", display: "flex", alignItems: "center", gap: "14px", cursor: "pointer", minHeight: "64px", boxSizing: "border-box" }}>
                           <div style={{ width: "42px", height: "42px", borderRadius: "10px", flexShrink: 0, background: identityProofFile ? "linear-gradient(135deg, #43a047, #2e7d32)" : "linear-gradient(135deg, #e8edf5, #cfd7e8)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: identityProofFile ? "0 2px 6px rgba(46,125,50,0.3)" : "none" }}>
                             {identityProofFile ? <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg> : <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#505a6e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 16 12 12 8 16"/><line x1="12" y1="12" x2="12" y2="21"/><path d="M20.39 18.39A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.3"/></svg>}
                           </div>
@@ -977,7 +969,7 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
                             <div style={{ fontSize: "11px", color: "#8a97a8", marginTop: "3px" }}>{identityProofFile?.size ? `${(identityProofFile.size / 1024).toFixed(1)} KB` : identityProofFile ? t("PT_ACTION_FILEUPLOADED") : "JPG · PNG · PDF · Max 5MB"}</div>
                           </div>
                           {identityProofFile ? <button type="button" onClick={(e) => { e.stopPropagation(); setIdentityProofUploadedId(null); setIdentityProofFile(null); }} style={{ background: "rgba(229,77,66,0.1)", border: "1px solid rgba(229,77,66,0.3)", borderRadius: "6px", cursor: "pointer", color: "#e54d42", fontSize: "16px", fontWeight: "700", lineHeight: 1, padding: "4px 8px", flexShrink: 0 }}>×</button> : <div style={{ background: "linear-gradient(135deg, #1a2b49 0%, #2d4a7a 100%)", color: "#fff", fontSize: "12px", fontWeight: "600", padding: "8px 16px", borderRadius: "8px", whiteSpace: "nowrap", flexShrink: 0, boxShadow: "0 2px 6px rgba(26,43,73,0.3)" }}>Browse</div>}
-                          <input type="file" id="pt-identity-proof-native" accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }} onChange={(e) => { if (e.target.files?.[0]) { const f = e.target.files[0]; sessionStorage.setItem(`pt-id-name-${index}`, f.name); sessionStorage.setItem(`pt-id-size-${index}`, String(f.size)); setIdentityProofFile(f); } }} />
+                          <input type="file" id={`pt-identity-proof-native-${ownerIdx}`} accept=".jpg,.jpeg,.png,.pdf" style={{ display: "none" }} onChange={(e) => { if (e.target.files?.[0]) handleIdentityFileSelect(ownerIdx, e.target.files[0]); }} />
                         </div>
                         {identityProofError && <div style={{ color: "#e54d42", fontSize: "12px", marginTop: "8px", display: "flex", alignItems: "center", gap: "5px" }}><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>{identityProofError}</div>}
                       </div>
@@ -987,7 +979,8 @@ const PTAllOwnerDetails = ({ t, config, onSelect, formData = {} }) => {
 
               </div>
             </div>
-
+            </React.Fragment>
+            ); })}
             </div>
           </FormStep>
         );

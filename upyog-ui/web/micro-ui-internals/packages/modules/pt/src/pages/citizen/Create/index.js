@@ -179,10 +179,15 @@ let propertyStructureDetails ={"propertyStructureDetails":propertyStructureDetai
       if (address !== undefined) newParams.address = address;
       setParams(newParams);
     } else if (key === "allOwnerDetails") {
-      const { ownershipCategory, ownerData, ownerIndex, addNewOwnerIndex } = data;
-      let owners = [...(params.owners || [])];
-      owners[ownerIndex] = ownerData;
-      const newParams = { ...params, ownershipCategory, owners: [...owners] };
+      const { ownershipCategory, ownerData, ownerIndex, addNewOwnerIndex, allOwners } = data;
+      let newParams;
+      if (allOwners && allOwners.length > 0) {
+        newParams = { ...params, ownershipCategory, owners: allOwners };
+      } else {
+        let owners = [...(params.owners || [])];
+        owners[ownerIndex] = ownerData;
+        newParams = { ...params, ownershipCategory, owners: [...owners] };
+      }
       setParams(newParams);
       if (addNewOwnerIndex !== undefined) {
         goNext(false, addNewOwnerIndex, true, "owner-all-details");
