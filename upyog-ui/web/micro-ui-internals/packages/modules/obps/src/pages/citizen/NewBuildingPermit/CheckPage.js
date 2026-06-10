@@ -171,234 +171,208 @@ import {
       return <Loader />
     }
 
+    /* ── helpers ── */
+    const SectionHeader = ({ title, onEdit, editRoute }) => (
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between",
+        borderBottom: "2px solid #1D2D50", marginBottom: "16px", paddingBottom: "8px", marginTop: "28px" }}>
+        <span style={{ fontSize: "16px", fontWeight: "700", color: "#1D2D50", textTransform: "uppercase", letterSpacing: "0.5px" }}>
+          {title}
+        </span>
+        {onEdit && (
+          <LinkButton
+            label={<EditIcon />}
+            style={{ width: "auto", minWidth: "unset" }}
+            onClick={() => routeTo(editRoute)}
+          />
+        )}
+      </div>
+    );
+
+    const InfoRow = ({ label, value, valueStyle }) => (
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start",
+        padding: "10px 0", borderBottom: "1px solid #f0f2f5", gap: "16px" }}>
+        <span style={{ fontSize: "14px", color: "#505A5F", fontWeight: "500", minWidth: "180px", flexShrink: 0 }}>{label}</span>
+        <span style={{ fontSize: "14px", color: "#0B0C0C", fontWeight: "600", textAlign: "right", wordBreak: "break-word", ...valueStyle }}>{value || t("CS_NA")}</span>
+      </div>
+    );
 
     return (
     <React.Fragment>
     <Timeline currentStep={checkingFlow==="PRE_APPROVE"? 8 : 4 } flow={checkingFlow}/>
-    <Header styles={{marginLeft: "10px"}}>{t("BPA_STEPPER_SUMMARY_HEADER")}</Header>
-    <Card style={{paddingRight:"16px"}}>
-        <StatusTable>
-          <Row className="border-none" label={t(`BPA_APPLICATION_NUMBER_LABEL`)} text={applicationNo?applicationNo:""} />
-          <Row className="border-none" label={t(`BPA_IS_PREAPPROVED`)} text={t(value?.additionalDetails?.isPreApproved ? value?.additionalDetails?.isPreApproved : value.businessService==="BPA-PAP" ? "true" : "false")} />
-        </StatusTable>
-    </Card>
-    <Card style={{paddingRight:"16px"}}>
-    <CardHeader>{t(`BPA_BASIC_DETAILS_TITLE`)}</CardHeader>
-        <StatusTable>
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APP_DATE_LABEL`)} text={data?.applicationDate}/>
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APPLICATION_TYPE_LABEL`)} text={t(`WF_BPA_${data?.applicationType}`)}/>
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_SERVICE_TYPE_LABEL`)} text={t(data?.serviceType)} />
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_OCCUPANCY_LABEL`)} text={data?.occupancyType}/>
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_RISK_TYPE_LABEL`)} text={t(`WF_BPA_${data?.riskType}`)} />
-          <Row className="border-none" label={t(`BPA_BASIC_DETAILS_APPLICATION_NAME_LABEL`)} text={data?.applicantName} />
-        </StatusTable>
-    </Card>
-    <Card style={{paddingRight:"16px"}}>
-    <StatusTable>
-    <CardHeader>{t("BPA_PLOT_DETAILS_TITLE")}</CardHeader>
-    <LinkButton
-          label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-          style={{ width: "100px", display:"inline" }}
-          onClick={() => routeTo(`${routeLink}/plot-details`)}
-        />
-          <Row className="border-none" textStyle={{paddingLeft:"12px"}} label={t(`BPA_BOUNDARY_PLOT_AREA_LABEL`)} text={datafromAPI?.planDetail?.planInformation?.plotArea ? `${datafromAPI?.planDetail?.planInformation?.plotArea} ${t(`BPA_SQ_FT_LABEL`)}` : `${preApprovedResponse?.[0]?.drawingDetail?.plotArea} ${t(`BPA_SQ_FT_LABEL`)}`}/>
-          <Row className="border-none" label={t(`BPA_PLOT_NUMBER_LABEL`)} text={datafromAPI?.planDetail?.planInformation?.plotNo || value?.additionalDetails?.plotNo||"NA"} />
-          <Row className="border-none" label={t(`BPA_KHATHA_NUMBER_LABEL`)} text={datafromAPI?.planDetail?.planInformation?.khataNo ||value?.additionalDetails?.khataNo||"NA"}/>
-          <Row className="border-none" label={t(`BPA_HOLDING_NUMBER_LABEL`)} text={value?.additionalDetails?.holdingNo||data?.holdingNumber || t("CS_NA")} />
-          <Row className="border-none" label={t(`BPA_BOUNDARY_LAND_REG_DETAIL_LABEL`)} text={value?.additionalDetails?.registrationDetails||data?.registrationDetails || t("CS_NA")} />
-    </StatusTable>
-    </Card>
-    <Card style={{paddingRight:"16px"}}>
-    <CardHeader>{value.businessService==="BPA-PAP" ? t("BPA_STEPPER_PLAN_DETAILS_HEADER") : t("BPA_STEPPER_SCRUTINY_DETAILS_HEADER")}</CardHeader>
-    <CardSubHeader style={{fontSize: "20px"}}>{value.businessService==="BPA-PAP" ? t("BPA_DRAWING_DETAILS") : t("BPA_EDCR_DETAILS")}</CardSubHeader>
-    <StatusTable  style={{border:"none"}}>
-      <Row className="border-none" label={value.businessService==="BPA-PAP" ? t("BPA_DRAWING_NUMBER") : t("BPA_EDCR_NO_LABEL")} text={data?.scrutinyNumber?.edcrNumber||value?.edcrNumber}></Row>
-      {preApprovedResponse?.[0]?.documents ? (
-        <div>
-          <Row
-            className="border-none"
-            label={t("BPA_UPLOADED_IMAGE_DIAGRAM")}
-            text={<ActionButton label={t(preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("jpg"))?.additionalDetails?.fileName)} jumpTo={ preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("jpg"))?.additionalDetails?.fileUrl} />}
-          ></Row>
-          <Row
-            className="border-none"
-            label={t("BPA_UPLOADED_PDF_DIAGRAM")}
-            text={<ActionButton label={t(preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("pdf"))?.additionalDetails?.fileName)} jumpTo={ preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("jpg"))?.additionalDetails?.fileUrl} />}
-          ></Row>
-          <Row
-            className="border-none"
-            label={t("BPA_UPLOADED_CAD_DIAGRAM")}
-            text={<ActionButton label={t(preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("dxf"))?.additionalDetails?.fileName)} jumpTo={ preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("dxf"))?.additionalDetails?.fileUrl} />}
-          ></Row>
-          </div>
-      ):null}
-      {datafromAPI?.planReport ? (
-        <div>
-        <CardSubHeader>{t("BPA_UPLOADED_PLAN_DIAGRAM")}</CardSubHeader>
-      <LinkButton
-        label={ <PDFSvg /> }
-          onClick={() => routeTo(datafromAPI?.updatedDxfFile||preApprovedResponse?.[0]?.documents.find(doc => doc?.additionalDetails?.fileName.includes("pdf"))?.additionalDetails?.fileUrl)}
-      />
-      <p style={{ marginTop: "8px", marginBottom: "20px", textAlign:"Left", fontSize: "16px", lineHeight: "19px", color: "#505A5F", fontWeight: "400" }}>{datafromAPI?.updatedDxfFile?t(`BPA_UPLOADED_PLAN_DXF`):t(`BPA_UPLOADED_PLAN_PDF`)}</p>
-      <CardSubHeader>{t("BPA_SCRUNTINY_REPORT_OUTPUT")}</CardSubHeader>
-      <LinkButton
-        label={ <PDFSvg /> }
-          onClick={() => routeTo(datafromAPI?.planReport)}
-      />
-      <p style={{ marginTop: "8px", marginBottom: "20px", textAlign:"Left", fontSize: "16px", lineHeight: "19px", color: "#505A5F", fontWeight: "400" }}>{t(`BPA_SCRUTINY_REPORT_PDF`)}</p>
-      </div>
-      ):null}
-      </StatusTable>
-      <hr style={{color:"#cccccc",backgroundColor:"#cccccc",height:"2px",marginTop:"20px",marginBottom:"20px"}}/>
-      <CardSubHeader style={{fontSize: "20px"}}>{preApprovedResponse?.[0]?.drawingDetail? t("BPA_BUILDING_EXTRACT_DETAILS") :t("BPA_BUILDING_EXTRACT_HEADER")}</CardSubHeader>
-      <StatusTable>
-      <Row className="border-none" label={t("BPA_TOTAL_BUILT_UP_AREA_HEADER")} text={`${preApprovedResponse?.[0]?.drawingDetail?.totalBuitUpArea} ${t("BPA_SQ_MTRS_LABEL")}`||`${datafromAPI?.planDetail?.blocks?.[0]?.building?.totalBuitUpArea} ${t("BPA_SQ_MTRS_LABEL")}`}></Row>
-      <Row className="border-none" label={t("BPA_SCRUTINY_DETAILS_NUMBER_OF_FLOORS_LABEL")} text={datafromAPI?.planDetail?.blocks?.[0]?.building?.totalFloors||preApprovedResponse?.[0]?.drawingDetail?.blocks[0]?.building?.totalFloors}></Row>
-      <Row className="border-none" label={t("BPA_HEIGHT_FROM_GROUND_LEVEL_FROM_MUMTY")} text={`${preApprovedResponse?.[0]?.drawingDetail?.blocks?.[0]?.building?.buildingHeight} ${t("BPA_MTRS_LABEL")}`||`${datafromAPI?.planDetail?.blocks?.[0]?.building?.declaredBuildingHeight} ${t("BPA_MTRS_LABEL")}`}></Row>
-      </StatusTable>
-      <hr style={{color:"#cccccc",backgroundColor:"#cccccc",height:"2px",marginTop:"20px",marginBottom:"20px"}}/>
-      <CardSubHeader style={{fontSize: "20px"}}>{preApprovedResponse?.[0]?.drawingDetail ? t("BPA_BLOCK_HEADER"):t("BPA_OCC_SUBOCC_HEADER")}</CardSubHeader>
-      {datafromAPI?.planDetail?.blocks.map((block,index)=>(
-      <div key={index} style={datafromAPI?.planDetail?.blocks?.length > 1 ?{ marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "960px", minWidth: "280px" } : {}}>
-      <CardSubHeader style={{marginTop:"15px", fontSize: "18px"}}>{t("BPA_BLOCK_SUBHEADER")} {index+1}</CardSubHeader>
-      <StatusTable >
-      <Row className="border-none" textStyle={{wordBreak:"break-word"}} label={t("BPA_SUB_OCCUPANCY_LABEL")} text={getBlockSubOccupancy(index) === ""?t("CS_NA"):getBlockSubOccupancy(index)}></Row>
-      </StatusTable>
-      <div style={{overflow:"scroll"}}>
-      <Table
-        className="customTable table-fixed-first-column table-border-style"
-        t={t}
-        disableSort={false}
-        autoSort={true}
-        manualPagination={false}
-        isPaginationRequired={false}
-        initSortId="S N "
-        data={getFloorData(block)}
-        columns={tableColumns}
-        getCellProps={(cellInfo) => {
-          return {
-            style: {},
-          };
-        }}
-      />
-      </div>
-      </div>))}
-      {preApprovedResponse?.[0]?.drawingDetail?.blocks.map((block,index)=>(
-      <div key={index} style={preApprovedResponse?.[0]?.drawingDetail?.blocks?.length > 1 ?{ marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "960px", minWidth: "280px" } : {}}>
-      <CardSubHeader style={{marginTop:"15px", fontSize: "18px"}}>{t("BPA_BLOCK_SUBHEADER")} {index+1}</CardSubHeader>
-      
-      <div style={{overflow:"scroll"}}>
-      <Table
-        className="customTable table-fixed-first-column table-border-style"
-        t={t}
-        disableSort={false}
-        autoSort={true}
-        manualPagination={false}
-        isPaginationRequired={false}
-        initSortId="S N "
-        data={getFloorData(block)}
-        columns={tableColumns}
-        getCellProps={(cellInfo) => {
-          return {
-            style: {},
-          };
-        }}
-      />
-      </div>
-      </div>))}
-      <hr style={{color:"#cccccc",backgroundColor:"#cccccc",height:"2px",marginTop:"20px",marginBottom:"20px"}}/>
-      <CardSubHeader style={{fontSize: "20px"}}>{t("BPA_APP_DETAILS_DEMOLITION_DETAILS_LABEL")}</CardSubHeader>
-      <StatusTable  style={{border:"none"}}>
-      <Row className="border-none" label={t("BPA_APPLICATION_DEMOLITION_AREA_LABEL")} text={datafromAPI?.planDetail?.planInformation?.demolitionArea ? `${datafromAPI?.planDetail?.planInformation?.demolitionArea} ${t("BPA_SQ_MTRS_LABEL")}` : t("CS_NA")}></Row>
-      </StatusTable>
-      </Card>
-      <Card style={{paddingRight:"16px"}}>
-      <StatusTable>
-      <CardHeader>{t("BPA_NEW_TRADE_DETAILS_HEADER_DETAILS")}</CardHeader>
-          <LinkButton
-            label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-            style={{ width: "100px", display: "inline" }}
-            onClick={() => routeTo(`${routeLink}/location`)}
-          />
-          <Row className="border-none" textStyle={{paddingLeft:"12px"}} label={t(`BPA_DETAILS_PIN_LABEL`)} text={address?.pincode || t("CS_NA")} />
-          <Row className="border-none" label={t(`BPA_CITY_LABEL`)} text={address?.city?.name || t("CS_NA")} />
-          <Row className="border-none" label={t(`BPA_LOC_MOHALLA_LABEL`)} text={address?.locality?.name || t("CS_NA")} />
-          <Row className="border-none" label={t(`BPA_DETAILS_SRT_NAME_LABEL`)} text={address?.street || t("CS_NA")} />
-          <Row className="border-none" label={t(`ES_NEW_APPLICATION_LOCATION_LANDMARK`)} text={address?.landmark || t("CS_NA")} />
-      </StatusTable>
-      </Card>
-      <Card style={{paddingRight:"16px"}}>
-      <StatusTable>
-        <CardHeader>{t("BPA_APPLICANT_DETAILS_HEADER")}</CardHeader>
-          <LinkButton
-            label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-            style={{ width: "100px", display: "inline" }}
-            onClick={() => routeTo(`${routeLink}/owner-details`)}
-          />
-        {owners?.owners && owners?.owners.map((ob,index) =>(
-        <div key={index} style={owners?.owners?.length > 1 ?{ marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "960px", minWidth: "280px" } : {}}>
-        {owners.owners.length > 1 && <CardSubHeader>{t("COMMON_OWNER")} {index+1}</CardSubHeader>}
-        <StatusTable>
-        <Row className="border-none" textStyle={index==0 && owners.owners.length == 1 ?{paddingLeft:"12px"}:{}} label={t(`CORE_COMMON_NAME`)} text={ob?.name} />
-        <Row className="border-none" label={t(`BPA_APPLICANT_GENDER_LABEL`)} text={t(ob?.gender?.i18nKey||ob?.gender)} />
-        <Row className="border-none" label={t(`CORE_COMMON_MOBILE_NUMBER`)} text={ob?.mobileNumber} /> 
-        {value.businessService ==="BPA-PAP" ? (
-          <Row className="border-none" label={t(`PRIMARY_OWNER_LABEL`)} text={`${owners?.owners.length===1?"Single Owner":"Multiple Owner"}`} /> 
-        ):(<Row className="border-none" label={t(`BPA_IS_PRIMARY_OWNER_LABEL`)} text={`${ob?.isPrimaryOwner?ob?.isPrimaryOwner:owners?.owners.length===1?"true":""}`} /> )}
-        
-        </StatusTable>
-        </div>))}
-        </StatusTable>
-      </Card>
-      <Card style={{paddingRight:"16px"}}>
-      <StatusTable>
-        <CardHeader>{t("BPA_DOCUMENT_DETAILS_LABEL")}</CardHeader>
-          <LinkButton
-            label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-            style={{ width: "100px", display: "inline" }}
-            onClick={() => routeTo(`${routeLink}/document-details`)}
-          />
-        {<DocumentsPreview documents={getOrderDocuments(applicationDocs)} svgStyles = {{}} isSendBackFlow = {false} isHrLine = {true} titleStyles ={{fontSize: "18px", lineHeight: "24px", "fontWeight": 700, marginBottom: "10px"}}/>}
-        </StatusTable>
-      </Card>
-      
-      {nocDocuments && nocDocuments?.NocDetails?.map((noc, index) => (
-  <div key={`noc-${index}`} style={nocDocuments?.NocDetails?.length > 1 ? { marginTop: "19px", background: "#FAFAFA", border: "1px solid #D6D5D4", borderRadius: "4px", padding: "8px", lineHeight: "19px", maxWidth: "960px", minWidth: "280px" } : {}}>
-    <CardHeader>{t("BPA_NOC_DETAILS_SUMMARY")}</CardHeader>
-          <LinkButton
-            label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-            style={{ width: "100px", display: "inline" }}
-            onClick={() => routeTo(`${routeLink}/noc-details`)}
-          />
 
-        <CardSectionHeader style={{marginBottom: "24px"}}>{`${t(`BPA_${noc?.nocType}_HEADER`)}`}</CardSectionHeader>
-        <StatusTable>
-          <Row className="border-none" label={t(`BPA_${noc?.nocType}_LABEL`)} text={noc?.applicationNo} />
-          <Row className="border-none" label={t(`BPA_NOC_STATUS`)} text={t(`${noc?.applicationStatus}`)} textStyle={noc?.applicationStatus == "APPROVED" || noc?.applicationStatus == "AUTO_APPROVED" ? {color : "#00703C"} : {color: "#D4351C"}} />
-          {noc?.additionalDetails?.SubmittedOn ? <Row className="border-none" label={`${t("BPA_NOC_SUBMISSION_DATE")}`} text={noc?.additionalDetails?.SubmittedOn ? convertEpochToDateDMY(Number(noc?.additionalDetails?.SubmittedOn)) : "NA"} /> : null }
-          {noc?.nocNo ? <Row className="border-none" label={`${t("BPA_APPROVAL_NUMBER_LABEL")}`} text={noc?.nocNo || "NA"} /> : null }
-          {(noc?.applicationStatus === "APPROVED" || noc?.applicationStatus === "REJECTED" || noc?.applicationStatus === "AUTO_APPROVED" || noc?.applicationStatus === "AUTO_REJECTED") ? <Row className="border-none" label={`${t("BPA_APPROVED_REJECTED_ON_LABEL")}`} text= {convertEpochToDateDMY(Number(noc?.auditDetails?.lastModifiedTime))} /> : null }
-          <Row className="border-none" label={t(`BPA_DOCUMENT_DETAILS_LABEL`)} text={""} />
-          {<DocumentsPreview documents={getOrderDocuments(nocAppDocs?.filter(data => data?.documentType?.includes(noc?.nocType?.split("_")?.[0])), true)} svgStyles = {{}} isSendBackFlow = {false} isHrLine = {true} titleStyles ={{fontSize: "18px", lineHeight: "24px", "fontWeight": 700, marginBottom: "10px"}}/>}
-        </StatusTable>
+    {/* ── Page header ── */}
+    <div style={{ background: "linear-gradient(135deg, #1D2D50 0%, #2d4a7a 100%)", borderRadius: "12px",
+      padding: "24px 28px", marginBottom: "24px", color: "#fff", display: "flex", alignItems: "center",
+      justifyContent: "space-between", flexWrap: "wrap", gap: "12px" }}>
+      <div>
+        <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.7, marginBottom: "4px" }}>
+          {t("BPA_BUILDING_PERMIT") || "Building Permit"}
+        </div>
+        <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "800" }}>{t("BPA_STEPPER_SUMMARY_HEADER")}</h2>
       </div>
-      ))}
-      
-      <Card style={{paddingRight:"16px"}}>
-      <CardSubHeader>{t("BPA_SUMMARY_FEE_EST")}</CardSubHeader> 
-      <StatusTable>
-      {paymentDetails?.Bill[0]?.billDetails[0]?.billAccountDetails.map((bill,index)=>(
-        <div key={index}>
-          <Row className="border-none" label={t(`${bill.taxHeadCode}`)} text={`₹ ${bill?.amount}`} />
+      {applicationNo && (
+        <div style={{ background: "rgba(255,255,255,0.15)", borderRadius: "8px", padding: "8px 16px", fontSize: "13px", fontWeight: "700", letterSpacing: "0.5px" }}>
+          {applicationNo}
+        </div>
+      )}
+    </div>
+
+    {/* ── Main card ── */}
+    <Card style={{ padding: "8px 24px 24px", maxWidth: "960px" }} className="employeeCard-override">
+
+      {/* Application Overview */}
+      <SectionHeader title={t("BPA_BASIC_DETAILS_TITLE")} />
+      <InfoRow label={t("BPA_APPLICATION_NUMBER_LABEL")} value={applicationNo} />
+      <InfoRow label={t("BPA_IS_PREAPPROVED")} value={t(value?.additionalDetails?.isPreApproved ? value?.additionalDetails?.isPreApproved : value.businessService==="BPA-PAP" ? "true" : "false")} />
+      <InfoRow label={t("BPA_BASIC_DETAILS_APP_DATE_LABEL")} value={data?.applicationDate} />
+      <InfoRow label={t("BPA_BASIC_DETAILS_APPLICATION_TYPE_LABEL")} value={t(`WF_BPA_${data?.applicationType}`)} />
+      <InfoRow label={t("BPA_BASIC_DETAILS_SERVICE_TYPE_LABEL")} value={t(data?.serviceType)} />
+      <InfoRow label={t("BPA_BASIC_DETAILS_OCCUPANCY_LABEL")} value={data?.occupancyType} />
+      <InfoRow label={t("BPA_BASIC_DETAILS_RISK_TYPE_LABEL")} value={t(`WF_BPA_${data?.riskType}`)} />
+      <InfoRow label={t("BPA_BASIC_DETAILS_APPLICATION_NAME_LABEL")} value={data?.applicantName} />
+
+      {/* Plot Details */}
+      <SectionHeader title={t("BPA_PLOT_DETAILS_TITLE")} onEdit editRoute={`${routeLink}/plot-details`} />
+      <InfoRow label={t("BPA_BOUNDARY_PLOT_AREA_LABEL")} value={datafromAPI?.planDetail?.planInformation?.plotArea ? `${datafromAPI?.planDetail?.planInformation?.plotArea} ${t("BPA_SQ_FT_LABEL")}` : `${preApprovedResponse?.[0]?.drawingDetail?.plotArea} ${t("BPA_SQ_FT_LABEL")}`} />
+      <InfoRow label={t("BPA_PLOT_NUMBER_LABEL")} value={datafromAPI?.planDetail?.planInformation?.plotNo || value?.additionalDetails?.plotNo} />
+      <InfoRow label={t("BPA_KHATHA_NUMBER_LABEL")} value={datafromAPI?.planDetail?.planInformation?.khataNo || value?.additionalDetails?.khataNo} />
+      <InfoRow label={t("BPA_HOLDING_NUMBER_LABEL")} value={value?.additionalDetails?.holdingNo || data?.holdingNumber} />
+      <InfoRow label={t("BPA_BOUNDARY_LAND_REG_DETAIL_LABEL")} value={value?.additionalDetails?.registrationDetails || data?.registrationDetails} />
+
+      {/* Scrutiny / Plan Details */}
+      <SectionHeader title={value.businessService==="BPA-PAP" ? t("BPA_STEPPER_PLAN_DETAILS_HEADER") : t("BPA_STEPPER_SCRUTINY_DETAILS_HEADER")} />
+      <InfoRow label={value.businessService==="BPA-PAP" ? t("BPA_DRAWING_NUMBER") : t("BPA_EDCR_NO_LABEL")} value={data?.scrutinyNumber?.edcrNumber || value?.edcrNumber} />
+
+      {/* Building extract */}
+      <div style={{ background: "#F7F8FD", borderRadius: "8px", padding: "14px 18px", marginBottom: "12px", marginTop: "8px" }}>
+        <div style={{ fontSize: "13px", fontWeight: "700", color: "#1D2D50", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.4px" }}>
+          {preApprovedResponse?.[0]?.drawingDetail ? t("BPA_BUILDING_EXTRACT_DETAILS") : t("BPA_BUILDING_EXTRACT_HEADER")}
+        </div>
+        <InfoRow label={t("BPA_TOTAL_BUILT_UP_AREA_HEADER")} value={`${preApprovedResponse?.[0]?.drawingDetail?.totalBuitUpArea || datafromAPI?.planDetail?.blocks?.[0]?.building?.totalBuitUpArea || ""} ${t("BPA_SQ_MTRS_LABEL")}`} />
+        <InfoRow label={t("BPA_SCRUTINY_DETAILS_NUMBER_OF_FLOORS_LABEL")} value={datafromAPI?.planDetail?.blocks?.[0]?.building?.totalFloors || preApprovedResponse?.[0]?.drawingDetail?.blocks?.[0]?.building?.totalFloors} />
+        <InfoRow label={t("BPA_HEIGHT_FROM_GROUND_LEVEL_FROM_MUMTY")} value={`${preApprovedResponse?.[0]?.drawingDetail?.blocks?.[0]?.building?.buildingHeight || datafromAPI?.planDetail?.blocks?.[0]?.building?.declaredBuildingHeight || ""} ${t("BPA_MTRS_LABEL")}`} />
+      </div>
+
+      {/* Block / Sub-occupancy */}
+      {datafromAPI?.planDetail?.blocks?.map((block, index) => (
+        <div key={index} style={{ background: "#FAFAFA", border: "1px solid #E0E0E0", borderRadius: "8px", padding: "14px 18px", marginBottom: "12px" }}>
+          <div style={{ fontSize: "13px", fontWeight: "700", color: "#1D2D50", marginBottom: "8px" }}>
+            {t("BPA_BLOCK_SUBHEADER")} {index + 1}
+          </div>
+          <InfoRow label={t("BPA_SUB_OCCUPANCY_LABEL")} value={getBlockSubOccupancy(index) || t("CS_NA")} />
+          <div style={{ overflowX: "auto", marginTop: "8px" }}>
+            <Table
+              className="customTable table-fixed-first-column table-border-style"
+              t={t} disableSort={false} autoSort={true} manualPagination={false} isPaginationRequired={false}
+              initSortId="S N " data={getFloorData(block)} columns={tableColumns}
+              getCellProps={() => ({ style: {} })}
+            />
+          </div>
         </div>
       ))}
-       <Row className="border-none" label={t(`BPA_COMMON_TOTAL_AMT`)} text={`₹ ${paymentDetails?.Bill?.[0]?.billDetails[0]?.amount || "0"}`} />
-       </StatusTable>
-      <hr style={{color:"#cccccc",backgroundColor:"#cccccc",height:"2px",marginTop:"20px",marginBottom:"20px"}}/>
-      <CardHeader>{t("BPA_COMMON_TOTAL_AMT")}</CardHeader> 
-      <CardHeader>₹ {paymentDetails?.Bill?.[0]?.billDetails[0]?.amount || "0"}</CardHeader> 
-      <SubmitBar label={value.businessService==="BPA-PAP"? t("SUBMIT"):t("BPA_SEND_TO_CITIZEN_LABEL")} onSubmit={onSubmit} />
-      </Card>
+      {preApprovedResponse?.[0]?.drawingDetail?.blocks?.map((block, index) => (
+        <div key={index} style={{ background: "#FAFAFA", border: "1px solid #E0E0E0", borderRadius: "8px", padding: "14px 18px", marginBottom: "12px" }}>
+          <div style={{ fontSize: "13px", fontWeight: "700", color: "#1D2D50", marginBottom: "8px" }}>
+            {t("BPA_BLOCK_SUBHEADER")} {index + 1}
+          </div>
+          <div style={{ overflowX: "auto", marginTop: "8px" }}>
+            <Table
+              className="customTable table-fixed-first-column table-border-style"
+              t={t} disableSort={false} autoSort={true} manualPagination={false} isPaginationRequired={false}
+              initSortId="S N " data={getFloorData(block)} columns={tableColumns}
+              getCellProps={() => ({ style: {} })}
+            />
+          </div>
+        </div>
+      ))}
+
+      {datafromAPI?.planReport && (
+        <div style={{ display: "flex", gap: "20px", marginBottom: "12px", flexWrap: "wrap" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+            onClick={() => routeTo(datafromAPI?.updatedDxfFile || preApprovedResponse?.[0]?.documents?.find(d => d?.additionalDetails?.fileName?.includes("pdf"))?.additionalDetails?.fileUrl)}>
+            <PDFSvg />
+            <span style={{ fontSize: "13px", color: "#1D70B8" }}>{datafromAPI?.updatedDxfFile ? t("BPA_UPLOADED_PLAN_DXF") : t("BPA_UPLOADED_PLAN_PDF")}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}
+            onClick={() => routeTo(datafromAPI?.planReport)}>
+            <PDFSvg />
+            <span style={{ fontSize: "13px", color: "#1D70B8" }}>{t("BPA_SCRUTINY_REPORT_PDF")}</span>
+          </div>
+        </div>
+      )}
+
+      <InfoRow label={t("BPA_APPLICATION_DEMOLITION_AREA_LABEL")} value={datafromAPI?.planDetail?.planInformation?.demolitionArea ? `${datafromAPI?.planDetail?.planInformation?.demolitionArea} ${t("BPA_SQ_MTRS_LABEL")}` : t("CS_NA")} />
+
+      {/* Location */}
+      <SectionHeader title={t("BPA_NEW_TRADE_DETAILS_HEADER_DETAILS")} onEdit editRoute={`${routeLink}/location`} />
+      <InfoRow label={t("BPA_DETAILS_PIN_LABEL")} value={address?.pincode} />
+      <InfoRow label={t("BPA_CITY_LABEL")} value={address?.city?.name} />
+      <InfoRow label={t("BPA_LOC_MOHALLA_LABEL")} value={address?.locality?.name} />
+      <InfoRow label={t("BPA_DETAILS_SRT_NAME_LABEL")} value={address?.street} />
+      <InfoRow label={t("ES_NEW_APPLICATION_LOCATION_LANDMARK")} value={address?.landmark} />
+
+      {/* Applicant Details */}
+      <SectionHeader title={t("BPA_APPLICANT_DETAILS_HEADER")} onEdit editRoute={`${routeLink}/owner-details`} />
+      {owners?.owners?.map((ob, index) => (
+        <div key={index} style={owners.owners.length > 1 ? { background: "#FAFAFA", border: "1px solid #E0E0E0", borderRadius: "8px", padding: "14px 18px", marginBottom: "12px" } : {}}>
+          {owners.owners.length > 1 && (
+            <div style={{ fontSize: "13px", fontWeight: "700", color: "#1D2D50", marginBottom: "8px" }}>{t("COMMON_OWNER")} {index + 1}</div>
+          )}
+          <InfoRow label={t("CORE_COMMON_NAME")} value={ob?.name} />
+          <InfoRow label={t("BPA_APPLICANT_GENDER_LABEL")} value={t(ob?.gender?.i18nKey || ob?.gender)} />
+          <InfoRow label={t("CORE_COMMON_MOBILE_NUMBER")} value={ob?.mobileNumber} />
+          {value.businessService === "BPA-PAP"
+            ? <InfoRow label={t("PRIMARY_OWNER_LABEL")} value={owners.owners.length === 1 ? "Single Owner" : "Multiple Owner"} />
+            : <InfoRow label={t("BPA_IS_PRIMARY_OWNER_LABEL")} value={`${ob?.isPrimaryOwner ? ob.isPrimaryOwner : owners.owners.length === 1 ? "true" : ""}`} />
+          }
+        </div>
+      ))}
+
+      {/* Documents */}
+      <SectionHeader title={t("BPA_DOCUMENT_DETAILS_LABEL")} onEdit editRoute={`${routeLink}/document-details`} />
+      <div style={{ marginBottom: "12px" }}>
+        {<DocumentsPreview documents={getOrderDocuments(applicationDocs)} svgStyles={{}} isSendBackFlow={false} isHrLine={true}
+          titleStyles={{ fontSize: "15px", lineHeight: "22px", fontWeight: 700, marginBottom: "10px" }} />}
+      </div>
+
+      {/* NOC Details */}
+      {nocDocuments?.NocDetails?.map((noc, index) => (
+        <div key={`noc-${index}`} style={{ background: "#FAFAFA", border: "1px solid #E0E0E0", borderRadius: "8px", padding: "14px 18px", marginBottom: "12px" }}>
+          <SectionHeader title={`${t("BPA_NOC_DETAILS_SUMMARY")} – ${t(`BPA_${noc?.nocType}_HEADER`)}`} onEdit editRoute={`${routeLink}/noc-details`} />
+          <InfoRow label={t(`BPA_${noc?.nocType}_LABEL`)} value={noc?.applicationNo} />
+          <InfoRow label={t("BPA_NOC_STATUS")} value={t(noc?.applicationStatus)}
+            valueStyle={noc?.applicationStatus === "APPROVED" || noc?.applicationStatus === "AUTO_APPROVED" ? { color: "#00703C" } : { color: "#D4351C" }} />
+          {noc?.additionalDetails?.SubmittedOn && <InfoRow label={t("BPA_NOC_SUBMISSION_DATE")} value={convertEpochToDateDMY(Number(noc?.additionalDetails?.SubmittedOn))} />}
+          {noc?.nocNo && <InfoRow label={t("BPA_APPROVAL_NUMBER_LABEL")} value={noc?.nocNo} />}
+          {(noc?.applicationStatus === "APPROVED" || noc?.applicationStatus === "REJECTED" || noc?.applicationStatus === "AUTO_APPROVED" || noc?.applicationStatus === "AUTO_REJECTED") &&
+            <InfoRow label={t("BPA_APPROVED_REJECTED_ON_LABEL")} value={convertEpochToDateDMY(Number(noc?.auditDetails?.lastModifiedTime))} />}
+          {<DocumentsPreview documents={getOrderDocuments(nocAppDocs?.filter(d => d?.documentType?.includes(noc?.nocType?.split("_")?.[0])), true)}
+            svgStyles={{}} isSendBackFlow={false} isHrLine={true} titleStyles={{ fontSize: "15px", lineHeight: "22px", fontWeight: 700, marginBottom: "10px" }} />}
+        </div>
+      ))}
+
+      {/* Fee Summary */}
+      <SectionHeader title={t("BPA_SUMMARY_FEE_EST")} />
+      {paymentDetails?.Bill?.[0]?.billDetails?.[0]?.billAccountDetails?.map((bill, index) => (
+        <InfoRow key={index} label={t(bill.taxHeadCode)} value={`₹ ${bill?.amount}`} />
+      ))}
+
+      {/* Total Amount + Submit */}
+      <div style={{ background: "linear-gradient(135deg, #1D2D50 0%, #2d4a7a 100%)", borderRadius: "10px",
+        padding: "20px 24px", marginTop: "24px", display: "flex", alignItems: "center",
+        justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+        <div>
+          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.7)", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "4px" }}>
+            {t("BPA_COMMON_TOTAL_AMT")}
+          </div>
+          <div style={{ fontSize: "26px", fontWeight: "800", color: "#fff" }}>
+            ₹ {paymentDetails?.Bill?.[0]?.billDetails?.[0]?.amount || "0"}
+          </div>
+        </div>
+        <SubmitBar label={value.businessService === "BPA-PAP" ? t("SUBMIT") : t("BPA_SEND_TO_CITIZEN_LABEL")} onSubmit={onSubmit} />
+      </div>
+
+    </Card>
     </React.Fragment>
     );
   };

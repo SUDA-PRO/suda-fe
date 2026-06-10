@@ -6,8 +6,8 @@ const useApplicationDetail = (t, tenantId, propertyIds, config = {}, userType, a
     let applicationDetails = data.applicationDetails.map((obj) => {
       const { additionalDetails, title } = obj;
       if (title === "PT_OWNERSHIP_INFO_SUB_HEADER") {
-        additionalDetails.owners = additionalDetails.owners.filter((e) => e.status === "ACTIVE");
-        const values = additionalDetails.documents[0]?.values?.filter((e) => e.status === "ACTIVE");
+        additionalDetails.owners = (additionalDetails.owners || []).filter((e) => e.status !== "INACTIVE");
+        const values = additionalDetails.documents[0]?.values?.filter((e) => e.status !== "INACTIVE");
         additionalDetails.documents[0] = { ...additionalDetails.documents[0], values };
         return { ...obj, additionalDetails };
       }

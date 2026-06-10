@@ -170,7 +170,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
   const firstName = userName.split(" ")[0];
 
   const paymentModule = modules.filter(({ code }) => code === "Payment")[0];
-  const moduleArr = modules.filter(({ code }) => code !== "Payment");
+  const moduleArr = modules.filter(({ code }) => code !== "Payment" && code !== "FSM");
   const moduleArray = [paymentModule, ...moduleArr];
 
   if (isLoading) {
@@ -337,7 +337,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
 /* ── Per-module config: name, colour, icon, services, links ── */
 const MODULE_CONFIG = {
   PT:       { name: "Property Tax",    color: "#e65c00", icon: "🏠", moduleCode: "PT",       services: ["PT.CREATE", "PT.MUTATION", "PT.UPDATE"],       links: [{ label: "Inbox",          url: "/suda-ui/employee/pt/inbox" },       { label: "New Property",   url: "/suda-ui/employee/pt/new-application" }, { label: "Bulk Demand",    url: "/suda-ui/employee/pt/Ulb-assesment", icon: "📊" }, { label: "Search",         url: "/suda-ui/employee/pt/search", icon: "🔍" }] },
-  WS:       { name: "Water & Sewerage",color: "#0066cc", icon: "💧", moduleCode: "WS",       services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/ws/inbox" },       { label: "Apply Connection",url: "/suda-ui/employee/ws/new-application" }, { label: "Search",         url: "/suda-ui/employee/ws/search" }] },
+  WS:       { name: "Water & Sewerage",color: "#0066cc", icon: "💧", moduleCode: "WS",       services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/ws/inbox" },       { label: "Search Connection",url: "/suda-ui/employee/ws/water/search-connection" }, { label: "Search Application",         url: "/suda-ui/employee/ws/water/search-application" }] },
   TL:       { name: "Trade License",   color: "#00875a", icon: "📋", moduleCode: "TL",       services: ["TL", "EDITRENEWAL", "DIRECTRENEWAL"],             links: [{ label: "Inbox",          url: "/suda-ui/employee/tradelicense/inbox" }, { label: "New License",    url: "/suda-ui/employee/tradelicense/new-application" }, { label: "Search",  url: "/suda-ui/employee/tradelicense/search" }] },
   PGR:      { name: "Grievances",      color: "#7B61FF", icon: "📣", moduleCode: "PGR",      services: ["PGR"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/pgr/inbox" },       { label: "Register Complaint",url: "/suda-ui/employee/pgr/create" },        { label: "Search",         url: "/suda-ui/employee/pgr/search" }] },
   FSM:      { name: "Sanitation",      color: "#B54708", icon: "🚿", moduleCode: "FSM",      services: ["FSM"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/fsm/inbox" },       { label: "New Request",    url: "/suda-ui/employee/fsm/new-application" }, { label: "Search",         url: "/suda-ui/employee/fsm/search" }] },
@@ -345,9 +345,10 @@ const MODULE_CONFIG = {
   OBPS:     { name: "Building Plan",   color: "#1570EF", icon: "🏗️", moduleCode: "BPA",      services: ["BPA", "BPA_LOW"],                                links: [{ label: "Inbox",          url: "/suda-ui/employee/obps/stakeholder-inbox" },      { label: "New Application",url: "/suda-ui/employee/obps/new-application" }, { label: "Search",         url: "/suda-ui/employee/obps/search/application" }] },
   CHB:      { name: "CHB",             color: "#C11574", icon: "🏛️", moduleCode: "CHB",      services: ["booking-refund"],                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/chb/inbox" },       { label: "New Booking",    url: "/suda-ui/employee/chb/bookHall/searchhall" }, { label: "Search", url: "/suda-ui/employee/chb/search" }] },
   ADS:      { name: "Advertisements",  color: "#E31B54", icon: "📢", moduleCode: "ADS",      services: ["ADS"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ads/inbox" },       { label: "New Application",url: "/suda-ui/employee/ads/new-application" }, { label: "Search",         url: "/suda-ui/employee/ads/search" }] },
-  PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/inbox" },       { label: "Search",         url: "/suda-ui/employee/ptr/search" }] },
+  PTR:      { name: "PT Reports",      color: "#D97706", icon: "📊", moduleCode: "PTR",      services: ["ptr"],                                            links: [{ label: "Inbox",          url: "/suda-ui/employee/ptr/petservice/inbox" }, { label: "Search",         url: "/suda-ui/employee/ptr/petservice/my-applications" }] },
   SW:       { name: "Solid Waste",     color: "#4A7C59", icon: "♻️", moduleCode: "SW",       services: ["SW"],                                             links: [{ label: "Inbox",          url: "/suda-ui/employee/sw/inbox" },        { label: "New Request",    url: "/suda-ui/employee/sw/new-application" },  { label: "Search",         url: "/suda-ui/employee/sw/search" }] },
   SURVEY:   { name: "Surveys",         color: "#5B4FCF", icon: "📋", moduleCode: "SURVEY",   services: [],                                                 links: [{ label: "Inbox",          url: "/suda-ui/employee/survey/inbox" },    { label: "Create Survey",  url: "/suda-ui/employee/survey/create" }] },
+  ASSET:    { name: "Asset Management",color: "#0E7490", icon: "🏢", moduleCode: "ASSET",    services: ["asset-create"],                                   links: [{ label: "Inbox",          url: "/suda-ui/employee/asset/assetservice/inbox" }, { label: "New Asset", url: "/suda-ui/employee/asset/assetservice/new-assets" }, { label: "Search", url: "/suda-ui/employee/asset/assetservice/search" }] },
   Bills:    { name: "Bills",           color: "#D97706", icon: "🧾", moduleCode: null,        services: [],                                                 links: [{ label: "Search Bills",   url: "/suda-ui/employee/bills/search" },    { label: "Pay Bill",       url: "/suda-ui/employee/bills/pay" }] },
 };
 
@@ -451,19 +452,20 @@ const EmployeeHome = ({ modules }) => {
     Engagement: "Engagement", OBPS: "Building Plan", CHB: "CHB",
     ADS: "Advertisements", PTR: "PT Reports", SW: "Solid Waste",
     SURVEY: "Surveys", EW: "E-Waste", BIRTH_DEATH: "Birth & Death",
+    ASSET: "Asset Management",
   };
 
   const moduleColors = {
     PT: "#e65c00", WS: "#0066cc", TL: "#00875a", PGR: "#7B61FF",
     FSM: "#B54708", MCollect: "#027A48", OBPS: "#1570EF", CHB: "#C11574",
     ADS: "#E31B54", Bills: "#D97706", SW: "#4A7C59", SURVEY: "#5B4FCF",
-    EW: "#0D9488", BIRTH_DEATH: "#7C3AED",
+    EW: "#0D9488", BIRTH_DEATH: "#7C3AED", ASSET: "#0E7490",
   };
 
   const moduleIcons = {
     PT: "🏠", WS: "💧", TL: "📋", PGR: "📣", FSM: "🚿",
     MCollect: "💰", OBPS: "🏗️", CHB: "🏛️", ADS: "📢", Bills: "🧾",
-    SW: "♻️", SURVEY: "📊", EW: "🔋", BIRTH_DEATH: "📜",
+    SW: "♻️", SURVEY: "📊", EW: "🔋", BIRTH_DEATH: "📜", ASSET: "🏢",
   };
 
   const moduleLinks = {
@@ -474,8 +476,8 @@ const EmployeeHome = ({ modules }) => {
     ],
     WS: [
       { label: "Inbox", url: "/suda-ui/employee/ws/inbox" },
-      { label: "Apply Connection", url: "/suda-ui/employee/ws/new-application" },
-      { label: "Search", url: "/suda-ui/employee/ws/search" },
+      { label: "Search Connection", url: "/suda-ui/employee/ws/water/search-connection" },
+      { label: "Search Application", url: "/suda-ui/employee/ws/water/search-application" },
     ],
     TL: [
       { label: "Inbox", url: "/suda-ui/employee/tradelicense/inbox" },
@@ -498,7 +500,7 @@ const EmployeeHome = ({ modules }) => {
       { label: "Search", url: "/suda-ui/employee/mcollect/search" },
     ],
     OBPS: [
-      { label: "Inbox", url: "/suda-ui/employee/obps/stakeholder-inbox" },
+      { label: "Inbox", url: "/suda-ui/employee/obps/inbox" },
       { label: "New Application", url: "/suda-ui/employee/obps/new-application" },
       { label: "Search", url: "/suda-ui/employee/obps/search/application" },
     ],
@@ -516,6 +518,11 @@ const EmployeeHome = ({ modules }) => {
       { label: "Search Bills", url: "/suda-ui/employee/bills/search" },
       { label: "Pay Bill", url: "/suda-ui/employee/bills/pay" },
     ],
+    ASSET: [
+      { label: "Inbox", url: "/suda-ui/employee/asset/assetservice/inbox" },
+      { label: "New Asset", url: "/suda-ui/employee/asset/assetservice/new-assets" },
+      { label: "Search", url: "/suda-ui/employee/asset/assetservice/search" },
+    ],
   };
 
   const { data: dashboardConfig } = Digit.Hooks.useCustomMDMS(Digit.ULBService.getStateId(), "common-masters", [{ name: "CommonConfig" }], {
@@ -525,9 +532,9 @@ const EmployeeHome = ({ modules }) => {
     },
   });
 
-  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan
+  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan, PT Reports
   // const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
-  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS"].includes(code));
+  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS", "ASSET", "PTR"].includes(code));
   const heroModules = visibleModules.slice(0, 4);
 
   return (

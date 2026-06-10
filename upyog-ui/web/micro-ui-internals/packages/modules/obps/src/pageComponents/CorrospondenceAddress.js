@@ -1,9 +1,8 @@
-import { BackButton, CardLabel, CheckBox, FormStep, TextArea, Toast } from "@upyog/digit-ui-react-components";
+import { BackButton, CheckBox, FormStep, TextArea, Toast } from "@upyog/digit-ui-react-components";
 import React, { useState } from "react";
 import Timeline from "../components/Timeline";
 
 const CorrospondenceAddress = ({ t, config, onSelect, value, userType, formData }) => {
-  let validation = {};
   const onSkip = () => onSelect();
   const [Correspondenceaddress, setCorrespondenceaddress] = useState(formData?.Correspondenceaddress || formData?.formData?.Correspondenceaddress || "");
   const [isAddressSame, setisAddressSame] = useState(formData?.isAddressSame || formData?.formData?.isAddressSame || false);
@@ -13,12 +12,11 @@ const CorrospondenceAddress = ({ t, config, onSelect, value, userType, formData 
   const tenantId = Digit.ULBService.getCurrentTenantId();
   const stateId = Digit.ULBService.getStateId();
   let isopenlink = window.location.href.includes("/openlink/");
-  const isCitizenUrl = Digit.Utils.browser.isMobile() ? true : false;
 
-  if(isopenlink)  
-  window.onunload = function () {
-    sessionStorage.removeItem("Digit.BUILDING_PERMIT");
-  }
+  if (isopenlink)
+    window.onunload = function () {
+      sessionStorage.removeItem("Digit.BUILDING_PERMIT");
+    };
 
   function selectChecked(e) {
     if (isAddressSame == false) {
@@ -104,42 +102,109 @@ const CorrospondenceAddress = ({ t, config, onSelect, value, userType, formData 
     // onSelect(config.key, { TradeName });
   };
 
-  return (
-    <React.Fragment>
-      <div className={isopenlink ? "OpenlinkContainer" : ""}>
+  /* ── Layout styles ── */
+  const cardStyle = {
+    background: "#ffffff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+    padding: "24px 28px",
+    marginBottom: "24px",
+    border: "1px solid #e8ecf0",
+  };
+  const sectionTitleStyle = {
+    fontSize: "15px",
+    fontWeight: "700",
+    color: "#1a2b49",
+    marginBottom: "20px",
+    paddingBottom: "10px",
+    borderBottom: "2px solid #f47738",
+    letterSpacing: "0.3px",
+  };
+  const labelStyle = {
+    display: "block",
+    fontWeight: "600",
+    fontSize: "13px",
+    color: "#3d4f6b",
+    marginBottom: "6px",
+    letterSpacing: "0.2px",
+  };
 
+  return (
+    <div className="correspondence-address-page">
+      <style>{`.correspondence-address-page .card-caption, .correspondence-address-page .card-text { display: none !important; }`}</style>
+      <div className={isopenlink ? "OpenlinkContainer" : ""}>
         {isopenlink && <BackButton style={{ border: "none" }}>{t("CS_COMMON_BACK")}</BackButton>}
         <Timeline currentStep={2} flow="STAKEHOLDER" />
-        <FormStep
-          config={config}
-          onSelect={goNext}
-          onSkip={onSkip}
-          t={t}
-          isDisabled={isDisableForNext}
-        >
-          <CheckBox
-            label={t("BPA_SAME_AS_PERMANENT_ADDRESS")}
-            onChange={(e) => selectChecked(e)}
-            //value={field.isPrimaryOwner}
-            checked={isAddressSame}
-            style={{ paddingBottom: "10px", paddingTop: "10px" }}
-          />
-          <CardLabel>{`${t("BPA_APPLICANT_CORRESPONDENCE_ADDRESS_LABEL")}`}</CardLabel>
-          <TextArea
-            t={t}
-            isMandatory={false}
-            type={"text"}
-            optionKey="i18nKey"
-            name="Correspondenceaddress"
-            onChange={selectCorrespondenceaddress}
-            value={Correspondenceaddress}
-            disable={isAddressSame}
-          />
+
+        {/* Hero Banner */}
+        <div style={{
+          background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+          borderRadius: "12px",
+          padding: "28px 36px",
+          marginBottom: "24px",
+          color: "#fff",
+          display: "flex",
+          alignItems: "center",
+          gap: "20px",
+        }}>
+          <div style={{
+            width: "56px", height: "56px", borderRadius: "50%",
+            background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+          }}>
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+          </div>
+          <div>
+            <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>
+              {t("BPA_STEP_2_OF_3") || "Step 2 of 3"}
+            </div>
+            <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>
+              {t("BPA_CORRESPONDENCE_ADDRESS_HEADER") || "Correspondence Address"}
+            </h2>
+            <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>
+              {t("BPA_CORRESPONDENCE_ADDRESS_SUBTEXT") || "Enter your correspondence / mailing address"}
+            </p>
+          </div>
+        </div>
+
+        <FormStep config={config} onSelect={goNext} onSkip={onSkip} t={t} isDisabled={isDisableForNext}>
+          <div style={{ maxWidth: "100%", width: "100%" }}>
+            <div style={cardStyle}>
+              <div style={sectionTitleStyle}>{t("BPA_CORRESPONDENCE_DETAILS_HEADER") || "Correspondence Details"}</div>
+              <CheckBox
+                label={t("BPA_SAME_AS_PERMANENT_ADDRESS")}
+                onChange={(e) => selectChecked(e)}
+                checked={isAddressSame}
+                style={{ paddingBottom: "10px", paddingTop: "10px" }}
+              />
+              <label style={{ ...labelStyle, marginTop: "12px" }}>{t("BPA_APPLICANT_CORRESPONDENCE_ADDRESS_LABEL")}</label>
+              <TextArea
+                t={t}
+                isMandatory={false}
+                type={"text"}
+                optionKey="i18nKey"
+                name="Correspondenceaddress"
+                onChange={selectCorrespondenceaddress}
+                value={Correspondenceaddress}
+                disable={isAddressSame}
+              />
+            </div>
+          </div>
         </FormStep>
       </div>
-      <div style={{ disabled: "true", height: "30px", width: "100%", fontSize: "14px" }}></div>
-      {showToast && <Toast error={showToast?.key === "error" ? true : false} label={error} isDleteBtn={true} onClose={() => { setShowToast(null); setError(null); }} />}
-    </React.Fragment>
+      <div style={{ height: "30px", width: "100%", fontSize: "14px" }}></div>
+      {showToast && (
+        <Toast
+          error={showToast?.key === "error" ? true : false}
+          label={error}
+          isDleteBtn={true}
+          onClose={() => { setShowToast(null); setError(null); }}
+        />
+      )}
+    </div>
   );
 };
 

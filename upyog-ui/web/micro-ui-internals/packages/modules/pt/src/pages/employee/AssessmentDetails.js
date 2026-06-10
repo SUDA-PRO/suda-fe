@@ -521,7 +521,7 @@ const Penality_menu=[
                     ?.filter((e) => e.active)
                     ?.sort?.((a, b) => a.floorNo - b.floorNo)
                     ?.map((unit, index) => (
-                    <Row label={`${t(`PROPERTYTAX_FLOOR_${unit?.floorNo}`)} ${t(`PT_UNIT`)} - ${index+1}`} text={ChargeSlabsMenu?.PropertyTax && ChargeSlabsMenu?.PropertyTax?.ChargeSlabs?.filter((ob) => ob.floorNo == unit.floorNo)?.[0]?.name} />
+                    <Row key={`${unit?.floorNo}-${index}`} label={`${t(`PROPERTYTAX_FLOOR_${unit?.floorNo}`)} ${t(`PT_UNIT`)} - ${index+1}`} text={ChargeSlabsMenu?.PropertyTax && ChargeSlabsMenu?.PropertyTax?.ChargeSlabs?.filter((ob) => ob.floorNo == unit.floorNo)?.[0]?.name} />
                     ))}
                     </StatusTable>
                    </div>

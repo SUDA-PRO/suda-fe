@@ -1,6 +1,6 @@
 import { CardLabel, FormStep, Dropdown, TextInput, Toast, SearchIcon, Row, ImageViewer, StatusTable, LinkButton, Header, SubmitBar, CardHeader } from "@upyog/digit-ui-react-components";
 import DisplayPhotosnew from "../../../../react-components/src/atoms/DisplayPhotosnew";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { PreApprovedPlanService } from "../../../../libraries/src/services/elements/PREAPPROVEDPLAN";
 import  usePreApprovedSearch  from "../../../../libraries/src/hooks/obps/usePreApprovedSearch";
 import { useTranslation } from "react-i18next";
@@ -21,6 +21,8 @@ const BuildingPlanScrutiny = ({ t, config, onSelect, formData, isShowToast, isSu
   const [imageZoom, setImageZoom] = useState(null);
   const [mandatoryFieldsError, setMandatoryFiledsError] = useState();
   const [imagesToShowBelowComplaintDetails, setImagesToShowBelowComplaintDetails] = useState();
+  const isMounted = useRef(true);
+  useEffect(() => { return () => { isMounted.current = false; }; }, []);
 
   const [selectedPlot, setSelectedPlot] = useState();
   const [inputError, setInputError] = useState()
@@ -61,17 +63,17 @@ const BuildingPlanScrutiny = ({ t, config, onSelect, formData, isShowToast, isSu
         setMandatoryFiledsError("");
     }
   };
-  useEffect(async () => {
-    if (preApprovedResponse?.data!==undefined) {
-      const fileStoreIds = preApprovedResponse?.data.flatMap(item =>
-        item.documents
-          .filter(doc => doc?.additionalDetails?.fileName?.includes(".jpg"))
-          .map(doc => doc?.fileStoreId)
-      );
-       const thumbnails = fileStoreIds ? await getThumbnails(fileStoreIds, tenantId) : null;
-       
-      setImagesToShowBelowComplaintDetails(thumbnails);
-    }
+  useEffect(() => {
+    if (preApprovedResponse?.data===undefined) return;
+    const fileStoreIds = preApprovedResponse?.data.flatMap(item =>
+      item.documents
+        .filter(doc => doc?.additionalDetails?.fileName?.includes(".jpg"))
+        .map(doc => doc?.fileStoreId)
+    );
+    if (!fileStoreIds) return;
+    getThumbnails(fileStoreIds, tenantId).then((thumbnails) => {
+      if (isMounted.current) setImagesToShowBelowComplaintDetails(thumbnails);
+    });
   }, [preApprovedResponse]);
 
   const clearForm = () => {

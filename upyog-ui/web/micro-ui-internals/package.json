@@ -9,13 +9,16 @@
     "packages/react-components",
     "packages/modules/core",
     "packages/modules/common",
+    "packages/modules/asset",
     "packages/modules/hrms",
     "packages/modules/dss",
     "packages/modules/engagement",
     "packages/modules/pt",
     "packages/modules/obps",
     "packages/modules/ws",
-    "packages/modules/mCollect"
+    "packages/modules/mCollect",
+        "packages/modules/tl"
+
   ],
   "license": "MIT",
   "private": true,

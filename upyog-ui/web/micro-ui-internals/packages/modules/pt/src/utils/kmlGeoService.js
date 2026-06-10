@@ -12,8 +12,35 @@
  */
 
 // ── Static imports: all data bundled at build time ─────────────────────────
-import ulbIndex from "../../../../../../public/kml-geo/ulb-index.json";
 import geoBundle from "./geoDataBundle";
+
+// Build a bounding-box index from the bundled GeoJSON data at module load time.
+// This replaces the previously missing ulb-index.json file import.
+function _extractCoords(geometry) {
+  if (!geometry) return [];
+  if (geometry.type === "Polygon") return geometry.coordinates[0];
+  if (geometry.type === "MultiPolygon") return geometry.coordinates.flatMap(function(poly) { return poly[0]; });
+  return [];
+}
+
+function _computeBbox(featureCollection) {
+  var minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+  for (var i = 0; i < featureCollection.features.length; i++) {
+    var coords = _extractCoords(featureCollection.features[i].geometry);
+    for (var j = 0; j < coords.length; j++) {
+      var lng = coords[j][0], lat = coords[j][1];
+      if (lng < minLng) minLng = lng;
+      if (lng > maxLng) maxLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lat > maxLat) maxLat = lat;
+    }
+  }
+  return [minLng, minLat, maxLng, maxLat];
+}
+
+var ulbIndex = Object.keys(geoBundle).map(function(code) {
+  return { code: code, bbox: _computeBbox(geoBundle[code]) };
+});
 
 // Module-level in-memory GeoJSON cache (populated from bundle on first use).
 const _cache = { ulbs: {} };

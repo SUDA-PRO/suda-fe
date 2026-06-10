@@ -92,8 +92,12 @@ const PTAcknowledgement = ({ data, onSuccess }) => {
     };
 
     // Fetch full property payload so PDF fields do not resolve to NA due to partial mutation response.
-    const activePropertySearch = await Digit.PTService.search({ tenantId: searchTenantId, filters: { propertyIds: baseProperty?.propertyId } });
-    const activeProperty = activePropertySearch?.Properties?.find((p) => p?.status === "ACTIVE") || activePropertySearch?.Properties?.[0] || {};
+    // propertyId is only assigned after approval; skip search if not yet assigned.
+    let activeProperty = {};
+    if (baseProperty?.propertyId) {
+      const activePropertySearch = await Digit.PTService.search({ tenantId: searchTenantId, filters: { propertyIds: baseProperty?.propertyId } });
+      activeProperty = activePropertySearch?.Properties?.find((p) => p?.status === "ACTIVE") || activePropertySearch?.Properties?.[0] || {};
+    }
     const ownersCount = Math.max(activeProperty?.owners?.length || 0, baseProperty?.owners?.length || 0);
     const mergedOwners = Array.from({ length: ownersCount }, (_, index) =>
       preferNonEmpty(baseProperty?.owners?.[index] || {}, activeProperty?.owners?.[index] || {})
@@ -149,7 +153,7 @@ const PTAcknowledgement = ({ data, onSuccess }) => {
             rowContainerStyle={rowContainerStyle}
             last
             label={t("PT_COMMON_TABLE_COL_PT_ID")}
-            text={mutation?.data?.Properties[0]?.propertyId}
+            text={mutation?.data?.Properties[0]?.propertyId || t("PT_PROPERTY_ID_PENDING_APPROVAL")}
             textStyle={{ whiteSpace: "pre", width: "60%" }}
           />
         )}
