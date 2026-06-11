@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useHistory, useLocation } from "react-router-dom";
 import { newConfig } from "../../../config/Create/config";
 
-const EditForm = ({ applicationData }) => {
+const EditForm = ({ applicationData, fromScreen }) => {
   const { t } = useTranslation();
   const history = useHistory();
   const { state } = useLocation();
@@ -19,9 +19,21 @@ const EditForm = ({ applicationData }) => {
   }, []);
   console.log("applicationData",applicationData)
 let propertyStructureDetails= {"usageCategory":"","structureType":applicationData?.additionalDetails?.structureType,"ageOfProperty":applicationData?.additionalDetails?.ageOfProperty}
+
+  // Derive the INDIVIDUAL sub-category (SINGLEOWNER / MULTIPLEOWNERS) because the
+  // dropdown options use the full dotted code while the API stores only "INDIVIDUAL".
+  const ownershipSubCategory = (() => {
+    const cat = applicationData?.ownershipCategory;
+    if (cat === "INDIVIDUAL") {
+      const activeCount = applicationData?.owners?.filter((o) => o.status === "ACTIVE")?.length || 0;
+      return activeCount > 1 ? "INDIVIDUAL.MULTIPLEOWNERS" : "INDIVIDUAL.SINGLEOWNER";
+    }
+    return cat;
+  })();
+
   const defaultValues = {
-    originalData: applicationData,
-    ownershipCategory: applicationData?.ownershipCategory,
+    originalData: { ...applicationData, ownershipCategory: ownershipSubCategory },
+    ownershipCategory: ownershipSubCategory ? { code: ownershipSubCategory, value: ownershipSubCategory } : null,
     address: applicationData?.address,
     propertyStructureDetails:propertyStructureDetails,
     owners: applicationData?.owners.map((owner) => ({
@@ -65,7 +77,7 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
         roadType: data?.address?.roadType?.code || data?.address?.roadType || applicationData?.address?.roadType || null,
       },
       propertyType: data?.PropertyType?.code,
-      creationReason: state?.workflow?.businessService === "PT.UPDATE" || (applicationData?.documents == null )  ? "UPDATE" : applicationData?.creationReason,
+      creationReason: fromScreen === "PT_UPDATE_OWNER_PROFILE" ? "DATA_UPLOAD" : (state?.workflow?.businessService === "PT.UPDATE" || (applicationData?.documents == null) ? "UPDATE" : applicationData?.creationReason),
       usageCategory: data?.usageCategoryMinor?.subuagecode ? data?.usageCategoryMinor?.subuagecode : data?.usageCategoryMajor?.code,
       usageCategoryMajor: data?.usageCategoryMajor?.code.split(".")[0],
       usageCategoryMinor: data?.usageCategoryMajor?.code.split(".")[1] || null,
@@ -76,7 +88,7 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
         structureType:data?.propertyStructureDetails?.structureType,  unit: unitValues },
       //electricity:data?.electricity,
       source: "MUNICIPAL_RECORDS", // required
-      channel: "CFC_COUNTER", // required
+      channel: fromScreen === "PT_UPDATE_OWNER_PROFILE" ? "MIGRATION" : "CFC_COUNTER", // required
       documents: applicationData?.documents ? applicationData?.documents.map((old) => {
         let dt = old.documentType.split(".");
         let newDoc = data?.documents?.documents?.find((e) => e.documentType.includes(dt[0] + "." + dt[1]));
@@ -94,7 +106,9 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
         ownerType: o?.ownerType?.code || o?.ownerType || null,
         relationship: o?.relationship?.code || o?.relationship || null,
       })),
-      workflow: state?.workflow || { action: "OPEN", businessService: "PT.UPDATE", moduleName: "PT", tenantId: applicationData?.tenantId },
+      workflow: fromScreen === "PT_UPDATE_OWNER_PROFILE"
+        ? null
+        : (state?.workflow || { action: "OPEN", businessService: "PT.UPDATE", moduleName: "PT", tenantId: applicationData?.tenantId }),
       applicationStatus: "UPDATE",
     };
     if (state?.workflow?.action === "OPEN") {
