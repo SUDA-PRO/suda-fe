@@ -1,7 +1,7 @@
 const { series, src, dest, watch, task } = require("gulp");
 const clean = require("gulp-clean");
 const postcss = require("gulp-postcss");
-const sass = require("gulp-sass");
+const sass = require("gulp-sass")(require("sass"));
 const postcssPresetEnv = require("postcss-preset-env");
 const cleanCSS = require("gulp-clean-css");
 const rename = require("gulp-rename");
@@ -30,7 +30,7 @@ function prodStyles() {
     require("autoprefixer"),
     require("cssnano"),
   ];
-  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass()).pipe(dest(prodOutput));
+  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass.sync()).pipe(dest(prodOutput));
 }
 
 function minifyProd() {
@@ -45,7 +45,7 @@ function styles() {
     require("autoprefixer"),
     require("cssnano"),
   ];
-  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass()).pipe(dest(output));
+  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass.sync()).pipe(dest(output));
 }
 
 function minify() {
