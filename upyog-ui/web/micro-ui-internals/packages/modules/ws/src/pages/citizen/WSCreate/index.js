@@ -92,7 +92,8 @@ const WSCreate = () => {
   // const CheckPage = Digit?.ComponentRegistryService?.getComponent('BPACheckPage') ;
   // const OBPSAcknowledgement = Digit?.ComponentRegistryService?.getComponent('BPAAcknowledgement');
   return (
-    <Switch>
+    <React.Fragment>
+      <Switch>
       {config.map((routeObj, index) => {
         const { component, texts, inputs, key, isSkipEnabled } = routeObj;
         const Component = typeof component === "string" ? Digit.ComponentRegistryService.getComponent(component) : component;
@@ -112,6 +113,7 @@ const WSCreate = () => {
         <Redirect to={`${getPath(match.path, match.params)}/${config.indexRoute}`} />
       </Route>
     </Switch>
+    </React.Fragment>
   );
 };
 

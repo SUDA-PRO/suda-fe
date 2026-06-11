@@ -68,6 +68,7 @@ import WSDisconnectionCheckPage from "./pages/citizen/WSDisconnection/CheckPage"
 import WSRestorationCheckPage from "./pages/citizen/WSRestoration/CheckPage";
 import WSReSubmitDisconnectionCheckPage from "./pages/citizen/ReSubmitDisconnection/CheckPage"
 import WNSMyBillsComponent from "./pages/citizen/WnSMyBills";
+import WSHomePage from "./pages/citizen/WSHome";
 
 //Employee Components
 import ApplicationBillAmendment from "./pages/employee/ApplicationBillAmendment";
@@ -218,6 +219,7 @@ const componentsToRegister = {
   WSCitizenEditApplication: WSCitizenEditApplication,
   WSReSubmitDisconnectionApplication: WSReSubmitDisconnectionApplication,
   WNSMyBillsComponent: WNSMyBillsComponent,
+  WSHomePage: WSHomePage,
   WSCheckPage,
   WSAcknowledgement,
   WSDisconnectionCheckPage,
