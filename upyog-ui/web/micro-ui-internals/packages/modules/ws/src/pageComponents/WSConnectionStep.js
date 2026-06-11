@@ -17,7 +17,6 @@ import { stringReplaceAll } from "../utils";
 
 const WSConnectionStep = ({ t, config, onSelect, userType, formData }) => {
   let validation = {};
-  let isMobile = window.Digit.Utils.browser.isMobile();
   const isEdit = window.location.href.includes("/ws/edit-application/");
 
   // ---- Connection Holder State ----
@@ -543,125 +542,237 @@ const WSConnectionStep = ({ t, config, onSelect, userType, formData }) => {
 
   if (isGenderLoading || wsServiceCalculationLoading || isSpecialCategoryLoading) return <Loader />;
 
-  return (
-    <div>
-      {userType === "citizen" && <Timeline currentStep={2} />}
-      <FormStep config={config} onSelect={handleSubmit} onSkip={onSkip} t={t} isDisabled={isSubmitDisabled}>
+  /* ── Layout styles (PT-style) ── */
+  const cardStyle = {
+    background: "#ffffff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+    padding: "24px 28px",
+    marginBottom: "24px",
+    border: "1px solid #e8ecf0",
+  };
+  const sectionTitleStyle = {
+    fontSize: "15px",
+    fontWeight: "700",
+    color: "#1a2b49",
+    marginBottom: "20px",
+    paddingBottom: "10px",
+    borderBottom: "2px solid #f47738",
+    letterSpacing: "0.3px",
+  };
+  const rowStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    marginLeft: "-10px",
+    marginRight: "-10px",
+  };
+  const col6 = {
+    flex: "0 0 50%",
+    maxWidth: "50%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const col12 = {
+    flex: "0 0 100%",
+    maxWidth: "100%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const labelStyle = {
+    display: "block",
+    fontWeight: "600",
+    fontSize: "13px",
+    color: "#3d4f6b",
+    marginBottom: "6px",
+    letterSpacing: "0.2px",
+  };
+  const requiredMark = { color: "#e54d42", marginLeft: "2px" };
 
-        {/* ---- Connection Holder Section ---- */}
-        <CardSectionHeader>{t("WS_COMMON_CONNECTION_HOLDER_DETAILS_HEADER")}</CardSectionHeader>
-        <CheckBox
-          label={t("WS_CONN_HOLDER_SAME_AS_OWNER_DETAILS")}
-          onChange={(e) => setIsOwnerSame(!isOwnerSame)}
-          checked={isOwnerSame}
-          style={{ paddingBottom: "10px", paddingTop: "3px" }}
-        />
-        {!isOwnerSame && (
-          <div
-            style={{
-              border: "solid",
-              borderRadius: "5px",
-              padding: "10px",
-              paddingTop: "20px",
-              marginTop: "10px",
-              borderColor: "#f3f3f3",
-              background: "#FAFAFA",
-            }}
-          >
-            <CardLabel>{`${t("WS_OWN_DETAIL_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <TextInput
-              t={t}
-              type={"text"}
-              style={{ background: "#FAFAFA" }}
-              isMandatory={false}
-              optionKey="i18nKey"
-              name="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              {...(validation = {
-                isRequired: true,
-                pattern: "^[a-zA-Z ]*$",
-                type: "text",
-                title: t("WS_NAME_ERROR_MESSAGE"),
-              })}
+  return (
+    <React.Fragment>
+      <style>{`
+        .ws-connection-form .select,
+        .ws-connection-form .select-active {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+        }
+        .ws-connection-form .select-wrap,
+        .ws-connection-form .employee-select-wrap {
+          max-width: none !important;
+          position: relative !important;
+          overflow: visible !important;
+        }
+        .ws-connection-form .select-wrap .options-card,
+        .ws-connection-form .employee-select-wrap .options-card {
+          position: absolute !important;
+          top: 100% !important;
+          bottom: auto !important;
+          margin-top: 4px !important;
+          max-height: 220px !important;
+          overflow-y: auto !important;
+          z-index: 9999 !important;
+          width: 100% !important;
+          background: #fff !important;
+          border: 1px solid #b1b4b6 !important;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15) !important;
+        }
+        .ws-connection-form .text-input-width {
+          max-width: none !important;
+        }
+        .ws-connection-form .citizen-card-input,
+        .ws-connection-form .employee-card-input,
+        .ws-connection-form .card-input,
+        .ws-connection-form .card-input-error {
+          border: 1px solid #b1b4b6 !important;
+          border-radius: 8px !important;
+          height: 40px !important;
+          line-height: 40px !important;
+        }
+      `}</style>
+
+      {userType === "citizen" && <Timeline currentStep={2} />}
+
+      
+
+      <FormStep config={config} onSelect={handleSubmit} onSkip={onSkip} t={t} isDisabled={isSubmitDisabled}>
+        <div style={{ maxWidth: "100%", width: "100%" }} className="ws-connection-form">
+
+        {/* ══════════════════════════════════════
+            CARD 1 – Connection Holder Details
+        ══════════════════════════════════════ */}
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>{t("WS_COMMON_CONNECTION_HOLDER_DETAILS_HEADER")}</div>
+          <div style={{ marginBottom: "16px" }}>
+            <CheckBox
+              label={t("WS_CONN_HOLDER_SAME_AS_OWNER_DETAILS")}
+              onChange={(e) => setIsOwnerSame(!isOwnerSame)}
+              checked={isOwnerSame}
+              style={{ paddingBottom: "10px", paddingTop: "3px" }}
             />
-            <CardLabel>{`${t("WS_OWN_DETAIL_GENDER_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <RadioButtons
-              t={t}
-              options={genderMenu}
-              optionsKey="code"
-              name="gender"
-              value={gender}
-              selectedOption={gender}
-              onSelect={setGender}
-              isDependent={true}
-              labelKey="COMMON_GENDER"
-            />
-            <CardLabel>{`${t("WS_OWN_MOBILE_NO")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <MobileNumber
-              value={mobileNumber}
-              name="mobileNumber"
-              onChange={(value) => setMobileNumber(value)}
-              style={{ background: "#FAFAFA" }}
-              {...{ required: true, pattern: "[6-9]{1}[0-9]{9}", type: "tel", title: t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID") }}
-            />
-            <CardLabel>{`${t("WS_OWN_DETAIL_GUARDIAN_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <TextInput
-              t={t}
-              type={"text"}
-              isMandatory={false}
-              optionKey="i18nKey"
-              name="guardian"
-              value={guardian}
-              style={{ background: "#FAFAFA" }}
-              onChange={(e) => setGuardian(e.target.value)}
-              {...(validation = {
-                isRequired: true,
-                pattern: "^[a-zA-Z ]*$",
-                type: "text",
-                title: t("WS_NAME_ERROR_MESSAGE"),
-              })}
-            />
-            <CardLabel>{`${t("WS_OWN_DETAIL_RELATIONSHIP_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <RadioButtons
-              t={t}
-              optionsKey="i18nKey"
-              name="relationship"
-              options={GuardianOptions}
-              value={relationship}
-              selectedOption={relationship}
-              onSelect={setRelationship}
-              isDependent={true}
-              labelKey="COMMON_MASTERS_OWNERTYPE"
-            />
-            <CardLabel>{`${t("WS_COMMON_TABLE_COL_ADDRESS")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <TextInput
-              t={t}
-              type={"text"}
-              style={{ background: "#FAFAFA" }}
-              isMandatory={false}
-              optionKey="i18nKey"
-              name="address"
-              value={address}
-              onChange={(e) => setAddress(e.target.value)}
-              {...(validation = {
-                isRequired: true,
-                title: t("WS_ADDR_ERROR_MESSAGE"),
-              })}
-            />
-            <CardLabel>{`${t("WS_OWN_SPECIAL_CAT_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-            <Dropdown
-              className="form-field"
-              selected={ownerType}
-              style={isMobile ? {} : { width: "540px" }}
-              isMandatory={true}
-              option={Menu}
-              select={setOwnerType}
-              optionKey="i18nKey"
-              t={t}
-            />
-            <div>
-              <CardLabel>{`${t("WS_EMAIL_ID")}`}</CardLabel>
+          </div>
+          {!isOwnerSame && (
+          <div style={rowStyle}>
+
+            {/* Name */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_OWN_DETAIL_NAME")}<span style={requiredMark}>*</span></label>
+              <TextInput
+                t={t}
+                type={"text"}
+                isMandatory={false}
+                optionKey="i18nKey"
+                name="name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                {...(validation = {
+                  isRequired: true,
+                  pattern: "^[a-zA-Z ]*$",
+                  type: "text",
+                  title: t("WS_NAME_ERROR_MESSAGE"),
+                })}
+              />
+            </div>
+
+            {/* Mobile Number */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_OWN_MOBILE_NO")}<span style={requiredMark}>*</span></label>
+              <MobileNumber
+                value={mobileNumber}
+                name="mobileNumber"
+                onChange={(value) => setMobileNumber(value)}
+                {...{ required: true, pattern: "[6-9]{1}[0-9]{9}", type: "tel", title: t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID") }}
+              />
+            </div>
+
+            {/* Guardian */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_OWN_DETAIL_GUARDIAN_LABEL")}<span style={requiredMark}>*</span></label>
+              <TextInput
+                t={t}
+                type={"text"}
+                isMandatory={false}
+                optionKey="i18nKey"
+                name="guardian"
+                value={guardian}
+                onChange={(e) => setGuardian(e.target.value)}
+                {...(validation = {
+                  isRequired: true,
+                  pattern: "^[a-zA-Z ]*$",
+                  type: "text",
+                  title: t("WS_NAME_ERROR_MESSAGE"),
+                })}
+              />
+            </div>
+
+            {/* Special Category */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_OWN_SPECIAL_CAT_LABEL")}<span style={requiredMark}>*</span></label>
+              <RadioOrSelect
+                  name="categoryType"
+                  options={Menu}
+                  selectedOption={ownerType}
+                  isMandatory={true}
+                  optionKey="i18nKey"
+                  onSelect={setOwnerType}
+                  t={t}
+                />
+            </div>
+
+            {/* Gender */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_OWN_DETAIL_GENDER_LABEL")}<span style={requiredMark}>*</span></label>
+              <RadioButtons
+                t={t}
+                options={genderMenu}
+                optionsKey="code"
+                name="gender"
+                value={gender}
+                selectedOption={gender}
+                onSelect={setGender}
+                isDependent={true}
+                labelKey="COMMON_GENDER"
+              />
+            </div>
+
+            {/* Relationship */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_OWN_DETAIL_RELATIONSHIP_LABEL")}<span style={requiredMark}>*</span></label>
+              <RadioButtons
+                t={t}
+                optionsKey="i18nKey"
+                name="relationship"
+                options={GuardianOptions}
+                value={relationship}
+                selectedOption={relationship}
+                onSelect={setRelationship}
+                isDependent={true}
+                labelKey="COMMON_MASTERS_OWNERTYPE"
+              />
+            </div>
+
+            {/* Address */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_COMMON_TABLE_COL_ADDRESS")}<span style={requiredMark}>*</span></label>
+              <TextInput
+                t={t}
+                type={"text"}
+                isMandatory={false}
+                optionKey="i18nKey"
+                name="address"
+                value={address}
+                onChange={(e) => setAddress(e.target.value)}
+                {...(validation = {
+                  isRequired: true,
+                  title: t("WS_ADDR_ERROR_MESSAGE"),
+                })}
+              />
+            </div>
+
+            {/* Email */}
+            <div style={col6}>
+              <label style={labelStyle}>{t("WS_EMAIL_ID")}</label>
               <TextInput
                 t={t}
                 isMandatory={false}
@@ -674,94 +785,119 @@ const WSConnectionStep = ({ t, config, onSelect, userType, formData }) => {
                   title: t("CORE_COMMON_APPLICANT_EMAILI_ID_INVALID"),
                 })}
               />
-              {emailError && <span style={{ color: "red" }}>{emailError}</span>}
+              {emailError && <span style={{ color: "red", fontSize: "12px" }}>{emailError}</span>}
+            </div>
+
+          </div>
+          )}
+        </div>
+
+        {/* ══════════════════════════════════════
+            CARD 2 – Service Type
+        ══════════════════════════════════════ */}
+        <div style={cardStyle}>
+          <div style={sectionTitleStyle}>{t("WS_SERVICE_NAME")}</div>
+          <div style={rowStyle}>
+            <div style={col12}>
+              <label style={labelStyle}>{t("WS_SELECT_SERVICE_TYPE_WANT_TO_APPLY")}<span style={requiredMark}>*</span></label>
+              <RadioOrSelect
+                name="serviceName"
+                options={serviceNameList}
+                selectedOption={serviceName}
+                optionKey="i18nKey"
+                onSelect={setServiceName}
+                t={t}
+                disabled={isEdit}
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* ══════════════════════════════════════
+            CARD 3 – Water Connection Details
+        ══════════════════════════════════════ */}
+        {showWaterFields && (
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>{t("WS_WATER_CONNECTION_DETAILS")}</div>
+            <div style={rowStyle}>
+              <div style={col6}>
+                <label style={labelStyle}>{t("WS_NO_OF_TAPS_PROPOSED")}<span style={requiredMark}>*</span></label>
+                <TextInput
+                  isMandatory={false}
+                  optionKey="i18nKey"
+                  t={t}
+                  name="proposedTaps"
+                  onChange={(e) => setProposedTaps(e.target.value)}
+                  value={proposedTaps}
+                  {...(validation = {
+                    isRequired: true,
+                    pattern: "^[1-9]+[0-9]*$",
+                    title: t("ERR_DEFAULT_INPUT_FIELD_MSG"),
+                    type: "text",
+                  })}
+                />
+              </div>
+              <div style={col6}>
+                <label style={labelStyle}>{t("WS_PROPOSED_PIPE_SIZE")}<span style={requiredMark}>*</span></label>
+                <RadioOrSelect
+                  name="proposedPipeSize"
+                  options={proposedPipeSizeList}
+                  selectedOption={proposedPipeSize}
+                  optionKey="i18nKey"
+                  onSelect={setProposedPipeSize}
+                  t={t}
+                />
+              </div>
             </div>
           </div>
         )}
 
-        {/* ---- Service Name Section ---- */}
-        <CardSectionHeader style={{ marginTop: "24px" }}>{t("WS_SERVICE_NAME")}</CardSectionHeader>
-        <CardLabel>{t("WS_SELECT_SERVICE_TYPE_WANT_TO_APPLY")}</CardLabel>
-        <RadioOrSelect
-          name="serviceName"
-          options={serviceNameList}
-          selectedOption={serviceName}
-          optionKey="i18nKey"
-          onSelect={setServiceName}
-          t={t}
-          disabled={isEdit}
-        />
-
-        {/* ---- Water Connection Section ---- */}
-        {showWaterFields && (
-          <div>
-            <CardSectionHeader style={{ marginTop: "24px" }}>{t("WS_WATER_CONNECTION_DETAILS")}</CardSectionHeader>
-            <CardLabel>{t("WS_NO_OF_TAPS_PROPOSED")}<span className="check-page-link-button"> *</span></CardLabel>
-            <TextInput
-              isMandatory={false}
-              optionKey="i18nKey"
-              t={t}
-              name="proposedTaps"
-              onChange={(e) => setProposedTaps(e.target.value)}
-              value={proposedTaps}
-              {...(validation = {
-                isRequired: true,
-                pattern: "^[1-9]+[0-9]*$",
-                title: t("ERR_DEFAULT_INPUT_FIELD_MSG"),
-                type: "text",
-              })}
-            />
-            <CardLabel>{t("WS_PROPOSED_PIPE_SIZE")}<span className="check-page-link-button"> *</span></CardLabel>
-            <RadioOrSelect
-              name="proposedPipeSize"
-              options={proposedPipeSizeList}
-              selectedOption={proposedPipeSize}
-              optionKey="i18nKey"
-              onSelect={setProposedPipeSize}
-              t={t}
-            />
-          </div>
-        )}
-
-        {/* ---- Sewerage Connection Section ---- */}
+        {/* ══════════════════════════════════════
+            CARD 4 – Sewerage Connection Details
+        ══════════════════════════════════════ */}
         {showSewerageFields && (
-          <div>
-            <CardSectionHeader style={{ marginTop: "24px" }}>
-              {t("PDF_STATIC_LABEL_SW_CONSOLIDATED_ACKNOWELDGMENT_LOGO_SUB_HEADER")}
-            </CardSectionHeader>
-            <CardLabel>{t("WS_NO_OF_WATER_CLOSETS")}<span className="check-page-link-button"> *</span></CardLabel>
-            <TextInput
-              type={"number"}
-              isMandatory={false}
-              optionKey="i18nKey"
-              t={t}
-              name="proposedWaterClosets"
-              onChange={(e) => setProposedWaterClosets(e.target.value)}
-              value={proposedWaterClosets}
-              {...(validation = {
-                isRequired: true,
-                pattern: "^[1-9]+[0-9]*$",
-                title: t("ERR_DEFAULT_INPUT_FIELD_MSG"),
-              })}
-            />
-            <CardLabel>{t("WS_SERV_DETAIL_NO_OF_TOILETS")}<span className="check-page-link-button"> *</span></CardLabel>
-            <TextInput
-              type={"number"}
-              isMandatory={false}
-              optionKey="i18nKey"
-              t={t}
-              name="proposedToilets"
-              onChange={(e) => setProposedToilets(e.target.value)}
-              value={proposedToilets}
-              {...(validation = {
-                isRequired: true,
-                pattern: "^[1-9]+[0-9]*$",
-                title: t("ERR_DEFAULT_INPUT_FIELD_MSG"),
-              })}
-            />
+          <div style={cardStyle}>
+            <div style={sectionTitleStyle}>{t("PDF_STATIC_LABEL_SW_CONSOLIDATED_ACKNOWELDGMENT_LOGO_SUB_HEADER")}</div>
+            <div style={rowStyle}>
+              <div style={col6}>
+                <label style={labelStyle}>{t("WS_NO_OF_WATER_CLOSETS")}<span style={requiredMark}>*</span></label>
+                <TextInput
+                  type={"number"}
+                  isMandatory={false}
+                  optionKey="i18nKey"
+                  t={t}
+                  name="proposedWaterClosets"
+                  onChange={(e) => setProposedWaterClosets(e.target.value)}
+                  value={proposedWaterClosets}
+                  {...(validation = {
+                    isRequired: true,
+                    pattern: "^[1-9]+[0-9]*$",
+                    title: t("ERR_DEFAULT_INPUT_FIELD_MSG"),
+                  })}
+                />
+              </div>
+              <div style={col6}>
+                <label style={labelStyle}>{t("WS_SERV_DETAIL_NO_OF_TOILETS")}<span style={requiredMark}>*</span></label>
+                <TextInput
+                  type={"number"}
+                  isMandatory={false}
+                  optionKey="i18nKey"
+                  t={t}
+                  name="proposedToilets"
+                  onChange={(e) => setProposedToilets(e.target.value)}
+                  value={proposedToilets}
+                  {...(validation = {
+                    isRequired: true,
+                    pattern: "^[1-9]+[0-9]*$",
+                    title: t("ERR_DEFAULT_INPUT_FIELD_MSG"),
+                  })}
+                />
+              </div>
+            </div>
           </div>
         )}
 
+        </div>
       </FormStep>
       {showToast && (
         <Toast
@@ -774,7 +910,7 @@ const WSConnectionStep = ({ t, config, onSelect, userType, formData }) => {
           }}
         />
       )}
-    </div>
+    </React.Fragment>
   );
 };
 
