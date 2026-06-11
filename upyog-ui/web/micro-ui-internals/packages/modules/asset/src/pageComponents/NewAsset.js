@@ -335,7 +335,7 @@ useEffect(() => {
                   name={"purchaseDate"}
                   value={assetDetails["purchaseDate"]}
                   onChange={handleInputChange}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   max={new Date().toISOString().split("T")[0]}
                   rules={{
                     required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -377,7 +377,7 @@ useEffect(() => {
               type: "text",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
           <div>
@@ -408,7 +408,7 @@ useEffect(() => {
                   name={"invoiceDate"}
                   value={assetDetails["invoiceDate"]}
                   onChange={handleInputChange}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   min={assetDetails["purchaseDate"] || ""}
                   // max={new Date().toISOString().split("T")[0]}
                   disabled={!assetDetails["purchaseDate"]}
@@ -455,7 +455,7 @@ useEffect(() => {
               type: "text",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
 
@@ -492,7 +492,7 @@ useEffect(() => {
                type: "number",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
 
@@ -590,7 +590,7 @@ useEffect(() => {
               type: "number",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
         <div>
@@ -627,7 +627,7 @@ useEffect(() => {
               type: "number",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
 <div>
@@ -663,7 +663,7 @@ useEffect(() => {
               type: "text",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
           {/* Dynamically Form Render */}
@@ -701,7 +701,7 @@ useEffect(() => {
                   name={row.name}
                   value={assetDetails[row.name]}
                   onChange={handleInputChange}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   max={new Date().toISOString().split("T")[0]}
                   rules={{
                     required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -772,7 +772,7 @@ useEffect(() => {
                     type: row.columnType,
                     title: t("PT_NAME_ERROR_MESSAGE"),
                   })}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   readOnly={row.isReadOnly}
                 />
               )}

@@ -529,7 +529,7 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
             name="BookPagereference"
             value={BookPagereference}
             onChange={setbookpagereference}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
             ValidationRequired={false}
             {...(validation = {
               isRequired: true,
@@ -548,7 +548,7 @@ const NewAssetClassification = ({ t, config, onSelect, userType, formData }) => 
             name="AssetName"
             value={AssetName}
             onChange={setassetname}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
             ValidationRequired={false}
             {...(validation = {
               isRequired: true,
