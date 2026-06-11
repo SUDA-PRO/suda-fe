@@ -22,11 +22,12 @@ const DisplayText = (action, isSuccess, isEmployee, t) => {
 };
 
 const BannerPicker = (props) => {
+  const isDataUpload = props?.data?.Properties?.[0]?.creationReason === "DATA_UPLOAD";
   return (
     <Banner
-      message={GetActionMessage(props?.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
+      message={isDataUpload ? props.t("PT_PROPERTY_UPDATED_SUCCESSFULLY", "Property Successfully Updated") : GetActionMessage(props?.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
       applicationNumber={props?.data?.Properties?.[0]?.acknowldgementNumber}
-      info={GetLabel(props.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
+      info={isDataUpload ? props.t("PT_PROPERTY_ID", "Property ID") : GetLabel(props.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
       successful={props.isSuccess}
     />
   );
