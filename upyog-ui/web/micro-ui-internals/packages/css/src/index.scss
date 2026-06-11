@@ -300,7 +300,7 @@
 }
 
 .disabled {
-  @apply border-grey-dark text-grey-dark !important;
+  @apply border-grey-dark text-grey-dark #{!important};
   pointer-events: none !important;
 }
 
@@ -608,7 +608,7 @@ input[type="number"] {
     width: 30% !important;
   }
   .full-width-card {
-    @apply w-full !important;
+    @apply w-full #{!important};
   }
 }
 .applications-list-container {
