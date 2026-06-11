@@ -236,8 +236,10 @@ const FormComposer = (props) => {
   const formFields = useMemo(
     () =>
       props.config?.map((section, index, array) => {
+        const SectionWrap = props.sectionWrapperClass ? "div" : React.Fragment;
+        const sectionWrapProps = props.sectionWrapperClass ? { key: index, className: props.sectionWrapperClass } : { key: index };
         return (
-          <React.Fragment key={index}>
+          <SectionWrap {...sectionWrapProps}>
             {section && getCombinedComponent(section)}
             {section.body.map((field, index) => {
               if (props.inline)
@@ -299,8 +301,8 @@ const FormComposer = (props) => {
                 </Fragment>
               );
             })}
-            {!props.noBreakLine && (array.length - 1 === index ? null : <BreakLine style={props?.breaklineStyle ? props?.breaklineStyle : {}} />)}
-          </React.Fragment>
+            {!props.sectionWrapperClass && !props.noBreakLine && (array.length - 1 === index ? null : <BreakLine style={props?.breaklineStyle ? props?.breaklineStyle : {}} />)}
+          </SectionWrap>
         );
       }),
     [props.config, formData]

@@ -1,4 +1,5 @@
 import jsPDF from "jspdf";
+import JSZip from "jszip";
 import cgLogo from "./cgLogo";
 
 /**
@@ -216,7 +217,6 @@ export function downloadSingleDemandPDF(assessment, taxItems, t) {
  * @param {Function} t - i18n translation function
  */
 export async function downloadBulkDemandZip(assessments, itemsMap, t) {
-  const JSZip = (await import("jszip")).default;
   const zip = new JSZip();
 
   for (const a of assessments) {

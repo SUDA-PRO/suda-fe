@@ -5,7 +5,7 @@ import ApplicationDetailsTemplate from "../../../../templates/ApplicationDetails
 import { useParams, useLocation, useHistory } from "react-router-dom";
 import { ActionBar, Header, Loader, SubmitBar,Card,CardSubHeader,CardSectionHeader,LinkLabel, CardLabel, CardHeader, CardText} from "@upyog/digit-ui-react-components";
 import { useQueryClient } from "react-query";
-import _, { first, update } from "lodash";
+import _, { first } from "lodash";
 import { Modal,Dropdown, Row, StatusTable } from "@upyog/digit-ui-react-components";
 import {convertEpochToDate} from "../../utils/index";
 
@@ -521,7 +521,7 @@ const Penality_menu=[
                     ?.filter((e) => e.active)
                     ?.sort?.((a, b) => a.floorNo - b.floorNo)
                     ?.map((unit, index) => (
-                    <Row label={`${t(`PROPERTYTAX_FLOOR_${unit?.floorNo}`)} ${t(`PT_UNIT`)} - ${index+1}`} text={ChargeSlabsMenu?.PropertyTax && ChargeSlabsMenu?.PropertyTax?.ChargeSlabs?.filter((ob) => ob.floorNo == unit.floorNo)?.[0]?.name} />
+                    <Row key={`${unit?.floorNo}-${index}`} label={`${t(`PROPERTYTAX_FLOOR_${unit?.floorNo}`)} ${t(`PT_UNIT`)} - ${index+1}`} text={ChargeSlabsMenu?.PropertyTax && ChargeSlabsMenu?.PropertyTax?.ChargeSlabs?.filter((ob) => ob.floorNo == unit.floorNo)?.[0]?.name} />
                     ))}
                     </StatusTable>
                    </div>

@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, Fragment } from "react";
+﻿import React, { useState, useEffect, useRef, Fragment } from "react";
 import {
   CardLabel,
   CardLabelDesc,
@@ -15,6 +15,7 @@ import Timeline from "../components/TLTimeline";
 import { stringReplaceAll } from "../utils";
 import UploadFileDigiLocker from "../utils/UploadFile";
 import PTMapPicker from "./PTMapPicker";
+import { detectULBAndWard, getAllWardsForULB } from "../utils/kmlGeoService";
 
 const getUsageCategoryParsed = (code = "") => {
   const arr = code.split(".");
@@ -28,14 +29,7 @@ const getUsageCategoryParsed = (code = "") => {
 const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const stateId = Digit.ULBService.getStateId();
 
-  /* ── Is Residential ── */
-  const isResOptions = [
-    { i18nKey: "PT_COMMON_YES", code: "RESIDENTIAL" },
-    { i18nKey: "PT_COMMON_NO", code: "NONRESIDENTIAL" },
-  ];
-  const [isResdential, setIsResdential] = useState(formData?.isResdential || null);
-
-  /* ── Usage Category Major (Non-residential only) ── */
+  /* ── Usage Category Major ── */
   const { data: usageCatMDMS = {}, isLoading: usageCatLoading } =
     Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", "UsageCategory") || {};
   const usagecat = usageCatMDMS?.PropertyTax?.UsageCategory || [];
@@ -171,6 +165,15 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const [mapAddress, setMapAddress] = useState(
     formData?.address?.mapAddress || { district: "", tehsil: "", zone: "", ward: "", state: "" }
   );
+  // Pending locality match — set by KML detection or Nominatim fallback, consumed by the locality auto-selection useEffect
+  const [pendingLocalityMatch, setPendingLocalityMatch] = useState(null);
+  // User-visible detection badge
+  const [kmlDetectionMsg, setKmlDetectionMsg] = useState(null);
+  // Refs for GeoJSON locality injection (local testing without MDMS)
+  // _geoLocalitiesInjectedRef: true when localities state was populated from GeoJSON
+  // _detectedWardRef: stores the last KML-detected {wardNumber, wardName} for re-matching
+  const _geoLocalitiesInjectedRef = useRef(false);
+  const _detectedWardRef = useRef(null);
   /* ── Floor Usage MDMS ── */
   const { data: floorMdms } = Digit.Hooks.useCommonMDMSV2(
     stateId,
@@ -212,12 +215,35 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   );
 
   /* ── Flat Units (Shared/Flat property) ── */
-  const createEmptyFlatUnit = () => ({
-    usageCategory: null,
+  const epochToDateInput = (val) => {
+    if (!val) return "";
+    const ts = Number(val);
+    if (!isNaN(ts) && ts > 0) {
+      const d = new Date(ts);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, "0");
+      const dd = String(d.getDate()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}`;
+    }
+    // already a YYYY-MM-DD string
+    return String(val);
+  };
+
+  const getDerivedUsageCategory = () => {
+    if (!usageCategoryMajor) return null;
+    const majorCode = usageCategoryMajor.code || "";
+    const minorCode = majorCode.includes(".") ? majorCode.split(".")[1] : majorCode;
+    if (["MIXED", "OTHERS"].includes(minorCode.toUpperCase())) return null;
+    return { code: minorCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${minorCode}` };
+  };
+
+  const createEmptyFlatUnit = (prefillUsageCategory = null) => ({
+    usageCategory: prefillUsageCategory,
     unitType: null,
     occupancyType: null,
     builtUpArea: "",
     floorNo: null,
+    dateOfConstruction: "",
   });
 
   const [flatUnits, setFlatUnits] = useState(() => {
@@ -233,6 +259,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           occupancyType: unit?.occupancyType ? { code: unit.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${unit.occupancyType}` } : null,
           builtUpArea: unit?.constructionDetail?.builtUpArea || "",
           floorNo: unit?.floorNo !== undefined ? { code: unit.floorNo, i18nKey: `PROPERTYTAX_FLOOR_${unit.floorNo}` } : null,
+          dateOfConstruction: epochToDateInput(unit?.constructionDetail?.constructionDate),
         };
       });
     }
@@ -250,12 +277,13 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     return list;
   };
 
-  const createEmptyUnit = (floorNo) => ({
-    usageCategory: null,
+  const createEmptyUnit = (floorNo, prefillUsageCategory = null) => ({
+    usageCategory: prefillUsageCategory,
     unitType: null,
     occupancyType: null,
     builtUpArea: "",
     floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
+    dateOfConstruction: "",
   });
 
   const mapExistingUnitToForm = (existing, floorNo) => {
@@ -268,6 +296,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       occupancyType: existing.occupancyType ? { code: existing.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${existing.occupancyType}` } : null,
       builtUpArea: existing.constructionDetail?.builtUpArea || "",
       floorNo: { code: floorNo, i18nKey: `PROPERTYTAX_FLOOR_${floorNo}` },
+      dateOfConstruction: epochToDateInput(existing.constructionDetail?.constructionDate),
     };
   };
 
@@ -298,7 +327,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   const isIndependent = PropertyType?.code === "BUILTUP.INDEPENDENTPROPERTY";
   const isShared = PropertyType?.code === "BUILTUP.SHAREDPROPERTY";
   const isVacant = PropertyType?.code === "VACANT";
-  const isNonResidential = isResdential?.i18nKey === "PT_COMMON_NO";
+  const isNonResidential = !!(usageCategoryMajor?.code && usageCategoryMajor.code !== "RESIDENTIAL");
 
   /* -- Compute sum of all built-up areas -- */
   const builtUpAreaSum = (() => {
@@ -325,6 +354,22 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     }
   }, [noOofBasements, noOfFloors, PropertyType]);
 
+  /* ── Pre-populate unit usage category from the Use field ── */
+  useEffect(() => {
+    if (!usageCategoryMajor) return;
+    const majorCode = usageCategoryMajor.code || "";
+    const minorCode = majorCode.includes(".") ? majorCode.split(".")[1] : majorCode;
+    // Clear unit usage for Mixed and Others
+    if (["MIXED", "OTHERS"].includes(minorCode.toUpperCase())) {
+      setFloorUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: null, unitType: null })));
+      setFlatUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: null, unitType: null })));
+      return;
+    }
+    const derivedUsageCategory = { code: minorCode, i18nKey: `PROPERTYTAX_BILLING_SLAB_${minorCode}` };
+    setFloorUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: derivedUsageCategory, unitType: null })));
+    setFlatUnits((prev) => prev.map((unit) => ({ ...unit, usageCategory: derivedUsageCategory, unitType: null })));
+  }, [usageCategoryMajor]);
+
   /* ── Address: update city list when pincode/allCities changes ── */
   useEffect(() => {
     if (!allCities?.length) return;
@@ -343,9 +388,27 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!selectedCity) {
       setLocalities([]);
       setSelectedLocality(null);
+      _geoLocalitiesInjectedRef.current = false;
+      _detectedWardRef.current = null;
       return;
     }
     if (selectedCity && fetchedLocalities) {
+      // ── GeoJSON-injection guard ─────────────────────────────────────────
+      // If we already injected GeoJSON wards into localities (from GPS detection)
+      // and MDMS only returned stub data (≤1 ward), keep the GeoJSON wards.
+      if (_geoLocalitiesInjectedRef.current && fetchedLocalities.length <= 1) {
+        return; // preserve GeoJSON-injected localities
+      }
+      // If MDMS returned real ward data (>1) and we had GeoJSON wards,
+      // switch to MDMS and re-trigger ward matching via pendingLocalityMatch.
+      if (_geoLocalitiesInjectedRef.current && fetchedLocalities.length > 1) {
+        _geoLocalitiesInjectedRef.current = false;
+        setLocalities(fetchedLocalities);
+        const stored = _detectedWardRef.current;
+        if (stored) setPendingLocalityMatch({ wardNumber: stored.wardNumber, wardName: stored.wardName });
+        return;
+      }
+      // ── Normal MDMS flow ────────────────────────────────────────────────
       let list = fetchedLocalities;
       if (formData?.address?.locality) setSelectedLocality(formData.address.locality);
       if (pincode) {
@@ -359,6 +422,46 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       if (list.length === 1) setSelectedLocality(list[0]);
     }
   }, [selectedCity, pincode, fetchedLocalities]);
+
+  /* ── Locality auto-selection: runs once localities are loaded after GPS detection ── */
+  useEffect(() => {
+    if (!pendingLocalityMatch || !localities?.length) return;
+    const { wardNumber: wn, wardName } = pendingLocalityMatch;
+    const wName = (wardName || "").toLowerCase();
+    let matched = null;
+
+    if (wn != null) {
+      // KML path — match by ward number using multiple strategies
+      matched =
+        localities.find((l) => l.name === `Ward ${wn}`) ||
+        // e.g. RAIP_W8 or RAIP_W08
+        localities.find((l) => new RegExp(`_W0*${wn}$`, "i").test(l.code || "")) ||
+        localities.find((l) => l.name?.toLowerCase() === wName) ||
+        localities.find((l) => wName && l.name?.toLowerCase().includes(wName.split(" ")[0]));
+    } else if (wName) {
+      // Nominatim fallback path — match by ward/neighbourhood name
+      matched =
+        localities.find((l) => l.name?.toLowerCase() === wName) ||
+        localities.find((l) => l.name?.toLowerCase().includes(wName)) ||
+        localities.find((l) => wName.includes((l.name || "").toLowerCase()));
+    }
+
+    if (matched) {
+      setSelectedLocality(matched);
+      setKmlDetectionMsg(
+        wn != null
+          ? `Detected: ${wardName ? wardName + ", " : ""}Ward ${wn} — City & Ward auto-filled`
+          : `City & Locality auto-filled from map data`
+      );
+    } else {
+      setKmlDetectionMsg(
+        wn != null
+          ? `City auto-filled. Ward ${wn} could not be matched — please select manually.`
+          : `City auto-filled. Please select the locality manually.`
+      );
+    }
+    setPendingLocalityMatch(null); // consumed
+  }, [localities, pendingLocalityMatch]);
 
   /* ── Address: upload proof file ── */
   useEffect(() => {
@@ -456,7 +559,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddFlatUnit = () => {
-    setFlatUnits((prev) => [...prev, createEmptyFlatUnit()]);
+    setFlatUnits((prev) => [...prev, createEmptyFlatUnit(getDerivedUsageCategory())]);
   };
 
   const handleRemoveFlatUnit = (idx) => {
@@ -467,13 +570,14 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   };
 
   const handleAddIndependentUnit = (floorNo) => {
+    const prefill = getDerivedUsageCategory();
     setFloorUnits((prev) => {
       const insertionIndex = prev.reduce((lastIdx, u, idx) => (Number(u.floorNo?.code) === Number(floorNo) ? idx : lastIdx), -1);
       const updated = [...prev];
       if (insertionIndex === -1) {
-        updated.push(createEmptyUnit(floorNo));
+        updated.push(createEmptyUnit(floorNo, prefill));
       } else {
-        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo));
+        updated.splice(insertionIndex + 1, 0, createEmptyUnit(floorNo, prefill));
       }
       return updated;
     });
@@ -487,8 +591,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     });
   };
 
-  const handleSelectCity = (city) => {    setSelectedLocality(null);
+  const handleSelectCity = (city) => {
+    setSelectedLocality(null);
     setLocalities([]);
+    setKmlDetectionMsg(null);
+    _geoLocalitiesInjectedRef.current = false;
+    _detectedWardRef.current = null;
     setSelectedCity(city);
   };
 
@@ -513,7 +621,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     setLongitude(lng);
   };
 
-  const handleAddressResolve = (resolved) => {
+  const handleAddressResolve = async (resolved) => {
+    console.log("[PTAddrResolve] called with _lat:", resolved._lat, "_lng:", resolved._lng, "latitude state:", latitude, "longitude state:", longitude);
+    // Always update the map-address info panel
     setMapAddress({
       district: resolved.district || "",
       tehsil:   resolved.tehsil   || "",
@@ -523,12 +633,82 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     });
     if (resolved.pincode) setPincode(resolved.pincode);
     if (resolved.street && !street) setStreet(resolved.street);
+
+    // ── Primary: KML-based precise ULB + ward detection ──────────────────
+    // We use the lat/lng already set in state by handleLocationSelect
+    // (called before onAddressResolve in PTMapPicker).  Pull the freshest
+    // values directly from the closure; they may be null on very first call,
+    // in which case we fall back to Nominatim.
+    const currentLat = resolved._lat != null ? resolved._lat : latitude;
+    const currentLng = resolved._lng != null ? resolved._lng : longitude;
+
+    if (currentLat !== null && currentLat !== undefined &&
+        currentLng !== null && currentLng !== undefined) {
+      try {
+        const kmlResult = await detectULBAndWard(
+          parseFloat(currentLat),
+          parseFloat(currentLng)
+        );
+        console.log("[PTAddrResolve] kmlResult:", kmlResult, "allCities count:", allCities ? allCities.length : 0);
+        if (kmlResult) {
+          const matchedCity = allCities?.find((c) => c.code === kmlResult.cityCode);
+          console.log("[PTAddrResolve] matchedCity:", matchedCity ? matchedCity.code : "NOT FOUND", "cityCode searched:", kmlResult.cityCode);
+          if (matchedCity) {
+            // Store detected ward info for potential MDMS re-matching later
+            _detectedWardRef.current = { wardNumber: kmlResult.wardNumber, wardName: kmlResult.wardName };
+
+            // ── Try to load GeoJSON wards for immediate local display ──────
+            // This bypasses MDMS so the locality dropdown populates right away
+            // without waiting for the server, which may only have stub data.
+            const geoWards = await getAllWardsForULB(kmlResult.cityCode);
+            console.log("[PTAddrResolve] geoWards count:", geoWards.length, "wardNumber:", kmlResult.wardNumber);
+
+            setSelectedCity(matchedCity);
+            setSelectedLocality(null);
+            setLocalities([]);
+            setKmlDetectionMsg(null);
+
+            if (geoWards.length > 0 && kmlResult.wardNumber != null) {
+              // Inject GeoJSON wards into the localities dropdown immediately
+              _geoLocalitiesInjectedRef.current = true;
+              setLocalities(geoWards);
+
+              const detectedWard = geoWards.find(function(w) { return w.wardNumber === kmlResult.wardNumber; });
+              if (detectedWard) {
+                setSelectedLocality(detectedWard);
+                setKmlDetectionMsg(
+                  kmlResult.wardName
+                    ? "Detected: " + kmlResult.wardName + " (Ward " + kmlResult.wardNumber + ") \u2014 City & Ward auto-filled"
+                    : "Detected: Ward " + kmlResult.wardNumber + " \u2014 City & Ward auto-filled"
+                );
+              } else {
+                // Ward polygon exists but wardNumber was null in KML source
+                setKmlDetectionMsg("City auto-filled. Please select the ward manually.");
+              }
+            } else if (geoWards.length > 0) {
+              // GeoJSON has wards but detection returned no wardNumber
+              _geoLocalitiesInjectedRef.current = true;
+              setLocalities(geoWards);
+              setKmlDetectionMsg("City auto-filled. Please select the ward manually.");
+            } else {
+              // GeoJSON not available — fall back to MDMS + pendingLocalityMatch
+              setPendingLocalityMatch({ wardNumber: kmlResult.wardNumber, wardName: kmlResult.wardName });
+            }
+            return; // KML succeeded — skip Nominatim fallback
+          }
+        }
+      } catch {
+        // Fall through to Nominatim fallback
+      }
+    }
+
+    // ── Fallback: Nominatim city-name fuzzy match ─────────────────────────
     if (resolved.city && allCities?.length) {
       const resolvedCity = resolved.city.toLowerCase();
       const matched = allCities.find(
         (c) =>
           c.name?.toLowerCase() === resolvedCity ||
-          c.code?.toLowerCase() === resolvedCity ||
+          c.code?.toLowerCase().includes(resolvedCity) ||
           c.name?.toLowerCase().includes(resolvedCity) ||
           resolvedCity.includes(c.name?.toLowerCase())
       );
@@ -536,13 +716,15 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         setSelectedCity(matched);
         setSelectedLocality(null);
         setLocalities([]);
+        // Store Nominatim ward/neighbourhood hint for locality matching
+        const wardHint = resolved.ward || resolved.zone || "";
+        if (wardHint) setPendingLocalityMatch({ wardNumber: null, wardName: wardHint });
       }
     }
   };
   /* ── Validation ── */
   const isFormValid = () => {
-    if (!isResdential) return false;
-    if (isNonResidential && !usageCategoryMajor) return false;
+    if (!usageCategoryMajor) return false;
     if (!PropertyType) return false;
     if (!isVacant && (!electricity || electricity.length !== 10)) return false;
     if (isVacant && electricity && electricity.length !== 10) return false;
@@ -555,6 +737,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea) return false;  
         if (unit.usageCategory?.code !== "RESIDENTIAL" && !unit.unitType) return false;
         if (unit.occupancyType?.code === "RENTED" && !unit.builtUpArea) return false;
+        if (!unit.dateOfConstruction) return false;
         return true;
       });
       if (!allValid) return false;
@@ -564,6 +747,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       const allValid = flatUnits.every((unit) => {
         if (!unit.usageCategory || !unit.occupancyType || !unit.builtUpArea || !unit.floorNo) return false;
         if (unit.usageCategory?.code !== "RESIDENTIAL" && !unit.unitType) return false;
+        if (!unit.dateOfConstruction) return false;
         return true;
       });
       if (!allValid) return false;
@@ -588,12 +772,12 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   /* ── Submit ── */
   const goNext = () => {
     sessionStorage.setItem("PropertyType", PropertyType?.i18nKey);
-    sessionStorage.setItem("isResdential", isResdential?.i18nKey);
     if (noOofBasements) sessionStorage.setItem("noOofBasements", noOofBasements?.i18nKey);
 
-    const finalUsageCategory = isNonResidential
-      ? usageCategoryMajor
-      : { i18nKey: "PROPERTYTAX_BILLING_SLAB_RESIDENTIAL", code: "RESIDENTIAL" };
+    const finalUsageCategory = usageCategoryMajor;
+    const isResdential = usageCategoryMajor?.code === "RESIDENTIAL"
+      ? { i18nKey: "PT_COMMON_YES", code: "RESIDENTIAL" }
+      : { i18nKey: "PT_COMMON_NO", code: "NONRESIDENTIAL" };
 
     const unitsData =
       isIndependent && floorUnits.length > 0
@@ -612,7 +796,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 );
               })?.code || field.usageCategory?.code;
             unit.occupancyType = field.occupancyType?.code;
-            unit.constructionDetail = { builtUpArea: field.builtUpArea };
+            unit.constructionDetail = { builtUpArea: field.builtUpArea, ...(field.dateOfConstruction ? { constructionDate: new Date(field.dateOfConstruction).getTime() } : {}) };
             if (field.unitType?.code) unit.unitType = field.unitType.code;
             return unit;
           })
@@ -632,7 +816,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                 );
               })?.code || field.usageCategory?.code;
             unit.occupancyType = field.occupancyType?.code;
-            unit.constructionDetail = { builtUpArea: field.builtUpArea };
+            unit.constructionDetail = { builtUpArea: field.builtUpArea, ...(field.dateOfConstruction ? { constructionDate: new Date(field.dateOfConstruction).getTime() } : {}) };
             if (field.unitType?.code) unit.unitType = field.unitType.code;
             return unit;
           })
@@ -864,6 +1048,21 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         .pt-property-details-form .upload-file .tag-container {
           width: 65% !important;
         }
+        .pt-property-details-form input[type="date"]::-webkit-calendar-picker-indicator {
+          width: 16px !important;
+          height: 16px !important;
+          margin-right: 14px !important;
+          opacity: 0.7 !important;
+          transform: scale(1.2) !important;
+          transform-origin: center !important;
+          cursor: pointer !important;
+          border-radius: 4px !important;
+          transition: opacity 0.18s, background 0.18s, transform 0.18s !important;
+        }
+        .pt-property-details-form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+          opacity: 1 !important;
+          transform: scale(1.35) !important;
+        }
       `}</style>
       {window.location.href.includes("/citizen") ? <Timeline currentStep={1} /> : null}
 
@@ -911,19 +1110,11 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           <div style={sectionTitleStyle}>{t("PT_PROPERTY_DETAILS_HEADER") || "Property Details"}</div>
           <div style={rowStyle}>
 
-            {/* Is Residential */}
+            {/* Usage Category */}
             <div style={col3}>
-              <label style={labelStyle}>{t("PT_PROPERTY_DETAILS_RESIDENTIAL_PROPERTY_HEADER")}<span style={requiredMark}>*</span></label>
-              <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={isResOptions} selected={isResdential} select={setIsResdential} placeholder={t("PT_SELECT_PLACEHOLDER")} />
+              <label style={labelStyle}>{t("PT_ASSESMENT_INFO_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
+              <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={usageCategoryOptions} selected={usageCategoryMajor} select={setUsageCategoryMajor} placeholder={t("PT_SELECT_PLACEHOLDER")} />
             </div>
-
-            {/* Usage Category – Non-residential only */}
-            {isNonResidential && (
-              <div style={col3}>
-                <label style={labelStyle}>{t("PT_ASSESMENT_INFO_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
-                <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={usageCategoryOptions} selected={usageCategoryMajor} select={setUsageCategoryMajor} placeholder={t("PT_SELECT_PLACEHOLDER")} />
-              </div>
-            )}
 
             {/* Property Type */}
             <div style={col3}>
@@ -1027,6 +1218,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                           <label style={labelStyle}>{t("PT_BUILT_UP_AREA_HEADER")}<span style={requiredMark}>*</span></label>
                           <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === " ") { updateUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
                         </div>
+                        <div style={col3}>
+                          <label style={labelStyle}>{t("PT_FORM2_DATE_OF_CONSTRUCTION")}<span style={requiredMark}>*</span></label>
+                          <TextInput t={t} type="date" value={unit.dateOfConstruction || ""} onChange={(e) => updateUnit(idx, "dateOfConstruction", e.target.value)} isRequired={true} title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1082,6 +1277,10 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
                     <TextInput t={t} type="text" value={unit.builtUpArea || ""} onChange={(e) => { const regex = /^(0|[1-9][0-9]{0,8}|)$/; if (regex.test(e.target.value) || e.target.value === "") { updateFlatUnit(idx, "builtUpArea", e.target.value); } }} onBlur={() => setBuiltUpBlurred(true)} isRequired={true} pattern="[0-9]+" title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
                   </div>
                   <div style={col3}>
+                    <label style={labelStyle}>{t("PT_FORM2_DATE_OF_CONSTRUCTION")}<span style={requiredMark}>*</span></label>
+                    <TextInput t={t} type="date" value={unit.dateOfConstruction || ""} onChange={(e) => updateFlatUnit(idx, "dateOfConstruction", e.target.value)} isRequired={true} title={t("CORE_COMMON_REQUIRED_ERRMSG")} />
+                  </div>
+                  <div style={col3}>
                     <label style={labelStyle}>{t("PT_FORM2_SELECT_FLOOR")}<span style={requiredMark}>*</span></label>
                     <Dropdown t={t} optionKey="i18nKey" isMandatory={true} option={floorMdms?.Floor || []} selected={unit.floorNo} select={(val) => updateFlatUnit(idx, "floorNo", val)} placeholder={t("PT_SELECT_PLACEHOLDER")} />
                   </div>
@@ -1099,84 +1298,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
         ══════════════════════════════════════ */}
         <div style={cardStyle}>
           <div style={sectionTitleStyle}>{t("CS_FILE_APPLICATION_PROPERTY_LOCATION_ADDRESS_TEXT") || "Property Address"}</div>
-          <div style={rowStyle}>
-
-            {/* City */}
-            <div style={col3}>
-              <label style={labelStyle}>{t("MYCITY_CODE_LABEL")}<span style={requiredMark}>*</span></label>
-              <div style={{ position: "relative" }}>
-                <RadioOrSelect
-                  options={cities.sort((a, b) => a.name.localeCompare(b.name))}
-                  selectedOption={selectedCity}
-                  optionKey="i18nKey"
-                  onSelect={handleSelectCity}
-                  t={t}
-                  isPTFlow={true}
-                  optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
-                />
-              </div>
-            </div>
-
-            {selectedCity && (
-              <div style={col3}>
-                <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
-                <div style={{ position: "relative" }}>
-                  <Dropdown
-                    isMandatory={true}
-                    selected={selectedLocality}
-                    option={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
-                    select={setSelectedLocality}
-                    optionKey="i18nkey"
-                    t={t}
-                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Road Type */}
-            {selectedCity && (
-              <div style={col3}>
-                <label style={labelStyle}>{t("PT_ROAD_TYPE_LABEL")}<span style={requiredMark}>*</span></label>
-                <div style={{ position: "relative" }}>
-                  <Dropdown
-                    isMandatory={true}
-                    selected={roadType}
-                    option={roadTypeOptions}
-                    select={setRoadType}
-                    optionKey="i18nKey"
-                    t={t}
-                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
-                  />
-                </div>
-              </div>
-            )}
-
-            {/* Pincode */}
-            <div style={col3}>
-              <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_PINCODE")}</label>
-              <TextInput type="text" value={pincode} onChange={(e) => setPincode(e.target.value)} maxLength={7} pattern="[0-9]+" />
-            </div>
-
-            {/* Street Name */}
-            <div style={col3}>
-              <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_STREET_NAME")}<span style={requiredMark}>*</span></label>
-              <TextInput type="text" value={street} onChange={(e) => setStreet(e.target.value)} maxLength={64} />
-            </div>
-
-            {/* House / Door No */}
-            <div style={col3}>
-              <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_HOUSE_NO")}<span style={requiredMark}>*</span></label>
-              <TextInput type="text" value={doorNo} onChange={(e) => setDoorNo(e.target.value)} maxLength={64} />
-            </div>
-
-            {/* Landmark */}
-            <div style={col3}>
-              <label style={labelStyle}>{t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}</label>
-              <TextInput type="text" value={landmark} onChange={(e) => setLandmark(e.target.value)} maxLength={1024} />
-            </div>
-
-          </div>
+   
 
           {/* Map Location Picker */}
           <div style={{ marginTop: "8px", marginBottom: "8px" }}>
@@ -1191,52 +1313,111 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               onAddressResolve={handleAddressResolve}
               t={t}
             />
-            {(mapAddress?.district || mapAddress?.tehsil || mapAddress?.zone || mapAddress?.ward || latitude || longitude) && (
-              <div style={{ marginTop: "12px", background: "#F0F7FF", border: "1px solid #C3DEF0", borderRadius: "8px", padding: "12px 16px" }}>
-                <div style={{ fontSize: "12px", fontWeight: "600", color: "#505a5f", marginBottom: "10px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-                  {t("PT_MAP_DETECTED_ADDRESS") || "Detected from Map Pin"}
-                </div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px 24px" }}>
-                  {[
-                    { label: t("PT_MAP_DISTRICT") || "District", key: "district" },
-                    { label: t("PT_MAP_TEHSIL")   || "Tehsil",   key: "tehsil"   },
-                    { label: t("PT_MAP_ZONE")     || "Zone",     key: "zone"     },
-                    { label: t("PT_MAP_WARD")     || "Ward",     key: "ward"     },
-                  ].map(({ label, key }) => (
-                    <div key={key}>
-                      <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{label}</div>
-                      <input
-                        type="text"
-                        value={mapAddress[key] || ""}
-                        onChange={(e) => setMapAddress((prev) => ({ ...prev, [key]: e.target.value }))}
-                        placeholder="Not detected � enter manually"
-                        style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: mapAddress[key] ? "#fff" : "#fafafa", boxSizing: "border-box", color: mapAddress[key] ? "#1a1a1a" : "#888" }}
-                      />
-                    </div>
-                  ))}
-                  <div>
-                    <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LATITUDE") || "Latitude"}</div>
-                    <input
-                      type="text"
-                      value={latitude !== null && latitude !== undefined ? latitude : ""}
-                      onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLatitude(v === "" ? null : v); }}
-                      placeholder="e.g. 26.8467"
-                      style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: latitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: latitude ? "#1a1a1a" : "#888" }}
-                    />
-                  </div>
-                  <div>
-                    <div style={{ fontSize: "11px", color: "#505a5f", marginBottom: "2px" }}>{t("PT_MAP_LONGITUDE") || "Longitude"}</div>
-                    <input
-                      type="text"
-                      value={longitude !== null && longitude !== undefined ? longitude : ""}
-                      onChange={(e) => { const v = e.target.value; if (v === "" || v === "-" || /^-?\d{0,3}(\.\d{0,8})?$/.test(v)) setLongitude(v === "" ? null : v); }}
-                      placeholder="e.g. 80.9462"
-                      style={{ width: "100%", height: "36px", padding: "0 10px", border: "1px solid #b1b4b6", borderRadius: "6px", fontSize: "13px", background: longitude ? "#fff" : "#fafafa", boxSizing: "border-box", color: longitude ? "#1a1a1a" : "#888" }}
-                    />
-                  </div>
-                </div>
+
+            {/* KML detection feedback badge */}
+            {kmlDetectionMsg && (
+              <div style={{
+                marginTop: "10px",
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "10px",
+                background: kmlDetectionMsg.includes("could not") ? "#fff8e1" : "#e8f5e9",
+                border: `1px solid ${kmlDetectionMsg.includes("could not") ? "#ffd54f" : "#81c784"}`,
+                borderRadius: "8px",
+                padding: "10px 14px",
+                fontSize: "13px",
+                color: "#1a1a1a",
+              }}>
+                <span style={{ fontSize: "16px", flexShrink: 0, marginTop: "1px" }}>
+                  {kmlDetectionMsg.includes("could not") ? "⚠️" : "✅"}
+                </span>
+                <span style={{ flex: 1 }}>{kmlDetectionMsg}</span>
+                <button
+                  type="button"
+                  onClick={() => setKmlDetectionMsg(null)}
+                  style={{ background: "none", border: "none", cursor: "pointer", color: "#666", fontSize: "16px", lineHeight: 1, padding: "0 2px", flexShrink: 0 }}
+                  aria-label="Dismiss"
+                >✕</button>
               </div>
             )}
+            {/* Commented out: district/tehsil/zone/ward/coordinates detected-address panel
+            {(mapAddress?.district || mapAddress?.tehsil || mapAddress?.zone || mapAddress?.ward || latitude || longitude) && (
+              <div>...</div>
+            )}
+            */}
+
+            {/* Address fields — 3 per row, always visible */}
+            <div style={{ ...rowStyle, marginTop: "16px" }}>
+
+              {/* Row 1: City | Locality | Road Type */}
+              <div style={col3}>
+                <label style={labelStyle}>{t("MYCITY_CODE_LABEL")}<span style={requiredMark}>*</span></label>
+                <div style={{ position: "relative" }}>
+                  <RadioOrSelect
+                    options={cities.sort((a, b) => a.name.localeCompare(b.name))}
+                    selectedOption={selectedCity}
+                    optionKey="i18nKey"
+                    onSelect={handleSelectCity}
+                    t={t}
+                    isPTFlow={true}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
+                  />
+                </div>
+              </div>
+
+              <div style={col3}>
+                <label style={labelStyle}>{t("PT_LOCALITY_LABEL")}<span style={requiredMark}>*</span></label>
+                <div style={{ position: "relative" }}>
+                  <Dropdown
+                    isMandatory={true}
+                    selected={selectedLocality}
+                    option={(localities || []).sort((a, b) => a.name.localeCompare(b.name))}
+                    select={setSelectedLocality}
+                    optionKey="i18nkey"
+                    t={t}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
+                  />
+                </div>
+              </div>
+
+              <div style={col3}>
+                <label style={labelStyle}>{t("PT_ROAD_TYPE_LABEL")}<span style={requiredMark}>*</span></label>
+                <div style={{ position: "relative" }}>
+                  <Dropdown
+                    isMandatory={true}
+                    selected={roadType}
+                    option={roadTypeOptions}
+                    select={setRoadType}
+                    optionKey="i18nKey"
+                    t={t}
+                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
+                  />
+                </div>
+              </div>
+
+              {/* Row 2: Pincode | Street Name | House/Door No */}
+              <div style={col3}>
+                <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_PINCODE")}</label>
+                <TextInput type="text" value={pincode} onChange={(e) => setPincode(e.target.value)} maxLength={7} pattern="[0-9]+" />
+              </div>
+
+              <div style={col3}>
+                <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_STREET_NAME")}<span style={requiredMark}>*</span></label>
+                <TextInput type="text" value={street} onChange={(e) => setStreet(e.target.value)} maxLength={64} />
+              </div>
+
+              <div style={col3}>
+                <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_HOUSE_NO")}<span style={requiredMark}>*</span></label>
+                <TextInput type="text" value={doorNo} onChange={(e) => setDoorNo(e.target.value)} maxLength={64} />
+              </div>
+
+              {/* Row 3: Landmark */}
+              <div style={col3}>
+                <label style={labelStyle}>{t("ES_NEW_APPLICATION_LOCATION_LANDMARK")}</label>
+                <TextInput type="text" value={landmark} onChange={(e) => setLandmark(e.target.value)} maxLength={1024} />
+              </div>
+
+            </div>
           </div>
 
           {/* Proof of Address */}

@@ -127,6 +127,7 @@ const formatUnits = (units = [], currentFloor, isFloor) => {
       occupancyType: unit?.occupancyType ? { code: unit.occupancyType, i18nKey: `PROPERTYTAX_OCCUPANCYTYPE_${unit?.occupancyType}` } : "",
       floorNo: unit?.floorNo || Number.isInteger(unit?.floorNo) ? { code: unit.floorNo, i18nKey: `PROPERTYTAX_FLOOR_${unit?.floorNo}` } : {},
       unitType: unit?.unitType ? { code: unit.unitType, i18nKey: `PROPERTYTAX_BILLING_SLAB_${unit?.unitType?.code || unit?.unitType}` } : "",
+      dateOfConstruction: unit?.constructionDetail?.date || "",
     };
   });
 };
@@ -254,6 +255,7 @@ const SelectPTUnits = React.memo(({ t, config, onSelect, userType, formData }) =
       structureType: "",
       builtUpArea: null,
       arv: "",
+      dateOfConstruction: "",
       floorNo: isFloor ? { code: currentFloor, i18nKey: `PROPERTYTAX_FLOOR_${currentFloor}` } : "",
     });
     setFields(values);
@@ -319,6 +321,12 @@ const SelectPTUnits = React.memo(({ t, config, onSelect, userType, formData }) =
     setFields(units);
   }
 
+  function onChangeDateOfConstruction(i, e) {
+    let units = [...fields];
+    units[i].dateOfConstruction = e.target.value;
+    setFields(units);
+  }
+
   function onChangeArea(i, e) {
     if ( parseInt(e.target.value) > parseInt(formData?.landArea?.floorarea)) {
       alert(t("PT_BUILTUPAREA_PLOTSIZE_ERROR_MSG"));
@@ -365,7 +373,9 @@ const SelectPTUnits = React.memo(({ t, config, onSelect, userType, formData }) =
               }
             )?.code;           
           } else if (key === "builtUpArea") {
-            unit["constructionDetail"] = { builtUpArea: field[key] };
+            unit["constructionDetail"] = { ...(unit["constructionDetail"] || {}), builtUpArea: field[key] };
+          } else if (key === "dateOfConstruction") {
+            unit["constructionDetail"] = { ...(unit["constructionDetail"] || {}), date: field[key] };
           } else {
             unit[key] = typeof field[key] == "object" ? field[key]?.code : field[key];
           }
@@ -548,6 +558,17 @@ const SelectPTUnits = React.memo(({ t, config, onSelect, userType, formData }) =
                   type: "text",
                   title: t("CORE_COMMON_REQUIRED_ERRMSG"),
                 }}
+              />
+              <CardLabel>{`${t("PT_FORM2_DATE_OF_CONSTRUCTION")}`}</CardLabel>
+              <TextInput
+                style={{ background: "#FAFAFA" }}
+                t={t}
+                type={"date"}
+                isMandatory={false}
+                optionKey="i18nKey"
+                name="dateOfConstruction"
+                value={field?.dateOfConstruction || ""}
+                onChange={(e) => onChangeDateOfConstruction(index, e)}
               />
               {!isFloor && (
                 <>

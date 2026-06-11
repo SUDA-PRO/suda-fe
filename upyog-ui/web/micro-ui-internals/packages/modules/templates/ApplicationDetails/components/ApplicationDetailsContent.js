@@ -11,7 +11,6 @@ import {
   LinkButton,
   PDFSvg,
   EditIcon,
-  ViewsIcon,
   DeleteIcon,
 } from "@upyog/digit-ui-react-components";
 import { values } from "lodash";
@@ -55,7 +54,6 @@ function ApplicationDetailsContent({
   const { t } = useTranslation();
   let { id: applicationNo } = useParams(); // Extracts PG-1013-2025-I-001019
   const ownersSequences = applicationDetails?.applicationData?.owners;
-  console.log("ownersSequences:- ", ownersSequences);
 
   function OpenImage(imageSource, index, thumbnailsToShow) {
     window.open(thumbnailsToShow?.fullImage?.[0], "_blank");
