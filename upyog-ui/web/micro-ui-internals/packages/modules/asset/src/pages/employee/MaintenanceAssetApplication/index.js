@@ -56,14 +56,14 @@ const MaintenanceAssetApplication = () => {
         costOfMaintenance :data?.maintenanceDetails?.[0]?.costOfMaintenance,
         description :data?.maintenanceDetails?.[0]?.description,
         vendor:data?.maintenanceDetails?.[0]?.vendor,
-        maintenanceCycle:data?.maintenanceDetails?.[0]?.maintenanceCycle.code,
+        maintenanceCycle:data?.maintenanceDetails?.[0]?.maintenanceCycle?.code,
         partsAddedOrReplaced:data?.maintenanceDetails?.[0]?.partsAddedOrReplaced,
         preConditionRemarks: data?.maintenanceDetails?.[0]?.preConditionRemarks,
         postConditionRemarks:data?.maintenanceDetails?.[0]?.postConditionRemarks,
         isAMCExpired: data?.maintenanceDetails?.[0]?.isAMCExpired,
         isWarrantyExpired: data?.maintenanceDetails?.[0]?.isWarrantyExpired,
-        isLifeOfAssetAffected:data?.maintenanceDetails?.[0]?.isLifeOfAssetAffected.code,
-        assetMaintenanceIncreasedYear:data?.maintenanceDetails?.[0]?.assetMaintenanceIncreasedYear.code,
+        isLifeOfAssetAffected:data?.maintenanceDetails?.[0]?.isLifeOfAssetAffected?.code,
+        assetMaintenanceIncreasedYear:data?.maintenanceDetails?.[0]?.assetMaintenanceIncreasedYear?.code,
         documents: [
             {
                 "documentType": "ASSET.MAINTENANCE.DOC3",

@@ -328,7 +328,7 @@ function ApplicationDetailsContent({
                   ))}
                 </tr>
 
-                {detail?.tableRows.map((row, index) => {
+                {detail?.tableRows?.map((row, index) => {
                   // if (index === detail?.tableRows.length - 1) {
                   //   return <>
                   //     <hr style={{ width: "1200px", marginTop: "15px" }} className="underline" />
@@ -358,7 +358,7 @@ function ApplicationDetailsContent({
                           </td>
                         ) : (
                           <td key={idx} style={{ paddingTop: "20px", textAlign: "left" , border: "1px solid black", verticalAlign: "middle"}}>
-                            {console.log("Comming Maintainaince data row:- ", element.data)}
+                            {console.log("Comming Maintainaince data row:- ", element?.data)}
                             {element && element.editButton === true ? (
                               <span style={{ display: "inline-flex", gap: "10px", alignItems: "center" }}>
                                 <Link
