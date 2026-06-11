@@ -19,7 +19,7 @@ function cleanStyles() {
 }
 
 function cleanProdStyles() {
-  return src(`${prodOutput}/*.css`, { read: false }).pipe(clean());
+  return src(`${prodOutput}/*.css`, { read: false, allowEmpty: true }).pipe(clean());
 }
 
 function prodStyles() {
@@ -30,7 +30,7 @@ function prodStyles() {
     require("autoprefixer"),
     require("cssnano"),
   ];
-  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass.sync()).pipe(dest(prodOutput));
+  return src("src/index.scss").pipe(sass.sync().on("error", sass.logError)).pipe(postcss(plugins)).pipe(dest(prodOutput));
 }
 
 function minifyProd() {
@@ -45,7 +45,7 @@ function styles() {
     require("autoprefixer"),
     require("cssnano"),
   ];
-  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass.sync()).pipe(dest(output));
+  return src("src/index.scss").pipe(sass.sync().on("error", sass.logError)).pipe(postcss(plugins)).pipe(dest(output));
 }
 
 function minify() {
