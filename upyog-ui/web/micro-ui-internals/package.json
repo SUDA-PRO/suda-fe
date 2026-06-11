@@ -87,7 +87,6 @@
     "build:ads": "cd packages/modules/ads && yarn build",
     "build:ew": "cd packages/modules/ew && yarn build",
     "build:sv": "cd packages/modules/sv && yarn build",
-    "build:cm": "cd packages/modules/cm && yarn build",
     "build:wt": "cd packages/modules/wt && yarn build",
     "build:vendor": "cd packages/modules/vendor && yarn build",
     "build:pgrai": "cd packages/modules/pgrai && yarn build",
