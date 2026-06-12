@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Loader, Modal } from "..";
+import Loader from "./Loader";
+import Modal from "../hoc/Modal";
 
 const Heading = (props) => {
     return <h1 style={{ marginLeft: "22px" }} className="heading-m BPAheading-m">{props.label}</h1>;

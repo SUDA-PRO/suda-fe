@@ -65,8 +65,9 @@ export const newConfig = [
         {
             "route": "map",
             component: "TLSelectGeolocation",
-            nextStep: "pincode",
+            nextStep: "select-combined-location-details",
             hideInEmployee: true,
+            hideInCitizen: true,
             key: "address",
             withoutLabel: true,
             texts: {
@@ -75,6 +76,22 @@ export const newConfig = [
                 nextText: "CS_COMMON_NEXT",
                 skipAndContinueText: "CORE_COMMON_SKIP_CONTINUE"
             }
+        },
+        {
+            route: "select-combined-location-details",
+            component: "SelectCombinedLocationDetails",
+            texts: {
+                "headerCaption": "TL_LOCATION_CAPTION",
+                "header": "ES_NEW_APPLICATION_LOCATION_DETAILS",
+                "cardText": "",
+                "submitBarLabel": "CS_COMMON_NEXT"
+            },
+            withoutLabel: true,
+            key: "address",
+            nextStep: "select-combined-proof-details",
+            type: "component",
+            hideInEmployee: true,
+            isMandatory: true
         },
         {
             route: "pincode",
@@ -89,12 +106,14 @@ export const newConfig = [
             withoutLabel: true,
             key: "address",
             nextStep: "address",
-            type: "component"
+            type: "component",
+            hideInCitizen: true
         },
         {
             "route": "address",
             "component": "TLSelectAddress",
             "withoutLabel": true,
+            "hideInCitizen": true,
             "texts": {
                 "headerCaption": "TL_LOCATION_CAPTION",
                 "header": "TL_ADDRESS_HEADER",
@@ -113,6 +132,7 @@ export const newConfig = [
             "key": "address",
             "withoutLabel": true,
             "hideInEmployee": true,
+            "hideInCitizen": true,
             "texts": {
                 "headerCaption": "TL_LOCATION_CAPTION",
                 "header": "TL_ADDRESS_HEADER",
@@ -181,6 +201,7 @@ export const newConfig = [
             "route": "landmark",
             "component": "TLSelectLandmark",
             "withoutLabel": true,
+            "hideInCitizen": true,
             "texts": {
                 "headerCaption": "TL_LOCATION_CAPTION",
                 "header": "CS_FILE_APPLICATION_PROPERTY_LOCATION_PROVIDE_LANDMARK_TITLE",
@@ -197,6 +218,7 @@ export const newConfig = [
             "route": "proof",
             "component": "TLProof",
             "withoutLabel": true,
+            "hideInCitizen": true,
             "texts": {
                 "headerCaption": "TL_OWNERS_DETAILS",
                 "header": "TL_OWNERS_PHOTOGRAPH_HEADER",
@@ -216,25 +238,25 @@ export const newConfig = [
       {
         route: "info",
         component: "TradeLicense",
-        nextStep: "TradeName",
+        nextStep: "select-combined-trade-details",
         hideInEmployee: true,
         key: "tl",
       },
       {
-        route: "TradeName",
-        component: "SelectTradeName",
+        type: "component",
+        route: "select-combined-trade-details",
+        isMandatory: true,
+        component: "SelectCombinedTradeDetails",
         texts: {
           headerCaption: "",
-          header: "TL_TRADE_NAME_HEADER",
-          cardText: "TL_TARDE_NAME_TEXT",
+          header: "TL_COMMON_TR_DETAILS",
+          cardText: "",
           submitBarLabel: "CS_COMMON_NEXT",
-          skipText: "",
         },
-        withoutLabel: true,
         key: "TradeDetails",
-        nextStep: "structure-type",
-        type: "component",
+        withoutLabel: true,
         hideInEmployee: true,
+        nextStep: "know-your-property",
       },
       {
         type: "component",
@@ -438,8 +460,25 @@ export const newConfig = [
         }, */
       {
         type: "component",
+        route: "select-combined-proof-details",
+        isMandatory: true,
+        component: "SelectCombinedProofDetails",
+        texts: {
+          headerCaption: "TL_OWNERS_DETAILS",
+          header: "TL_PROOF_IDENTITY_HEADER",
+          cardText: "",
+          submitBarLabel: "CS_COMMON_NEXT",
+        },
+        key: "owners",
+        withoutLabel: true,
+        nextStep: null,
+        hideInEmployee: true,
+      },
+      {
+        type: "component",
         route: "proof-of-identity",
         isMandatory: true,
+        hideInCitizen: true,
         component: "TLSelectProofIdentity",
         texts: {
           headerCaption: "TL_OWNERS_DETAILS",
@@ -457,6 +496,7 @@ export const newConfig = [
         type: "component",
         route: "ownership-proof",
         isMandatory: true,
+        hideInCitizen: true,
         component: "SelectOwnershipProof",
         texts: {
           headerCaption: "TL_OWNERS_DETAILS",

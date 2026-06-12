@@ -307,6 +307,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
             defaultValue: "",
             name: mobileNumber.name,
             validation: mobileNumber?.validation,
+            maxLength: 10,
           },
           ...description,
           isMandatory: false,
@@ -893,6 +894,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
                   value={formMobile}
                   onChange={(e) => setFormMobile(e.target.value)}
                   placeholder="e.g. 9876543210"
+                  maxLength={10}
                   style={inputStyle}
                   onFocus={inputFocus}
                   onBlur={inputBlur}

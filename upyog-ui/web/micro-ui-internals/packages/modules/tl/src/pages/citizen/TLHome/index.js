@@ -6,6 +6,7 @@ const actions = [
   {
     key: "new-application",
     i18nKey: "TL_CREATE_TRADE",
+    desc: "TL_HOME_NEW_APP_DESC",
     link: "/suda-ui/citizen/tl/tradelicence/new-application",
     gradient: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
     icon: (
@@ -18,6 +19,7 @@ const actions = [
   {
     key: "renewal",
     i18nKey: "TL_RENEWAL_HEADER",
+    desc: "TL_HOME_RENEWAL_DESC",
     link: "/suda-ui/citizen/tl/tradelicence/renewal-list",
     gradient: "linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)",
     icon: (
@@ -30,6 +32,7 @@ const actions = [
   {
     key: "my-applications",
     i18nKey: "TL_MY_APPLICATIONS_HEADER",
+    desc: "TL_HOME_MY_APP_DESC",
     link: "/suda-ui/citizen/tl/tradelicence/my-application",
     gradient: "linear-gradient(135deg, #059669 0%, #047857 100%)",
     icon: (
@@ -41,6 +44,7 @@ const actions = [
   {
     key: "faq",
     i18nKey: "TL_HOME_FAQ_LABEL",
+    desc: "TL_HOME_FAQ_DESC",
     link: "/suda-ui/citizen/tl-faq",
     gradient: "linear-gradient(135deg, #475569 0%, #334155 100%)",
     icon: (
@@ -62,8 +66,11 @@ const TLHomePage = () => {
 
         <div style={{ marginBottom: "28px" }}>
           <h2 style={{ margin: "0 0 4px", fontSize: "18px", fontWeight: "800", color: "#1a2b49" }}>
-            {t("TL_HOME_SERVICES_TITLE")}
+            {t("TL_HOME_SERVICES_TITLE") || "Our Services"}
           </h2>
+          <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>
+            {t("TL_HOME_SERVICES_SUBTITLE") || "Choose a service to get started"}
+          </p>
         </div>
 
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
@@ -103,10 +110,13 @@ const TLHomePage = () => {
                   <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49", marginBottom: "4px", lineHeight: 1.3 }}>
                     {t(action.i18nKey)}
                   </div>
+                  <div style={{ fontSize: "12px", color: "#9ca3af", lineHeight: 1.4 }}>
+                    {t(action.desc) !== action.desc ? t(action.desc) : ""}
+                  </div>
                 </div>
                 <div style={{ marginTop: "auto", display: "flex", alignItems: "center", gap: "4px" }}>
                   <span style={{ fontSize: "12px", fontWeight: "600", color: "#f47738" }}>
-                    {t("PT_COMMON_CLICK_HERE")}
+                    {t("PT_COMMON_CLICK_HERE") || "Go"}
                   </span>
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                     <polyline points="9 18 15 12 9 6"/>
