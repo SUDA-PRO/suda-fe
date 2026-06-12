@@ -103,7 +103,7 @@ export const PTSearch = {
       title: "PT_OWNERSHIP_INFO_SUB_HEADER",
       additionalDetails: {
         owners: ownersSequences
-          ?.filter((owner) => owner.status === "ACTIVE")
+          ?.filter((owner) => owner.status !== "INACTIVE")
           .map((owner, index) => {
             const seq = owner?.additionalDetails?.ownerSequence != null ? owner.additionalDetails.ownerSequence : index;
             const plain = getPlainOwner(additionalOwners, seq);
@@ -322,8 +322,28 @@ export const PTSearch = {
     ];
   },
   applicationDetails: async (t, tenantId, propertyIds, userType, args) => {
-    const filter = { propertyIds, ...args };
-    const response = await PTSearch.application(tenantId, filter);
+    // Dash-format Acknowledgement IDs: "PG-PT-2024-01-000001" or "PG-AC-2026-06-02-000182"
+    // No-dash Acknowledgement IDs: "PTCTYCTA0506260242" (pending properties with no propertyId yet)
+    // Property IDs: "PG-PT-1013-000103", "CGBASJDP0000227" (no dashes but different pattern)
+    const isDashAcknowledgementId = /^[A-Z]{2}-[A-Z]+-\d{4}-\d{2}(-\d{2})?-\d+$/.test(propertyIds);
+
+    let response = null;
+
+    if (isDashAcknowledgementId) {
+      // Definitely an acknowledgement ID (dash format)
+      response = await PTSearch.application(tenantId, { acknowledgementIds: propertyIds, ...args });
+    } else {
+      // Try as propertyId first
+      response = await PTSearch.application(tenantId, { propertyIds, ...args });
+      // If not found, it may be a no-dash acknowledgement number (e.g. pending property PTCTYCTA0506260242)
+      if (!response) {
+        response = await PTSearch.application(tenantId, { acknowledgementIds: propertyIds, ...args });
+      }
+    }
+
+    if (!response) {
+      throw new Error(`No property found for id: ${propertyIds}`);
+    }
 
     return {
       tenantId: response.tenantId,

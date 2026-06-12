@@ -7,6 +7,7 @@ import Inbox from "./pages/employee/Inbox";
 import stakeholderInbox from "./pages/employee/stakeholderInbox";
 
 import BPACitizenHomeScreen from "./pages/citizen/home";
+import OBPSHomePage from "./pages/citizen/OBPSHome";
 import EDCRForm from "./pageComponents/EDCRForm";
 import BasicDetails from "./pageComponents/BasicDetails";
 import BuildingPlanScrutiny from "./pageComponents/BuildingPlanScrutiny";
@@ -21,6 +22,7 @@ import LocationDetails from "./pageComponents/LocationDetails";
 import StakeholderDocsRequired  from "./pageComponents/StakeholderDocsRequired";
 import GIS from "./pageComponents/GIS";
 import OCEDCRDocsRequired from "./pageComponents/OCEDCRDocsRequired";
+import BPASearchProperty from "./pageComponents/BPASearchProperty";
 import OCeDCRScrutiny from "./pageComponents/OCeDCRScrutiny";
 import OCUploadPlanDiagram from "./pageComponents/OCUploadPlanDiagram";
 import OCBasicDetails from "./pageComponents/OCBasicDetails";
@@ -105,6 +107,7 @@ const OBPSLinks = ({ matchPath, userType }) => {
 const componentsToRegister = {
   OBPSModule,
   OBPSLinks,
+  OBPSHomePage,
   OBPSCard:OBPSEmployeeHomeCard,
   BPACitizenHomeScreen,
   EDCRForm,
@@ -120,6 +123,8 @@ const componentsToRegister = {
   LocationDetails,
   GIS,
   OCEDCRDocsRequired,
+  CPTSearchProperty: BPASearchProperty,
+  BPAPropertySearch: BPASearchProperty,
   OCeDCRScrutiny,
   OCUploadPlanDiagram,
   StakeholderDocsRequired,

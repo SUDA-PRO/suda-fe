@@ -37,7 +37,7 @@ const App = ({ path }) => {
   const WNSMyBillsComponent = Digit?.ComponentRegistryService?.getComponent("WNSMyBillsComponent");
   return (
     <React.Fragment>
-      <div className="ws-citizen-wrapper">
+      <div className="ws-citizen-wrapper" style={{width:"100%"}}>
         {!isAcknowledgement && <BackButton style={{ border: "none" }} /* isCommonPTPropertyScreen={isCommonPTPropertyScreen} */ getBackPageNumber={getBackPageNumber}>
           {t("CS_COMMON_BACK")}
         </BackButton>}

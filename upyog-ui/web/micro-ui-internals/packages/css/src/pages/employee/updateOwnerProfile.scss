@@ -1,0 +1,52 @@
+/* ═══════════════════════════════════════════════════════════════
+   UPDATE OWNER PROFILE — Table Beautiful Styling
+   ═══════════════════════════════════════════════════════════════ */
+.uop-table-wrap table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 2px solid #f47738 !important;
+  font-size: 13.5px !important;
+}
+
+/* Header row */
+.uop-table-wrap table thead tr th {
+  background: linear-gradient(135deg, #fff3ec 0%, #ffe8d6 100%) !important;
+  color: #c0440a !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 13px 16px !important;
+  border-bottom: 2px solid #f47738 !important;
+  border-right: 1px solid #ffd0b0 !important;
+  white-space: nowrap !important;
+}
+
+.uop-table-wrap table thead tr th:last-child {
+  border-right: none !important;
+}
+
+/* Body rows */
+.uop-table-wrap table tbody tr td {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f0e8e0 !important;
+  border-right: 1px solid #f0e8e0 !important;
+  color: #1a202c !important;
+  vertical-align: middle !important;
+}
+
+.uop-table-wrap table tbody tr td:last-child {
+  border-right: none !important;
+}
+
+/* Alternating row background */
+.uop-table-wrap table tbody tr:nth-child(even) {
+  background: #fffaf7 !important;
+}
+
+.uop-table-wrap table tbody tr:hover {
+  background: #fff3ec !important;
+  transition: background 0.1s ease !important;
+}

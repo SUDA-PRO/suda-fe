@@ -21,33 +21,148 @@ const WSDocsRequired = ({ onSelect, userType, onSkip, config }) => {
   if (userType === "citizen") {
     return (
       <Fragment>
-        <Card>
-          <CardHeader>{t(`WS_COMMON_APPL_NEW_CONNECTION`)}</CardHeader>
-          <CitizenInfoLabel style={{ margin: "0px", textAlign: "center" }} textStyle={{ color: "#0B0C0C" }} text={t(`WS_DOCS_REQUIRED_TIME`)} showInfo={false} />
-          <CardText style={{ color: "#0B0C0C", marginTop: "12px" }}>{t(`WS_NEW_CONNECTION_TEST_1`)}</CardText>
-          <CardText style={{ color: "#0B0C0C", marginTop: "12px" }}>{t(`WS_NEW_CONNECTION_TEST_2`)}</CardText>
-          <CardSubHeader>{t("WS_DOC_REQ_SCREEN_LABEL")}</CardSubHeader>
-          <CardText style={{ color: "#0B0C0C", marginTop: "12px" }}>{t(`WS_NEW_CONNECTION_TEST_3`)}</CardText>
-          {wsDocsLoading ?
-            <Loader /> :
-            <Fragment>
-              {wsDocs?.Documents?.map((doc, index) => (
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: "8px" }} key={index}>
-                    <div style={{ display: "flex" }}>
-                      <div>{`${index + 1}.`}&nbsp;</div>
-                      <div>{` ${t(doc?.code.replace('.', '_'))}`}</div>
+        <div style={{ maxWidth: "100%", fontFamily: "'Roboto', sans-serif" }}>
+
+          {/* ── Hero Banner ── */}
+          <div style={{
+            background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+            borderRadius: "12px",
+            padding: "32px 36px",
+            marginBottom: "24px",
+            color: "#fff",
+            display: "flex",
+            alignItems: "center",
+            gap: "24px",
+          }}>
+            <div style={{
+              width: "64px", height: "64px", borderRadius: "50%",
+              background: "rgba(255,255,255,0.15)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </div>
+            <div>
+              <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "700", letterSpacing: "0.3px" }}>
+                {t(`WS_COMMON_APPL_NEW_CONNECTION`)}
+              </h2>
+              <p style={{ margin: "6px 0 0", fontSize: "14px", opacity: 0.88 }}>
+                {t(`WS_DOCS_REQUIRED_TIME`)}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Info card ── */}
+          <div style={{
+            background: "#fff8f0",
+            border: "1px solid #f4d0b0",
+            borderLeft: "4px solid #f47738",
+            borderRadius: "8px",
+            padding: "16px 20px",
+            marginBottom: "24px",
+            display: "flex",
+            gap: "14px",
+            alignItems: "flex-start",
+          }}>
+            <span style={{ fontSize: "22px", lineHeight: 1 }}>ℹ️</span>
+            <div>
+              <p style={{ margin: 0, fontSize: "14px", color: "#5c3a1e", fontWeight: "600" }}>
+                {t(`WS_NEW_CONNECTION_TEST_1`)}
+              </p>
+              <p style={{ margin: "8px 0 0", fontSize: "14px", color: "#5c3a1e" }}>
+                {t(`WS_NEW_CONNECTION_TEST_2`)}
+              </p>
+              <p style={{ margin: "8px 0 0", fontSize: "14px", color: "#5c3a1e" }}>
+                {t(`WS_NEW_CONNECTION_TEST_3`)}
+              </p>
+            </div>
+          </div>
+
+          {/* ── Documents checklist card ── */}
+          <div style={{
+            background: "#ffffff",
+            borderRadius: "10px",
+            boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+            padding: "24px 28px",
+            marginBottom: "24px",
+            border: "1px solid #e8ecf0",
+          }}>
+            <div style={{
+              fontSize: "15px", fontWeight: "700", color: "#1a2b49",
+              marginBottom: "20px", paddingBottom: "10px",
+              borderBottom: "2px solid #f47738", letterSpacing: "0.3px",
+            }}>
+              📋 {t("WS_DOC_REQ_SCREEN_LABEL")}
+            </div>
+
+            {wsDocsLoading ? <Loader /> : (
+              <Fragment>
+                {wsDocs?.Documents?.map((doc, index) => (
+                  <div key={index} style={{
+                    display: "flex", gap: "16px", marginBottom: "20px",
+                    paddingBottom: "20px",
+                    borderBottom: index < wsDocs.Documents.length - 1 ? "1px dashed #e0e0e0" : "none",
+                  }}>
+                    {/* Number badge */}
+                    <div style={{
+                      width: "36px", height: "36px", borderRadius: "50%",
+                      background: "#1a2b49", color: "#fff",
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      fontSize: "14px", fontWeight: "700", flexShrink: 0, marginTop: "2px",
+                    }}>
+                      {index + 1}
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49", marginBottom: "10px" }}>
+                        {t(doc?.code.replace('.', '_'))}
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                        {doc?.dropdownData?.map((value, i) => (
+                          <span key={i} style={{
+                            background: "#f0f4ff",
+                            border: "1px solid #c5d0f0",
+                            borderRadius: "20px",
+                            padding: "4px 14px",
+                            fontSize: "12px",
+                            color: "#3d4f6b",
+                            fontWeight: "500",
+                            display: "flex", alignItems: "center", gap: "5px",
+                          }}>
+                            <span style={{ color: "#f47738", fontWeight: "bold" }}>✓</span>
+                            {t(value?.i18nKey)}
+                          </span>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                  <div style={{ marginBottom: "16px", marginLeft: "18px" }}>
-                    {doc?.dropdownData?.map((value, index) => doc?.dropdownData?.length !== index + 1 ? <span>{`${t(value?.i18nKey)}, `}</span> : <span>{`${t(value?.i18nKey)}`}</span>)}
-                  </div>
-                </div>
-              ))}
-            </Fragment>
-          }
-          <SubmitBar label={t(`CS_COMMON_NEXT`)} onSubmit={goNext} />
-        </Card>
+                ))}
+              </Fragment>
+            )}
+          </div>
+
+          {/* ── Action button ── */}
+          <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
+            <button
+              onClick={goNext}
+              style={{
+                flex: 1, minWidth: "180px",
+                background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
+                color: "#fff", border: "none",
+                borderRadius: "8px", padding: "14px 28px",
+                fontSize: "15px", fontWeight: "700",
+                cursor: "pointer", letterSpacing: "0.3px",
+                boxShadow: "0 4px 12px rgba(244,119,56,0.35)",
+                transition: "all 0.2s",
+              }}
+            >
+              {t(`CS_COMMON_NEXT`)} →
+            </button>
+          </div>
+
+        </div>
       </Fragment>
     );
   }
@@ -69,45 +184,142 @@ const WSDocsRequired = ({ onSelect, userType, onSkip, config }) => {
   
 
   return (
-    <div style={{ margin: "16px" }}>
-      <div>
-        <Header styles={{ fontSize: "32px", marginLeft: "18px", display: "flex", justifyContent: "space-between", marginRight: "12px" }}>
+    <div style={{ maxWidth: "100%", fontFamily: "'Roboto', sans-serif", margin: "16px" }}>
+
+      {/* ── Hero Banner ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+        borderRadius: "12px",
+        padding: "32px 36px",
+        marginBottom: "24px",
+        color: "#fff",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "24px",
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "24px" }}>
+          <div style={{
+            width: "64px", height: "64px", borderRadius: "50%",
+            background: "rgba(255,255,255,0.15)",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0,
+          }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2z"/>
+              <path d="M3 20c0-4 4-7 9-7s9 3 9 7"/>
+            </svg>
+          </div>
           <div>
-            {t("WS_WATER_AND_SEWERAGE_NEW_CONNECTION_LABEL")}
+            <h2 style={{ margin: 0, fontSize: "22px", fontWeight: "700", letterSpacing: "0.3px" }}>
+              {t("WS_WATER_AND_SEWERAGE_NEW_CONNECTION_LABEL")}
+            </h2>
+            <p style={{ margin: "6px 0 0", fontSize: "14px", opacity: 0.88 }}>
+              {t("WS_DOCS_REQUIRED_TIME")}
+            </p>
           </div>
-          <div onClick={printDiv} style={{cursor: "pointer", display: "flex"}}>
-            <PrintBtnCommon /><div style={{fontSize: "24px", fontWeight: "400", color: "#0B0C0C"}}>{"Print"}</div>
-          </div>
-        </Header>
+        </div>
+        <div onClick={printDiv} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: "8px", background: "rgba(255,255,255,0.15)", borderRadius: "8px", padding: "10px 18px" }}>
+          <PrintBtnCommon />
+          <span style={{ fontSize: "16px", fontWeight: "600", color: "#fff" }}>{"Print"}</span>
+        </div>
       </div>
-      <Card >
-        {wsDocsLoading ?
-          <Loader /> :
-            <div id="documents-div">
+
+      {/* ── Documents checklist card ── */}
+      <div style={{
+        background: "#ffffff",
+        borderRadius: "10px",
+        boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+        padding: "24px 28px",
+        marginBottom: "24px",
+        border: "1px solid #e8ecf0",
+      }}>
+        <div style={{
+          fontSize: "15px", fontWeight: "700", color: "#1a2b49",
+          marginBottom: "20px", paddingBottom: "10px",
+          borderBottom: "2px solid #f47738", letterSpacing: "0.3px",
+        }}>
+          📋 {t("WS_DOC_REQ_SCREEN_LABEL")}
+        </div>
+
+        {wsDocsLoading ? <Loader /> : (
+          <div id="documents-div">
             {wsDocs?.Documents?.map((doc, index) => (
-              <div key={index} style={{ marginTop: "16px" }}>
-                <CardSectionHeader style={{ marginBottom: "16px", lineHeight: "28px", fontSize: "24px" }}>{t(doc?.code.replace('.', '_'))}</CardSectionHeader>
-                {doc.dropdownData && doc.dropdownData.length > 1 && <p style={{ lineHeight: "24px", fontSize: "16px" }}>{t(`${doc?.code.replace('.', '_')}_DESCRIPTION`)}</p>}
-                <div style={{ margin: "16px 0", lineHeight: "18px", fontSize: "16px" }}>
-                  {doc?.dropdownData?.map((value, idx) => <p style={{ fontWeight: "bold", lineHeight: "32px" }}>{`${idx + 1}. ${t(value?.i18nKey)}`}</p>)}
+              <div key={index} style={{
+                display: "flex", gap: "16px", marginBottom: "20px",
+                paddingBottom: "20px",
+                borderBottom: index < wsDocs.Documents.length - 1 ? "1px dashed #e0e0e0" : "none",
+              }}>
+                {/* Number badge */}
+                <div style={{
+                  width: "36px", height: "36px", borderRadius: "50%",
+                  background: "#1a2b49", color: "#fff",
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  fontSize: "14px", fontWeight: "700", flexShrink: 0, marginTop: "2px",
+                }}>
+                  {index + 1}
                 </div>
-                <p style={{fontSize: "16px"}}>{t(`${doc?.code.replace('.', '_')}_BELOW_DESCRIPTION`)}</p>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: "14px", fontWeight: "700", color: "#1a2b49", marginBottom: "6px" }}>
+                    {t(doc?.code.replace('.', '_'))}
+                  </div>
+                  {doc.dropdownData && doc.dropdownData.length > 1 && (
+                    <p style={{ margin: "0 0 10px", fontSize: "13px", color: "#5c3a1e" }}>
+                      {t(`${doc?.code.replace('.', '_')}_DESCRIPTION`)}
+                    </p>
+                  )}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                    {doc?.dropdownData?.map((value, idx) => (
+                      <span key={idx} style={{
+                        background: "#f0f4ff",
+                        border: "1px solid #c5d0f0",
+                        borderRadius: "20px",
+                        padding: "4px 14px",
+                        fontSize: "12px",
+                        color: "#3d4f6b",
+                        fontWeight: "500",
+                        display: "flex", alignItems: "center", gap: "5px",
+                      }}>
+                        <span style={{ color: "#f47738", fontWeight: "bold" }}>✓</span>
+                        {t(value?.i18nKey)}
+                      </span>
+                    ))}
+                  </div>
+                  {t(`${doc?.code.replace('.', '_')}_BELOW_DESCRIPTION`) !== `${doc?.code.replace('.', '_')}_BELOW_DESCRIPTION` && (
+                    <p style={{ margin: "10px 0 0", fontSize: "13px", color: "#666" }}>
+                      {t(`${doc?.code.replace('.', '_')}_BELOW_DESCRIPTION`)}
+                    </p>
+                  )}
+                </div>
               </div>
             ))}
           </div>
-        }
-        <ActionBar style={{ display: "flex", justifyContent: "flex-end", alignItems: "baseline" }}>
-          {
-            <SubmitBar
-              label={t("ACTION_TEST_APPLY")}
-              onSubmit={() => {
-                history.push(match.path.replace("create-application", "new-application"));
-              }}
-              style={{ margin: "10px 10px 0px 0px" }}
-              disabled={wsDocsLoading ? true : false}
-            />}
-        </ActionBar>
-      </Card>
+        )}
+      </div>
+
+      {/* ── Action button ── */}
+      <div style={{ display: "flex", gap: "16px", flexWrap: "wrap", marginBottom: "8px" }}>
+        <button
+          onClick={() => { history.push(match.path.replace("create-application", "new-application")); }}
+          disabled={wsDocsLoading}
+          style={{
+            flex: 1, minWidth: "180px",
+            background: wsDocsLoading
+              ? "#ccc"
+              : "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
+            color: "#fff", border: "none",
+            borderRadius: "8px", padding: "14px 28px",
+            fontSize: "15px", fontWeight: "700",
+            cursor: wsDocsLoading ? "not-allowed" : "pointer",
+            letterSpacing: "0.3px",
+            boxShadow: wsDocsLoading ? "none" : "0 4px 12px rgba(244,119,56,0.35)",
+            transition: "all 0.2s",
+          }}
+        >
+          {t("ACTION_TEST_APPLY")} →
+        </button>
+      </div>
+
     </div>
   )
 };

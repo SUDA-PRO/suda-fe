@@ -45,6 +45,15 @@
 
 /* ── PT / UPYOG UI Overrides ── */
 
+/* OBPS citizen wrapper — full width with side margins like PT */
+.ws-citizen-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  box-sizing: border-box !important;
+}
+
 /* Full-width card */
 .app-container form .card { max-width: 100% !important; }
 .app-container form .card .field-container { max-width: 100% !important; }

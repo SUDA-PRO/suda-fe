@@ -8,7 +8,14 @@ import Timeline from "../components/TLTimeline";
 const PTSelectAddress = ({ t, config, onSelect, userType, formData, setError, clearErrors, formState }) => {
   const allCities = Digit.Hooks.pt.useTenants();
   let tenantId = Digit.ULBService.getCurrentTenantId();
+  const stateId = Digit.ULBService.getStateId();
   const { pathname } = useLocation();
+
+  /* Road Type */
+  const { data: roadTypeMDMS = {} } = Digit.Hooks.pt.usePropertyMDMS(stateId, "PropertyTax", ["RoadType"]) || {};
+  const roadTypeOptions = (roadTypeMDMS?.PropertyTax?.RoadType || [])
+    .filter((rt) => rt.active)
+    .map((rt) => ({ i18nKey: rt.name, code: rt.code }));
   const presentInModifyApplication = pathname.includes("modify");
 
   let isEditProperty = formData?.isEditProperty || false;
@@ -46,6 +53,17 @@ const PTSelectAddress = ({ t, config, onSelect, userType, formData, setError, cl
       setValue("locality", _locality);
     }
   }, [localities]);
+
+  /* Pre-fill roadType from existing property data */
+  useEffect(() => {
+    if (userType === "employee" && roadTypeOptions.length > 0) {
+      const src = formData?.address?.roadType || formData?.originalData?.address?.roadType;
+      if (src) {
+        const matched = typeof src === "object" ? src : roadTypeOptions.find((o) => o.code === src);
+        if (matched) setValue("roadType", matched);
+      }
+    }
+  }, [roadTypeOptions.length]);
 
   useEffect(() => {
     if (cities) {
@@ -173,6 +191,27 @@ const PTSelectAddress = ({ t, config, onSelect, userType, formData, setError, cl
           />
         </LabelFieldPair>
         <CardLabelError style={errorStyle}>{localFormState.touched.locality ? errors?.locality?.message : ""}</CardLabelError>
+        <LabelFieldPair>
+          <CardLabel className="card-label-smaller">{t("PT_ROAD_TYPE_LABEL")}</CardLabel>
+          <Controller
+            name="roadType"
+            defaultValue={null}
+            control={control}
+            render={(props) => (
+              <Dropdown
+                className="form-field"
+                selected={props.value}
+                option={roadTypeOptions}
+                select={props.onChange}
+                onBlur={props.onBlur}
+                optionKey="i18nKey"
+                t={t}
+                disable={true}
+              />
+            )}
+          />
+        </LabelFieldPair>
+        <CardLabelError style={errorStyle}>{localFormState.touched.roadType ? errors?.roadType?.message : ""}</CardLabelError>
       </div>
     );
   }

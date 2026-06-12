@@ -1,0 +1,715 @@
+/* mCollect Search Challan — force card to full screen width */
+.mcollect-search-card .card,
+.mcollect-search-card form .card {
+  width: calc(100% - 48px) !important;
+  max-width: none !important;
+  margin: 0 auto !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UPDATE OWNER PROFILE — Table Beautiful Styling
+   ═══════════════════════════════════════════════════════════════ */
+.uop-table-wrap table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  border: 2px solid #f47738 !important;
+  font-size: 13.5px !important;
+}
+
+/* Header row */
+.uop-table-wrap table thead tr th {
+  background: linear-gradient(135deg, #fff3ec 0%, #ffe8d6 100%) !important;
+  color: #c0440a !important;
+  font-weight: 700 !important;
+  font-size: 12px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 13px 16px !important;
+  border-bottom: 2px solid #f47738 !important;
+  border-right: 1px solid #ffd0b0 !important;
+  white-space: nowrap !important;
+}
+.uop-table-wrap table thead tr th:last-child {
+  border-right: none !important;
+}
+
+/* Body rows */
+.uop-table-wrap table tbody tr td {
+  padding: 12px 16px !important;
+  border-bottom: 1px solid #f0e8e0 !important;
+  border-right: 1px solid #f0e8e0 !important;
+  color: #1a202c !important;
+  vertical-align: middle !important;
+}
+.uop-table-wrap table tbody tr td:last-child {
+  border-right: none !important;
+}
+
+/* Alternating row background */
+.uop-table-wrap table tbody tr:nth-child(even) {
+  background: #fffaf7 !important;
+}
+.uop-table-wrap table tbody tr:hover {
+  background: #fff3ec !important;
+  transition: background 0.1s ease !important;
+}
+
+/* Search form inside the search card — remove extra card wrapper */
+.ground-container .search-form-wrapper .card,
+.ground-container form.search-form .card {
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+/* Tighten SearchForm row spacing */
+.ground-container form .search-form {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.ground-container .search-field {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+.ground-container .search-field .card-label {
+  margin-bottom: 4px !important;
+}
+
+
+
+/* mCollect new-challan submit button */
+.ground-container button.submit-bar:not(.submit-bar-search) {
+  width: 80px !important;
+  height: 40px !important;
+  display: block !important;
+  margin-left: auto !important;
+  margin-right: 0 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+}
+.ground-container button.submit-bar:not(.submit-bar-search) header {
+  font-size: 15px !important;
+  font-weight: 600 !important;
+}
+
+.employee-card-input {
+  margin-bottom: 10px !important;
+  padding: 9px 13px !important;
+  display: block !important;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 42px !important;
+  border: 1.5px solid #c8d0da !important;
+  border-radius: 9px !important;
+  background-color: #ffffff !important;
+  font-size: 13.5px !important;
+  line-height: 1.5 !important;
+  color: #1a202c !important;
+  outline: none !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  box-sizing: border-box !important;
+}
+
+.employee-card-input:focus {
+  border-color: #f47738 !important;
+  background-color: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.14), 0 1px 4px rgba(0,0,0,0.04) !important;
+}
+
+.employee-card-input::placeholder {
+  color: #aab0ba !important;
+  font-size: 13px !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   UPDATE OWNER PROFILE SEARCH CARD — scoped dropdown & mobile styles
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dropdown wrapper (Localities, Dropdown) — scoped to search card only */
+.uop-search-card .employee-select-wrap {
+  border: 1.5px solid #c8d0da !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  min-height: 42px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  overflow: visible !important;
+  box-sizing: border-box !important;
+}
+
+.uop-search-card .employee-select-wrap:focus-within {
+  border-color: #f47738 !important;
+  box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.14), 0 1px 4px rgba(0,0,0,0.04) !important;
+}
+
+/* Inner select div */
+.uop-search-card .employee-select-wrap .select,
+.uop-search-card .employee-select-wrap .select-active {
+  border: none !important;
+  background: transparent !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  border-radius: 9px !important;
+}
+
+/* Inner text input inside dropdown */
+.uop-search-card .employee-select-wrap input,
+.uop-search-card .employee-select-wrap .employee-select-wrap--elipses {
+  border: none !important;
+  background: transparent !important;
+  padding: 9px 13px !important;
+  font-size: 13.5px !important;
+  color: #1a202c !important;
+  min-height: 40px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  line-height: 1.5 !important;
+  margin-bottom: 0 !important;
+  width: 100% !important;
+}
+
+.uop-search-card .employee-select-wrap input::placeholder,
+.uop-search-card .employee-select-wrap .employee-select-wrap--elipses::placeholder {
+  color: #aab0ba !important;
+  font-size: 13px !important;
+}
+
+/* Mobile number input wrapper — .field-container wraps both prefix + number */
+.field-container {
+  border: 1.5px solid #c8d0da !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  min-height: 42px !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  overflow: hidden !important;
+  display: flex !important;
+  align-items: stretch !important;
+  box-sizing: border-box !important;
+}
+
+.field-container:focus-within {
+  border-color: #f47738 !important;
+  box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.14) !important;
+}
+
+/* "+91" prefix span */
+.citizen-card-input--front {
+  border: none !important;
+  border-right: 1.5px solid #c8d0da !important;
+  border-radius: 0 !important;
+  background: #f3f4f6 !important;
+  color: #374151 !important;
+  font-weight: 700 !important;
+  font-size: 13.5px !important;
+  padding: 0 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  flex-shrink: 0 !important;
+  box-shadow: none !important;
+  margin: 0 !important;
+  min-height: 40px !important;
+}
+
+/* Number text input inside field-container */
+.field-container .employee-card-input {
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+  min-height: 40px !important;
+  flex: 1 !important;
+  padding: 9px 13px !important;
+}
+
+.field-container .employee-card-input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+
+
+/* OBPS citizen wrapper — full width with side margins like PT */
+.ws-citizen-wrapper {
+  width: 100% !important;
+  max-width: 100% !important;
+  padding-left: 24px !important;
+  padding-right: 24px !important;
+  box-sizing: border-box !important;
+}
+
+/* Full-width card */
+.app-container form .card { max-width: 100% !important; }
+.app-container form .card .field-container { max-width: 100% !important; }
+.card { max-width: 100% !important; }
+
+/* Submit / Next button */
+button.submit-bar {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #f47738 0%, #e05a1a 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0 40px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.4px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 14px rgba(244, 119, 56, 0.40) !important;
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+  min-width: 160px !important;
+  line-height: 1 !important;
+}
+button.submit-bar:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(244, 119, 56, 0.55) !important;
+}
+button.submit-bar:active {
+  transform: translateY(0) !important;
+  box-shadow: 0 2px 8px rgba(244, 119, 56, 0.35) !important;
+}
+button.submit-bar header {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  color: #ffffff !important;
+  pointer-events: none !important;
+}
+
+/* Submit button disabled */
+button.submit-bar-disabled {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: #d0d5dd !important;
+  color: #8a97a8 !important;
+  border: none !important;
+  border-radius: 10px !important;
+  padding: 0 40px !important;
+  height: 52px !important;
+  min-height: 52px !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  min-width: 160px !important;
+  line-height: 1 !important;
+}
+button.submit-bar-disabled header {
+  display: inline !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  line-height: 1 !important;
+  color: #8a97a8 !important;
+  pointer-events: none !important;
+}
+
+/* Upload File widget */
+.upload-file {
+  border-radius: 10px !important;
+  overflow: visible !important;
+  position: relative !important;
+}
+
+/* The container div inside upload-file */
+.upload-file > div {
+  display: flex !important;
+  align-items: center !important;
+  gap: 12px !important;
+  flex-wrap: wrap !important;
+  position: relative !important;
+  padding: 10px 14px !important;
+  background: #fafafa !important;
+  border: 1.5px dashed #fbb48a !important;
+  border-radius: 10px !important;
+  min-height: 52px !important;
+}
+
+/* Hide the native browser file input — position it absolutely so it's
+   invisible but still clickable over the styled button area */
+.upload-file input[type="file"] {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  opacity: 0 !important;
+  cursor: pointer !important;
+  z-index: 2 !important;
+  font-size: 0 !important;
+}
+
+.upload-file input[type="file"].disabled {
+  display: none !important;
+}
+
+/* Styled "Choose File" button */
+.upload-file button.selector-button-border,
+div.upload-file .selector-button-border {
+  background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%) !important;
+  color: #374151 !important;
+  border: 1px solid #c9cdd4 !important;
+  border-radius: 8px !important;
+  padding: 9px 20px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  min-width: 130px !important;
+  width: auto !important;
+  white-space: nowrap !important;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08) !important;
+  letter-spacing: 0.3px !important;
+  position: relative !important;
+  z-index: 1 !important;
+  transition: transform 0.1s ease, box-shadow 0.15s ease !important;
+  pointer-events: none !important; /* let the overlaid input handle the click */
+}
+
+/* "No file chosen" / "1 File Uploaded" status text */
+.file-upload-status {
+  font-size: 12px !important;
+  color: #9aa4b2 !important;
+  margin: 0 !important;
+  font-weight: 400 !important;
+  font-style: italic !important;
+  white-space: nowrap !important;
+  flex: 1 !important;
+}
+
+/* ── Already-uploaded file tag (RemoveableTag) ── */
+.upload-file .tag-container {
+  display: flex !important;
+  align-items: center !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.upload-file .tag {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  background: #fff3ec !important;
+  border: 1px solid #fbb48a !important;
+  border-radius: 8px !important;
+  padding: 6px 10px 6px 12px !important;
+  font-size: 12px !important;
+  color: #c0440a !important;
+  font-weight: 600 !important;
+  max-width: 220px !important;
+  position: relative !important;
+  z-index: 3 !important;
+}
+
+.upload-file .tag .text {
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  max-width: 160px !important;
+  color: #c0440a !important;
+  font-size: 12px !important;
+}
+
+.upload-file .tag .close,
+.upload-file .tag svg {
+  width: 14px !important;
+  height: 14px !important;
+  cursor: pointer !important;
+  flex-shrink: 0 !important;
+  color: #e05a1a !important;
+  position: relative !important;
+  z-index: 4 !important;
+  pointer-events: all !important;
+}
+
+/* "CS_FILE_SIZE_RESTRICTIONS_PT" hint text */
+.upload-file ~ p.cell-text,
+.cell-text {
+  font-size: 11px !important;
+  color: #9aa4b2 !important;
+  margin: 4px 0 0 0 !important;
+  font-style: italic !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PT EDIT PROPERTY — Beautiful Card + Input Overrides (Orange)
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Make the outer FormComposer Card a transparent flex column ── */
+.pt-edit-form form > .card,
+.pt-edit-form .card {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 20px !important;
+}
+
+/* ── Each section is its own card ── */
+.pt-section-card {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid #ffe0cc !important;
+  box-shadow: 0 2px 12px rgba(244, 119, 56, 0.08) !important;
+  padding: 24px 28px 20px 28px !important;
+  overflow: visible !important;
+  margin-bottom: 20px !important;
+}
+
+/* ── Section header — orange left-border pill ── */
+.pt-section-card .card-section-header,
+.pt-section-card h2.card-section-header {
+  display: flex !important;
+  align-items: center !important;
+  background: linear-gradient(135deg, #fff3ec 0%, #fff8f5 100%) !important;
+  color: #c0440a !important;
+  border-left: 4px solid #f47738 !important;
+  border-radius: 0 8px 8px 0 !important;
+  padding: 9px 18px 9px 14px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+  margin: 0 0 20px 0 !important;
+  width: 100% !important;
+  box-sizing: border-box !important;
+  box-shadow: 0 1px 4px rgba(244, 119, 56, 0.10) !important;
+}
+
+/* ── Card labels (field names) ── */
+.pt-section-card .card-label,
+.pt-section-card label.card-label {
+  font-size: 11.5px !important;
+  font-weight: 600 !important;
+  color: #6b7280 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 4px !important;
+  line-height: 1.4 !important;
+}
+
+/* ── LabelFieldPair — uniform spacing ── */
+.pt-section-card .label-field-pair {
+  margin-bottom: 16px !important;
+  align-items: flex-start !important;
+  gap: 4px !important;
+}
+
+/* Last field in card — no extra bottom gap, card padding handles it */
+.pt-section-card .label-field-pair:last-of-type {
+  margin-bottom: 0 !important;
+}
+
+/* ── Kill ALL internal margins from library components inside .field ── */
+.pt-section-card .field > *,
+.pt-section-card .field > div,
+.pt-section-card .field > span,
+.pt-section-card .field > .employee-select-wrap,
+.pt-section-card .field .employee-select-wrap,
+.pt-section-card .label-field-pair > .field > * {
+  margin-bottom: 0 !important;
+  margin-top: 0 !important;
+}
+
+/* Dropdown option-card should not shift layout */
+.pt-section-card .employee-select-wrap .options-card,
+.pt-section-card .employee-select-wrap .card {
+  margin: 0 !important;
+  padding: 4px 0 !important;
+}
+
+/* ── Error labels — no extra space when empty ── */
+.pt-section-card .card-label-error {
+  margin-bottom: 2px !important;
+  margin-top: 0 !important;
+  min-height: 0 !important;
+  font-size: 11px !important;
+  line-height: 1.2 !important;
+}
+
+/* ── ALL enabled text inputs ── */
+.pt-section-card input[type="text"],
+.pt-section-card input[type="number"],
+.pt-section-card input[type="tel"],
+.pt-section-card input[type="email"],
+.pt-section-card input.employee-card-input,
+.pt-section-card .employee-card-input,
+.pt-section-card textarea {
+  border: 1.5px solid #c8d0da !important;
+  border-radius: 9px !important;
+  padding: 9px 13px !important;
+  font-size: 13.5px !important;
+  color: #1a202c !important;
+  background: #ffffff !important;
+  height: auto !important;
+  min-height: 40px !important;
+  line-height: 1.5 !important;
+  margin-bottom: 0 !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  outline: none !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important;
+}
+
+/* Focus state — orange ring */
+.pt-section-card input[type="text"]:focus,
+.pt-section-card input[type="number"]:focus,
+.pt-section-card input[type="tel"]:focus,
+.pt-section-card input[type="email"]:focus,
+.pt-section-card input.employee-card-input:focus,
+.pt-section-card textarea:focus {
+  border-color: #f47738 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.14), inset 0 1px 3px rgba(0,0,0,0.02) !important;
+}
+
+/* ── Disabled inputs — solid light grey ── */
+.pt-section-card input[disabled],
+.pt-section-card input[readonly],
+.pt-section-card input.field[disabled],
+.pt-section-card .employee-card-input[disabled],
+.pt-section-card textarea[disabled],
+.pt-section-card .digit-text-input[disabled] {
+  background: #edf0f4 !important;
+  border: 1.5px solid #c8cfd8 !important;
+  color: #4b5563 !important;
+  cursor: not-allowed !important;
+  box-shadow: none !important;
+  opacity: 1 !important;
+}
+
+/* ── Disabled label ── */
+.pt-section-card .card-label.disabled {
+  color: #b0bec5 !important;
+  font-style: italic !important;
+}
+
+.pt-section-card .field-container:has(input[disabled]),
+.pt-section-card .field-container:has(input[readonly]) {
+  opacity: 0.85 !important;
+}
+
+/* ── Dropdown / Select wrapper ── */
+.pt-section-card .employee-select-wrap {
+  border: 1.5px solid #c8d0da !important;
+  border-radius: 9px !important;
+  background: #ffffff !important;
+  min-height: 40px !important;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+  overflow: visible !important;
+}
+
+.pt-section-card .employee-select-wrap:focus-within {
+  border-color: #f47738 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(244, 119, 56, 0.14) !important;
+}
+
+.pt-section-card .employee-select-wrap .select,
+.pt-section-card .employee-select-wrap .select-active {
+  border: none !important;
+  border-radius: 9px !important;
+  background: transparent !important;
+  min-height: 38px !important;
+  padding: 0 !important;
+}
+
+.pt-section-card .employee-select-wrap input {
+  border: none !important;
+  background: transparent !important;
+  padding: 9px 13px !important;
+  font-size: 13.5px !important;
+  color: #1a202c !important;
+  min-height: 38px !important;
+  box-shadow: none !important;
+  margin-bottom: 0 !important;
+}
+
+.pt-section-card .employee-select-wrap input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* ── Disabled dropdown — target via disabled child class ── */
+.pt-section-card .employee-select-wrap:has(.select.disabled),
+.pt-section-card .employee-select-wrap:has(.employee-select-wrap--elipses.disabled),
+.pt-section-card .employee-select-wrap.disabled,
+.pt-section-card .employee-select-wrap[data-disabled="true"] {
+  background: #edf0f4 !important;
+  border-color: #c8cfd8 !important;
+  opacity: 1 !important;
+  cursor: not-allowed !important;
+}
+
+/* The inner text input inside a disabled dropdown */
+.pt-section-card .employee-select-wrap .employee-select-wrap--elipses.disabled,
+.pt-section-card .employee-select-wrap .select.disabled input,
+.pt-section-card .employee-select-wrap--elipses.disabled {
+  background: transparent !important;
+  color: #4b5563 !important;
+  cursor: not-allowed !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+/* Also grey out the arrow icon when disabled */
+.pt-section-card .employee-select-wrap .select.disabled svg,
+.pt-section-card .employee-select-wrap .ArrowDown.disabled {
+  opacity: 0.4 !important;
+}
+
+/* ── Dropdown options popup ── */
+.pt-section-card .options-card {
+  border-radius: 10px !important;
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+  overflow: hidden !important;
+}
+
+.pt-section-card .options-card .profile-dropdown--item:hover {
+  background: #fff3ec !important;
+  color: #c0440a !important;
+}
+
+/* ── Error label ── */
+.pt-section-card .card-label-error {
+  font-size: 11.5px !important;
+  color: #dc2626 !important;
+  margin-top: 2px !important;
+}
+
+/* ── Secondary action buttons (Add/Remove Owner) ── */
+.pt-section-card button.secondary-action-field {
+  border-radius: 8px !important;
+  border: 1.5px solid #f47738 !important;
+  color: #f47738 !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  padding: 8px 18px !important;
+  background: transparent !important;
+  cursor: pointer !important;
+  transition: background 0.15s ease !important;
+}
+
+.pt-section-card button.secondary-action-field:hover {
+  background: #fff3ec !important;
+}
+
+

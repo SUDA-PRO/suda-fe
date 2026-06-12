@@ -37,18 +37,18 @@
     .multilink-labelWrap{
         margin: 0 !important;
         top: unset;
-        @apply relative text-text-primary !important;
+        @apply relative text-text-primary #{!important};
         svg{
             fill: #505A5F;
         }
         span{
-            @apply text-text-primary !important;
+            @apply text-text-primary #{!important};
         }
     }
     .multilink-optionWrap{
         top: 8px;
         right: -50%;
-        @apply block !important;
+        @apply block #{!important};
     }
 }
 

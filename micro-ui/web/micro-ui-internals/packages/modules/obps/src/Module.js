@@ -21,6 +21,7 @@ import LocationDetails from "./pageComponents/LocationDetails";
 import StakeholderDocsRequired  from "./pageComponents/StakeholderDocsRequired";
 import GIS from "./pageComponents/GIS";
 import OCEDCRDocsRequired from "./pageComponents/OCEDCRDocsRequired";
+import BPASearchProperty from "./pageComponents/BPASearchProperty";
 import OCeDCRScrutiny from "./pageComponents/OCeDCRScrutiny";
 import OCUploadPlanDiagram from "./pageComponents/OCUploadPlanDiagram";
 import OCBasicDetails from "./pageComponents/OCBasicDetails";
@@ -120,6 +121,7 @@ const componentsToRegister = {
   LocationDetails,
   GIS,
   OCEDCRDocsRequired,
+  CPTSearchProperty: BPASearchProperty,
   OCeDCRScrutiny,
   OCUploadPlanDiagram,
   StakeholderDocsRequired,

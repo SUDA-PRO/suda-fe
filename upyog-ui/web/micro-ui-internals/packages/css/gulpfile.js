@@ -1,7 +1,10 @@
+const path = require("path");
 const { series, src, dest, watch, task } = require("gulp");
 const clean = require("gulp-clean");
 const postcss = require("gulp-postcss");
 const sass = require("gulp-sass");
+sass.compiler = require("sass");
+const sassOptions = { includePaths: [path.resolve(__dirname, "node_modules"), path.resolve(__dirname, "../../node_modules")] };
 const postcssPresetEnv = require("postcss-preset-env");
 const cleanCSS = require("gulp-clean-css");
 const rename = require("gulp-rename");
@@ -19,7 +22,7 @@ function cleanStyles() {
 }
 
 function cleanProdStyles() {
-  return src(`${prodOutput}/*.css`, { read: false }).pipe(clean());
+  return src(`${prodOutput}/*.css`, { read: false, allowEmpty: true }).pipe(clean());
 }
 
 function prodStyles() {
@@ -30,11 +33,11 @@ function prodStyles() {
     require("autoprefixer"),
     require("cssnano"),
   ];
-  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass()).pipe(dest(prodOutput));
+  return src("src/index.scss").pipe(sass.sync(sassOptions).on("error", sass.logError)).pipe(postcss(plugins)).pipe(dest(prodOutput));
 }
 
 function minifyProd() {
-  return src(`${prodOutput}/index.css`).pipe(cleanCSS()).pipe(rename(`index.min.css`)).pipe(dest(prodOutput));
+  return src(`${prodOutput}/index.css`, { allowEmpty: true }).pipe(cleanCSS()).pipe(rename(`index.min.css`)).pipe(dest(prodOutput));
 }
 
 function styles() {
@@ -45,7 +48,7 @@ function styles() {
     require("autoprefixer"),
     require("cssnano"),
   ];
-  return src("src/index.scss").pipe(postcss(plugins)).pipe(sass()).pipe(dest(output));
+  return src("src/index.scss").pipe(sass.sync(sassOptions).on("error", sass.logError)).pipe(postcss(plugins)).pipe(dest(output));
 }
 
 function minify() {

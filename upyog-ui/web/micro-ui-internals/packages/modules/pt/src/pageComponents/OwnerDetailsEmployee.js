@@ -391,14 +391,8 @@ const OwnerForm = (_props) => {
                       className="form-field"
                       selected={props.value}
                       select={props.onChange}
-                      disable={isEditScreen}
+                      disable={false}
                       onBlur={props.onBlur}
-                      /*option={[
-                        { i18nKey: "PT_FORM3_MALE", code: "Male" },
-                        { i18nKey: "PT_FORM3_FEMALE", code: "Female" },
-                        { i18nKey: "PT_FORM3_TRANSGENDER", code: "Transgender" },
-                        { i18nKey: "COMMON_GENDER_OTHERS", code: "OTHERS" },
-                      ]}*/
                       option={menu}
                       optionKey="i18nKey"
                       t={t}
@@ -460,7 +454,7 @@ const OwnerForm = (_props) => {
                 render={(props) => (
                   <MobileNumber
                     value={props.value}
-                    disable={isEditScreen}
+                    disable={false}
                     autoFocus={focusIndex.index === owner?.key && focusIndex.type === "mobileNumber"}
                     onChange={(e) => {
                       props.onChange(e);
@@ -682,6 +676,7 @@ const OwnerForm = (_props) => {
                   <TextInput
                     value={props.value}
                     disable={isEditScreen}
+                    placeholder={t("PT_OWNERSHIP_INFO_CORR_ADDR")}
                     autoFocus={focusIndex.index === owner?.key && focusIndex.type === "correspondenceAddress"}
                     onChange={(e) => {
                       props.onChange(e);

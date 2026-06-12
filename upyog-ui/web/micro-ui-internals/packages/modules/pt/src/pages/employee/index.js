@@ -8,6 +8,7 @@ import PaymentDetails from "./PaymentDetails";
 import Search from "./Search";
 import SearchApp from "./SearchApp";
 import UlbAssesment from "./UlbAssesment";
+import UpdateOwnerProfile from "./UpdateOwnerProfile";
 
 
 const EmployeeApp = ({ path, url, userType }) => {
@@ -55,6 +56,7 @@ const EmployeeApp = ({ path, url, userType }) => {
     ["/suda-ui/employee/pt/search"]: "PT_COMMON_SEARCH_PROPERTY_SUB_HEADER",
     ["/suda-ui/employee/pt/application-search"]: "ES_COMMON_APPLICATION_SEARCH",
     ["/suda-ui/employee/pt/Ulb-assesment"]: "ES_COMMON_ULB_ASSESSMENT",
+    ["/suda-ui/employee/pt/update-owner-profile"]: "PT_UPDATE_OWNER_PROFILE_HEADER",
   };
 
   const getBreadCrumb = () => {
@@ -113,6 +115,11 @@ const EmployeeApp = ({ path, url, userType }) => {
         path: "/suda-ui/employee/pt/ulb-assesment",
         content: t("ES_COMMON_ULB_ASSESSMENT"),
         show: location.pathname.includes("/pt/ulb-assesment") || location.pathname.includes("/pt/ulb-assesment") ? true : false,
+      },
+      {
+        path: "/suda-ui/employee/pt/update-owner-profile",
+        content: t("PT_UPDATE_OWNER_PROFILE_HEADER"),
+        show: location.pathname.includes("/pt/update-owner-profile") ? true : false,
       },
       {
         path: `/suda-ui/employee/pt/ptsearch/property-details/${sessionStorage.getItem("propertyIdinPropertyDetail")}`,
@@ -214,6 +221,7 @@ const EmployeeApp = ({ path, url, userType }) => {
           />
           <PrivateRoute path={`${path}/application-search`} component={(props) => <SearchApp {...props} parentRoute={path} />} />
           <PrivateRoute path={`${path}/ulb-assesment`} component={(props) => <UlbAssesment {...props} parentRoute={path} />} />
+          <PrivateRoute path={`${path}/update-owner-profile`} component={(props) => <UpdateOwnerProfile {...props} parentRoute={path} />} />
         </div>
       </React.Fragment>
     </Switch>

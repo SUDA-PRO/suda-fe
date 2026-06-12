@@ -5,13 +5,16 @@ import FilterFormFieldsComponent from "./FilterFormFieldsComponent";
 import SearchFormFieldsComponents from "./SearchFormFieldsComponent";
 import useInboxTableConfig from "./useInboxTableConfig";
 import useInboxMobileCardsData from "./useInboxMobileCardsData";
-import { Link } from "react-router-dom";
+import { Link, Redirect } from "react-router-dom";
 
 const Inbox = ({ parentRoute }) => {
 
   const { t } = useTranslation()
 
-  const tenantId = Digit.ULBService.getStateId();
+  const tenantId = Digit.UserService.getUser()?.info?.tenantId || Digit.ULBService.getStateId();
+  const stateCode = Digit.ULBService.getStateId();
+  const userRoles = Digit.UserService.getUser()?.info?.roles || [];
+  const hasBPAREGRole = userRoles.some(r => ["BPAREG_DOC_VERIFIER", "BPAREG_APPROVER", "BPAREG_EMPLOYEE"].includes(r.code) && r.tenantId.startsWith(stateCode));
 
   const searchFormDefaultValues = {}
 
@@ -98,10 +101,14 @@ const Inbox = ({ parentRoute }) => {
 
   const { data: localitiesForEmployeesCurrentTenant, isLoading: loadingLocalitiesForEmployeesCurrentTenant } = Digit.Hooks.useBoundaryLocalities(tenantId, "revenue", {}, t);
 
-  const { isLoading: isInboxLoading, data: { table, statuses, totalCount } = {} } = Digit.Hooks.obps.useBPAInbox({
+  const { isLoading: isInboxLoading, isError: isInboxError, data: { table, statuses = [], totalCount } = {} } = Digit.Hooks.obps.useBPAInbox({
     tenantId,
-    filters: { ...formState }
+    filters: { ...formState },
+    config: { retry: false, enabled: hasBPAREGRole }
   });
+
+  if (!hasBPAREGRole) return <Redirect to={`${parentRoute}/inbox`} />;
+  if (isInboxError) return <Redirect to={`${parentRoute}/inbox`} />;
 
   const PropsForInboxLinks = {
     logoIcon: <CaseIcon />,

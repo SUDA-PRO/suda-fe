@@ -42,7 +42,7 @@ const ApplicationDetails = () => {
   const { isLoading: auditDataLoading, isError: isAuditError, data: auditData } = Digit.Hooks.pt.usePropertySearch(
     {
       tenantId,
-      filters: { propertyIds: propertyId, audit: true },
+      filters: { acknowledgementIds: propertyId, audit: true },
     },
     { enabled: enableAudit, select: (data) => data.Properties?.filter((e) => e.status === "ACTIVE") }
   );
@@ -71,7 +71,7 @@ const ApplicationDetails = () => {
 
   useEffect(() => {
     if (applicationDetails) {
-      appDetailsToShow?.applicationData?.owners.sort((item, item2) => { return item?.additionalDetails?.ownerSequence - item2?.additionalDetails?.ownerSequence })
+      appDetailsToShow?.applicationData?.owners?.sort((item, item2) => { return item?.additionalDetails?.ownerSequence - item2?.additionalDetails?.ownerSequence })
       setAppDetailsToShow(_.cloneDeep(applicationDetails));
       if (applicationDetails?.applicationData?.status !== "ACTIVE" && applicationDetails?.applicationData?.creationReason === "MUTATION") {
         setEnableAudit(true);
@@ -104,7 +104,7 @@ const ApplicationDetails = () => {
             {
               action: "VIEW_DETAILS",
               redirectionUrl: {
-                pathname: `/suda-ui/employee/pt/property-details/${propertyId}`,
+                pathname: `/suda-ui/employee/pt/property-details/${appDetailsToShow?.applicationData?.propertyId}`,
               },
               tenantId: Digit.ULBService.getStateId(),
             },
@@ -130,11 +130,11 @@ const ApplicationDetails = () => {
     });
   }
 
-  if (!(appDetailsToShow?.applicationDetails?.[0]?.values?.[0].title === "PT_PROPERTY_APPLICATION_NO")) {
+  if (!(appDetailsToShow?.applicationDetails?.[0]?.values?.[0]?.title === "PT_PROPERTY_APPLICATION_NO")) {
     appDetailsToShow?.applicationDetails?.unshift({
       values: [
         { title: "PT_PROPERTY_APPLICATION_NO", value: appDetailsToShow?.applicationData?.acknowldgementNumber },
-        { title: "PT_SEARCHPROPERTY_TABEL_PTUID", value: appDetailsToShow?.applicationData?.propertyId },
+        { title: "PT_SEARCHPROPERTY_TABEL_PTUID", value: appDetailsToShow?.applicationData?.propertyId || t("PT_PROPERTY_ID_PENDING_APPROVAL") },
         { title: "ES_APPLICATION_CHANNEL", value: `ES_APPLICATION_DETAILS_APPLICATION_CHANNEL_${appDetailsToShow?.applicationData?.channel}` },
       ],
     });
@@ -200,20 +200,20 @@ const ApplicationDetails = () => {
     />
    )
  } 
-  if (applicationDetails?.applicationDetails[1].title == "PT_ASSESMENT_INFO_SUB_HEADER") {
-    if (applicationDetails?.applicationDetails[1].values.length == 4) {
+  if (applicationDetails?.applicationDetails?.[1]?.title == "PT_ASSESMENT_INFO_SUB_HEADER") {
+    if (applicationDetails?.applicationDetails?.[1]?.values?.length == 4) {
       let obj = {
         "title": "PT_ASSESMENT_ELECTRICITY",
         "value": applicationDetails?.additionalDetails?.electricity || "NA"
       }
-      applicationDetails?.applicationDetails[1].values.push(obj)
+      applicationDetails?.applicationDetails?.[1]?.values?.push(obj)
     }
-    if (applicationDetails?.applicationDetails[1].values.length == 5) {
+    if (applicationDetails?.applicationDetails?.[1]?.values?.length == 5) {
       let obj = {
         "title": "PT_ASSESMENT_ELECTRICITY_UID",
         "value": applicationDetails?.additionalDetails?.uid || "NA"
       }
-      applicationDetails?.applicationDetails[1].values.push(obj)
+      applicationDetails?.applicationDetails?.[1]?.values?.push(obj)
     }
   }
 

@@ -306,7 +306,7 @@
               grid-template-columns: 25% 25% 25% 25%;
 
               .input-fields:nth-child(3n) {
-                @apply mr-md !important;
+                @apply mr-md #{!important};
               }
 
               .input-fields:nth-child(4n) {
@@ -342,7 +342,7 @@
           .input-fields {
             /*width: calc(50% - 16px);*/
 
-            @apply inline-block mr-md !important;
+            @apply inline-block mr-md #{!important};
 
             .inbox-search-form-error {
               padding-top: 0;
@@ -424,7 +424,7 @@
 }
 
 .search-error-label {
-  @apply font-bold text-legend text-error mb-sm !important;
+  @apply font-bold text-legend text-error mb-sm #{!important};
 }
 
 .inbox-action-container {
