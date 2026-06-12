@@ -526,7 +526,7 @@ const SudaLoginPage = () => {
                 <EyeIcon show={showPassword} onClick={() => setShowPassword(v => !v)} />
               </div>
               <div className="suda-row-end">
-                <button type="button" className="suda-text-btn" disabled style={{ opacity: 0.4, cursor: "not-allowed", textDecoration: "none" }}>
+                <button type="button" className="suda-text-btn" onClick={() => history.push("/suda-ui/employee/user/forgot-password")}>
                   {t("FORGOT_PASSWORD")}
                 </button>
               </div>

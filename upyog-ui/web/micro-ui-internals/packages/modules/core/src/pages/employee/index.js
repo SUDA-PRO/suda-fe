@@ -213,7 +213,6 @@ const EmployeeApp = ({
           <div className="loginContainer" style={{ "--banner-url": `url(${stateInfo?.bannerUrl})`, padding: "0px" }}>
             <div className="loginnn">
               <div className="login-logo-wrapper"><div className="logoNiua"></div></div>
-              <TopBar></TopBar>
               <Switch>
                 <Route path={`${path}/user/login`}>
                   <Redirect to="/suda-ui/login" />
