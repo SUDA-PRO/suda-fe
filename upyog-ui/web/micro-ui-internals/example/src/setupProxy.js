@@ -1,12 +1,17 @@
 const { createProxyMiddleware } = require("http-proxy-middleware");
 
-// Proxy for Finance ERP requests. ERPFinance component targets /erp-proxy/...
-// (same-origin, no CORS) and this proxy forwards to the main API gateway.
+// Proxy for Finance ERP requests. ERPFinance posts to /erp-proxy/services/EGF/...
+// (same-origin). This proxy forwards to suda.digitalgovernance.digital with spoofed
+// Referer/Origin headers so the server accepts the request as if from production.
 const erpProxy = createProxyMiddleware({
   target: "https://suda.digitalgovernance.digital",
   changeOrigin: true,
   secure: false,
   pathRewrite: { "^/erp-proxy": "" },
+  headers: {
+    referer: "https://suda.digitalgovernance.digital/",
+    origin: "https://suda.digitalgovernance.digital",
+  },
 });
 
 const createProxy = createProxyMiddleware({
