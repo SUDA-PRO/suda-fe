@@ -1,4 +1,32 @@
 /* ═══════════════════════════════════════════════════════════════
+   UPDATE OWNER PROFILE — Search Form Overrides
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Remove extra card wrapper box inside search card */
+.uop-search-card .search-form-wrapper .card,
+.uop-search-card form .card {
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+}
+
+/* Tighten SearchForm padding/margin */
+.uop-search-card .search-form-wrapper {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+/* Fix form field spacing inside uop search card */
+.uop-search-card .search-form-wrapper .form-field {
+  margin-bottom: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
    UPDATE OWNER PROFILE — Table Beautiful Styling
    ═══════════════════════════════════════════════════════════════ */
 .uop-table-wrap table {
