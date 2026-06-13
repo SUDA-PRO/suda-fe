@@ -199,59 +199,126 @@ console.log("arrarr",arr)
   };
   
   return (
-    <div className="static" style={{ marginTop: "16px" }}>
-      <div className="static-wrapper">
-        {header && (
-          <Header style={{ marginLeft: "8px" }}>
-            {t(header)} ({searchResults?.length})
-          </Header>
-        )}
-        { <PrivacyInfoLabel t={t} /> }
-        <ResponseComposer data={searchResults} template={template} actionButtonLabel={actionButtonLabel}
-        onSubmit={sendOtpToUser} />
+    <div style={{ marginTop: "16px", fontFamily: "'Roboto', sans-serif" }}>
+
+      {/* ── PT Hero Banner ── */}
+      <div style={{
+        background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+        borderRadius: "12px", padding: "28px 36px", marginBottom: "24px",
+        color: "#fff", display: "flex", alignItems: "center", gap: "20px",
+      }}>
+        <div style={{
+          width: "56px", height: "56px", borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)", display: "flex",
+          alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: "26px",
+        }}>🔍</div>
+        <div>
+          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>
+            Search Results
+          </div>
+          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>
+            {t("PT_PROPERTY_SEARCH_RESULTS") || "Property Search Results"}
+          </h2>
+          <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>
+            {searchResults?.length || 0} {t("PT_PROPERTIES_FOUND") || "properties found"}
+          </p>
+        </div>
       </div>
-      {modalData ? (
-        <Modal
-          hideSubmit={true}
-          isDisabled={false}
-          popupStyles={{ width: "319px", height: "250px", margin: "auto" }}
-          formId="modal-action"
-        >
+
+      { <PrivacyInfoLabel t={t} /> }
+
+      {/* ── Result Cards ── */}
+      {searchResults?.length > 0 ? (
+        <div>
+          {searchResults.map((item, idx) => (
+            <div key={idx} style={{
+              background: "#fff", borderRadius: "10px",
+              boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+              border: "1px solid #e8ecf0", padding: "20px 24px",
+              marginBottom: "16px",
+            }}>
+              {/* Card header row */}
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: "8px", marginBottom: "14px", paddingBottom: "10px", borderBottom: "2px solid #f47738" }}>
+                <div style={{ fontSize: "15px", fontWeight: "700", color: "#1a2b49" }}>
+                  🏠 {item.property_id}
+                </div>
+                <span style={{
+                  background: item.status === t("ACTIVE") || item.status === "ACTIVE" ? "#e8f5e9" : "#fce4ec",
+                  color: item.status === t("ACTIVE") || item.status === "ACTIVE" ? "#2e7d32" : "#c62828",
+                  padding: "3px 10px", borderRadius: "12px", fontSize: "12px", fontWeight: "600",
+                }}>
+                  {item.status}
+                </span>
+              </div>
+
+              {/* Detail rows */}
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "10px 24px", marginBottom: "16px" }}>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: "600", color: "#6b7c93", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{t("OWNER_NAME")}</div>
+                  <div style={{ fontSize: "14px", color: "#1a2b49", fontWeight: "500" }}>{item.owner_name || "—"}</div>
+                </div>
+                <div>
+                  <div style={{ fontSize: "11px", fontWeight: "600", color: "#6b7c93", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{t("PROPERTY_ADDRESS")}</div>
+                  <div style={{ fontSize: "14px", color: "#1a2b49", fontWeight: "500" }}>{item.property_address || "—"}</div>
+                </div>
+                {item.owner_mobile && (
+                  <div>
+                    <div style={{ fontSize: "11px", fontWeight: "600", color: "#6b7c93", textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "3px" }}>{t("MOBILE_NUMBER")}</div>
+                    <div style={{ fontSize: "14px", color: "#1a2b49", fontWeight: "500" }}>{item.owner_mobile}</div>
+                  </div>
+                )}
+              </div>
+
+              {/* Select button */}
+              <button
+                onClick={() => sendOtpToUser(item)}
+                style={{
+                  background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
+                  color: "#fff", border: "none", borderRadius: "8px",
+                  padding: "10px 24px", fontSize: "14px", fontWeight: "700",
+                  cursor: "pointer", letterSpacing: "0.3px",
+                  boxShadow: "0 3px 8px rgba(244,119,56,0.35)",
+                }}
+              >
+                {actionButtonLabel || t("PT_SELECT_PROPERTY")} →
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{
+          background: "#fff", borderRadius: "10px", border: "1px solid #e8ecf0",
+          padding: "32px", textAlign: "center",
+          boxShadow: "0 2px 12px rgba(0,0,0,0.06)", color: "#6b7c93", fontSize: "15px",
+        }}>
+          {t("PT_NO_PROP_FOUND_MSG")}
+        </div>
+      )}
+
+      {/* Load more */}
+      {searchResults?.length !== 0 && (searchResults?.length === 5 || searchResults?.length === 50) && (locality || (searchQuery && searchQuery.locality)) && (
+        <p style={{ marginTop: "16px", color: "#3d4f6b", fontSize: "14px" }}>
+          {t("PT_LOAD_MORE_MSG")}{" "}
+          <span className="link">
+            <Link to={`/suda-ui/citizen/pt/property/search-results?mobileNumber=${mobileNumber || searchQuery?.mobileNumber || ""}&propertyIds=${propertyIds || searchQuery?.propertyIds || ""}&oldPropertyIds=${oldPropertyIds || searchQuery?.oldPropertyIds || ""}&doorNo=${doorNo || searchQuery?.doorNo || ""}&name=${name || searchQuery?.name || ""}&city=${city || ""}&locality=${locality || searchQuery?.locality || ""}&PToffset=${t1}`}>
+              {t("PT_COMMON_CLICK_HERE")}
+            </Link>
+          </span>
+        </p>
+      )}
+
+      {/* Modal for pending dues */}
+      {modalData && (
+        <Modal hideSubmit={true} isDisabled={false} popupStyles={{ width: "319px", height: "250px", margin: "auto" }} formId="modal-action">
           <div ref={modalRef}>
-            <KeyNote
-              keyValue={t("PT_AMOUNT_DUE")}
-              note={`₹ ${modalData?.total_due?.toLocaleString("en-IN")}`}
-              noteStyle={{ fontSize: "24px", fontWeight: "bold" }}
-            />
+            <KeyNote keyValue={t("PT_AMOUNT_DUE")} note={`₹ ${modalData?.total_due?.toLocaleString("en-IN")}`} noteStyle={{ fontSize: "24px", fontWeight: "bold" }} />
             <p>
-              {t("PT_YOU_HAVE") +
-                " " +
-                "₹" +
-                " " +
-                modalData?.total_due.toLocaleString("en-IN") +
-                " " +
-                t("PT_PENDING_AMOUNT") +
-                " " +
-                t("PT_INORDER_TO_TRANSFER")}
+              {t("PT_YOU_HAVE") + " ₹ " + modalData?.total_due?.toLocaleString("en-IN") + " " + t("PT_PENDING_AMOUNT") + " " + t("PT_INORDER_TO_TRANSFER")}
             </p>
-            <SubmitBar
-              submit={false}
-              onSubmit={() => proceedToPay(modalData)}
-              style={{ marginTop: "14px", width: "100%" }}
-              label={t("PT_PROCEED_PAYMENT")}
-            />
+            <SubmitBar submit={false} onSubmit={() => proceedToPay(modalData)} style={{ marginTop: "14px", width: "100%" }} label={t("PT_PROCEED_PAYMENT")} />
           </div>
         </Modal>
-      ) : null}
-      {!searchResults?.length > 0 && <p style={{ marginLeft: "16px", marginTop: "16px" }}>{t("PT_NO_PROP_FOUND_MSG")}</p>}
-      {searchResults?.length !== 0 && (searchResults?.length == 5 || searchResults?.length == 50) && (locality || ( searchQuery && searchQuery.locality )) && (
-          <div>
-            <p style={{ marginLeft: "16px", marginTop: "16px" }}>
-              {t("PT_LOAD_MORE_MSG")}{" "}
-              <span className="link">{<Link to={`/suda-ui/citizen/pt/property/search-results?mobileNumber=${mobileNumber || searchQuery.mobileNumber ?mobileNumber || searchQuery?.mobileNumber:""}&propertyIds=${propertyIds || searchQuery?.propertyIds ?propertyIds || searchQuery?.propertyIds:""}&oldPropertyIds=${oldPropertyIds || searchQuery?.oldPropertyIds?oldPropertyIds || searchQuery?.oldPropertyIds:""}&doorNo=${doorNo || searchQuery?.doorNo?doorNo || searchQuery?.doorNo:""}&name=${name || searchQuery?.name?name || searchQuery?.name:""}&city=${city?city:""}&locality=${locality || searchQuery?.locality?locality || searchQuery?.locality:""}&PToffset=${t1}`}>{t("PT_COMMON_CLICK_HERE")}</Link>}</span>
-            </p>
-          </div>
-        )}
+      )}
     </div>
   );
 };

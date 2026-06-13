@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useQueryClient } from "react-query";
 import { Redirect, Route, Switch, useHistory, useLocation, useRouteMatch } from "react-router-dom";
@@ -16,6 +16,20 @@ const CreateTradeLicence = ({ parentRoute }) => {
   const [params, setParams, clearParams] = Digit.Hooks.useSessionStorage("TL_CREATE_TRADE", {});
   let isReneworEditTrade = window.location.href.includes("/renew-trade/") || window.location.href.includes("/edit-application/")
 
+  // Clear all saved form data when starting a fresh new application (on the info/start page)
+  useEffect(() => {
+    if (!isReneworEditTrade && pathname.endsWith("/info")) {
+      clearParams();
+      sessionStorage.removeItem("CurrentFinancialYear");
+      sessionStorage.removeItem("StructureType");
+      sessionStorage.removeItem("isAccessories");
+      sessionStorage.removeItem("VisitedisAccessories");
+      sessionStorage.removeItem("VisitedAccessoriesDetails");
+      sessionStorage.removeItem("KnowProperty");
+      sessionStorage.removeItem("isSameAsPropertyOwner");
+    }
+  }, [pathname]);
+
   const stateId = Digit.ULBService.getStateId();
   let { data: newConfig, isLoading } = Digit.Hooks.tl.useMDMS.getFormConfig(stateId, {});
 
@@ -32,7 +46,7 @@ const CreateTradeLicence = ({ parentRoute }) => {
       if (
         nextStep[sessionStorage.getItem("isAccessories")] &&
         (nextStep[sessionStorage.getItem("isAccessories")] === "accessories-details" ||
-          nextStep[sessionStorage.getItem("isAccessories")] === "map" ||
+          nextStep[sessionStorage.getItem("isAccessories")] === "select-combined-location-details" ||
           nextStep[sessionStorage.getItem("isAccessories")] === "owner-ship-details" || 
           nextStep[sessionStorage.getItem("isAccessories")] === "other-trade-details")
       ) {
@@ -50,7 +64,7 @@ const CreateTradeLicence = ({ parentRoute }) => {
       ) {
           if(nextStep[sessionStorage.getItem("KnowProperty")] === "create-property" && !enableCreate)
           {
-            nextStep = `map`;
+            nextStep = `select-combined-location-details`;
           }
           else{
          nextStep = `${nextStep[sessionStorage.getItem("KnowProperty")]}`;
@@ -59,15 +73,15 @@ const CreateTradeLicence = ({ parentRoute }) => {
     }
     if(nextStep === "know-your-property" && params?.TradeDetails?.StructureType?.code === "MOVABLE")
     {
-      nextStep = "map";
+      nextStep = "select-combined-location-details";
     }
     if(nextStep === "landmark" && params?.TradeDetails?.StructureType?.code === "MOVABLE")
     {
       nextStep = "owner-ship-details";
     }
-    if(nextStep === "owner-details" && (sessionStorage.getItem("isSameAsPropertyOwner") === "true"))
+    if(nextStep === "owner-details" && (sessionStorage.getItem("isSameAsPropertyOwner") === "true" || params?.cpt?.details?.propertyId || params?.cptId?.id))
     {
-      nextStep = "proof-of-identity"
+      nextStep = "select-combined-proof-details"
     }
     if( (params?.cptId?.id || params?.cpt?.details?.propertyId || (isReneworEditTrade && params?.cpt?.details?.propertyId ))  && nextStep === "know-your-property" )
     { 
@@ -81,11 +95,16 @@ const CreateTradeLicence = ({ parentRoute }) => {
       nextStep = key;
     }
     if (nextStep === null) {
+      localStorage.setItem("TLAppSubmitEnabled", "true");
+      queryClient.invalidateQueries(["tlDocuments-1"]);
       return redirectWithHistory(`${match.path}/check`);
-    }
-    if(isPTCreateSkip && nextStep === "acknowledge-create-property")
+    }    if (currentPath === "select-combined-trade-details" && sessionStorage.getItem("editFromCheck") === "true") {
+      sessionStorage.removeItem("editFromCheck");
+      localStorage.setItem("TLAppSubmitEnabled", "true");
+      return redirectWithHistory(`${match.path}/check`);
+    }    if(isPTCreateSkip && nextStep === "acknowledge-create-property")
     {
-      nextStep = "map";
+      nextStep = "select-combined-location-details";
     }
     nextPage = `${match.path}/${nextStep}`;
     redirectWithHistory(nextPage);
@@ -125,7 +144,7 @@ const CreateTradeLicence = ({ parentRoute }) => {
     clearParams();
     queryClient.invalidateQueries("TL_CREATE_TRADE");
   }
-  newConfig = newConfig ? newConfig : newConfigTL;
+  newConfig = newConfigTL;
   newConfig?.forEach((obj) => {
     config = config.concat(obj.body.filter((a) => !a.hideInCitizen));
   });

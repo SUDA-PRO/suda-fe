@@ -8,7 +8,7 @@ const ComingSoon = ({ title = "Coming Soon" }) => {
     if (history.length > 1) {
       history.goBack();
     } else {
-      history.push("/suda-ui/dashboard"); // ✅ fallback route
+      history.push("/suda-ui/home"); // ✅ fallback route
     }
   };
 

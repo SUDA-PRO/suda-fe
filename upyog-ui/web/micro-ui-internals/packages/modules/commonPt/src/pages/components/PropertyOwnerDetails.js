@@ -188,46 +188,99 @@ const PropertyOwnerDetails = ({ t, config, onSelect, userType, formData, formSta
     return arraData?.map((e) => (e.code?.split(".")?.[1] && { ...e, i18nKey: `COMMON_MASTERS_OWNERSHIPCATEGORY_${e.code?.split(".")?.[1]?.replaceAll(".", "_")}` }));
   }, [mdmsData, ownershipCategory?.code]);
 
-  const errorStyle = { width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" };
   const ismultiple = ownershipCategory?.code?.includes("MULTIPLEOWNERS") ? true : false;
   const isInstitutionalOwnerType = ownershipCategory?.code?.includes("INSTITUTIONAL");
 
+  /* ── Shared grid styles (matches SelectCombinedTradeDetails) ── */
+  const ptCardStyle = {
+    background: "#ffffff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+    padding: "24px 28px",
+    marginBottom: "24px",
+    border: "1px solid #e8ecf0",
+  };
+  const ptSectionTitleStyle = {
+    fontSize: "15px",
+    fontWeight: "700",
+    color: "#1a2b49",
+    marginBottom: "20px",
+    paddingBottom: "10px",
+    borderBottom: "2px solid #f47738",
+    letterSpacing: "0.3px",
+  };
+  const rowStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    marginLeft: "-10px",
+    marginRight: "-10px",
+  };
+  const col6 = {
+    flex: "0 0 50%",
+    maxWidth: "50%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const col12 = {
+    flex: "0 0 100%",
+    maxWidth: "100%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const labelStyle = {
+    display: "block",
+    fontWeight: "600",
+    fontSize: "13px",
+    color: "#3d4f6b",
+    marginBottom: "6px",
+    letterSpacing: "0.2px",
+  };
+  const requiredMark = { color: "#e54d42", marginLeft: "2px" };
+  const errorMsgStyle = { fontSize: "12px", color: "#e54d42", marginTop: "4px" };
+
   return (
-    <div>
-      <LabelFieldPair>
-        <CardLabel className="">{`${t("TL_NEW_OWNER_DETAILS_OWNERSHIP_TYPE_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <Controller
-          name="ownershipCategory"
-          defaultValue={ownershipCategory}
-          control={control}
-          rules={{
-            required: t("REQUIRED_FIELD"),
-          }}
-          render={({ value, onChange, onBlur }) => (
-            <Dropdown
-              className="form-field"
-              selected={value}
-              option={dropdownData}
-              select={(value) => {
-                if (value?.value.includes("INSTITUTIONAL")) {
-                  value.value = value.value.split('.')[0]; 
-                }
-                if (!value?.code?.includes("MULTIPLEOWNERS") && ownerDetails?.length > 1) {
-                  setOwnerDetails([...ownerDetails.filter((own, ind) => ind == 0)]);
-                }
-                onChange(value);
-                setOwnerCategory(value);
-              }}
-              optionKey="i18nKey"
-              onBlur={onBlur}
-              t={t}
-            />
-          )}
-        />
-      </LabelFieldPair>
+    <div style={ptCardStyle}>
+      <div style={ptSectionTitleStyle}>{t("PT_OWNERSHIP_INFO") || "Owner Details"}</div>
+
+      {/* Ownership Category — full width */}
+      <div style={rowStyle}>
+        <div style={col12}>
+          <label style={labelStyle}>{t("TL_NEW_OWNER_DETAILS_OWNERSHIP_TYPE_LABEL")}<span style={requiredMark}>*</span></label>
+          <Controller
+            name="ownershipCategory"
+            defaultValue={ownershipCategory}
+            control={control}
+            rules={{ required: t("REQUIRED_FIELD") }}
+            render={({ value, onChange, onBlur }) => (
+              <Dropdown
+                className="form-field"
+                selected={value}
+                option={dropdownData}
+                select={(value) => {
+                  if (value?.value.includes("INSTITUTIONAL")) {
+                    value.value = value.value.split('.')[0];
+                  }
+                  if (!value?.code?.includes("MULTIPLEOWNERS") && ownerDetails?.length > 1) {
+                    setOwnerDetails([...ownerDetails.filter((own, ind) => ind == 0)]);
+                  }
+                  onChange(value);
+                  setOwnerCategory(value);
+                }}
+                optionKey="i18nKey"
+                onBlur={onBlur}
+                t={t}
+              />
+            )}
+          />
+        </div>
+      </div>
+
       {ownerDetails?.map((owner, index) => {
         return (
           <div
+            key={index}
             style={{
               border: "1px solid #D6D5D4",
               background: "#FAFAFA",
@@ -248,493 +301,453 @@ const PropertyOwnerDetails = ({ t, config, onSelect, userType, formData, formSta
                 />
               </div>
             )}
-            {
-              isInstitutionalOwnerType ?
-                <React.Fragment>
 
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_INSTITUTION_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"institutionName" + index}
-                        name={"institutionName" + index}
-                        defaultValue={owner?.institutionName}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => {
-                            return /^[a-zA-Z ]*$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE");
-                          },
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <TextInput
-                            t={t}
-                            type={"text"}
-                            isMandatory={false}
-                            optionKey="i18nKey"
-                            name={"institutionName" + index}
-                            value={value}
-                            onChange={(ev) => {
-                              onChange(ev.target.value);
-                              updateState("institutionName", index, ev.target.value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["institutionName" + index] ? errors?.["institutionName" + index]?.message : ""}</CardLabelError>
+            {isInstitutionalOwnerType ? (
+              <React.Fragment>
+                {/* Row: Institution Name + Institution Type */}
+                <div style={rowStyle}>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_INSTITUTION_NAME")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"institutionName" + index}
+                      name={"institutionName" + index}
+                      defaultValue={owner?.institutionName}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /^[a-zA-Z ]*$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <TextInput
+                          t={t}
+                          type={"text"}
+                          isMandatory={false}
+                          optionKey="i18nKey"
+                          name={"institutionName" + index}
+                          value={value}
+                          onChange={(ev) => {
+                            onChange(ev.target.value);
+                            updateState("institutionName", index, ev.target.value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["institutionName" + index] ? errors?.["institutionName" + index]?.message : ""}</CardLabelError>
+                  </div>
 
-                  <LabelFieldPair>
-                    <CardLabel className="">{`${t("PT_INSTITUTION_TYPE")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"institutionType" + index}
-                        name={"institutionType" + index}
-                        defaultValue={owner?.institutionType}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <Dropdown
-                            selected={institutionTypeMenu?.length === 1 ? Menu1[0] : value}
-                            disable={institutionTypeMenu?.length === 1 || editScreen}
-                            option={institutionTypeMenu ? institutionTypeMenu.sort((a, b) => a.name.localeCompare(b.name)) : []}
-                            select={(value) => {
-                              onChange(value);
-                              updateState("institutionType", index, value);
-                            }}
-                            optionKey="i18nKey"
-                            t={t}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["institutionType" + index] ? errors?.["institutionType" + index]?.message : ""}</CardLabelError>
-                  <CardSectionHeader>{t("TL_AUTHORIZED_PERSON_DETAILS")}</CardSectionHeader>
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_OWNER_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"name" + index}
-                        name={"name" + index}
-                        defaultValue={owner?.name}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => {
-                            return /^[a-zA-Z ]+$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE");
-                          },
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <TextInput
-                            t={t}
-                            type={"text"}
-                            isMandatory={false}
-                            optionKey="i18nKey"
-                            name={"name" + index}
-                            value={value}
-                            onChange={(ev) => {
-                              onChange(ev.target.value);
-                              updateState("name", index, ev.target.value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["name" + index] ? errors?.["name" + index]?.message : ""}</CardLabelError>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_INSTITUTION_TYPE")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"institutionType" + index}
+                      name={"institutionType" + index}
+                      defaultValue={owner?.institutionType}
+                      control={control}
+                      rules={{ required: t("REQUIRED_FIELD") }}
+                      render={({ value, onChange, onBlur }) => (
+                        <Dropdown
+                          selected={institutionTypeMenu?.length === 1 ? Menu1[0] : value}
+                          disable={institutionTypeMenu?.length === 1 || editScreen}
+                          option={institutionTypeMenu ? institutionTypeMenu.sort((a, b) => a.name.localeCompare(b.name)) : []}
+                          select={(value) => {
+                            onChange(value);
+                            updateState("institutionType", index, value);
+                          }}
+                          optionKey="i18nKey"
+                          t={t}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["institutionType" + index] ? errors?.["institutionType" + index]?.message : ""}</CardLabelError>
+                  </div>
+                </div>
 
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_LANDLINE_NUMBER_FLOATING_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"altContactNumber" + index}
-                        name={"altContactNumber" + index}
-                        defaultValue={owner.altContactNumber}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => (/^[0-9]{11}$/i.test(value) ? true : t("ERR_DEFAULT_INPUT_FIELD_MSG")),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <MobileNumber
-                            type={"text"}
-                            t={t}
-                            maxLength={11}
-                            value={value}
-                            name={"altContactNumber" + index}
-                            onChange={(value) => {
-                              onChange(value);
-                              updateState("altContactNumber", index, value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            labelStyle={{ border: "1px solid #000", borderRight: "none" }}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["altContactNumber" + index] ? errors?.["altContactNumber" + index]?.message : ""}</CardLabelError>
+                <CardSectionHeader>{t("TL_AUTHORIZED_PERSON_DETAILS")}</CardSectionHeader>
 
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_FORM3_MOBILE_NUMBER")}`}<span className="check-page-link-button"> *</span></CardLabel>
+                {/* Row: Name + Mobile */}
+                <div style={rowStyle}>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"name" + index}
+                      name={"name" + index}
+                      defaultValue={owner?.name}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /^[a-zA-Z ]+$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <TextInput
+                          t={t}
+                          type={"text"}
+                          isMandatory={false}
+                          optionKey="i18nKey"
+                          name={"name" + index}
+                          value={value}
+                          onChange={(ev) => {
+                            onChange(ev.target.value);
+                            updateState("name", index, ev.target.value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["name" + index] ? errors?.["name" + index]?.message : ""}</CardLabelError>
+                  </div>
 
-                    <div className="form-field">
-                      <Controller
-                        key={"mobileNumber" + index}
-                        name={"mobileNumber" + index}
-                        defaultValue={owner.mobileNumber}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => (/[6-9]{1}[0-9]{9}/i.test(value) ? true : t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <MobileNumber
-                            value={value}
-                            name={"mobileNumber" + index}
-                            onChange={(value) => {
-                              onChange(value);
-                              updateState("mobileNumber", index, value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            labelStyle={{ border: "1px solid #000", borderRight: "none" }}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                    {!isMobile && (
-                      <div style={{ display: "flex", justifyContent: "flex-end", width: "20%", alignSelf: "flex-start" }}>
-                        {ismultiple && (
-                          <LinkButton
-                            label={<DeleteIcon style={{ bottom: "0px" }} fill={!(ownerDetails.length == 1) ? "#494848" : "#FAFAFA"} />}
-                            style={{ margin: "0px" }}
-                            onClick={(e) => {
-                              setOwnerDetails([...ownerDetails.filter((own, ind) => ind != index)]);
-                            }}
-                          />
-                        )}
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"mobileNumber" + index}
+                      name={"mobileNumber" + index}
+                      defaultValue={owner.mobileNumber}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /[6-9]{1}[0-9]{9}/i.test(value) ? true : t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <MobileNumber
+                          value={value}
+                          name={"mobileNumber" + index}
+                          onChange={(value) => {
+                            onChange(value);
+                            updateState("mobileNumber", index, value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          labelStyle={{ border: "1px solid #000", borderRight: "none" }}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["mobileNumber" + index] ? errors?.["mobileNumber" + index]?.message : ""}</CardLabelError>
+                  </div>
+                </div>
+
+                {/* Row: Landline + Designation */}
+                <div style={rowStyle}>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_LANDLINE_NUMBER_FLOATING_LABEL")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"altContactNumber" + index}
+                      name={"altContactNumber" + index}
+                      defaultValue={owner.altContactNumber}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /^[0-9]{11}$/i.test(value) ? true : t("ERR_DEFAULT_INPUT_FIELD_MSG"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <MobileNumber
+                          type={"text"}
+                          t={t}
+                          maxLength={11}
+                          value={value}
+                          name={"altContactNumber" + index}
+                          onChange={(value) => {
+                            onChange(value);
+                            updateState("altContactNumber", index, value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          labelStyle={{ border: "1px solid #000", borderRight: "none" }}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["altContactNumber" + index] ? errors?.["altContactNumber" + index]?.message : ""}</CardLabelError>
+                  </div>
+
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("TL_NEW_DESIG_OWNER_LABEL")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"designation" + index}
+                      name={"designation" + index}
+                      defaultValue={owner?.designation}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /^[a-zA-Z ]*$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <TextInput
+                          t={t}
+                          type={"text"}
+                          isMandatory={false}
+                          optionKey="i18nKey"
+                          name={"designation" + index}
+                          value={value}
+                          onChange={(ev) => {
+                            onChange(ev.target.value);
+                            updateState("designation", index, ev.target.value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["designation" + index] ? errors?.["designation" + index]?.message : ""}</CardLabelError>
+                  </div>
+                </div>
+
+                {/* Correspondence Address — full width */}
+                <div style={rowStyle}>
+                  <div style={col12}>
+                    <label style={labelStyle}>{t("PT_CORRESPONDANCE_ADDRESS")}</label>
+                    <TextArea
+                      isMandatory={false}
+                      optionKey="i18nKey"
+                      t={t}
+                      disabled={ownerDetails?.[index]?.isCoresAddr === true}
+                      name={"address" + index}
+                      onChange={(e) => {
+                        if (!(ownerDetails?.[index]?.isCoresAddr === true)) {
+                          updateState("permanentAddress", index, e.target.value);
+                        }
+                      }}
+                      value={ownerDetails?.[index]?.permanentAddress}
+                    />
+                    <CheckBox
+                      className="form-field"
+                      label={`${t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}`}
+                      onChange={(e) => setCorrespondenceAddress(e, index)}
+                      value={ownerDetails?.[index]?.isCoresAddr}
+                      checked={ownerDetails?.[index]?.isCoresAddr || false}
+                      style={window.location.href.includes("/citizen/") ? { paddingTop: "10px" } : {}}
+                    />
+                  </div>
+                </div>
+              </React.Fragment>
+            ) : (
+              <React.Fragment>
+                {/* Row: Mobile + Name */}
+                <div style={rowStyle}>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_FORM3_MOBILE_NUMBER")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"mobileNumber" + index}
+                      name={"mobileNumber" + index}
+                      defaultValue={owner.mobileNumber}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /[6-9]{1}[0-9]{9}/i.test(value) ? true : t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <MobileNumber
+                          value={value}
+                          name={"mobileNumber" + index}
+                          onChange={(value) => {
+                            onChange(value);
+                            updateState("mobileNumber", index, value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          labelStyle={{ border: "1px solid #000", borderRight: "none" }}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["mobileNumber" + index] ? errors?.["mobileNumber" + index]?.message : ""}</CardLabelError>
+                  </div>
+
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_OWNER_NAME")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"name" + index}
+                      name={"name" + index}
+                      defaultValue={owner?.name}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /^[a-zA-Z ]+$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <TextInput
+                          t={t}
+                          type={"text"}
+                          isMandatory={false}
+                          optionKey="i18nKey"
+                          name={"name" + index}
+                          value={value}
+                          onChange={(ev) => {
+                            onChange(ev.target.value);
+                            updateState("name", index, ev.target.value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["name" + index] ? errors?.["name" + index]?.message : ""}</CardLabelError>
+                    {!isMobile && ismultiple && (
+                      <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                        <LinkButton
+                          label={<DeleteIcon style={{ bottom: "0px" }} fill={!(ownerDetails.length == 1) ? "#494848" : "#FAFAFA"} />}
+                          style={{ margin: "0px" }}
+                          onClick={(e) => {
+                            setOwnerDetails([...ownerDetails.filter((own, ind) => ind != index)]);
+                          }}
+                        />
                       </div>
                     )}
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["mobileNumber" + index] ? errors?.["mobileNumber" + index]?.message : ""}</CardLabelError>
+                  </div>
+                </div>
 
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("TL_NEW_DESIG_OWNER_LABEL")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"designation" + index}
-                        name={"designation" + index}
-                        defaultValue={owner?.designation}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => {
-                            return /^[a-zA-Z ]*$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE");
-                          },
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <TextInput
-                            t={t}
-                            type={"text"}
-                            isMandatory={false}
-                            optionKey="i18nKey"
-                            name={"designation" + index}
-                            value={value}
-                            onChange={(ev) => {
-                              onChange(ev.target.value);
-                              updateState("designation", index, ev.target.value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["designation" + index] ? errors?.["designation" + index]?.message : ""}</CardLabelError>
+                {/* Row: Gender + Guardian Name */}
+                <div style={rowStyle}>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_FORM3_GENDER")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"gender" + index}
+                      name={"gender" + index}
+                      defaultValue={owner?.gender}
+                      control={control}
+                      rules={{ required: t("REQUIRED_FIELD") }}
+                      render={({ value, onChange, onBlur }) => (
+                        <RadioOrSelect
+                          name={"gender" + index}
+                          options={menu}
+                          selectedOption={value}
+                          optionKey="code"
+                          onSelect={(value) => {
+                            onChange(value);
+                            updateState("gender", index, value);
+                          }}
+                          t={t}
+                          disabled={isUpdateProperty || isEditProperty}
+                          isDropDown={window.location.href.includes("/employee") ? true : false}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["gender" + index] ? errors?.["gender" + index]?.message : ""}</CardLabelError>
+                  </div>
 
-                  <LabelFieldPair>
-                    <CardLabel>{t("PT_CORRESPONDANCE_ADDRESS")}</CardLabel>
-                    <div className="form-field">
-                      <TextArea
-                        isMandatory={false}
-                        optionKey="i18nKey"
-                        t={t}
-                        disabled={ownerDetails?.[index]?.isCoresAddr === true}
-                        name={"address" + index}
-                        onChange={(e) => {
-                          if (!(ownerDetails?.[index]?.isCoresAddr === true)) {
-                            updateState("permanentAddress", index, e.target.value);
-                          }
-                        }}
-                        value={ownerDetails?.[index]?.permanentAddress}
-                      />
-                    </div>
-                  </LabelFieldPair>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_FORM3_GUARDIAN_NAME")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"fatherOrHusbandName" + index}
+                      name={"fatherOrHusbandName" + index}
+                      defaultValue={owner?.fatherOrHusbandName}
+                      control={control}
+                      rules={{
+                        required: t("REQUIRED_FIELD"),
+                        validate: (value) => /^[a-zA-Z ]+$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE"),
+                      }}
+                      render={({ value, onChange, onBlur }) => (
+                        <TextInput
+                          t={t}
+                          type={"text"}
+                          isMandatory={false}
+                          optionKey="i18nKey"
+                          name={"fatherOrHusbandName" + index}
+                          value={value}
+                          onChange={(ev) => {
+                            onChange(ev.target.value);
+                            updateState("fatherOrHusbandName", index, ev.target.value);
+                          }}
+                          disable={isUpdateProperty || isEditProperty}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["fatherOrHusbandName" + index] ? errors?.["fatherOrHusbandName" + index]?.message : ""}</CardLabelError>
+                  </div>
+                </div>
 
-                  <CheckBox
-                    className="form-field"
-                    label={`${t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}`}
-                    onChange={(e) => setCorrespondenceAddress(e, index)}
-                    value={ownerDetails?.[index]?.isCoresAddr}
-                    checked={ownerDetails?.[index]?.isCoresAddr || false}
-                    style={window.location.href.includes("/citizen/") ? { paddingTop: "10px" } : {}}
-                  />
+                {/* Row: Relationship + Special Category */}
+                <div style={rowStyle}>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_FORM3_RELATIONSHIP")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"relationship" + index}
+                      name={"relationship" + index}
+                      defaultValue={owner?.relationship}
+                      control={control}
+                      rules={{ required: t("REQUIRED_FIELD") }}
+                      render={({ value, onChange, onBlur }) => (
+                        <RadioOrSelect
+                          name={"relationship" + index}
+                          options={GuardianOptions}
+                          selectedOption={value}
+                          optionKey="i18nKey"
+                          onSelect={(value) => {
+                            onChange(value);
+                            updateState("relationship", index, value);
+                          }}
+                          t={t}
+                          disabled={isUpdateProperty || isEditProperty}
+                          isDropDown={window.location.href.includes("/employee") ? true : false}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["relationship" + index] ? errors?.["relationship" + index]?.message : ""}</CardLabelError>
+                  </div>
 
-                </ React.Fragment> :
-                <React.Fragment>
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_FORM3_MOBILE_NUMBER")}`}<span className="check-page-link-button"> *</span></CardLabel>
+                  <div style={col6}>
+                    <label style={labelStyle}>{t("PT_SPECIAL_APPLICANT_CATEGORY")}<span style={requiredMark}>*</span></label>
+                    <Controller
+                      key={"ownerType" + index}
+                      name={"ownerType" + index}
+                      defaultValue={owner?.ownerType}
+                      control={control}
+                      rules={{ required: t("REQUIRED_FIELD") }}
+                      render={({ value, onChange, onBlur }) => (
+                        <Dropdown
+                          selected={Menu1?.length === 1 ? Menu1[0] : value}
+                          disable={Menu1?.length === 1 || editScreen}
+                          option={Menu1 ? Menu1.sort((a, b) => a.name.localeCompare(b.name)) : []}
+                          select={(value) => {
+                            onChange(value);
+                            updateState("ownerType", index, value);
+                          }}
+                          optionKey="i18nKey"
+                          t={t}
+                          onBlur={onBlur}
+                        />
+                      )}
+                    />
+                    <CardLabelError style={errorMsgStyle}>{touched?.["ownerType" + index] ? errors?.["ownerType" + index]?.message : ""}</CardLabelError>
+                  </div>
+                </div>
 
-                    <div className="form-field">
-                      <Controller
-                        key={"mobileNumber" + index}
-                        name={"mobileNumber" + index}
-                        defaultValue={owner.mobileNumber}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => (/[6-9]{1}[0-9]{9}/i.test(value) ? true : t("CORE_COMMON_APPLICANT_MOBILE_NUMBER_INVALID")),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <MobileNumber
-                            value={value}
-                            name={"mobileNumber" + index}
-                            onChange={(value) => {
-                              onChange(value);
-                              updateState("mobileNumber", index, value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            labelStyle={{ border: "1px solid #000", borderRight: "none" }}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                    {!isMobile && (
-                      <div style={{ display: "flex", justifyContent: "flex-end", width: "20%", alignSelf: "flex-start" }}>
-                        {ismultiple && (
-                          <LinkButton
-                            label={<DeleteIcon style={{ bottom: "0px" }} fill={!(ownerDetails.length == 1) ? "#494848" : "#FAFAFA"} />}
-                            style={{ margin: "0px" }}
-                            onClick={(e) => {
-                              setOwnerDetails([...ownerDetails.filter((own, ind) => ind != index)]);
-                            }}
-                          />
-                        )}
-                      </div>
-                    )}
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["mobileNumber" + index] ? errors?.["mobileNumber" + index]?.message : ""}</CardLabelError>
-
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_OWNER_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"name" + index}
-                        name={"name" + index}
-                        defaultValue={owner?.name}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => {
-                            return /^[a-zA-Z ]+$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE");
-                          },
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <TextInput
-                            t={t}
-                            type={"text"}
-                            isMandatory={false}
-                            optionKey="i18nKey"
-                            name={"name" + index}
-                            value={value}
-                            onChange={(ev) => {
-                              onChange(ev.target.value);
-                              updateState("name", index, ev.target.value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["name" + index] ? errors?.["name" + index]?.message : ""}</CardLabelError>
-
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_FORM3_GENDER")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"gender" + index}
-                        name={"gender" + index}
-                        defaultValue={owner?.gender}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <RadioOrSelect
-                            name={"gender" + index}
-                            options={menu}
-                            selectedOption={value}
-                            optionKey="code"
-                            onSelect={(value) => {
-                              onChange(value);
-                              updateState("gender", index, value);
-                            }}
-                            t={t}
-                            disabled={isUpdateProperty || isEditProperty}
-                            isDropDown={window.location.href.includes("/employee") ? true : false}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["gender" + index] ? errors?.["gender" + index]?.message : ""}</CardLabelError>
-
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_FORM3_GUARDIAN_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"fatherOrHusbandName" + index}
-                        name={"fatherOrHusbandName" + index}
-                        defaultValue={owner?.fatherOrHusbandName}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                          validate: (value) => (/^[a-zA-Z ]+$/i.test(value) ? true : t("PT_NAME_ERROR_MESSAGE")),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <TextInput
-                            t={t}
-                            type={"text"}
-                            isMandatory={false}
-                            optionKey="i18nKey"
-                            name={"fatherOrHusbandName" + index}
-                            value={value}
-                            onChange={(ev) => {
-                              onChange(ev.target.value);
-                              updateState("fatherOrHusbandName", index, ev.target.value);
-                            }}
-                            disable={isUpdateProperty || isEditProperty}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>
-                    {touched?.["fatherOrHusbandName" + index] ? errors?.["fatherOrHusbandName" + index]?.message : ""}
-                  </CardLabelError>
-
-                  <LabelFieldPair>
-                    <CardLabel>{`${t("PT_FORM3_RELATIONSHIP")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"relationship" + index}
-                        name={"relationship" + index}
-                        defaultValue={owner?.relationship}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <RadioOrSelect
-                            name={"relationship" + index}
-                            options={GuardianOptions}
-                            selectedOption={value}
-                            optionKey="i18nKey"
-                            onSelect={(value) => {
-                              onChange(value);
-                              updateState("relationship", index, value);
-                            }}
-                            t={t}
-                            disabled={isUpdateProperty || isEditProperty}
-                            isDropDown={window.location.href.includes("/employee") ? true : false}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["relationship" + index] ? errors?.["relationship" + index]?.message : ""}</CardLabelError>
-
-                  <LabelFieldPair>
-                    <CardLabel className="">{`${t("PT_SPECIAL_APPLICANT_CATEGORY")}`}<span className="check-page-link-button"> *</span></CardLabel>
-                    <div className="form-field">
-                      <Controller
-                        key={"ownerType" + index}
-                        name={"ownerType" + index}
-                        defaultValue={owner?.ownerType}
-                        control={control}
-                        rules={{
-                          required: t("REQUIRED_FIELD"),
-                        }}
-                        render={({ value, onChange, onBlur }) => (
-                          <Dropdown
-                            selected={Menu1?.length === 1 ? Menu1[0] : value}
-                            disable={Menu1?.length === 1 || editScreen}
-                            option={Menu1 ? Menu1.sort((a, b) => a.name.localeCompare(b.name)) : []}
-                            select={(value) => {
-                              onChange(value);
-
-                              updateState("ownerType", index, value);
-                            }}
-                            optionKey="i18nKey"
-                            t={t}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      />
-                    </div>
-                  </LabelFieldPair>
-                  <CardLabelError style={errorStyle}>{touched?.["ownerType" + index] ? errors?.["ownerType" + index]?.message : ""}</CardLabelError>
-
-                  <LabelFieldPair>
-                    <CardLabel>{t("PT_CORRESPONDANCE_ADDRESS")}</CardLabel>
-                    <div className="form-field">
-                      <TextArea
-                        isMandatory={false}
-                        optionKey="i18nKey"
-                        t={t}
-                        disabled={ownerDetails?.[index]?.isCoresAddr === true}
-                        name={"address" + index}
-                        onChange={(e) => {
-                          if (!(ownerDetails?.[index]?.isCoresAddr === true)) {
-                            updateState("permanentAddress", index, e.target.value);
-                          }
-                        }}
-                        value={ownerDetails?.[index]?.permanentAddress}
-                      />
-                    </div>
-                  </LabelFieldPair>
-
-                  <CheckBox
-                    className="form-field"
-                    label={`${t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}`}
-                    onChange={(e) => setCorrespondenceAddress(e, index)}
-                    value={ownerDetails?.[index]?.isCoresAddr}
-                    checked={ownerDetails?.[index]?.isCoresAddr || false}
-                    style={window.location.href.includes("/citizen/") ? { paddingTop: "10px" } : {}}
-                  />
-                </React.Fragment>
-            }
+                {/* Correspondence Address — full width */}
+                <div style={rowStyle}>
+                  <div style={col12}>
+                    <label style={labelStyle}>{t("PT_CORRESPONDANCE_ADDRESS")}</label>
+                    <TextArea
+                      isMandatory={false}
+                      optionKey="i18nKey"
+                      t={t}
+                      disabled={ownerDetails?.[index]?.isCoresAddr === true}
+                      name={"address" + index}
+                      onChange={(e) => {
+                        if (!(ownerDetails?.[index]?.isCoresAddr === true)) {
+                          updateState("permanentAddress", index, e.target.value);
+                        }
+                      }}
+                      value={ownerDetails?.[index]?.permanentAddress}
+                    />
+                    <CheckBox
+                      className="form-field"
+                      label={`${t("PT_COMMON_SAME_AS_PROPERTY_ADDRESS")}`}
+                      onChange={(e) => setCorrespondenceAddress(e, index)}
+                      value={ownerDetails?.[index]?.isCoresAddr}
+                      checked={ownerDetails?.[index]?.isCoresAddr || false}
+                      style={window.location.href.includes("/citizen/") ? { paddingTop: "10px" } : {}}
+                    />
+                  </div>
+                </div>
+              </React.Fragment>
+            )}
           </div>
         );
       })}
+
       {ismultiple ? (
         <div>
           <div style={{ display: "flex", paddingBottom: "15px", color: "#FF8C00" }}>
@@ -762,7 +775,7 @@ const PropertyOwnerDetails = ({ t, config, onSelect, userType, formData, formSta
               {t("PT_COMMON_ADD_APPLICANT_LABEL")}
             </button>
           </div>
-          <CardLabelError style={{ width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-35px" }}>
+          <CardLabelError style={{ fontSize: "12px", color: "#e54d42", marginTop: "-35px" }}>
             {t(formState.errors?.mulipleOwnerError?.message || "")}
           </CardLabelError>
         </div>

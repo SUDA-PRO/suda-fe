@@ -58,6 +58,9 @@ import { TLList } from "./pages/citizen/Renewal";
 import RenewTrade from "./pages/citizen/Renewal/renewTrade";
 import SearchTradeComponent from "./pages/citizen/SearchTrade";
 import SelectTradeUnitsInitial from "./pageComponents/SelectTradeUnitsInitial";
+import SelectCombinedTradeDetails from "./pageComponents/SelectCombinedTradeDetails";
+import SelectCombinedLocationDetails from "./pageComponents/SelectCombinedLocationDetails";
+import SelectCombinedProofDetails from "./pageComponents/SelectCombinedProofDetails";
 import TLTradeUnitsEmployeeInitial from "./pageComponents/TLTradeUnitsEmployeeInitial";
 import CommonRedirect from "./pageComponents/CommonRedirect"
 import CitizenApp from "./pages/citizen";
@@ -161,6 +164,9 @@ const componentsToRegister = {
   TLSearch : Search,
   TLResponse : Response,
   SelectOtherTradeDetails,
+  SelectCombinedTradeDetails,
+  SelectCombinedLocationDetails,
+  SelectCombinedProofDetails,
   SelectTradeUnitsInitial,
   TLTradeUnitsEmployeeInitial,
   CommonRedirect,

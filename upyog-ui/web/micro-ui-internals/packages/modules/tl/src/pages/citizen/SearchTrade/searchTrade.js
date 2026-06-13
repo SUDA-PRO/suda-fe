@@ -128,16 +128,42 @@ const SearchTrade = ({ config: propsConfig, onSelect }) => {
   //   }
 
   return (
-    <div style={{ marginTop: "16px" }}>
+    <div style={{ padding: "4px 0 32px" }}>
+      {/* ── PT-style header banner ─────────────────────────────────── */}
+      <div style={{
+        background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)",
+        borderRadius: "14px",
+        padding: "22px 28px",
+        marginBottom: "24px",
+        display: "flex",
+        alignItems: "center",
+        gap: "16px",
+        boxShadow: "0 4px 18px rgba(244,119,56,0.25)",
+      }}>
+        <div style={{
+          width: "50px", height: "50px", borderRadius: "50%",
+          background: "rgba(255,255,255,0.25)", display: "flex",
+          alignItems: "center", justifyContent: "center", fontSize: "24px", flexShrink: 0,
+        }}>🔍</div>
+        <div>
+          <div style={{ color: "#fff", fontSize: "19px", fontWeight: 700, lineHeight: 1.2 }}>
+            {propsConfig.texts.header || t("TL_SEARCH_TRADE_HEADER")}
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "13px", marginTop: "4px" }}>
+            {t("TL_SEARCH_TRADE_SUBTITLE") || "Search by mobile number or licence number"}
+          </div>
+        </div>
+      </div>
+
       <FormComposer
         onSubmit={onTradeSearch}
         noBoxShadow
         inline
         config={config}
         label={propsConfig.texts.submitButtonLabel}
-        heading={propsConfig.texts.header}
+        heading={""}
         text={propsConfig.texts.text}
-        cardStyle={{ margin: "auto" }}
+        cardStyle={{ margin: "auto", borderRadius: "12px", border: "1px solid #e5e7eb", boxShadow: "0 2px 10px rgba(0,0,0,0.07)" }}
         headingStyle={{ fontSize: "32px", marginBottom: "16px", fontFamily: "Roboto Condensed,sans-serif" }}
         isDisabled={!canSubmit}
         defaultValues={{mobileNumber:defaultMobileno}}

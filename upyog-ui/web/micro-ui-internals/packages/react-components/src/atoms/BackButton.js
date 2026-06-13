@@ -32,10 +32,15 @@ const backBtnHoverStyle = {
   transform: "translateY(-1px)",
 };
 
-const BackButton = ({ history, style, isSuccessScreen, isCommonPTPropertyScreen, getBackPageNumber, className = "", variant = "black" }) => {
+const BackButton = ({ history, location, style, isSuccessScreen, isCommonPTPropertyScreen, getBackPageNumber, className = "", variant = "black" }) => {
   const { t } = useTranslation();
   const [hovered, setHovered] = useState(false);
   const computedStyle = { ...(hovered ? backBtnHoverStyle : backBtnBaseStyle), ...style };
+
+  // Use the live location from withRouter (always current), fall back to prop/href
+  const isPropScreen = isCommonPTPropertyScreen
+    || (location?.pathname || window.location.pathname).includes("/new-application/property-details");
+
   return (
     <div
       className={`back-btn2 ${className}`}
@@ -43,16 +48,17 @@ const BackButton = ({ history, style, isSuccessScreen, isCommonPTPropertyScreen,
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       onClick={() => {
-        !isSuccessScreen
-          ? !isCommonPTPropertyScreen
-            ? window.location.href.includes("/citizen/fsm/new-application/street")
-              ? window.history.go(getBackPageNumber())
-              : (history.goBack(),
-                window.location.href.includes("/citizen/pt/property/new-application/property-type")
-                  ? sessionStorage.setItem("docReqScreenByBack", true)
-                  : null)
-            : null
-          : null;
+        if (isSuccessScreen) return;
+        if (isPropScreen) {
+          window.history.go(getBackPageNumber ? getBackPageNumber() : -1);
+        } else if (window.location.href.includes("/citizen/fsm/new-application/street")) {
+          window.history.go(getBackPageNumber ? getBackPageNumber() : -1);
+        } else {
+          history.goBack();
+          if (window.location.href.includes("/citizen/pt/property/new-application/property-type")) {
+            sessionStorage.setItem("docReqScreenByBack", true);
+          }
+        }
       }}
     >
       {variant == "black" ? (

@@ -1,41 +1,27 @@
-import React, { useState } from "react";
-import { TypeSelectCard } from "@upyog/digit-ui-react-components";
-import { RadioOrSelect, RadioButtons } from "@upyog/digit-ui-react-components";
-import FormStep from "../../../../react-components/src/molecules/FormStep"
+import React, { useEffect } from "react";
+import { Loader } from "@upyog/digit-ui-react-components";
 import Timeline from "../components/TLTimeline";
 
-const SelectAccessories = ({ t, config, onSelect, userType, formData }) => {
-  const [isAccessories, setisAccessories] = useState(formData?.TradeDetails?.isAccessories);
-  const menu = [
-    { i18nKey: "TL_COMMON_YES", code: "ACCESSORY" },
-    { i18nKey: "TL_COMMON_NO", code: "NONACCESSORY" },
-  ];
+/* Accessories is mandatory — auto-advance to accessories-details with YES */
+const SelectAccessories = ({ t, config, onSelect, formData }) => {
+  useEffect(() => {
+    const yesOption = { i18nKey: "TL_COMMON_YES", code: "ACCESSORY" };
+    sessionStorage.setItem("isAccessories", yesOption.i18nKey);
+    sessionStorage.setItem("VisitedisAccessories", "true");
+    onSelect(config.key, {
+      isAccessories: yesOption,
+      accessories: formData?.TradeDetails?.accessories?.length > 0
+        ? formData.TradeDetails.accessories
+        : [{ accessory: "", accessorycount: "", unit: null, uom: null }],
+    });
+  }, []);
 
-  const onSkip = () => onSelect();
-
-  function selectisAccessories(value) {
-    setisAccessories(value);
-  }
-
-  function goNext() {
-    sessionStorage.setItem("isAccessories", isAccessories.i18nKey);
-    sessionStorage.setItem("VisitedisAccessories",true);
-    onSelect(config.key, { isAccessories, accessories:formData?.TradeDetails?.accessories? formData?.TradeDetails?.accessories : [] });
-    //onSelect("usageCategoryMajor", { i18nKey: "PROPERTYTAX_BILLING_SLAB_RESIDENTIAL" });
-  }
   return (
     <React.Fragment>
-    {window.location.href.includes("/citizen") ? <Timeline /> : null}
-    <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip} isDisabled={!isAccessories}>
-      <RadioButtons
-        t={t}
-        optionsKey="i18nKey"
-        isMandatory={config.isMandatory}
-        options={menu}
-        selectedOption={isAccessories}
-        onSelect={selectisAccessories}
-      />
-    </FormStep>
+      {window.location.href.includes("/citizen") ? <Timeline /> : null}
+      <div style={{ display: "flex", justifyContent: "center", padding: "40px" }}>
+        <Loader />
+      </div>
     </React.Fragment>
   );
 };
