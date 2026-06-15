@@ -16,6 +16,15 @@ const createProxy = createProxyMiddleware({
   changeOrigin: true,
   secure: false
 });
+
+// Dedicated proxy for FireNOC services — follows server-side 302 redirects
+// internally so the browser never sees the redirect and receives the API response directly.
+const fireNocProxy = createProxyMiddleware({
+  target: process.env.REACT_APP_PROXY_API || "https://suda.digitalgovernance.digital",
+  changeOrigin: true,
+  secure: false,
+  followRedirects: true,
+});
 const assetsProxy = createProxyMiddleware({
   target: process.env.REACT_APP_PROXY_ASSETS || "https://suda.digitalgovernance.digital",
   changeOrigin: true,
@@ -130,8 +139,13 @@ module.exports = function (app) {
     "/individual/v1/_search",
     "/bpa-services/v1/preapprovedplan/_search",
     "/bpa-calculator/_estimate",
-    "/requester-services-dx/eSign/filestoreId/v1/_search"
+    "/requester-services-dx/eSign/filestoreId/v1/_search",
+    "/firenoc-calculator"
   ].forEach((location) => app.use(location, createProxy));
+
+  // FireNOC proxy with redirect-following (must be registered AFTER the generic list
+  // so it takes precedence for /firenoc-services over the generic createProxy entry).
+  app.use("/firenoc-services", fireNocProxy);
   ["/pb-egov-assets"].forEach((location) => app.use(location, assetsProxy));
   app.use("/erp-proxy", erpProxy);
 };

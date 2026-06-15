@@ -51,6 +51,8 @@ import { PGRAIComponents, PGRAILinks, PGRAIModule } from "@upyog/upyog-ui-module
 // import { subFormRegistry } from "@upyog/digit-ui-libraries";
 
 import { pgrCustomizations, pgrComponents } from "./pgr";
+import FireNocCitizenHome from "./FireNocCitizenHome";
+import FireNocModule from "./FireNocModule";
 
 var Digit = window.Digit || {};
 
@@ -160,7 +162,9 @@ const initDigitUI = () => {
   ...VENDORComponents,
   PGRAIModule,
   PGRAILinks,
-  ...PGRAIComponents
+  ...PGRAIComponents,
+  FireNocHomePage: FireNocCitizenHome,
+  FireNocModule: FireNocModule,
   });
 
   initFSMComponents();

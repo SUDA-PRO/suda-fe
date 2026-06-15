@@ -1,8 +1,8 @@
 import React from "react";
-const ArrowLeft = ({ className }) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="black" className={className} width="19px">
-    <path d="M24 0v24H0V0h24z" fill="none" opacity=".87" />
-    <path d="M14 7l-5 5 5 5V7z" />
+const ArrowLeft = ({ className, style }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20" className={className} style={style}>
+    <path d="M0 0h24v24H0z" fill="none" />
+    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z" fill="currentColor" />
   </svg>
 );
 

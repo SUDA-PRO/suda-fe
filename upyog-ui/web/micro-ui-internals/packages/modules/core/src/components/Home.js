@@ -4,6 +4,7 @@ import {
   CitizenHomeCard,
   CitizenInfoLabel,
   FSMIcon,
+  FirenocIcon,
   Loader,
   MCollectIcon,
   OBPSIcon,
@@ -87,6 +88,24 @@ export const processLinkData = (newData, code, t) => {
     header: Digit.Utils.locale.getTransformedLocale(`ACTION_TEST_${code}`),
     iconName: `CITIZEN_${code}_ICON`,
   };
+  if (code === "FireNoc") {
+    if (!newObj?.links?.length) newObj.links = [];
+    newObj.links = [
+      {
+        link: "/suda-ui/citizen/firenoc-home",
+        i18nKey: t("FIRENOC_COMMON_APPLY") !== "FIRENOC_COMMON_APPLY" ? t("FIRENOC_COMMON_APPLY") : "Apply",
+        navigationURL: "/citizen/firenoc-home",
+        orderNumber: 1,
+      },
+      {
+        link: "/suda-ui/citizen/firenoc/my-applications",
+        i18nKey: t("FIRENOC_COMMON_MY_APPLICATIONS") !== "FIRENOC_COMMON_MY_APPLICATIONS" ? t("FIRENOC_COMMON_MY_APPLICATIONS") : "My Applications",
+        navigationURL: "/citizen/firenoc/my-applications",
+        orderNumber: 2,
+      },
+    ];
+  }
+
   if (code === "FSM") {
     const roleBasedLoginRoutes = [
       {
@@ -138,6 +157,8 @@ const iconSelector = (code) => {
       return <CHBIcon className="fill-path-primary-main" />;
     case "ADS":
       return <CustomADSIcon className="fill-path-primary-main" />;
+    case "FireNoc":
+      return <FirenocIcon className="fill-path-primary-main" />;
     default:
       return <PTIcon className="fill-path-primary-main" />;
   }
@@ -155,6 +176,7 @@ const moduleColorMap = {
   CHB:      { circleBg: "#f3e5f5", iconColor: "#6a1b9a" },
   PTR:      { circleBg: "#e8eaf6", iconColor: "#283593" },
   Bills:    { circleBg: "#fff3e0", iconColor: "#e65100" },
+  FireNoc:  { circleBg: "#fde8e8", iconColor: "#c62828" },
 };
 
 /* Mirror CitizenHomeCard's digit-ui → suda-ui fix */

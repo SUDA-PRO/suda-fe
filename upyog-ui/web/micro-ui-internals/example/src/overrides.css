@@ -1,3 +1,17 @@
+/* Back button — SVG fill set on element so fill="none" mask paths are unaffected */
+.back-btn2 svg {
+  fill: currentColor;
+}
+/* Back button — override hover: light fill instead of full navy invert */
+.back-btn2:hover {
+  background: #EEF2FF !important;
+  color: #1E3A8A !important;
+  box-shadow: 0 4px 16px rgba(30,58,138,0.18) !important;
+}
+.back-btn2:hover svg path {
+  fill: #1E3A8A !important;
+}
+
 /* mCollect Search Challan — force card to full screen width */
 .mcollect-search-card .card,
 .mcollect-search-card form .card {

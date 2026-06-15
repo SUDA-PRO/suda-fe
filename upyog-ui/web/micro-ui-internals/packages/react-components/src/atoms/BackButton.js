@@ -57,7 +57,7 @@ const BackButton = ({ history, style, isSuccessScreen, isCommonPTPropertyScreen,
     >
       {variant == "black" ? (
         <React.Fragment>
-          <ArrowLeft style={{ fill: hovered ? "#ffffff" : "#1E3A8A" }} />
+          <ArrowLeft style={{ color: "inherit" }} />
           <p style={{ margin: 0, color: "inherit" }}>{t("CS_COMMON_BACK")}</p>
         </React.Fragment>
       ) : (

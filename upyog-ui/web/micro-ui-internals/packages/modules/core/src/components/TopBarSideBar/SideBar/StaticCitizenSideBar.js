@@ -230,7 +230,6 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
   Object.keys(linkData || {})
     ?.sort((x, y) => y.localeCompare(x))
     ?.map((key) => {
-      console.log("[Sidebar] key:", key, "sidebar:", linkData[key][0]?.sidebar, "sidebarURL:", linkData[key][0]?.sidebarURL);
       if (linkData[key][0]?.sidebar === "digit-ui-links" || linkData[key][0]?.sidebar === "suda-ui-links") {
         menuItems.splice(1, 0, {
           type: (linkData[key][0]?.sidebarURL?.includes("digit-ui") || linkData[key][0]?.sidebarURL?.includes("upyog-ui") || linkData[key][0]?.sidebarURL?.includes("suda-ui")) ? "link" : "external-link",
@@ -241,6 +240,15 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
         });
       }
     });
+
+  // Insert FireNoc after Water & Sewerage
+  const wsIdx = menuItems.findIndex(item => item.link?.includes("ws-home") || item.link?.includes("/ws/"));
+  menuItems.splice(wsIdx !== -1 ? wsIdx + 1 : 1, 0, {
+    type: "link",
+    text: t("ACTION_TEST_FIRENOC"),
+    icon: "FirenocIcon",
+    link: "/suda-ui/citizen/firenoc",
+  });
 
   return (
     <React.Fragment>
