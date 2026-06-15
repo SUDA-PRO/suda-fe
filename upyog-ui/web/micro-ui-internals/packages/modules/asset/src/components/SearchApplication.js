@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useEffect, useState, useRef } from "react"
 import { useForm, Controller } from "react-hook-form";
-import { TextInput, SubmitBar, ActionBar, DatePicker, SearchForm, Dropdown, SearchField, Table, Card, Loader, Header,Toast } from "@upyog/digit-ui-react-components";
+import { TextInput, SubmitBar, ActionBar, DatePicker, SearchForm, Dropdown, SearchField, Table, Card, CardLabel, Loader, Header, Toast } from "@upyog/digit-ui-react-components";
 import { useRouteMatch, Link, useHistory } from "react-router-dom";
 import jsPDF from 'jspdf';
 import QRCode from 'qrcode';
@@ -55,10 +55,12 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
   })
 
 
-  const { data: actionDetail } = Digit.Hooks.useEnabledMDMS(Digit.ULBService.getStateId(), "ASSET", [{ name: "ActionOption" }], {
+  const _mdmsStateId = Digit.ULBService.getStateId();
+  const { data: actionDetail } = Digit.Hooks.useEnabledMDMS(_mdmsStateId, "ASSET", [{ name: "ActionOption" }], {
     select: (data) => {
       const formattedData = data?.["ASSET"]?.["ActionOption"];
       const activeData = formattedData?.filter((item) => item.active === true);
+      console.log("[SearchApplication] MDMS ActionOption active:", activeData);
       return activeData;
     },
   });
@@ -184,9 +186,15 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
       Header: t("AST_ACTIONS"),// take action button
       Cell: ({ row }) => {
         const [isMenuOpen, setIsMenuOpen] = useState(false);
+        const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 });
         const menuRef = useRef();
+        const buttonRef = useRef();
 
         const toggleMenu = () => {
+          if (!isMenuOpen && buttonRef.current) {
+            const rect = buttonRef.current.getBoundingClientRect();
+            setMenuPosition({ top: rect.bottom, left: rect.left });
+          }
           setIsMenuOpen(!isMenuOpen);
         };
 
@@ -225,10 +233,14 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
           <div ref={menuRef}>
             {row?.original?.status === "APPROVED" ? (
               <React.Fragment>
-                <SubmitBar label={t("WF_TAKE_ACTION")} onSubmit={toggleMenu} />
+                <div ref={buttonRef}>
+                  <SubmitBar label={t("WF_TAKE_ACTION")} onSubmit={toggleMenu} />
+                </div>
                 {isMenuOpen && (
                   <div style={{
-                    position: 'absolute',
+                    position: 'fixed',
+                    top: menuPosition.top,
+                    left: menuPosition.left,
                     backgroundColor: 'white',
                     border: '1px solid #ccc',
                     borderRadius: '4px',
@@ -389,37 +401,42 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
 
   return <React.Fragment>
 
-    <div>
+    <div className="inbox-container" style={{ display: 'block' }}>
       <Header>{t("ASSET_APPLICATIONS")}</Header>
-      < Card className={"card-search-heading"}>
+      <Card className={"card-search-heading"} style={{ borderRadius: '8px' }}>
         <span style={{ color: "#505A5F" }}>{t("Provide at least one parameter to search for an application")}</span>
-      </Card>
+      <div className="search-container asset-search-scope" style={{ width: 'auto' }}>
       <SearchForm onSubmit={onSubmit} handleSubmit={handleSubmit}>
         <SearchField>
-          <label>{t("AST_STATUS")}</label>
+          <CardLabel>{t("AST_STATUS")}</CardLabel>
           <Controller
             control={control}
             name="status"
             render={(props) => (
-              <Dropdown
-                selected={props.value}
-                select={props.onChange}
+              <select
+                className="employee-card-input"
+                value={props.value?.code || props.value || ""}
+                onChange={(e) => props.onChange(e.target.value)}
                 onBlur={props.onBlur}
-                option={action}
-                optionKey="i18nKey"
-                t={t}
-                disable={false}
-              />
+                style={{ cursor: "pointer" }}
+              >
+                <option value="">{t("CS_COMMON_SELECT")}</option>
+                {action.map((opt) => (
+                  <option key={opt.code} value={opt.code}>
+                    {t(opt.i18nKey)}
+                  </option>
+                ))}
+              </select>
             )}
           />
         </SearchField>
         <SearchField>
-          <label>{t("AST_APPLICATION_ID")}</label>
+          <CardLabel>{t("AST_APPLICATION_ID")}</CardLabel>
           <TextInput name="applicationNo" inputRef={register({})} />
         </SearchField>
 
         <SearchField>
-          <label>{t("AST_FROM_DATE")}</label>
+          <CardLabel>{t("AST_FROM_DATE")}</CardLabel>
           <Controller
             render={(props) => <DatePicker date={props.value} disabled={false} onChange={props.onChange} max={today} />}
             name="fromDate"
@@ -427,16 +444,16 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
           />
         </SearchField>
         <SearchField>
-          <label>{t("AST_TO_DATE")}</label>
+          <CardLabel>{t("AST_TO_DATE")}</CardLabel>
           <Controller
             render={(props) => <DatePicker date={props.value} disabled={false} onChange={props.onChange} max={today} />}
             name="toDate"
             control={control}
           />
         </SearchField>
-        <SearchField className="submit">
+        <div style={{ width: '100%', display: 'flex', alignItems: 'center', marginTop: '22px' }}>
           <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
-          <p style={{ marginTop: "10px" }}
+          <p style={{ marginTop: "0px", marginLeft: "16px", cursor: "pointer", color: "rgb(244, 119, 56)" }}
             onClick={() => {
               reset({
                 applicationNo: "",
@@ -451,8 +468,9 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
               setShowToast(null);
               previousPage();
             }}>{t(`ES_COMMON_CLEAR_ALL`)}</p>
-        </SearchField>
-      </SearchForm>
+        </div>
+      </SearchForm>      </div>
+      </Card>
 
       <br></br>
       {data !== "" ?
@@ -465,7 +483,7 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
 
       <br></br>
       {!isLoading && data?.display ?
-        <Card style={{ marginTop: 20 }}>
+        <Card style={{ marginTop: 20, borderRadius: '8px' }}>
           {
             t(data.display)
               .split("\\n")
@@ -478,7 +496,7 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
         </Card>
         :
         (!isLoading && data !== "" ?
-          <Table
+          <Card style={{ borderRadius: '8px', padding: 0, overflow: 'auto', width: '100%' }}><Table
             t={t}
             data={data}
             totalRecords={count}
@@ -500,7 +518,7 @@ const ASSETSearchApplication = ({ isLoading, t, onSubmit, data, count, setShowTo
             onSort={onSort}
             disableSort={false}
             sortParams={[{ id: getValues("sortBy"), desc: getValues("sortOrder") === "DESC" ? true : false }]}
-          /> : data !== "" || isLoading && <Loader />)}
+          /></Card> : data !== "" || isLoading && <Loader />)}
     </div>
   </React.Fragment>
 }

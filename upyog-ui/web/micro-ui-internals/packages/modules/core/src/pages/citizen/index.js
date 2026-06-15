@@ -1,7 +1,7 @@
 import { BackButton, WhatsappIcon, Card, CitizenHomeCard, CitizenInfoLabel, PrivateRoute,AdvertisementModuleCard, TopBar } from "@upyog/digit-ui-react-components";
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { Route, Switch, useRouteMatch, useHistory, Link } from "react-router-dom";
+import { Redirect, Route, Switch, useRouteMatch, useHistory, Link } from "react-router-dom";
 import ErrorBoundary from "../../components/ErrorBoundaries";
 import { AppHome, processLinkData } from "../../components/Home";
 import ChangeLanguage from "../../components/ChangeLanguage";
@@ -32,7 +32,7 @@ import Dashboard from "./Home/Dashboard";
 const sidebarHiddenFor = [
   "suda-ui/citizen/register/name",
   "/suda-ui/citizen/select-language",
-  "/suda-ui/dashboard",
+  "/suda-ui/home",
   "/suda-ui/citizen/select-location",
   "/suda-ui/login",
   "/suda-ui/citizen/register/otp",
@@ -405,6 +405,8 @@ const Home = ({
           );
         })()}
         <Switch>
+          <Route exact path={`${path}/dashboard`}><Redirect to={path} /></Route>
+
           <Route exact path={path}>
             <AppHome
               userType="citizen"
@@ -429,7 +431,7 @@ const Home = ({
             <ErrorComponent
               initData={initData}
               goToHome={() => {
-                history.push("/suda-ui/dashboard");
+                history.push("/suda-ui/home");
               }}
             />
           </Route>
@@ -446,12 +448,7 @@ const Home = ({
             <UserProfile stateCode={stateCode} userType={"citizen"} cityDetails={cityDetails} />
           </PrivateRoute>
 
-
-         <Route exact path={`${path}/dashboard`}>
-          <Dashboard />
-          </Route>
-
-          <Route exact path="/suda-ui/dashboard">
+          <Route exact path="/suda-ui/home">
             <Dashboard />
           </Route>
 

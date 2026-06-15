@@ -23,7 +23,7 @@
 }
 
 .input-mirror-selector-button{
-  @apply h-16 bg-border text-center border-b-2 border-input-border border-solid outline-none px-lg !important;
+  @apply h-16 bg-border text-center border-b-2 border-input-border border-solid outline-none px-lg #{!important};
 
   &:focus {
     @apply outline-none;
@@ -46,5 +46,5 @@
   }
 }
 .submit-bar:focus {
-  @apply outline-none !important;
+  @apply outline-none #{!important};
 }

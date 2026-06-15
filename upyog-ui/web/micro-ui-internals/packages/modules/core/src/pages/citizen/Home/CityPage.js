@@ -105,7 +105,7 @@ const servicesRow2 = [
   },
 ];
 
-export default function Dashboard({ citySlug: citySlugProp } = {}) {
+export default function CityPage({ citySlug: citySlugProp } = {}) {
   const [searchVal, setSearchVal] = useState("");
   const [activeService, setActiveService] = useState(0);
   const [loginOpen, setLoginOpen] = useState(false);

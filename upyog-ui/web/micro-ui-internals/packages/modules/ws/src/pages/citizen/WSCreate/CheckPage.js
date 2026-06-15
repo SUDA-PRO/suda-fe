@@ -7,7 +7,115 @@ import {
   import { useHistory, useRouteMatch, Link } from "react-router-dom";
   import Timeline from "../../../components/Timeline";
   import WSDocument from "../../../pageComponents/WSDocument";
-  
+
+/* ─── inline style constants ─────────────────────────────────────────────── */
+const GOLD      = "#e07b00";
+const ORANGE      = "#d95f00";
+const LIGHT     = "#f5f5f5";
+const BORDER    = "#ddd";
+const WHITE     = "#ffffff";
+const DARK_GREY = "#1a3a5c";
+
+const sectionWrap = {
+  background: WHITE,
+  borderRadius: "12px",
+  border: `1px solid ${BORDER}`,
+  boxShadow: "0 2px 10px rgba(0,0,0,0.07)",
+  marginBottom: "20px",
+  overflow: "hidden",
+};
+
+const sectionHeader = {
+  display: "flex",
+  alignItems: "center",
+  gap: "10px",
+  background: DARK_GREY,
+  color: WHITE,
+  padding: "14px 20px",
+  fontWeight: 700,
+  fontSize: "15px",
+  letterSpacing: "0.4px",
+};
+
+const sectionBody = {
+  padding: "4px 16px 4px 20px",
+};
+
+const iconCircle = (icon) => (
+  <span style={{
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "28px",
+    height: "28px",
+    borderRadius: "50%",
+    background: "rgba(255,255,255,0.15)",
+    fontSize: "14px",
+    flexShrink: 0,
+  }}>{icon}</span>
+);
+
+const DocCard = ({ header, children }) => {
+  const [hovered, setHovered] = React.useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        border: `1px solid ${hovered ? DARK_GREY : BORDER}`,
+        borderRadius: "10px",
+        overflow: "hidden",
+        boxShadow: hovered
+          ? "0 6px 20px rgba(26,58,92,0.18)"
+          : "0 2px 8px rgba(0,0,0,0.06)",
+        display: "flex",
+        flexDirection: "column",
+        transform: hovered ? "translateY(-3px)" : "translateY(0)",
+        transition: "box-shadow 0.2s ease, border-color 0.2s ease, transform 0.2s ease",
+        cursor: "pointer",
+      }}
+    >
+      <div style={{
+        background: hovered ? "#253f5e" : DARK_GREY,
+        color: WHITE,
+        fontSize: "11px",
+        fontWeight: 700,
+        letterSpacing: "0.3px",
+        padding: "8px 12px",
+        lineHeight: 1.4,
+        transition: "background 0.2s ease",
+        whiteSpace: "nowrap",
+        overflow: "hidden",
+        textOverflow: "ellipsis",
+      }} title={header}>
+        {header}
+      </div>
+      <div style={{
+        flex: 1,
+        background: hovered ? "#f0f4f8" : WHITE,
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        padding: "16px 12px",
+        transition: "background 0.2s ease",
+      }}>
+        {children}
+      </div>
+    </div>
+  );
+};
+
+const SectionCard = ({ icon, title, editButton, children }) => (
+  <div style={sectionWrap}>
+    <div style={{ ...sectionHeader, position: "relative" }}>
+      {iconCircle(icon)}
+      <span style={{ flex: 1 }}>{title}</span>
+      {editButton && <div style={{ marginLeft: "auto" }}>{editButton}</div>}
+    </div>
+    <div style={sectionBody}>{children}</div>
+  </div>
+);
+
   const CheckPage = ({ onSubmit, value }) => {
     const { t } = useTranslation();
     const history = useHistory();
@@ -48,86 +156,108 @@ import {
   return(
     <React.Fragment>
     <Timeline currentStep={4} />
-    <Header styles={{fontSize:"32px"}}>{t("WS_COMMON_SUMMARY")}</Header>
-    <Card style={{paddingRight:"16px"}}>
-    <CardHeader styles={{fontSize:"28px"}}>{t(`WS_BASIC_DETAILS_HEADER`)}</CardHeader>
+
+    {/* ── Page wrapper ─────────────────────────────────────────── */}
+    <div style={{ width: "100%", padding: "4px 0 32px" }}>
+
+      {/* ── Basic Details ─────────────────────────────────────── */}
+      <SectionCard icon="🏠" title={t(`WS_BASIC_DETAILS_HEADER`)}>
         <StatusTable>
-          <Row className="border-none"  label={t("WS_PROPERTY_ID_LABEL")} text={cpt?.details?.propertyId}/>
-          <Row className="border-none" label={t("WS_OWNERS_NAME_LABEL")} text={t(reversedOwners[0]?.name)} />
-          <Row className="border-none" label={t("WS_COMMON_TABLE_COL_ADDRESS")} text={propAddArr.join(', ')} />
-          <Row className="border-none" label={t("WS_CONNECTION_DETAILS_STATUS_LABEL")} text={t(cpt?.details?.status)}/>
+          <Row label={t("WS_PROPERTY_ID_LABEL")} text={cpt?.details?.propertyId}/>
+          <Row label={t("WS_OWNERS_NAME_LABEL")} text={t(reversedOwners[0]?.name)} />
+          <Row label={t("WS_COMMON_TABLE_COL_ADDRESS")} text={propAddArr.join(', ')} />
+          <Row label={t("WS_CONNECTION_DETAILS_STATUS_LABEL")} text={t(cpt?.details?.status)}/>
         </StatusTable>
-        <div style={{ textAlign: "left" }}>
+        <div style={{ textAlign: "left", paddingBottom: "8px" }}>
           <Link
             to={`/suda-ui/citizen/commonpt/view-property?propertyId=${cpt?.details?.propertyId}&tenantId=${cpt?.details?.tenantId}`}
           >
-            <LinkButton style={{ textAlign: "left" }} label={t("PT_VIEW_PROPERTY")} />
+            <LinkButton style={{ textAlign: "left", color: ORANGE }} label={t("PT_VIEW_PROPERTY")} />
           </Link>
         </div>
-    </Card>
-    <Card style={{paddingRight:"16px"}}>
-    <div style={{position:"relative"}}>
-    <CardHeader styles={{fontSize:"28px"}}>{t("WS_COMMON_CONNECTION_HOLDER_DETAILS_HEADER")}</CardHeader>
-    <LinkButton
-          label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px", marginRight: "-10px" }} />}
-          style={{ width: "100px", display:"inline" }}
-          onClick={() => routeTo(`${routeLink}/connection-holder`)}
-        />
-      </div>
+      </SectionCard>
+
+      {/* ── Connection Holder Details ─────────────────────────── */}
+      <SectionCard
+        icon="👤"
+        title={t("WS_COMMON_CONNECTION_HOLDER_DETAILS_HEADER")}
+        editButton={
+          <LinkButton
+            label={<EditIcon style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }} />}
+            style={{ minWidth: "unset" }}
+            onClick={() => routeTo(`${routeLink}/connection-details`)}
+          />
+        }
+      >
         <StatusTable>
-          <Row className="border-none" textStyle={isMobile ? {marginRight:"-5px"} : {}} label={t("WS_OWN_MOBILE_NO")} text={ConnectionHolderDetails?.mobileNumber}/>
-          <Row className="border-none" label={t("WS_OWN_DETAIL_NAME")} text={ConnectionHolderDetails?.name}/>
-          <Row className="border-none" label={t("WS_OWN_DETAIL_GENDER_LABEL")} text={t(ConnectionHolderDetails?.gender?.i18nKey) || t("CS_NA")}/>
-          <Row className="border-none" label={t("WS_FATHERS_HUSBAND_NAME")} text={ConnectionHolderDetails?.guardian || t("CS_NA")}/>
-          <Row className="border-none" label={t("WS_CONN_HOLDER_OWN_DETAIL_RELATION_LABEL")} text={t(ConnectionHolderDetails?.relationship?.i18nKey) || t("CS_NA")} />
-          <Row className="border-none" label={t("WS_OWN_DETAIL_CROSADD")} text={ConnectionHolderDetails?.address || t("CS_NA")} />
-          <Row className="border-none" label={t("WS_OWN_DETAIL_SPECIAL_APPLICANT_LABEL")} text={t(ConnectionHolderDetails?.specialCategoryType?.i18nKey) || t("CS_NA")} />
-          <Row className="border-none" label={t("WS_EMAIL_ID")} text={ConnectionHolderDetails?.emailId || t("CS_NA")}/>
-    </StatusTable>
-    </Card>
-    <Card style={{paddingRight:"16px"}}>
-    <div style={{position:"relative"}}>
-    <CardHeader styles={{fontSize:"28px"}}>{t("WS_COMMON_CONNECTION_DETAIL")}</CardHeader>
-    <LinkButton
-          label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-          style={{ width: "100px", display:"inline" }}
-          onClick={() => routeTo(`${routeLink}/service-name`)}
-        />
-      </div>
+          <Row textStyle={isMobile ? {marginRight:"-5px"} : {}} label={t("WS_OWN_MOBILE_NO")} text={ConnectionHolderDetails?.mobileNumber}/>
+          <Row label={t("WS_OWN_DETAIL_NAME")} text={ConnectionHolderDetails?.name}/>
+          <Row label={t("WS_OWN_DETAIL_GENDER_LABEL")} text={t(ConnectionHolderDetails?.gender?.i18nKey) || t("CS_NA")}/>
+          <Row label={t("WS_FATHERS_HUSBAND_NAME")} text={ConnectionHolderDetails?.guardian || t("CS_NA")}/>
+          <Row label={t("WS_CONN_HOLDER_OWN_DETAIL_RELATION_LABEL")} text={t(ConnectionHolderDetails?.relationship?.i18nKey) || t("CS_NA")} />
+          <Row label={t("WS_OWN_DETAIL_CROSADD")} text={ConnectionHolderDetails?.address || t("CS_NA")} />
+          <Row label={t("WS_OWN_DETAIL_SPECIAL_APPLICANT_LABEL")} text={t(ConnectionHolderDetails?.specialCategoryType?.i18nKey) || t("CS_NA")} />
+          <Row label={t("WS_EMAIL_ID")} text={ConnectionHolderDetails?.emailId || t("CS_NA")}/>
+        </StatusTable>
+      </SectionCard>
+
+      {/* ── Connection Details ────────────────────────────────── */}
+      <SectionCard
+        icon="🔧"
+        title={t("WS_COMMON_CONNECTION_DETAIL")}
+        editButton={
+          <LinkButton
+            label={<EditIcon style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }} />}
+            style={{ minWidth: "unset" }}
+            onClick={() => routeTo(`${routeLink}/connection-details`)}
+          />
+        }
+      >
         <StatusTable>
-          <Row className="border-none" textStyle={isMobile ? {marginRight:"-10px"}:{}} label={t("WS_SERVICE_NAME_LABEL")} text={t(serviceName?.i18nKey)}/>
+          <Row textStyle={isMobile ? {marginRight:"-10px"}:{}} label={t("WS_SERVICE_NAME_LABEL")} text={t(serviceName?.i18nKey)}/>
           {waterConectionDetails && Object.keys(waterConectionDetails)?.length>0 && <div>
-            <Row className="border-none" label={t("WS_NO_OF_TAPS_PROPOSED")} text={waterConectionDetails?.proposedTaps} />
-            <Row className="border-none" label={t("WS_SERV_DETAIL_PIPE_SIZE")} text={t(waterConectionDetails?.proposedPipeSize?.i18nKey)} />
+            <Row label={t("WS_NO_OF_TAPS_PROPOSED")} text={waterConectionDetails?.proposedTaps} />
+            <Row label={t("WS_SERV_DETAIL_PIPE_SIZE")} text={t(waterConectionDetails?.proposedPipeSize?.i18nKey)} />
           </div>}
           {sewerageConnectionDetails && Object.keys(sewerageConnectionDetails)?.length>0 &&<div>
-            <Row className="border-none" label={t("WS_NO_OF_WATER_CLOSETS")}   text={sewerageConnectionDetails?.proposedWaterClosets} />
-            <Row className="border-none" label={t("WS_SERV_DETAIL_NO_OF_TOILETS")} text={sewerageConnectionDetails?.proposedToilets} />
+            <Row label={t("WS_NO_OF_WATER_CLOSETS")}   text={sewerageConnectionDetails?.proposedWaterClosets} />
+            <Row label={t("WS_SERV_DETAIL_NO_OF_TOILETS")} text={sewerageConnectionDetails?.proposedToilets} />
           </div>}
         </StatusTable>
-    </Card>
-    <Card style={{paddingRight:"16px"}}>
-      <div style={{position:"relative"}}>
-        <CardHeader styles={{fontSize:"28px"}}>{t("WS_COMMON_DOCUMENT_DETAILS")}</CardHeader>
+      </SectionCard>
+
+      {/* ── Document Details ──────────────────────────────────── */}
+      <SectionCard
+        icon="📄"
+        title={t("WS_COMMON_DOCUMENT_DETAILS")}
+        editButton={
           <LinkButton
-            label={<EditIcon style={{ marginTop: "-10px", float: "right", position: "relative", bottom: "32px" }} />}
-            style={{ width: "100px", display: "inline" }}
+            label={<EditIcon style={{ filter: "brightness(0) invert(1)", opacity: 0.85 }} />}
+            style={{ minWidth: "unset" }}
             onClick={() => routeTo(`${routeLink}/document-details`)}
           />
+        }
+      >
+        <div style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+          gap: "16px",
+          padding: "12px 0 8px",
+        }}>
+          {documents && documents?.documents.map((doc, index) => (
+            <DocCard
+              key={`doc-${index}`}
+              header={t(doc?.documentType?.split('.').slice(0, 2).join('_'))}
+            >
+              <WSDocument value={value} Code={doc?.documentType} index={index} showFileName={false} />
+            </DocCard>
+          ))}
         </div>
-        {documents && documents?.documents.map((doc, index) => (
-          <div key={`doc-${index}`}>
-         {<div><CardSectionHeader>{t(doc?.documentType?.split('.').slice(0,2).join('_'))}</CardSectionHeader>
-          <StatusTable>
-          {
-           <WSDocument value={value} Code={doc?.documentType} index={index} /> }
-          {documents?.documents.length != index+ 1 ? <hr style={{color:"white",backgroundColor:"white",height:"2px",marginTop:"20px",marginBottom:"20px"}}/> : null}
-          </StatusTable>
-          </div>}
-          </div>
-        ))}
-      </Card>
-      <SubmitBar label={t("CS_COMMON_SUBMIT")} onSubmit={onSubmit} style={{marginLeft:"10px",maxWidth:"95%"}}/>
+      </SectionCard>
+
+    </div>
+
+    <SubmitBar label={t("CS_COMMON_SUBMIT")} onSubmit={onSubmit} style={{marginLeft:"10px",maxWidth:"95%"}}/>
     </React.Fragment>
     )
   }

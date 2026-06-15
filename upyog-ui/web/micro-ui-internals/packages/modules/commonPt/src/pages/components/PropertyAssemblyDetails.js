@@ -120,11 +120,56 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
     }
   }, [errors]);
 
+  /* ── Shared grid styles (matches SelectCombinedTradeDetails) ── */
+  const ptCardStyle = {
+    background: "#ffffff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+    padding: "24px 28px",
+    marginBottom: "24px",
+    border: "1px solid #e8ecf0",
+  };
+  const ptSectionTitleStyle = {
+    fontSize: "15px",
+    fontWeight: "700",
+    color: "#1a2b49",
+    marginBottom: "20px",
+    paddingBottom: "10px",
+    borderBottom: "2px solid #f47738",
+    letterSpacing: "0.3px",
+  };
+  const rowStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    marginLeft: "-10px",
+    marginRight: "-10px",
+  };
+  const col6 = {
+    flex: "0 0 50%",
+    maxWidth: "50%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const labelStyle = {
+    display: "block",
+    fontWeight: "600",
+    fontSize: "13px",
+    color: "#3d4f6b",
+    marginBottom: "6px",
+    letterSpacing: "0.2px",
+  };
+  const requiredMark = { color: "#e54d42", marginLeft: "2px" };
+  const errorMsgStyle = { fontSize: "12px", color: "#e54d42", marginTop: "4px" };
+
   return (
-    <div>
-      <LabelFieldPair>
-        <CardLabel>{`${t('PT_PROP_TYPE')}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div class="form-field">
+    <div style={ptCardStyle}>
+      <div style={ptSectionTitleStyle}>{t("PT_ASSEMBLY_DET") || "Property Assembly Details"}</div>
+
+      {/* Row 1: Property Type + Total Land Area */}
+      <div style={rowStyle}>
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_PROP_TYPE")}<span style={requiredMark}>*</span></label>
           <Controller
             name="BuildingType"
             control={control}
@@ -146,21 +191,20 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
                 onBlur={props?.onBlur}
                 t={t}
               />
-            )} />
+            )}
+          />
+          <CardLabelError style={errorMsgStyle}>{touched?.BuildingType ? errors?.BuildingType?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.BuildingType ? errors?.BuildingType?.message : ""}</CardLabelError>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_TOT_LAND_AREA")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div className="form-field">
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_TOT_LAND_AREA")}<span style={requiredMark}>*</span></label>
           <Controller
             name="floorarea"
             control={control}
             defaultValue={assemblyDetails?.floorarea}
-            rules={{ 
+            rules={{
               required: t("REQUIRED_FIELD"),
-              validate: (val)=> /^([0-9]){0,8}$/i.test(val) ? true : t("PT_TOT_LAND_AREA_ERROR_MESSAGE")
+              validate: (val) => /^([0-9]){0,8}$/i.test(val) ? true : t("PT_TOT_LAND_AREA_ERROR_MESSAGE"),
             }}
             key={config?.key}
             render={(props) => (
@@ -173,7 +217,7 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
                 value={props?.value}
                 autoFocus={focusField === "floorarea"}
                 onChange={(ev) => {
-                  props?.onChange(ev.target.value)
+                  props?.onChange(ev.target.value);
                   setAssemblyDetails({ ...assemblyDetails, ['floorarea']: ev.target.value });
                   setFocusField("floorarea");
                 }}
@@ -181,22 +225,26 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
               />
             )}
           />
+          <CardLabelError style={errorMsgStyle}>{touched?.floorarea ? errors?.floorarea?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.floorarea ? errors?.floorarea?.message : ""}</CardLabelError>
+      </div>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_TOT_CONSTRUCTION_AREA")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div className="form-field">
+      {/* Row 2: Construction Area + Usage Category */}
+      <div style={rowStyle}>
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_TOT_CONSTRUCTION_AREA")}<span style={requiredMark}>*</span></label>
           <Controller
             name="constructionArea"
             control={control}
             defaultValue={assemblyDetails?.constructionArea}
             key={config?.key}
-            rules={{ 
+            rules={{
               required: t("REQUIRED_FIELD"),
-              validate: (val) => /^([0-9]){0,8}$/i.test(val) && assemblyDetails?.floorarea && parseInt(val) <= parseInt(assemblyDetails?.floorarea) ? true: t("PT_TOT_CONSTRUCTION_AREA_ERROR_MESSAGE")
-             }}
+              validate: (val) =>
+                /^([0-9]){0,8}$/i.test(val) && assemblyDetails?.floorarea && parseInt(val) <= parseInt(assemblyDetails?.floorarea)
+                  ? true
+                  : t("PT_TOT_CONSTRUCTION_AREA_ERROR_MESSAGE"),
+            }}
             render={(props) => (
               <TextInput
                 t={t}
@@ -208,20 +256,18 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
                 autoFocus={focusField === "constructionArea"}
                 onChange={(ev) => {
                   props?.onChange(ev.target.value);
-                  setFocusField("constructionArea")
+                  setFocusField("constructionArea");
                   setAssemblyDetails({ ...assemblyDetails, ['constructionArea']: ev.target.value });
                 }}
                 onBlur={props?.onBlur}
               />
             )}
           />
+          <CardLabelError style={errorMsgStyle}>{touched?.constructionArea ? errors?.constructionArea?.message ? t("BUILTUP_AREA_MORE_THAN_TOTAL_AREA_ERROR") : "" : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={isMobile ? {...errorStyle,marginLeft:"0px"} : {...errorStyle}}>{touched?.constructionArea ? errors?.constructionArea?.message ? t("BUILTUP_AREA_MORE_THAN_TOTAL_AREA_ERROR"): "": ""}</CardLabelError>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_ASSESMENT_INFO_USAGE_TYPE")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div className="form-field">
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_ASSESMENT_INFO_USAGE_TYPE")}<span style={requiredMark}>*</span></label>
           <Controller
             name="usageCategoryMajor"
             defaultValue={assemblyDetails?.usageCategoryMajor}
@@ -236,7 +282,7 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
                 autoFocus={focusField === "usageCategoryMajor"}
                 select={(value) => {
                   props?.onChange(value);
-                  setFocusField("usageCategoryMajor")
+                  setFocusField("usageCategoryMajor");
                   setAssemblyDetails({ ...assemblyDetails, ['usageCategoryMajor']: value });
                 }}
                 optionKey="i18nKey"
@@ -245,9 +291,9 @@ const PropertyAssemblyDetails = ({ t, config, onSelect, userType, formData, form
               />
             )}
           />
+          <CardLabelError style={errorMsgStyle}>{touched?.usageCategoryMajor ? errors?.usageCategoryMajor?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.usageCategoryMajor ? errors?.usageCategoryMajor?.message : ""}</CardLabelError>
+      </div>
     </div>
   );
 };

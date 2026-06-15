@@ -95,6 +95,8 @@
 @import "./pages/employee/oldMobileInbox.scss";
 @import "./pages/employee/dss.scss";
 @import "./pages/employee/iframe.scss";
+@import "./pages/employee/updateOwnerProfile.scss";
+@import "./pages/employee/ptCustomOverrides.scss";
 
 @import "./pages/citizen/payment/payment-type.scss";
 @import "./pages/citizen/container.scss";
@@ -300,7 +302,7 @@
 }
 
 .disabled {
-  @apply border-grey-dark text-grey-dark !important;
+  @apply border-grey-dark text-grey-dark #{!important};
   pointer-events: none !important;
 }
 
@@ -608,7 +610,7 @@ input[type="number"] {
     width: 30% !important;
   }
   .full-width-card {
-    @apply w-full !important;
+    @apply w-full #{!important};
   }
 }
 .applications-list-container {

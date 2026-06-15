@@ -96,10 +96,36 @@ const Search = ({ path }) => {
   console.log("search")
 
   return (
-    <Search
-      t={t}
-      tenantId={tenantId}
-      onSubmit={onSubmit}
+    <div>
+      {/* PT-style header banner */}
+      <div style={{
+        background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)",
+        borderRadius: "12px",
+        padding: "18px 24px",
+        marginBottom: "20px",
+        display: "flex",
+        alignItems: "center",
+        gap: "14px",
+        boxShadow: "0 3px 12px rgba(244,119,56,0.22)",
+      }}>
+        <div style={{
+          width: "44px", height: "44px", borderRadius: "50%",
+          background: "rgba(255,255,255,0.22)", display: "flex",
+          alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0,
+        }}>🔍</div>
+        <div>
+          <div style={{ color: "#fff", fontSize: "18px", fontWeight: 700, lineHeight: 1.2 }}>
+            {t("ES_COMMON_SEARCH")}
+          </div>
+          <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "12px", marginTop: "3px" }}>
+            {t("TL_SEARCH_SUBTITLE") || "Search Trade Licence Applications"}
+          </div>
+        </div>
+      </div>
+      <Search
+        t={t}
+        tenantId={tenantId}
+        onSubmit={onSubmit}
       data={!isLoading && isSuccess && !isWorkflowLoading && isWorkflowSuccess ? (searchReult?.length > 0
          ? searchReult?.map((obj) => ({
         ...obj,
@@ -112,6 +138,7 @@ const Search = ({ path }) => {
       })) : { display: "ES_COMMON_NO_DATA" }) : ""}
       count={count}
     />
+    </div>
   );
 };
 

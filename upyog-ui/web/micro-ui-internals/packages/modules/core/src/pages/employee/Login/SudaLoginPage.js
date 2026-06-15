@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { Toast } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
 import Header from "../../citizen/Home/Header";
@@ -261,10 +261,17 @@ const PAGE_STYLES = `
 
 const SudaLoginPage = () => {
   const history = useHistory();
+  const location = useLocation();
   const { t, i18n } = useTranslation();
   const { data: cities } = Digit.Hooks.useTenants();
   const { data: storeData } = Digit.Hooks.useStore.getInitData();
   const stateCode = Digit.ULBService.getStateId();
+
+  // Parse query params for pre-selection
+  const qp = new URLSearchParams(location.search);
+  const qpUserType = qp.get("userType") || "";
+  const qpCity     = qp.get("city") || "";
+  const qpLocked   = qp.get("locked") === "true";
 
   useEffect(() => {
     const locale = Digit.SessionStorage.get("locale") || "en_IN";
@@ -277,7 +284,7 @@ const SudaLoginPage = () => {
   }, []);
   const bannerUrl = "https://tfstatee8aog.blob.core.windows.net/filestore/SudaLogin.svg";
 
-  const [userType,     setUserType]     = useState("citizen");
+  const [userType,     setUserType]     = useState(qpUserType === "officer" ? "officer" : "citizen");
   const [mobile,       setMobile]       = useState("");
   const [otp,          setOtp]          = useState("");
   const [password,     setPassword]     = useState("");
@@ -300,6 +307,27 @@ const SudaLoginPage = () => {
   const canvasRef = useRef(null);
   const timerRef  = useRef(null);
   const isCitizen = userType === "citizen";
+
+  // Sync userType from URL param (handles case where component is reused without remount)
+  useEffect(() => {
+    if (qpUserType === "officer" || qpUserType === "citizen") {
+      setUserType(qpUserType);
+    }
+  }, [qpUserType]);
+
+  // Pre-select city when cities load and a city slug was passed in the URL
+  useEffect(() => {
+    if (qpCity && cities?.length) {
+      const slug = qpCity.toLowerCase();
+      const match = cities.find(
+        (c) =>
+          c.name?.toLowerCase() === slug ||
+          c.code?.toLowerCase().endsWith(slug) ||
+          c.code?.toLowerCase().split(".").pop() === slug
+      );
+      if (match) setSelectedCity(match);
+    }
+  }, [cities, qpCity]);
 
   /* preload banner so it's cached when the component paints */
   useEffect(() => { const img = new window.Image(); img.src = bannerUrl; }, []);
@@ -390,7 +418,7 @@ const SudaLoginPage = () => {
         Digit.SessionStorage.set("citizen.userRequestObject", { info, ...tokens });
         Digit.UserService.setUser({ info, ...tokens });
         setCitizenDetail(info, tokens.access_token, stateCode);
-        history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/suda-ui/citizen/select-location" : "/suda-ui/dashboard");
+        history.replace(!Digit.ULBService.getCitizenCurrentTenant(true) ? "/suda-ui/citizen/select-location" : "/suda-ui/home");
       } else {
         if (!selectedCity) { showErr(t("PLEASE_SELECT_CITY")); setLoading(false); return; }
         const { UserRequest: info, ...tokens } = await Digit.UserService.authenticate({
@@ -418,7 +446,7 @@ const SudaLoginPage = () => {
 
         <div className="suda-pills" role="radiogroup">
           {USER_TYPES.map(({ key, label }) => {
-            const disabled = key === "admin" || key === "guest";
+            const disabled = key === "admin" || key === "guest" || (qpLocked && key !== "officer");
             return (
               <label key={key}
                 className={"suda-pill" + (userType === key ? " suda-pill--active" : "")}
@@ -436,11 +464,14 @@ const SudaLoginPage = () => {
           {!isCitizen && (
             <div className="suda-field">
               <label className="suda-label">{t("CORE_COMMON_CITY")} <span className="suda-req">*</span></label>
-              <div className="suda-input-wrap">
+              <div className="suda-input-wrap" style={qpLocked ? { background: "#f5f5f5", opacity: 0.85 } : {}}>
                 <select
                   className="suda-select"
                   value={selectedCity?.code || ""}
+                  disabled={qpLocked}
+                  style={qpLocked ? { pointerEvents: "none", cursor: "not-allowed", color: "#555" } : {}}
                   onChange={(e) => {
+                    if (qpLocked) return;
                     const found = cities?.find((c) => c.code === e.target.value) || null;
                     setSelectedCity(found);
                   }}
@@ -526,7 +557,7 @@ const SudaLoginPage = () => {
                 <EyeIcon show={showPassword} onClick={() => setShowPassword(v => !v)} />
               </div>
               <div className="suda-row-end">
-                <button type="button" className="suda-text-btn" disabled style={{ opacity: 0.4, cursor: "not-allowed", textDecoration: "none" }}>
+                <button type="button" className="suda-text-btn" onClick={() => history.push("/suda-ui/employee/user/forgot-password")}>
                   {t("FORGOT_PASSWORD")}
                 </button>
               </div>

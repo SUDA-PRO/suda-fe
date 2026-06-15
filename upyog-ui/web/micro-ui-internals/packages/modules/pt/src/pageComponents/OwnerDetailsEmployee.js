@@ -31,8 +31,9 @@ const createOwnerDetails = () => ({
 const PTEmployeeOwnershipDetails = ({ config, onSelect, userType, formData, setError, formState, clearErrors }) => {
   const { t } = useTranslation();
 
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const isEditScreen = pathname.includes("/modify-application/");
+  const isUpdateOwnerProfile = new URLSearchParams(search).get("from") === "PT_UPDATE_OWNER_PROFILE";
   const [owners, setOwners] = useState(formData?.owners || [createOwnerDetails()]);
   const [focusIndex, setFocusIndex] = useState({ index: -1, type: "" });
 
@@ -92,6 +93,7 @@ const PTEmployeeOwnershipDetails = ({ config, onSelect, userType, formData, setE
     config,
     menu,
     isEditScreen,
+    isUpdateOwnerProfile,
   };
 
   // if (isEditScreen) {
@@ -128,6 +130,7 @@ const OwnerForm = (_props) => {
     formState,
     menu,
     isEditScreen,
+    isUpdateOwnerProfile,
   } = _props;
   const { originalData = {} } = formData;
   const { institution = {} } = originalData;
@@ -647,7 +650,7 @@ const OwnerForm = (_props) => {
                 render={(props) => (
                   <TextInput
                     value={props.value}
-                    disable={isEditScreen}
+                    disable={isEditScreen && !isUpdateOwnerProfile}
                     autoFocus={focusIndex.index === owner?.key && focusIndex.type === "emailId"}
                     errorStyle={localFormState.touched.emailId && errors?.emailId?.message ? true : false}
                     onChange={(e) => {
@@ -675,7 +678,7 @@ const OwnerForm = (_props) => {
                 render={(props) => (
                   <TextInput
                     value={props.value}
-                    disable={isEditScreen}
+                    disable={isEditScreen && !isUpdateOwnerProfile}
                     placeholder={t("PT_OWNERSHIP_INFO_CORR_ADDR")}
                     autoFocus={focusIndex.index === owner?.key && focusIndex.type === "correspondenceAddress"}
                     onChange={(e) => {

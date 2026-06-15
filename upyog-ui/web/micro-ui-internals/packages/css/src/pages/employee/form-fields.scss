@@ -8,6 +8,6 @@
     }
 
     .desktop-w-full{
-        @apply w-full !important   
+        @apply w-full #{!important}   
     }
 }

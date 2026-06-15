@@ -10,8 +10,10 @@ export const config = [
         label: "PT_OWNER_MOB_NO_LABEL",
         type: "mobileNumber",
         name: "mobileNumber",
-        validation:{pattern:{  value: /[6789][0-9]{9}/,
-        message: "CORE_COMMON_MOBILE_ERROR",}},
+        validation: {
+          pattern: { value: /[6789][0-9]{9}/, message: "CORE_COMMON_MOBILE_ERROR" },
+          maxLength: { value: 10, message: "CORE_COMMON_MOBILE_ERROR" },
+        },
         error: "CORE_COMMON_MOBILE_ERROR",
       },
       {

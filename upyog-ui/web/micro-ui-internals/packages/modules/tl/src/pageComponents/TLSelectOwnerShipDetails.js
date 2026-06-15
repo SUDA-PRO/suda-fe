@@ -38,6 +38,19 @@ const TLSelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onB
           value: `${formData?.cpt?.details?.ownershipCategory}${formData?.cpt?.details?.ownershipCategory?.includes("INSTITUTIONAL") ? (formData?.cpt?.details?.ownershipCategory?.includes("GOVERNMENT") ?".OTHERGOVERNMENTINSTITUITION":".OTHERSPRIVATEINSTITUITION"):""}`,
         })
       }
+      else if(window.location.href.includes("/citizen/tl"))
+      {
+        const ptCategory = formData?.cpt?.details?.ownershipCategory;
+        let matchedOption = dropdownData?.find(opt => opt.code === ptCategory || opt.value === ptCategory);
+        if (!matchedOption && ptCategory?.includes("INDIVIDUAL")) {
+          const ownerCount = formData?.cpt?.details?.owners?.length || 0;
+          const subtype = ownerCount > 1 ? "INDIVIDUAL.MULTIPLEOWNERS" : "INDIVIDUAL.SINGLEOWNER";
+          matchedOption = dropdownData?.find(opt => opt.code === subtype || opt.value === subtype);
+        }
+        if (matchedOption) {
+          setOwnershipCategory(matchedOption);
+        }
+      }
       else
       setOwnershipCategory({
         code: `${formData?.cpt?.details?.ownershipCategory}${formData?.cpt?.details?.ownershipCategory?.includes("INSTITUTIONAL") ? (formData?.cpt?.details?.ownershipCategory?.includes("GOVERNMENT") ?".OTHERGOVERNMENTINSTITUITION":".OTHERSPRIVATEINSTITUITION"):""}`,
@@ -162,7 +175,7 @@ const TLSelectOwnerShipDetails = ({ t, config, onSelect, userType, formData, onB
         value={ownershipCategory}
         labelKey="PT_OWNERSHIP"
         isDependent={true}
-        disabled={isEdit}
+        disabled={isEdit || !!isSameAsPropertyOwner}
         isTLFlow={true}
       />
     </FormStep>

@@ -152,7 +152,7 @@ const EditApplication = () => {
 
       {/* ─── Form ───────────────────────────────────────────── */}
       <div className="pt-edit-form">
-        <EditForm applicationData={appData} tenantId={tenantId} />
+        <EditForm applicationData={appData} tenantId={tenantId} fromScreen={fromScreen} />
       </div>
     </div>
   );

@@ -22,7 +22,7 @@
 }
 
 .map-search-bar {
-  @apply block outline-none text-form-field text-text-primary h-10 w-full !important;
+  @apply block outline-none text-form-field text-text-primary h-10 w-full #{!important};
 }
 
 .map-search-bar:focus {

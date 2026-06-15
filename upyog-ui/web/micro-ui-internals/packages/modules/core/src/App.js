@@ -1,9 +1,32 @@
 import React, { useEffect } from "react";
-import { Redirect, Route, Switch, useHistory, useLocation } from "react-router-dom";
+import { Redirect, Route, Switch, useHistory, useLocation, useParams } from "react-router-dom";
 import EmployeeApp from "./pages/employee";
 import CitizenApp from "./pages/citizen";
 import SudaLoginPage from "./pages/employee/Login/SudaLoginPage";
 import Dashboard from "./pages/citizen/Home/Dashboard";
+import CityPage from "./pages/citizen/Home/CityPage";
+
+const CityDashboard = (props) => {
+  const { city } = useParams();
+  const { data: cities, isLoading } = Digit.Hooks.useTenants();
+
+  // While MDMS cities are loading, render nothing
+  if (isLoading || !cities) return null;
+
+  // Validate the city slug against MDMS tenants (same matching logic as SudaLoginPage)
+  const slug = city?.toLowerCase() || "";
+  const validCity = cities.find(
+    (c) =>
+      c.name?.toLowerCase() === slug ||
+      c.code?.toLowerCase().endsWith(slug) ||
+      c.code?.toLowerCase().split(".").pop() === slug
+  );
+
+  // If the city does not exist in MDMS, redirect to home
+  if (!validCity) return <Redirect to="/suda-ui/home" />;
+
+  return <CityPage {...props} citySlug={city} />;
+};
 
 export const DigitApp = ({ stateCode, modules, appTenants, logoUrl, initData }) => {
   const history = useHistory();
@@ -37,7 +60,7 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
       Digit.SessionStorage.del("SEARCH_APPLICATION_DETAIL");
       Digit.SessionStorage.del("WS_EDIT_APPLICATION_DETAILS");
     }
-    if (pathname?.toString() === "/suda-ui/dashboard" || pathname?.toString() === "/suda-ui/citizen" || pathname?.toString() === "/suda-ui/employee") {
+    if (pathname?.toString() === "/suda-ui/home" || pathname?.toString() === "/suda-ui/citizen" || pathname?.toString() === "/suda-ui/employee") {
       Digit.SessionStorage.del("WS_DISCONNECTION");
     }
   }, [pathname]);
@@ -147,11 +170,17 @@ console.log("DigitAppDigitAppDigitApp",stateCode, modules, appTenants, logoUrl, 
         <Route path="/suda-ui/citizen">
           <CitizenApp {...commonProps} />
         </Route>
-        <Route path="/suda-ui/dashboard">
+        <Route path="/suda-ui/home">
           <Dashboard {...commonProps} />
         </Route>
+        <Route path="/suda-ui/dashboard" exact>
+          <Redirect to="/suda-ui/home" />
+        </Route>
+        <Route path="/suda-ui/:city" exact>
+          <CityDashboard {...commonProps} />
+        </Route>
         <Route>
-          <Redirect to="/suda-ui/dashboard" />
+          <Redirect to="/suda-ui/home" />
         </Route>
       </Switch>
     </React.Fragment>

@@ -43,7 +43,7 @@ var ulbIndex = Object.keys(geoBundle).map(function(code) {
 });
 
 // Module-level in-memory GeoJSON cache (populated from bundle on first use).
-const _cache = { ulbs: {} };
+const _cache = { ulbs: {}, index: null };
 
 // ── Ray-casting point-in-polygon ───────────────────────────────────────────
 function _pointInRing(lat, lng, ring) {
@@ -77,9 +77,30 @@ function _bboxContains(bbox, lat, lng) {
   return lng >= minLng && lng <= maxLng && lat >= minLat && lat <= maxLat;
 }
 
-// ── Index loader ──────────────────────────────────────────────────────────
+// ── Index derived from geoBundle (bbox computed from features) ────────────
+function _computeBbox(geojson) {
+  let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
+  for (const feature of geojson.features) {
+    const coords = feature.geometry.type === "Polygon"
+      ? feature.geometry.coordinates[0]
+      : feature.geometry.coordinates.flat(2);
+    for (const [lng, lat] of coords) {
+      if (lng < minLng) minLng = lng;
+      if (lat < minLat) minLat = lat;
+      if (lng > maxLng) maxLng = lng;
+      if (lat > maxLat) maxLat = lat;
+    }
+  }
+  return [minLng, minLat, maxLng, maxLat];
+}
+
 async function _loadIndex() {
-  return ulbIndex;
+  if (_cache.index) return _cache.index;
+  _cache.index = Object.keys(geoBundle).map((code) => ({
+    code,
+    bbox: _computeBbox(geoBundle[code]),
+  }));
+  return _cache.index;
 }
 
 // ── Per-ULB GeoJSON loader (uses bundled data — no fetch) ─────────────────
@@ -136,6 +157,34 @@ export async function detectULBAndWard(lat, lng) {
     console.error("[kmlGeoService] Detection failed:", err.message, err);
     return null;
   }
+}
+
+/**
+ * Synchronously returns the bounding box [minLng, minLat, maxLng, maxLat]
+ * for a ULB city code directly from geoBundle (no async, no network).
+ * Returns null if the code is not found in the bundle.
+ */
+export function getULBBbox(cityCode) {
+  const geo = geoBundle[cityCode];
+  if (!geo || !geo.features || geo.features.length === 0) return null;
+  return _computeBbox(geo);
+}
+
+/** Returns the raw GeoJSON FeatureCollection for a ULB (sync, from bundle). */
+export function getULBGeoJSON(cityCode) {
+  return geoBundle[cityCode] || null;
+}
+
+/**
+ * Returns true if the point (lat, lng) falls inside any ward polygon of the ULB.
+ * Used to restrict map pin placement to the locked tenant city.
+ */
+export function isPointInULB(lat, lng, cityCode) {
+  const geo = geoBundle[cityCode];
+  if (!geo || !geo.features) return false;
+  const bbox = _computeBbox(geo);
+  if (!_bboxContains(bbox, lat, lng)) return false;
+  return geo.features.some((f) => f.geometry && _pointInGeometry(lat, lng, f.geometry));
 }
 
 export async function getAllWardsForULB(cityCode) {
