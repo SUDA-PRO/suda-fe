@@ -1,4 +1,4 @@
-import { FormComposer, Loader, Dropdown, Localities, Header, Toast } from "@upyog/digit-ui-react-components";
+import { FormComposer, Loader, Dropdown, Localities, Toast } from "@upyog/digit-ui-react-components";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useHistory, useRouteMatch,useLocation } from "react-router-dom";
@@ -112,8 +112,32 @@ const CreatePropertyForm = ({ config, onSelect,value, userType, redirectUrl }) =
 
   return (
     <React.Fragment>
-      <div style={{marginLeft: "12px"}}>
-        <Header styles={window.location.href.includes("citizen") ? {paddingLeft: "0px", marginLeft: "0px"} : {}}>{t(getHeaderLabel())}</Header>
+      {/* PT-style hero banner (matches PTAllPropertyDetails) */}
+      <div style={{
+        background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+        borderRadius: "12px",
+        padding: "28px 36px",
+        marginBottom: "24px",
+        color: "#fff",
+        display: "flex",
+        alignItems: "center",
+        gap: "20px",
+      }}>
+        <div style={{
+          width: "56px", height: "56px", borderRadius: "50%",
+          background: "rgba(255,255,255,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+        }}>
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+            <polyline points="9 22 9 12 15 12 15 22"/>
+          </svg>
+        </div>
+        <div>
+          <div style={{ fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px", textTransform: "uppercase", opacity: 0.75, marginBottom: "4px" }}>New Property</div>
+          <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>{t(getHeaderLabel())}</h2>
+          <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>{t("ES_COMMON_CREATE_PROPERTY_SUBHEADER") || "Enter the property details below"}</p>
+        </div>
       </div>
     <FormComposer
       onSkip = {onSkip}

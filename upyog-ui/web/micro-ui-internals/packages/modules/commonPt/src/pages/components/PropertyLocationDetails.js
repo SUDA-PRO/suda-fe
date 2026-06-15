@@ -74,50 +74,99 @@ const PropertyLocationDetails = ({ t, config, onSelect, userType, formData, form
     }
   }, [errors]);
 
-  const errorStyle = { width: "70%", marginLeft: "30%", fontSize: "12px", marginTop: "-21px" };
+  /* ── Shared grid styles (matches SelectCombinedTradeDetails) ── */
+  const ptCardStyle = {
+    background: "#ffffff",
+    borderRadius: "10px",
+    boxShadow: "0 2px 12px rgba(0,0,0,0.08)",
+    padding: "24px 28px",
+    marginBottom: "24px",
+    border: "1px solid #e8ecf0",
+  };
+  const ptSectionTitleStyle = {
+    fontSize: "15px",
+    fontWeight: "700",
+    color: "#1a2b49",
+    marginBottom: "20px",
+    paddingBottom: "10px",
+    borderBottom: "2px solid #f47738",
+    letterSpacing: "0.3px",
+  };
+  const rowStyle = {
+    display: "flex",
+    flexWrap: "wrap",
+    marginLeft: "-10px",
+    marginRight: "-10px",
+  };
+  const col6 = {
+    flex: "0 0 50%",
+    maxWidth: "50%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const col12 = {
+    flex: "0 0 100%",
+    maxWidth: "100%",
+    padding: "0 10px",
+    marginBottom: "18px",
+    boxSizing: "border-box",
+  };
+  const labelStyle = {
+    display: "block",
+    fontWeight: "600",
+    fontSize: "13px",
+    color: "#3d4f6b",
+    marginBottom: "6px",
+    letterSpacing: "0.2px",
+  };
+  const requiredMark = { color: "#e54d42", marginLeft: "2px" };
+  const errorMsgStyle = { fontSize: "12px", color: "#e54d42", marginTop: "4px" };
 
   return (
-    <div>
-      <LabelFieldPair>
-        <CardLabel>{`${t('PT_PROP_CITY')}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <Controller
-          name=""
-          defaultValue={ locationDetails?.cityCode }
-          control={ control }
-          rules={{
-            required: t("REQUIRED_FIELD")
-          }}
-          render={({value, onBlur, onChange}) => (
-            <Dropdown
-              className="form-field"
-              selected={value}
-              disable={userType === "employee"}
-              option={allCities.sort((a,b) => (a.name > b.name)? 1 : (b.name>a.name)? -1 : 0)}
-              select={(value)=>{
-                onChange(value);
-                setLocationDetails({...locationDetails, cityCode: value})
-              }}
-              optionKey="code"
-              onBlur={onBlur}
-              t={t}
-            />
-          )} />
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.cityCode ? errors?.cityCode?.message : ""}</CardLabelError>
+    <div style={ptCardStyle}>
+      <div style={ptSectionTitleStyle}>{t("PT_PROP_LOCATION_DET") || "Property Location Details"}</div>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_PROP_LOCALITY")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div className="form-field">
+      {/* Row 1: City + Locality */}
+      <div style={rowStyle}>
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_PROP_CITY")}<span style={requiredMark}>*</span></label>
+          <Controller
+            name=""
+            defaultValue={locationDetails?.cityCode}
+            control={control}
+            rules={{ required: t("REQUIRED_FIELD") }}
+            render={({ value, onBlur, onChange }) => (
+              <Dropdown
+                className="form-field"
+                selected={value}
+                disable={userType === "employee"}
+                option={allCities.sort((a, b) => (a.name > b.name) ? 1 : (b.name > a.name) ? -1 : 0)}
+                select={(value) => {
+                  onChange(value);
+                  setLocationDetails({ ...locationDetails, cityCode: value });
+                }}
+                optionKey="code"
+                onBlur={onBlur}
+                t={t}
+              />
+            )}
+          />
+          <CardLabelError style={errorMsgStyle}>{touched?.cityCode ? errors?.cityCode?.message : ""}</CardLabelError>
+        </div>
+
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_PROP_LOCALITY")}<span style={requiredMark}>*</span></label>
           <Controller
             name="locality"
-            defaultValue={ locationDetails?.locality}
-            control={ control }
-            rules={{required: t("REQUIRED_FIELD")}}
-            render={({value, onBlur, onChange}) => (
+            defaultValue={locationDetails?.locality}
+            control={control}
+            rules={{ required: t("REQUIRED_FIELD") }}
+            render={({ value, onBlur, onChange }) => (
               <Localities
-                selectLocality={(value)=>{
+                selectLocality={(value) => {
                   onChange(value);
-                  setLocationDetails({...locationDetails, locality: value});
+                  setLocationDetails({ ...locationDetails, locality: value });
                 }}
                 tenantId={locationDetails?.cityCode?.code}
                 boundaryType="revenue"
@@ -128,23 +177,25 @@ const PropertyLocationDetails = ({ t, config, onSelect, userType, formData, form
                 disableLoader={true}
                 onBlur={onBlur}
               />
-            )} />
+            )}
+          />
+          <CardLabelError style={errorMsgStyle}>{touched?.locality ? errors?.locality?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.locality ? errors?.locality?.message : ""}</CardLabelError>
+      </div>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_HOUSE_DOOR_NO")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div className="form-field">
+      {/* Row 2: House/Door No + Street/Colony Name */}
+      <div style={rowStyle}>
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_HOUSE_DOOR_NO")}<span style={requiredMark}>*</span></label>
           <Controller
             name="houseDoorNo"
             defaultValue={locationDetails?.houseDoorNo}
-            control={ control}
+            control={control}
             rules={{
               required: t("REQUIRED_FIELD"),
-              validate: (value)=> /^([a-zA-Z0-9 !@#$%^&*()_+\-={};':\\\\|,.<>/?]){1,64}$/i.test(value) ? true: t("PT_HOUSE_DOOR_NO_ERROR_MESSAGE"),
+              validate: (value) => /^([a-zA-Z0-9 !@#$%^&*()_+\-={};':\\\\|,.<>/?]){1,64}$/i.test(value) ? true : t("PT_HOUSE_DOOR_NO_ERROR_MESSAGE"),
             }}
-            render={({value, onBlur, onChange}) => (
+            render={({ value, onBlur, onChange }) => (
               <TextInput
                 t={t}
                 type={"text"}
@@ -152,29 +203,26 @@ const PropertyLocationDetails = ({ t, config, onSelect, userType, formData, form
                 optionKey="i18nKey"
                 name="houseDoorNo"
                 value={value}
-                onChange={(ev)=>{
+                onChange={(ev) => {
                   onChange(ev.target.value);
-                  setLocationDetails({...locationDetails, houseDoorNo: ev.target.value})
+                  setLocationDetails({ ...locationDetails, houseDoorNo: ev.target.value });
                 }}
                 onBlur={onBlur}
-                {...(validation = { pattern: "^([a-zA-Z0-9 !@#$%^&*()_+\-={};':\\\\|,.<>/?]){1,64}$", title: t("PT_HOUSE_DOOR_NO_ERROR_MESSAGE") })}
+                {...(validation = { pattern: "^([a-zA-Z0-9 !@#$%^&*()_+\\-={};':\\\\|,.<>/?]){1,64}$", title: t("PT_HOUSE_DOOR_NO_ERROR_MESSAGE") })}
               />
-            )} />
+            )}
+          />
+          <CardLabelError style={errorMsgStyle}>{touched?.houseDoorNo ? errors?.houseDoorNo?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.houseDoorNo ? errors?.houseDoorNo?.message : ""}</CardLabelError>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_PROPERTY_ADDRESS_STREET_NAME")}`}<span className="check-page-link-button"> *</span></CardLabel>
-        <div className="form-field">
+        <div style={col6}>
+          <label style={labelStyle}>{t("PT_PROPERTY_ADDRESS_STREET_NAME")}<span style={requiredMark}>*</span></label>
           <Controller
             name="buildingColonyName"
-            defaultValue={ locationDetails?.buildingColonyName}
-            control={control }
-            rules={{
-              required: t("REQUIRED_FIELD"),
-            }}
-            render={({value, onChange, onBlur}) => (
+            defaultValue={locationDetails?.buildingColonyName}
+            control={control}
+            rules={{ required: t("REQUIRED_FIELD") }}
+            render={({ value, onChange, onBlur }) => (
               <TextInput
                 t={t}
                 type={"text"}
@@ -182,27 +230,28 @@ const PropertyLocationDetails = ({ t, config, onSelect, userType, formData, form
                 optionKey="i18nKey"
                 name="buildingColonyName"
                 value={value}
-                onChange={(ev)=>{
+                onChange={(ev) => {
                   onChange(ev.target.value);
-                  setLocationDetails({...locationDetails, buildingColonyName: ev.target.value})
+                  setLocationDetails({ ...locationDetails, buildingColonyName: ev.target.value });
                 }}
                 onBlur={onBlur}
               />
-            )} />
+            )}
+          />
+          <CardLabelError style={errorMsgStyle}>{touched?.buildingColonyName ? errors?.buildingColonyName?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.buildingColonyName ? errors?.buildingColonyName?.message : ""}</CardLabelError>
+      </div>
 
-      <LabelFieldPair>
-        <CardLabel>{`${t("PT_LANDMARK_NAME")}`}</CardLabel>
-        <div className="form-field">
+      {/* Row 3: Landmark (full width, optional) */}
+      <div style={rowStyle}>
+        <div style={col12}>
+          <label style={labelStyle}>{t("PT_LANDMARK_NAME")}</label>
           <Controller
             name="landmarkName"
             defaultValue={locationDetails?.landmarkName}
-            control={ control}
-            rules={{
-            }}
-            render={({value, onChange, onBlur}) => (
+            control={control}
+            rules={{}}
+            render={({ value, onChange, onBlur }) => (
               <TextInput
                 t={t}
                 type={"text"}
@@ -210,16 +259,17 @@ const PropertyLocationDetails = ({ t, config, onSelect, userType, formData, form
                 optionKey="i18nKey"
                 name="landmarkName"
                 value={value}
-                onChange={(ev)=>{
+                onChange={(ev) => {
                   onChange(ev.target.value);
-                  setLocationDetails({...locationDetails, landmarkName: ev.target.value})
+                  setLocationDetails({ ...locationDetails, landmarkName: ev.target.value });
                 }}
                 onBlur={onBlur}
               />
-            )} />
+            )}
+          />
+          <CardLabelError style={errorMsgStyle}>{touched?.landmarkName ? errors?.landmarkName?.message : ""}</CardLabelError>
         </div>
-      </LabelFieldPair>
-      <CardLabelError style={errorStyle}>{touched?.landmarkName ? errors?.landmarkName?.message : ""}</CardLabelError>
+      </div>
     </div>
   );
 };

@@ -1,5 +1,4 @@
 import {
-  CardHeader,
   FormStep, LinkButton, Loader, Row, StatusTable
 } from "@upyog/digit-ui-react-components";
 import React from "react";
@@ -85,7 +84,36 @@ const PropertyDetails = ({ t, config, onSelect, userType, formData }) => {
       <FormStep t={t} config={config} onSelect={goNext} onSkip={onSkip}>
         {propertyDetails && propertyDetails?.Properties.length && (
           <React.Fragment>
-            <CardHeader>{t("PT_DETAILS")}</CardHeader>
+            {/* ── PT Hero Banner ── */}
+            <div style={{
+              background: "linear-gradient(135deg, #1a2b49 0%, #f47738 100%)",
+              borderRadius: "12px",
+              padding: "28px 36px",
+              marginBottom: "24px",
+              color: "#fff",
+              display: "flex",
+              alignItems: "center",
+              gap: "20px",
+            }}>
+              <div style={{
+                width: "56px", height: "56px", borderRadius: "50%",
+                background: "rgba(255,255,255,0.15)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0, fontSize: "26px",
+              }}>🏠</div>
+              <div>
+                <div style={{
+                  fontSize: "11px", fontWeight: "600", letterSpacing: "1.5px",
+                  textTransform: "uppercase", opacity: 0.75, marginBottom: "4px",
+                }}>Step 2 of 3</div>
+                <h2 style={{ margin: 0, fontSize: "20px", fontWeight: "700" }}>
+                  {t("PT_DETAILS")}
+                </h2>
+                <p style={{ margin: "4px 0 0", fontSize: "13px", opacity: 0.85 }}>
+                  {t("PT_PROP_REVIEW_DETAILS") || "Review your property details"}
+                </p>
+              </div>
+            </div>
 
             {/* ── Property Details Card ── */}
             <div style={{

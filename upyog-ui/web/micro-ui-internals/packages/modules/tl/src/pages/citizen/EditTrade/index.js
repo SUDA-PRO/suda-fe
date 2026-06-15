@@ -273,9 +273,9 @@ const EditTrade = ({ parentRoute }) => {
     { 
       nextStep = "property-details";
     }
-    if(nextStep === "owner-details" && (params?.ownershipCategory?.isSameAsPropertyOwner === true || sessionStorage.getItem("isSameAsPropertyOwner") === "true"))
+    if(nextStep === "owner-details" && (params?.ownershipCategory?.isSameAsPropertyOwner === true || sessionStorage.getItem("isSameAsPropertyOwner") === "true" || params?.cpt?.details?.propertyId || params?.cptId?.id))
     {
-      nextStep = "proof-of-identity"
+      nextStep = "select-combined-proof-details"
     }
     let redirectWithHistory = history.push;
     if (skipStep) {

@@ -36,7 +36,7 @@ const App = () => {
   }
 
   return (
-    <span className={"tl-citizen"}>
+    <span className={"tl-citizen"} style={{width:"100%"}}>
       <Switch>
         <AppContainer>
           {!(window.location.href.includes('/acknowledgement'))&&window.location.href.includes('tl/tradelicence')  &&<BackButton /* style={{ position: "fixed", top: "55px" }} */ isCommonPTPropertyScreen={isCommonPTPropertyScreen} isSuccessScreen={isSuccessScreen} getBackPageNumber={getBackPageNumber}>Back</BackButton>}

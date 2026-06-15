@@ -1,4 +1,4 @@
-import { Banner, Card, CardText, LinkButton, Loader, SubmitBar } from "@upyog/digit-ui-react-components";
+import { Loader } from "@upyog/digit-ui-react-components";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -21,14 +21,86 @@ const rowContainerStyle = {
   justifyContent: "space-between",
 };
 
-const BannerPicker = (props) => {
+/* ─── PT-style result card ──────────────────────────────────────────────── */
+const ResultCard = ({ isSuccess, isLoading, appNumber, isEdit, isDirectRenewal, onDownload, t }) => {
+  const successBg = "linear-gradient(135deg, #27ae60 0%, #1e8449 100%)";
+  const failBg    = "linear-gradient(135deg, #e74c3c 0%, #c0392b 100%)";
+  const pendingBg = "linear-gradient(135deg, #f39c12 0%, #e67e22 100%)";
+  const bg = isSuccess ? successBg : isLoading ? pendingBg : failBg;
+  const icon = isSuccess ? "✅" : isLoading ? "⏳" : "❌";
+
+  const statusLabel = isSuccess
+    ? (t("CS_TRADE_APPLICATION_SUCCESS") || "Application Submitted Successfully!")
+    : isLoading
+    ? (t("CS_TRADE_UPDATE_APPLICATION_PENDING") || "Processing…")
+    : (t("CS_TRADE_APPLICATION_FAILED") || "Submission Failed");
+
   return (
-    <Banner
-      message={GetActionMessage(props)}
-      applicationNumber={props.data?.Licenses[0]?.applicationNumber}
-      info={props.isSuccess ? props.t("TL_REF_NO_LABEL") : ""}
-      successful={props.isSuccess}
-    />
+    <div style={{ width: "100%", padding: "8px 0 32px" }}>
+      {/* header card */}
+      <div style={{
+        background: bg, borderRadius: "14px", padding: "32px 28px",
+        marginBottom: "24px", textAlign: "center",
+        boxShadow: "0 4px 20px rgba(0,0,0,0.15)",
+      }}>
+        <div style={{ fontSize: "48px", marginBottom: "12px" }}>{icon}</div>
+        <div style={{ color: "#fff", fontSize: "22px", fontWeight: 700, lineHeight: 1.3 }}>
+          {statusLabel}
+        </div>
+        {isSuccess && appNumber && (
+          <div style={{
+            marginTop: "16px", display: "inline-block",
+            background: "rgba(255,255,255,0.2)", borderRadius: "10px",
+            padding: "10px 24px", border: "1px solid rgba(255,255,255,0.4)",
+          }}>
+            <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "12px", marginBottom: "4px" }}>
+              {t("TL_REF_NO_LABEL") || "Application Number"}
+            </div>
+            <div style={{ color: "#fff", fontWeight: 700, fontSize: "18px", letterSpacing: "1px" }}>
+              {appNumber}
+            </div>
+          </div>
+        )}
+        {isSuccess && (
+          <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px", marginTop: "14px" }}>
+            {!isDirectRenewal
+              ? (t("TL_FILE_TRADE_RESPONSE") || "Your trade licence application has been submitted.")
+              : (t("TL_FILE_TRADE_RESPONSE_DIRECT_REN") || "Your renewal has been submitted.")}
+          </div>
+        )}
+        {!isSuccess && !isLoading && (
+          <div style={{ color: "rgba(255,255,255,0.8)", fontSize: "13px", marginTop: "14px" }}>
+            {t("TL_FILE_TRADE_FAILED_RESPONSE") || "Something went wrong. Please try again."}
+          </div>
+        )}
+      </div>
+
+      {/* action buttons */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+        {isSuccess && onDownload && (
+          <button
+            onClick={onDownload}
+            style={{
+              width: "100%", padding: "14px", borderRadius: "10px",
+              border: "2px solid #27ae60", background: "#fff",
+              color: "#27ae60", fontWeight: 700, fontSize: "15px",
+              cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "8px",
+            }}
+          >
+            ⬇️ {t("TL_DOWNLOAD_ACK_FORM") || "Download Acknowledgement"}
+          </button>
+        )}
+        <Link to="/suda-ui/citizen" style={{ textDecoration: "none" }}>
+          <button style={{
+            width: "100%", padding: "14px", borderRadius: "10px", border: "none",
+            background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)",
+            color: "#fff", fontWeight: 700, fontSize: "15px", cursor: "pointer",
+          }}>
+            🏠 {t("CORE_COMMON_GO_TO_HOME") || "Go to Home"}
+          </button>
+        </Link>
+      </div>
+    </div>
   );
 };
 
@@ -130,55 +202,61 @@ const TLAcknowledgement = ({ data, onSuccess, onUpdateSuccess }) => {
     data.then((ress) => Digit.Utils.pdf.generate(ress));
   };
 
-  let enableLoader = !resubmit ? (!isEdit ? mutation.isIdle || mutation.isLoading : isDirectRenewal ? false : mutation1.isIdle || mutation1.isLoading):false;
-  if(enableLoader)
-  {return (<Loader />)}
-  else if( ((mutation?.isSuccess == false && mutation?.isIdle == false) || (mutation1?.isSuccess == false && mutation1?.isIdle == false )) && !isDirectRenewal && !resubmit)
-  {
+  let enableLoader = !resubmit ? (!isEdit ? mutation.isIdle || mutation.isLoading : isDirectRenewal ? false : mutation1.isIdle || mutation1.isLoading) : false;
+
+  if (enableLoader) {
+    return <Loader />;
+  }
+
+  if (((mutation?.isSuccess === false && mutation?.isIdle === false) || (mutation1?.isSuccess === false && mutation1?.isIdle === false)) && !isDirectRenewal && !resubmit) {
     return (
-    <Card>
-      <BannerPicker t={t} data={mutation.data || mutation1.data} isSuccess={mutation.isSuccess || mutation1.isSuccess} isLoading={(mutation?.isLoading || mutation1?.isLoading)} />
-      {<CardText>{t("TL_FILE_TRADE_FAILED_RESPONSE")}</CardText>}
-      <Link to={`/suda-ui/citizen`}>
-        <LinkButton label={t("CORE_COMMON_GO_TO_HOME")} />
-      </Link>
-    </Card>)
+      <ResultCard
+        isSuccess={false}
+        isLoading={false}
+        isEdit={isEdit}
+        isDirectRenewal={isDirectRenewal}
+        t={t}
+      />
+    );
   }
-  else if(mutation2.isLoading || mutation2.isIdle ){
-    return (<Loader />)
+
+  if (mutation2.isLoading || mutation2.isIdle) {
+    return <Loader />;
   }
-  else
-  return(
-    <Card>
-      <BannerPicker t={t} data={mutation2.data} isSuccess={mutation2.isSuccess} isLoading={(mutation2.isIdle || mutation2.isLoading)} />
-      {(mutation2.isSuccess) && <CardText>{!isDirectRenewal?t("TL_FILE_TRADE_RESPONSE"):t("TL_FILE_TRADE_RESPONSE_DIRECT_REN")}</CardText>}
-      {(!mutation2.isSuccess) && <CardText>{t("TL_FILE_TRADE_FAILED_RESPONSE")}</CardText>}
-      {!isEdit && mutation2.isSuccess && <SubmitBar label={t("TL_DOWNLOAD_ACK_FORM")} onSubmit={handleDownloadPdf} />}
-      {(mutation2.isSuccess) && isEdit && (
-        <LinkButton
-          label={
-            <div className="response-download-button">
-              <span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#a82227">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
-                </svg>
-              </span>
-              <span className="download-button">{t("TL_DOWNLOAD_ACK_FORM")}</span>
-            </div>
-          }
-          //style={{ width: "100px" }}
-          onClick={handleDownloadPdf}
-        />)}
-      {mutation2?.data?.Licenses[0]?.status === "PENDINGPAYMENT" && <Link to={{
-        pathname: `/suda-ui/citizen/payment/collect/${mutation2.data.Licenses[0].businessService}/${mutation2.data.Licenses[0].applicationNumber}`,
-        state: { tenantId: mutation2.data.Licenses[0].tenantId },
-      }}>
-        <SubmitBar label={t("COMMON_MAKE_PAYMENT")} />
-      </Link>}
-      <Link to={`/suda-ui/citizen`}>
-        <LinkButton label={t("CORE_COMMON_GO_TO_HOME")} />
-      </Link>
-    </Card>
+
+  const appNumber = mutation2.data?.Licenses?.[0]?.applicationNumber;
+  const isPendingPayment = mutation2?.data?.Licenses?.[0]?.status === "PENDINGPAYMENT";
+
+  return (
+    <div style={{ width: "100%", padding: "8px 0 32px" }}>
+      <ResultCard
+        isSuccess={mutation2.isSuccess}
+        isLoading={mutation2.isIdle || mutation2.isLoading}
+        appNumber={appNumber}
+        isEdit={isEdit}
+        isDirectRenewal={isDirectRenewal}
+        onDownload={mutation2.isSuccess && (!isEdit || true) ? handleDownloadPdf : null}
+        t={t}
+      />
+      {isPendingPayment && (
+        <Link
+          to={{
+            pathname: `/suda-ui/citizen/payment/collect/${mutation2.data.Licenses[0].businessService}/${mutation2.data.Licenses[0].applicationNumber}`,
+            state: { tenantId: mutation2.data.Licenses[0].tenantId },
+          }}
+          style={{ textDecoration: "none" }}
+        >
+          <button style={{
+            width: "100%", padding: "14px", borderRadius: "10px", border: "none",
+            background: "linear-gradient(135deg, #1a6a9a 0%, #0d4f7a 100%)",
+            color: "#fff", fontWeight: 700, fontSize: "15px", cursor: "pointer",
+            marginTop: "12px",
+          }}>
+            💳 {t("COMMON_MAKE_PAYMENT") || "Make Payment"}
+          </button>
+        </Link>
+      )}
+    </div>
   );
 };
 

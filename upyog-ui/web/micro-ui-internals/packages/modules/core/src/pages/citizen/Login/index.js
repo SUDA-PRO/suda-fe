@@ -10,7 +10,7 @@ import { subYears, format } from "date-fns";
 const TYPE_REGISTER = { type: "register" };
 const TYPE_LOGIN = { type: "login" };
 const DEFAULT_USER = "digit-user";
-const DEFAULT_REDIRECT_URL = "/suda-ui/dashboard";
+const DEFAULT_REDIRECT_URL = "/suda-ui/home";
 
 /* set citizen details to enable backward compatiable */
 const setCitizenDetail = (userObject, token, tenantId) => {

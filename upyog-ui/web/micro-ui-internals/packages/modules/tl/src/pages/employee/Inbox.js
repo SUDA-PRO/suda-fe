@@ -129,7 +129,39 @@ const Inbox = ({ parentRoute, businessService = "TL", initialStates = {}, filter
   } else {
     return (
       <div>
-        {isInbox && <Header>{t("ES_COMMON_INBOX")}{data?.totalCount ? <p className="inbox-count">{data?.totalCount}</p> : null}</Header>}
+        {isInbox && (
+          <div style={{
+            background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)",
+            borderRadius: "12px",
+            padding: "18px 24px",
+            marginBottom: "20px",
+            display: "flex",
+            alignItems: "center",
+            gap: "14px",
+            boxShadow: "0 3px 12px rgba(244,119,56,0.22)",
+          }}>
+            <div style={{
+              width: "44px", height: "44px", borderRadius: "50%",
+              background: "rgba(255,255,255,0.22)", display: "flex",
+              alignItems: "center", justifyContent: "center", fontSize: "20px", flexShrink: 0,
+            }}>📋</div>
+            <div style={{ flex: 1 }}>
+              <div style={{ color: "#fff", fontSize: "18px", fontWeight: 700, lineHeight: 1.2 }}>
+                {t("ES_COMMON_INBOX")}
+              </div>
+              <div style={{ color: "rgba(255,255,255,0.75)", fontSize: "12px", marginTop: "3px" }}>
+                {t("TL_INBOX_SUBTITLE") || "Trade Licence Applications"}
+              </div>
+            </div>
+            {data?.totalCount ? (
+              <div style={{
+                background: "rgba(255,255,255,0.25)", color: "#fff", borderRadius: "20px",
+                padding: "4px 14px", fontSize: "13px", fontWeight: 700,
+                border: "1px solid rgba(255,255,255,0.5)",
+              }}>{data.totalCount}</div>
+            ) : null}
+          </div>
+        )}
         <DesktopInbox
           businessService={businessService}
           data={data}
