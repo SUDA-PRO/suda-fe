@@ -15,7 +15,7 @@ import Timeline from "../components/TLTimeline";
 import { stringReplaceAll } from "../utils";
 import UploadFileDigiLocker from "../utils/UploadFile";
 import PTMapPicker from "./PTMapPicker";
-import { detectULBAndWard, getAllWardsForULB } from "../utils/kmlGeoService";
+import { detectULBAndWard, getAllWardsForULB, getULBBbox, getULBGeoJSON, isPointInULB } from "../utils/kmlGeoService";
 
 const getUsageCategoryParsed = (code = "") => {
   const arr = code.split(".");
@@ -118,7 +118,16 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   /* ── Property Address State ── */
   const allCities = Digit.Hooks.pt.useTenants();
   const [cities, setCities] = useState(allCities || []);
-  const [selectedCity, setSelectedCity] = useState(formData?.address?.city || null);
+
+  // If the citizen has a specific ULB tenant (not state-level), lock the city to it.
+  const _lockedTenantCode = Digit.ULBService.getCitizenCurrentTenant(true);
+  const _isStateTenant = !_lockedTenantCode || _lockedTenantCode === Digit.ULBService.getStateId();
+  const cityLocked = !_isStateTenant; // true → read-only city dropdown
+
+  const [selectedCity, setSelectedCity] = useState(() => {
+    if (formData?.address?.city) return formData.address.city;
+    return null; // will be resolved once allCities loads
+  });
   const { data: fetchedLocalities } = Digit.Hooks.useBoundaryLocalities(
     selectedCity?.code,
     "revenue",
@@ -170,9 +179,9 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   // User-visible detection badge
   const [kmlDetectionMsg, setKmlDetectionMsg] = useState(null);
   // Refs for GeoJSON locality injection (local testing without MDMS)
-  // _geoLocalitiesInjectedRef: true when localities state was populated from GeoJSON
+  // _geoLocalitiesInjectedRef: cityCode for which GeoJSON wards were injected, or null
   // _detectedWardRef: stores the last KML-detected {wardNumber, wardName} for re-matching
-  const _geoLocalitiesInjectedRef = useRef(false);
+  const _geoLocalitiesInjectedRef = useRef(null);
   const _detectedWardRef = useRef(null);
   /* ── Floor Usage MDMS ── */
   const { data: floorMdms } = Digit.Hooks.useCommonMDMSV2(
@@ -373,6 +382,11 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
   /* ── Address: update city list when pincode/allCities changes ── */
   useEffect(() => {
     if (!allCities?.length) return;
+    // Auto-select locked tenant city as soon as allCities is available
+    if (cityLocked && !selectedCity) {
+      const tenantCity = allCities.find((c) => c.code === _lockedTenantCode);
+      if (tenantCity) setSelectedCity(tenantCity);
+    }
     if (pincode) {
       const filtered = allCities.filter((c) => c?.pincode?.some((p) => p == pincode));
       const list = filtered.length > 0 ? filtered : allCities;
@@ -388,21 +402,56 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
     if (!selectedCity) {
       setLocalities([]);
       setSelectedLocality(null);
-      _geoLocalitiesInjectedRef.current = false;
+      _geoLocalitiesInjectedRef.current = null;
       _detectedWardRef.current = null;
       return;
+    }
+    // If the user manually changed to a different city, reset geo-injection state
+    // so normal MDMS flow runs instead of preserving old GeoJSON wards.
+    if (_geoLocalitiesInjectedRef.current && _geoLocalitiesInjectedRef.current !== selectedCity?.code) {
+      _geoLocalitiesInjectedRef.current = null;
+      _detectedWardRef.current = null;
     }
     if (selectedCity && fetchedLocalities) {
       // ── GeoJSON-injection guard ─────────────────────────────────────────
       // If we already injected GeoJSON wards into localities (from GPS detection)
-      // and MDMS only returned stub data (≤1 ward), keep the GeoJSON wards.
+      // and MDMS only returned stub data (≤1 ward), keep the GeoJSON wards but
+      // remap their codes to match the MDMS code convention (e.g. WARD_5 → RAIP_W5)
+      // so the correct code is saved to the backend.
       if (_geoLocalitiesInjectedRef.current && fetchedLocalities.length <= 1) {
+        if (fetchedLocalities.length === 1) {
+          const stubCode = fetchedLocalities[0].code || ""; // e.g. "RAIP_W1"
+          // Extract: prefix="RAIP", padding digits length
+          const stubMatch = stubCode.match(/^(.+?)_W(0*)(\d+)$/i);
+          if (stubMatch) {
+            const prefix = stubMatch[1];                           // "RAIP"
+            const zeroPadTotal = (stubMatch[2] + stubMatch[3]).length; // e.g. 2 for "01"
+            const hasPad = stubMatch[2].length > 0;
+            const tenantPrefix = (selectedCity?.code || "").replace(".", "_").toUpperCase();
+            const remap = (wn) => {
+              const wnStr = hasPad ? String(wn).padStart(zeroPadTotal, "0") : String(wn);
+              return `${prefix}_W${wnStr}`;
+            };
+            setLocalities((prev) =>
+              prev.map((w) => {
+                if (!w._fromGeoJSON || w.wardNumber == null) return w;
+                const code = remap(w.wardNumber);
+                return { ...w, code, i18nkey: `${tenantPrefix}_REVENUE_${code}` };
+              })
+            );
+            setSelectedLocality((prev) => {
+              if (!prev || !prev._fromGeoJSON || prev.wardNumber == null) return prev;
+              const code = remap(prev.wardNumber);
+              return { ...prev, code, i18nkey: `${tenantPrefix}_REVENUE_${code}` };
+            });
+          }
+        }
         return; // preserve GeoJSON-injected localities
       }
       // If MDMS returned real ward data (>1) and we had GeoJSON wards,
       // switch to MDMS and re-trigger ward matching via pendingLocalityMatch.
       if (_geoLocalitiesInjectedRef.current && fetchedLocalities.length > 1) {
-        _geoLocalitiesInjectedRef.current = false;
+        _geoLocalitiesInjectedRef.current = null;
         setLocalities(fetchedLocalities);
         const stored = _detectedWardRef.current;
         if (stored) setPendingLocalityMatch({ wardNumber: stored.wardNumber, wardName: stored.wardName });
@@ -418,6 +467,46 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
           if (!formData?.address?.locality) setSelectedLocality(null);
         }
       }
+
+      // ── GeoJSON fallback for manual city selection ───────────────────────
+      // Most CG ULBs have ≤1 stub ward in MDMS. Fall back to geoDataBundle
+      // so the dropdown is populated with real ward polygons.
+      if (list.length <= 1) {
+        const cityCode = selectedCity.code;
+        const stubCode = list.length === 1 ? (list[0].code || "") : "";
+        const stubMatch = stubCode.match(/^(.+?)_W(0*)(\d+)$/i);
+        setLocalities([]);        // clear stale localities while loading
+        setSelectedLocality(null);
+        getAllWardsForULB(cityCode).then((geoWards) => {
+          if (geoWards.length > 0) {
+            const tenantPrefix = cityCode.replace(".", "_").toUpperCase();
+            let remappedWards = geoWards;
+            if (stubMatch) {
+              // Remap "WARD_5" codes → "RAIP_W5" using the MDMS stub pattern
+              const prefix = stubMatch[1];
+              const hasPad = stubMatch[2].length > 0;
+              const padLen = (stubMatch[2] + stubMatch[3]).length;
+              remappedWards = geoWards.map((w) => {
+                if (w.wardNumber == null) return w;
+                const wnStr = hasPad ? String(w.wardNumber).padStart(padLen, "0") : String(w.wardNumber);
+                const code = `${prefix}_W${wnStr}`;
+                return { ...w, code, i18nkey: `${tenantPrefix}_REVENUE_${code}` };
+              });
+            }
+            _geoLocalitiesInjectedRef.current = cityCode;
+            setLocalities(remappedWards);
+          } else {
+            // No GeoJSON for this city — show whatever MDMS returned
+            setLocalities(list);
+            if (list.length === 1) setSelectedLocality(list[0]);
+          }
+        }).catch(() => {
+          setLocalities(list);
+          if (list.length === 1) setSelectedLocality(list[0]);
+        });
+        return;
+      }
+
       setLocalities(list);
       if (list.length === 1) setSelectedLocality(list[0]);
     }
@@ -670,7 +759,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
 
             if (geoWards.length > 0 && kmlResult.wardNumber != null) {
               // Inject GeoJSON wards into the localities dropdown immediately
-              _geoLocalitiesInjectedRef.current = true;
+              _geoLocalitiesInjectedRef.current = kmlResult.cityCode;
               setLocalities(geoWards);
 
               const detectedWard = geoWards.find(function(w) { return w.wardNumber === kmlResult.wardNumber; });
@@ -687,7 +776,7 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               }
             } else if (geoWards.length > 0) {
               // GeoJSON has wards but detection returned no wardNumber
-              _geoLocalitiesInjectedRef.current = true;
+              _geoLocalitiesInjectedRef.current = kmlResult.cityCode;
               setLocalities(geoWards);
               setKmlDetectionMsg("City auto-filled. Please select the ward manually.");
             } else {
@@ -1309,6 +1398,15 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
             <PTMapPicker
               lat={latitude}
               lng={longitude}
+              initialBounds={(() => {
+                // Only apply tenant bounds when no pin has been placed yet
+                if (latitude && longitude) return null;
+                const tenantCode = Digit.ULBService.getCitizenCurrentTenant(true);
+                return tenantCode ? getULBBbox(tenantCode) : null;
+              })()}
+              focusBounds={selectedCity ? getULBBbox(selectedCity.code) : null}
+              boundaryGeoJSON={selectedCity ? getULBGeoJSON(selectedCity.code) : null}
+              restrictToULB={cityLocked ? selectedCity?.code : null}
               onLocationSelect={handleLocationSelect}
               onAddressResolve={handleAddressResolve}
               t={t}
@@ -1353,15 +1451,27 @@ const PTAllPropertyDetails = ({ t, config, onSelect, userType, formData }) => {
               <div style={col3}>
                 <label style={labelStyle}>{t("MYCITY_CODE_LABEL")}<span style={requiredMark}>*</span></label>
                 <div style={{ position: "relative" }}>
-                  <RadioOrSelect
-                    options={cities.sort((a, b) => a.name.localeCompare(b.name))}
-                    selectedOption={selectedCity}
-                    optionKey="i18nKey"
-                    onSelect={handleSelectCity}
-                    t={t}
-                    isPTFlow={true}
-                    optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
-                  />
+                  {cityLocked ? (
+                    // Tenant city is fixed — show as read-only text
+                    <div style={{
+                      height: "40px", padding: "0 12px", border: "1px solid #b1b4b6",
+                      borderRadius: "4px", background: "#f0f0f0", display: "flex",
+                      alignItems: "center", fontSize: "14px", color: "#0b0c0c",
+                      cursor: "not-allowed",
+                    }}>
+                      {selectedCity ? t(selectedCity.i18nKey) || selectedCity.name : ""}
+                    </div>
+                  ) : (
+                    <RadioOrSelect
+                      options={cities.sort((a, b) => a.name.localeCompare(b.name))}
+                      selectedOption={selectedCity}
+                      optionKey="i18nKey"
+                      onSelect={handleSelectCity}
+                      t={t}
+                      isPTFlow={true}
+                      optionCardStyles={{ position: "absolute", zIndex: 9999, width: "100%", background: "#fff", boxShadow: "0 8px 24px rgba(0,0,0,0.15)", maxHeight: "220px", overflowY: "auto" }}
+                    />
+                  )}
                 </div>
               </div>
 

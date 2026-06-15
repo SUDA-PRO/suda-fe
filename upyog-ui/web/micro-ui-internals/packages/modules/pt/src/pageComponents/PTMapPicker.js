@@ -1,5 +1,6 @@
 ﻿import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
+import { isPointInULB } from "../utils/kmlGeoService";
 
 /**
  * PTMapPicker
@@ -37,7 +38,7 @@ const MAP_STRINGS = {
   PT_MAP_GEO_TIMEOUT:       "Location request timed out. Please try again.",
 };
 
-const PTMapPicker = ({ lat, lng, onLocationSelect, onAddressResolve, t }) => {
+const PTMapPicker = ({ lat, lng, initialBounds, focusBounds, boundaryGeoJSON, restrictToULB, onLocationSelect, onAddressResolve, t }) => {
   // tMap resolves i18n key; falls back to built-in English if key not yet in MDMS
   const tMap = (key) => {
     if (!t) return MAP_STRINGS[key] || key;
@@ -48,6 +49,7 @@ const PTMapPicker = ({ lat, lng, onLocationSelect, onAddressResolve, t }) => {
   const mapContainerRef = useRef(null);
   const mapRef          = useRef(null);
   const markerRef       = useRef(null);
+  const boundaryLayerRef = useRef(null);
   const searchDebounce  = useRef(null);
   const [leafletReady, setLeafletReady] = useState(false);
   const [pinLabel, setPinLabel] = useState(
@@ -135,12 +137,21 @@ out tags;`;
   };
 
   const placeMarker = (L, pLat, pLng) => {
+    // If this map is locked to a ULB, reject clicks outside its boundary
+    if (restrictToULB && !isPointInULB(pLat, pLng, restrictToULB)) {
+      return; // silently ignore — boundary ring on map makes it visually obvious
+    }
     if (markerRef.current) {
       markerRef.current.setLatLng([pLat, pLng]);
     } else {
       markerRef.current = L.marker([pLat, pLng], { draggable: true }).addTo(mapRef.current);
       markerRef.current.on("dragend", () => {
         const pos = markerRef.current.getLatLng();
+        // Reject drag if outside locked ULB
+        if (restrictToULB && !isPointInULB(pos.lat, pos.lng, restrictToULB)) {
+          markerRef.current.setLatLng([pLat, pLng]); // snap back
+          return;
+        }
         setPinLabel(`${pos.lat.toFixed(6)}, ${pos.lng.toFixed(6)}`);
         onLocationSelect(pos.lat, pos.lng);
       });
@@ -375,6 +386,12 @@ out tags;`;
         attributionControl: true,
       });
 
+      // If a tenant boundary bbox was provided and no pin exists yet, zoom into that ULB
+      if (!lat && !lng && initialBounds) {
+        const [minLng, minLat, maxLng, maxLat] = initialBounds;
+        map.fitBounds([[minLat, minLng], [maxLat, maxLng]], { padding: [20, 20] });
+      }
+
       // Remove "Leaflet" branding; keep attribution (required by licenses)
       map.attributionControl.setPrefix("");
 
@@ -420,6 +437,38 @@ out tags;`;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [leafletReady]);
+
+  /* ── Draw / update ULB boundary layer when boundaryGeoJSON changes ── */
+  useEffect(() => {
+    if (!mapRef.current) return;
+    // Remove old boundary layer
+    if (boundaryLayerRef.current) {
+      boundaryLayerRef.current.remove();
+      boundaryLayerRef.current = null;
+    }
+    if (!boundaryGeoJSON) return;
+    boundaryLayerRef.current = L.geoJSON(boundaryGeoJSON, {
+      style: {
+        color: "#0070f3",
+        weight: 2,
+        opacity: 0.85,
+        fillColor: "#0070f3",
+        fillOpacity: 0.06,
+        dashArray: "6 4",
+      },
+      interactive: false, // don't intercept map clicks
+    }).addTo(mapRef.current);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [boundaryGeoJSON]);
+
+  /* ── Pan/zoom to selected city boundary when dropdown changes ── */
+  useEffect(() => {
+    // Only re-focus when map is ready and no pin has been placed by the user
+    if (!mapRef.current || !focusBounds || (lat && lng)) return;
+    const [minLng, minLat, maxLng, maxLat] = focusBounds;
+    mapRef.current.fitBounds([[minLat, minLng], [maxLat, maxLng]], { padding: [20, 20] });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [focusBounds]);
 
   /* ── Sync external lat/lng changes (e.g. form restore) ── */
   useEffect(() => {

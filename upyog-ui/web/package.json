@@ -11,6 +11,7 @@
     "micro-ui-internals/packages/modules/hrms",
     "micro-ui-internals/packages/modules/dss",
     "micro-ui-internals/packages/modules/engagement",
+    "micro-ui-internals/packages/modules/fsm",
     "micro-ui-internals/packages/modules/pt",
     "micro-ui-internals/packages/modules/obps",
     "micro-ui-internals/packages/modules/ws",
