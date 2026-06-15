@@ -722,6 +722,17 @@ let propertyStructureDetails= {"usageCategory":"","structureType":applicationDat
         ]
     },
     {
+        "head": "PT_TAX_CHARGES_HEADER",
+        "body": [
+            {
+                "type": "component",
+                "component": "TaxCharges",
+                "key": "taxCharges",
+                "withoutLabel": true
+            }
+        ]
+    },
+    {
         "head": "ES_NEW_APPLICATION_DOCUMENTS_REQUIRED",
         "body": [
             {

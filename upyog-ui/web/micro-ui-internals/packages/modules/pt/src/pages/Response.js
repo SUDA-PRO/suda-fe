@@ -26,8 +26,8 @@ const BannerPicker = (props) => {
   return (
     <Banner
       message={isDataUpload ? props.t("PT_PROPERTY_UPDATED_SUCCESSFULLY", "Property Successfully Updated") : GetActionMessage(props?.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
-      applicationNumber={props?.data?.Properties?.[0]?.acknowldgementNumber}
-      info={isDataUpload ? props.t("PT_PROPERTY_ID", "Property ID") : GetLabel(props.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
+      applicationNumber={isDataUpload ? null : props?.data?.Properties?.[0]?.acknowldgementNumber}
+      info={isDataUpload ? null : GetLabel(props.data?.Properties?.[0]?.applicationStatus || props.action, props.isSuccess, props.isEmployee, props.t)}
       successful={props.isSuccess}
     />
   );

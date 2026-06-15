@@ -94,8 +94,8 @@ button.submit-bar {
   border: none !important;
   border-radius: 10px !important;
   padding: 0 40px !important;
-  height: 52px !important;
-  min-height: 52px !important;
+  height: 48px !important;
+  min-height: 48px !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   letter-spacing: 0.4px !important;
@@ -103,7 +103,10 @@ button.submit-bar {
   box-shadow: 0 4px 14px rgba(244, 119, 56, 0.40) !important;
   transition: transform 0.15s ease, box-shadow 0.15s ease !important;
   min-width: 160px !important;
+  width: auto !important;
+  margin-left: auto !important;
   line-height: 1 !important;
+  opacity: 1 !important;
 }
 button.submit-bar:hover {
   transform: translateY(-2px) !important;
@@ -127,19 +130,22 @@ button.submit-bar-disabled {
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
-  background: #d0d5dd !important;
-  color: #8a97a8 !important;
+  background: #b0b8c1 !important;
+  color: #ffffff !important;
   border: none !important;
   border-radius: 10px !important;
   padding: 0 40px !important;
-  height: 52px !important;
-  min-height: 52px !important;
+  height: 48px !important;
+  min-height: 48px !important;
   font-size: 15px !important;
   font-weight: 700 !important;
   cursor: not-allowed !important;
   box-shadow: none !important;
   min-width: 160px !important;
+  width: auto !important;
+  margin-left: auto !important;
   line-height: 1 !important;
+  opacity: 1 !important;
 }
 button.submit-bar-disabled header {
   display: inline !important;
@@ -148,7 +154,7 @@ button.submit-bar-disabled header {
   font-size: 15px !important;
   font-weight: 700 !important;
   line-height: 1 !important;
-  color: #8a97a8 !important;
+  color: #ffffff !important;
   pointer-events: none !important;
 }
 

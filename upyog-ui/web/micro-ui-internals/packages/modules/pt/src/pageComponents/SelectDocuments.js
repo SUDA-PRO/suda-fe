@@ -122,6 +122,17 @@ function SelectDocument({
   const [file, setFile] = useState(null);
   const [uploadedFile, setUploadedFile] = useState(() => filteredDocument?.fileStoreId || null);
 
+  const handleViewFile = async () => {
+    if (!uploadedFile) return;
+    try {
+      const res = await Digit.UploadServices.Filefetch([uploadedFile], tenantId);
+      const url = res?.data?.[uploadedFile]?.split(",")[0];
+      if (url) window.open(url, "_blank");
+    } catch (e) {
+      // ignore
+    }
+  };
+
   const handleSelectDocument = (value) => setSelectedDocument(value);
 
   function selectfile(e) {
@@ -357,6 +368,16 @@ function SelectDocument({
             buttonType="button"
             error={!uploadedFile}
           />
+          {uploadedFile && (
+            <div style={{ marginTop: "6px" }}>
+              <span
+                onClick={handleViewFile}
+                style={{ color: "#f47738", fontSize: "12px", fontWeight: "600", cursor: "pointer", textDecoration: "underline" }}
+              >
+                {t("PT_VIEW_UPLOADED_FILE", "View Uploaded File")}
+              </span>
+            </div>
+          )}
           <div style={{marginTop:"10px", fontSize:'12px'}}>{t("CS_FILE_SIZE_RESTRICTIONS_PT")}</div>
         </div>
       </LabelFieldPair>

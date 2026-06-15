@@ -3,7 +3,6 @@
   Loader,
   SearchField,
   SearchForm,
-  SubmitBar,
   Table,
   DetailsCard,
   Toast,
@@ -21,6 +20,7 @@ const defaultSearchValues = {
   locality: null,
   name: "",
   mobileNumber: "",
+  propertyId: "",
 };
 
 const GetCell = (value) => <span className="cell-text">{value}</span>;
@@ -61,8 +61,9 @@ const UpdateOwnerProfile = () => {
     const locality = formValues.locality?.code;
     const name = formValues.name?.trim();
     const mobileNumber = formValues.mobileNumber?.trim();
+    const propertyId = formValues.propertyId?.trim();
 
-    if (!locality && !name && !mobileNumber) {
+    if (!locality && !name && !mobileNumber && !propertyId) {
       setShowToast({ warning: true, label: "PT_UPDATE_OWNER_ATLEAST_ONE_FIELD" });
       return;
     }
@@ -71,6 +72,7 @@ const UpdateOwnerProfile = () => {
     if (locality) payload.locality = locality;
     if (name) payload.name = name;
     if (mobileNumber) payload.mobileNumber = mobileNumber;
+    if (propertyId) payload.propertyIds = propertyId;
 
     setShowToast(null);
     setSearchPayload(payload);
@@ -288,6 +290,15 @@ const UpdateOwnerProfile = () => {
           </SearchField>
 
           <SearchField>
+            <CardLabel>{t("PT_COMMON_TABLE_COL_PT_ID")}</CardLabel>
+            <TextInput
+              name="propertyId"
+              inputRef={register()}
+              placeholder={t("PT_SEARCH_PROPERTY_ID_PLACEHOLDER", "Enter Property ID")}
+            />
+          </SearchField>
+
+          <SearchField>
             <CardLabel>{t("PT_HOME_SEARCH_RESULTS_OWN_MOB_LABEL")}</CardLabel>
             <MobileNumber
               name="mobileNumber"
@@ -307,22 +318,51 @@ const UpdateOwnerProfile = () => {
             )}
           </SearchField>
 
-          <SearchField className="submit">
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
-              <span
+          <SearchField className="submit" style={{ gridColumn: "1 / -1" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "flex-end", gap: "12px", width: "100%" }}>
+              <button
+                type="button"
                 onClick={onReset}
                 style={{
                   cursor: "pointer",
-                  color: "#F47738",
+                  background: "#e8eaed",
+                  color: "#5f6368",
+                  border: "1px solid #d0d5dd",
+                  borderRadius: "8px",
+                  width: "130px",
+                  height: "42px",
                   fontSize: "13px",
                   fontWeight: "600",
-                  textDecoration: "underline",
                   whiteSpace: "nowrap",
+                  transition: "background 0.15s ease",
+                  flexShrink: 0,
                 }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#d9dde3"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#e8eaed"; }}
               >
                 {t("ES_COMMON_CLEAR_SEARCH")}
-              </span>
-              <SubmitBar label={t("ES_COMMON_SEARCH")} submit />
+              </button>
+              <button
+                type="submit"
+                style={{
+                  cursor: "pointer",
+                  background: "linear-gradient(135deg, #f47738 0%, #e05a1a 100%)",
+                  color: "#fff",
+                  border: "none",
+                  borderRadius: "8px",
+                  width: "130px",
+                  height: "42px",
+                  fontSize: "13px",
+                  fontWeight: "700",
+                  whiteSpace: "nowrap",
+                  transition: "opacity 0.15s ease",
+                  flexShrink: 0,
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.opacity = "0.9"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
+              >
+                {t("ES_COMMON_SEARCH")}
+              </button>
             </div>
           </SearchField>
         </SearchForm>
