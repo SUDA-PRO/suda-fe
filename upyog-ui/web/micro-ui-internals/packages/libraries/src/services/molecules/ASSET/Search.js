@@ -272,39 +272,60 @@ export const ASSETSearch = {
     const response = await ASSETSearch.application(tenantId, filter);
 
     // Fetch all data depriciation list
-    const applicationDetails = await Digit.ASSETService.depriciationList({
-      Asset: {
-        tenantId,
-        id: response?.id,
-        accountId: ""
-      }
-    });
-    const maintenanceList = await Digit.ASSETService.maintenanceList({
-      AssetMaintenanceSearchCriteria: {
-        tenantId,
-        assetIds: [response?.id],
-        "limit": 10,
-        "offset": 0
-      }
-    });
+    let applicationDetails = null;
+    try {
+      applicationDetails = await Digit.ASSETService.depriciationList({
+        Asset: {
+          tenantId,
+          id: response?.id,
+          accountId: ""
+        }
+      });
+    } catch (e) {
+      console.warn("depriciationList API failed", e);
+    }
 
-    const disposalList = await Digit.ASSETService.disposalList({
-      searchCriteria: {
-        tenantId,
-        assetIds: [response?.id],
-        limit: 10,
-        offset: 0
-      }
-    });
+    let maintenanceList = null;
+    try {
+      maintenanceList = await Digit.ASSETService.maintenanceList({
+        AssetMaintenanceSearchCriteria: {
+          tenantId,
+          assetIds: [response?.id],
+          "limit": 10,
+          "offset": 0
+        }
+      });
+    } catch (e) {
+      console.warn("maintenanceList API failed", e);
+    }
 
-    const getAssignAsset = await Digit.ASSETService.assetAssignable({
-      Asset: {
-        tenantId,
-        id: response?.id,
-        limit: 10,
-        offset: 0
-      }
-    });
+    let disposalList = null;
+    try {
+      disposalList = await Digit.ASSETService.disposalList({
+        searchCriteria: {
+          tenantId,
+          assetIds: [response?.id],
+          limit: 10,
+          offset: 0
+        }
+      });
+    } catch (e) {
+      console.warn("disposalList API failed", e);
+    }
+
+    let getAssignAsset = null;
+    try {
+      getAssignAsset = await Digit.ASSETService.assetAssignable({
+        Asset: {
+          tenantId,
+          id: response?.id,
+          limit: 10,
+          offset: 0
+        }
+      });
+    } catch (e) {
+      console.warn("assetAssignable API failed", e);
+    }
     
     return {
       tenantId: response.tenantId,

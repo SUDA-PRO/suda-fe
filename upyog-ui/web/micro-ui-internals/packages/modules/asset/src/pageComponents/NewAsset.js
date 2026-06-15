@@ -14,6 +14,66 @@ import { useLocation } from "react-router-dom";
 import Timeline from "../components/ASTTimeline";
 import { Controller, useForm } from "react-hook-form";
 
+const DynamicDropdownField = ({ row, assetDetails, handleInputChange, t }) => {
+  const trimmedName = row.masterName
+    ? row.masterName.trim()
+    : row.name
+    ? row.name.charAt(0).toUpperCase() + row.name.slice(1)
+    : "";
+  const stateId = Digit.ULBService.getStateId();
+  const mdmsUrl = `${window.location.origin}/egov-mdms-service/v1/_search`;
+  const mdmsPayload = {
+    MdmsCriteria: {
+      tenantId: stateId,
+      moduleDetails: [{ moduleName: "ASSET", masterDetails: [{ name: trimmedName }] }],
+    },
+  };
+
+  console.log(`[DynamicDropdown '${row.name}'] MDMS URL:`, mdmsUrl);
+  console.log(`[DynamicDropdown '${row.name}'] MDMS Payload:`, JSON.stringify(mdmsPayload, null, 2));
+
+  const { data: masterDropdown } = Digit.Hooks.useEnabledMDMS(stateId, "ASSET", [{ name: trimmedName }], {
+    select: (data) => {
+      const result = data?.["ASSET"]?.[trimmedName];
+      console.log(`[DynamicDropdown '${row.name}'] MDMS Response (full data):`, data);
+      return result;
+    },
+  });
+
+  // Build dropdown options: prefer MDMS response, fall back to options embedded in the formJson field
+  let dropDown = [];
+  if (masterDropdown && masterDropdown.length > 0) {
+    console.log(`[DynamicDropdown '${row.name}'] Using MDMS options (${masterDropdown.length} items)`);
+    dropDown = masterDropdown.map((item) => ({ i18nKey: `${item.code}`, code: `${item.code}`, name: `${item.name}` }));
+  } else {
+    // formJson field may carry options under row.options, row.values, or row.dropdownOptions
+    const fallbackOptions = row.options || row.values || row.dropdownOptions || [];
+    if (fallbackOptions.length > 0) {
+      console.log(`[DynamicDropdown '${row.name}'] MDMS empty — falling back to formJson field options (${fallbackOptions.length} items):`, fallbackOptions);
+      dropDown = fallbackOptions.map((item) => ({
+        i18nKey: item.i18nKey || item.code || `${item.name}`,
+        code: item.code || `${item.name}`,
+        name: item.name || item.code,
+      }));
+    } else {
+      console.warn(`[DynamicDropdown '${row.name}'] No options from MDMS and no fallback options found in formJson row:`, row);
+    }
+  }
+
+  return (
+    <Dropdown
+      className="form-field"
+      selected={assetDetails[row.name]}
+      select={handleInputChange}
+      option={dropDown}
+      optionKey="i18nKey"
+      placeholder={"Select"}
+      isMandatory={false}
+      t={t}
+    />
+  );
+};
+
 const NewAsset = ({ t, config, onSelect, formData }) => {
   const [assetDetails, setAssetDetails] = useState(
     formData.assetDetails && formData.assetDetails.assetParentCategory === formData?.asset?.assettype?.code
@@ -69,6 +129,7 @@ const NewAsset = ({ t, config, onSelect, formData }) => {
       .map((category) => category.fields) // Extract the fields array
       .flat() // Flatten the fields array
       .filter((field) => field.active === true); // Filter by active status
+    console.log("[NewAsset] Dynamic fields rendered from backend (formJson):", formJson);
   }
   
   const { pathname: url } = useLocation();
@@ -274,7 +335,7 @@ useEffect(() => {
                   name={"purchaseDate"}
                   value={assetDetails["purchaseDate"]}
                   onChange={handleInputChange}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   max={new Date().toISOString().split("T")[0]}
                   rules={{
                     required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -316,7 +377,7 @@ useEffect(() => {
               type: "text",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
           <div>
@@ -347,7 +408,7 @@ useEffect(() => {
                   name={"invoiceDate"}
                   value={assetDetails["invoiceDate"]}
                   onChange={handleInputChange}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   min={assetDetails["purchaseDate"] || ""}
                   // max={new Date().toISOString().split("T")[0]}
                   disabled={!assetDetails["purchaseDate"]}
@@ -394,7 +455,7 @@ useEffect(() => {
               type: "text",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
 
@@ -431,7 +492,7 @@ useEffect(() => {
                type: "number",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
 
@@ -529,7 +590,7 @@ useEffect(() => {
               type: "number",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
         <div>
@@ -566,7 +627,7 @@ useEffect(() => {
               type: "number",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
 <div>
@@ -602,7 +663,7 @@ useEffect(() => {
               type: "text",
               title: t("PT_NAME_ERROR_MESSAGE"),
             })}
-            style={{ width: "50%" }}
+            textInputStyle={{ width: "50%" }}
           />
 
           {/* Dynamically Form Render */}
@@ -640,7 +701,7 @@ useEffect(() => {
                   name={row.name}
                   value={assetDetails[row.name]}
                   onChange={handleInputChange}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   max={new Date().toISOString().split("T")[0]}
                   rules={{
                     required: t("CORE_COMMON_REQUIRED_ERRMSG"),
@@ -649,24 +710,11 @@ useEffect(() => {
                 />
               ) : row.type == "dropdown" ? (
                 //  if dropdown render
-                <Controller
-                  control={control}
-                  name={row.name}
-                  isMandatory={false}
-                  defaultValue={assetDetails[row.name] ? assetDetails[row.name] : ""}
-                  rules={{ required: t("CORE_COMMON_REQUIRED_ERRMSG") }}
-                  render={(props) => (
-                    <Dropdown
-                      className="form-field"
-                      selected={assetDetails[row.name]}
-                      select={handleInputChange}
-                      option={dropDownData(row.masterName)}
-                      optionKey="i18nKey"
-                      placeholder={"Select"}
-                      isMandatory={false}
-                      t={t}
-                    />
-                  )}
+                <DynamicDropdownField
+                  row={row}
+                  assetDetails={assetDetails}
+                  handleInputChange={handleInputChange}
+                  t={t}
                 />
               ) : row.addCurrentLocationButton === true ? (
                 // if Fetch Location True
@@ -724,7 +772,7 @@ useEffect(() => {
                     type: row.columnType,
                     title: t("PT_NAME_ERROR_MESSAGE"),
                   })}
-                  style={{ width: "50%" }}
+                  textInputStyle={{ width: "50%" }}
                   readOnly={row.isReadOnly}
                 />
               )}
