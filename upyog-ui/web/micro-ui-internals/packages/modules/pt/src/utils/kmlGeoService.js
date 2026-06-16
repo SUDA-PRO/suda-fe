@@ -78,22 +78,6 @@ function _bboxContains(bbox, lat, lng) {
 }
 
 // ── Index derived from geoBundle (bbox computed from features) ────────────
-function _computeBbox(geojson) {
-  let minLng = Infinity, minLat = Infinity, maxLng = -Infinity, maxLat = -Infinity;
-  for (const feature of geojson.features) {
-    const coords = feature.geometry.type === "Polygon"
-      ? feature.geometry.coordinates[0]
-      : feature.geometry.coordinates.flat(2);
-    for (const [lng, lat] of coords) {
-      if (lng < minLng) minLng = lng;
-      if (lat < minLat) minLat = lat;
-      if (lng > maxLng) maxLng = lng;
-      if (lat > maxLat) maxLat = lat;
-    }
-  }
-  return [minLng, minLat, maxLng, maxLat];
-}
-
 async function _loadIndex() {
   if (_cache.index) return _cache.index;
   _cache.index = Object.keys(geoBundle).map((code) => ({
