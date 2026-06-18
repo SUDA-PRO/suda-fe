@@ -2,6 +2,13 @@
 .back-btn2 svg {
   fill: currentColor;
 }
+
+/* FSM response page — fill full content width */
+@media (min-width: 780px) {
+  .fsm-citizen-wrapper {
+    width: 100% !important;
+  }
+}
 /* Back button — override hover: light fill instead of full navy invert */
 .back-btn2:hover {
   background: #EEF2FF !important;
@@ -459,6 +466,10 @@ div.upload-file .selector-button-border {
   margin: 4px 0 0 0 !important;
   font-style: italic !important;
 }
+
+
+
+
 
 /* ═══════════════════════════════════════════════════════════════
    PT EDIT PROPERTY — Beautiful Card + Input Overrides (Orange)

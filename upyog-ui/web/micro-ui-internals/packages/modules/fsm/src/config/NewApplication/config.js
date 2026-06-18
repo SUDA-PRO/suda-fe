@@ -55,6 +55,16 @@ export const newConfig = [
           nextStep: 'property-type',
           hideInEmployee: true,
         },
+        {
+          type: "component",
+          route: "fsm-property-details",
+          isMandatory: true,
+          component: "FSMPropertyDetailsForm",
+          key: "fsmPropertyDetails",
+          withoutLabel: true,
+          nextStep: null,
+          hideInEmployee: true,
+        },
         
       ],
   },

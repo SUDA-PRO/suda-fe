@@ -170,8 +170,9 @@ const Home = ({
               </div>
               {code?.toUpperCase()==="ADS" && (
                 <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between" }}>
-                {Advertisement.map((ad) => (
+                {Advertisement.map((ad, adIndex) => (
                   <AdvertisementModuleCard
+                    key={ad.poleNo || adIndex}
                     imageSrc={ad.imageSrc} 
                     poleNo={ad.poleNo} 
                     light={ad.light} 

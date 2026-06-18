@@ -60,6 +60,7 @@ import { FsmBreadCrumb } from "./pages/employee";
 import AdvanceCollection from "./pageComponents/AdvanceCollection";
 import SelectTrips from "./pageComponents/SelectTrips";
 import PlusMinusInput from "./pageComponents/PlusMinusInput";
+import FSMPropertyDetailsForm from "./pageComponents/FSMPropertyDetailsForm";
 import ConfirmationBox from "./components/Confirmation";
 import SelectLocalityOrGramPanchayat from "./pageComponents/SelectLocalityOrGramPanchayat";
 import AddWorker from "./pages/employee/FSMRegistry/Worker/AddWorker"
@@ -164,6 +165,7 @@ const FSMLinks = ({ matchPath, userType }) => {
 };
 
 const componentsToRegister = {
+  FSMPropertyDetailsForm,
   SelectPropertySubtype,
   SelectPropertyType,
   SelectPropertyID,

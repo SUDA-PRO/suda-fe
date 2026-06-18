@@ -646,7 +646,7 @@ export default function Dashboard({ citySlug: citySlugProp } = {}) {
                         ].map((sub) => (
                           <a
                             key={sub.label}
-                            href={sub.href}
+                            href={sub.href} 
                             onClick={(e) => { e.preventDefault(); setCitizenCornerOpen(false); setPtOpen(false); handleServiceClick(sub.href); }}
                             style={{
                               display: "block",

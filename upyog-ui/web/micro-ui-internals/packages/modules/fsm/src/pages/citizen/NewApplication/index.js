@@ -79,6 +79,14 @@ const FileComplaint = ({ parentRoute }) => {
   });
 
   configs = [...config]
+  const fallbackFsmPropertyRoute = (newConfig || [])
+    .flatMap((section) => section.body || [])
+    .find((routeObj) => routeObj?.route === "fsm-property-details");
+
+  if (fallbackFsmPropertyRoute && !configs.some((routeObj) => routeObj?.route === "fsm-property-details")) {
+    configs.push(fallbackFsmPropertyRoute);
+  }
+
   configs.indexRoute = "select-trip-number";
 
   return (

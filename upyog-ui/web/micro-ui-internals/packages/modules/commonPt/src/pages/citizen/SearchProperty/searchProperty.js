@@ -31,11 +31,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   const [uiOldPropertyId, setUiOldPropertyId] = useState("");
   const [uiDoorNo, setUiDoorNo] = useState("");
   const [uiOwnerName, setUiOwnerName] = useState("");
-  
-  // Debug: Log if onSkip is provided
-  console.log("SearchProperty - onSkip prop:", onSkip ? "Provided" : "Not provided");
-  console.log("SearchProperty - Current URL:", window.location.href);
-  
+
   sessionStorage.setItem("VisitedCommonPTSearch",true);
   sessionStorage.setItem("VisitedLightCreate",false);
   let allCities = Digit.Hooks.pt.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
@@ -723,7 +719,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
     }
     if (window.location.href.includes("/fsm/new-application/")) {
       return (
-        <Link to={"/suda-ui/citizen/fsm/new-application/property-type"} style={{ textDecoration: "none" }}>
+        <Link to={"/suda-ui/citizen/fsm/new-application/fsm-property-details"} style={{ textDecoration: "none" }}>
           <button type="button" style={{ padding: "8px 16px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", border: "none", borderRadius: "8px", color: "#fff", fontSize: "12px", fontWeight: "700", cursor: "pointer" }}>
             {t("CORE_COMMON_SKIP_CONTINUE")}
           </button>

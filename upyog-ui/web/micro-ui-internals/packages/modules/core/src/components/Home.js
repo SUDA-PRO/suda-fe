@@ -107,28 +107,13 @@ export const processLinkData = (newData, code, t) => {
   }
 
   if (code === "FSM") {
-    const roleBasedLoginRoutes = [
-      {
-        role: "FSM_DSO",
-        from: "/suda-ui/citizen/fsm/dso-dashboard",
-        dashoardLink: "CS_LINK_DSO_DASHBOARD",
-        loginLink: "CS_LINK_LOGIN_DSO",
-      },
-    ];
-    //RAIN-7297
-    roleBasedLoginRoutes.map(({ role, from, loginLink, dashoardLink }) => {
-      if (Digit.UserService.hasAccess(role))
-        newObj?.links?.push({
-          link: from,
-          i18nKey: t(dashoardLink),
-        });
-      else
-        newObj?.links?.push({
-          link: `/suda-ui/login`,
-          state: { role: "FSM_DSO", from },
-          i18nKey: t(loginLink),
-        });
-    });
+    // Only add DSO Dashboard link for users who actually have the FSM_DSO role
+    if (Digit.UserService.hasAccess("FSM_DSO")) {
+      newObj?.links?.push({
+        link: "/suda-ui/citizen/fsm/dso-dashboard",
+        i18nKey: t("CS_LINK_DSO_DASHBOARD"),
+      });
+    }
   }
 
   return newObj;
@@ -192,7 +177,7 @@ const CitizenHome = ({ modules, getCitizenMenu, fetchedCitizen, isLoading }) => 
   const firstName = userName.split(" ")[0];
 
   const paymentModule = modules.filter(({ code }) => code === "Payment")[0];
-  const moduleArr = modules.filter(({ code }) => code !== "Payment" && code !== "FSM");
+  const moduleArr = modules.filter(({ code }) => code !== "Payment");
   const moduleArray = [paymentModule, ...moduleArr];
 
   if (isLoading) {

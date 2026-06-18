@@ -14,7 +14,6 @@ import CPTPropertySearchResults from "../../../../../commonPt/src/components/sea
 import CPTPropertyDetails from "../../../../../commonPt/src/pages/pageComponents/PropertyDetails"
 import CPTCreateProperty from "../../../../../commonPt/src/pages/pageComponents/createForm";
 import CPTAcknowledgement from "../../../../../commonPt/src/pages/pageComponents/PTAcknowledgement";
-//import PropertyDetails from "../../../../../commonPt/src/pages/pageComponents/PTAcknowledgement";
 import CPTSearchResults from "../../../../../commonPt/src/pages/citizen/SearchResults"
 import CPTPropertySearchNSummary from "../../../../../commonPt/src/pages/pageComponents/PropertySearchNSummary"
 import FSMSelectPincode from "./FSMSelectPincode";
@@ -22,6 +21,7 @@ import SelectTankSize from "./SelectTankSize";
 import SelectPitType from "./SelectPitType";
 // import SelectGeolocation from "./SelectGeolocation";
 import FSMSelectGeolocation from "./FSMSelectGeolocation";
+import FSMPropertyDetailsForm from "../../../pageComponents/FSMPropertyDetailsForm";
 
 export const config = {
   routes: [
@@ -75,6 +75,32 @@ export const config = {
           withoutLabel: true,
           nextStep: 'property-type',
           hideInEmployee: true,
+        },
+        {
+          type: "component",
+          route: "fsm-property-details",
+          isMandatory: true,
+          component: FSMPropertyDetailsForm,
+          key: "fsmPropertyDetails",
+          withoutLabel: true,
+          nextStep: "select-payment-preference",
+          hideInEmployee: true,
+        },
+        {
+          type: "component",
+          route: "select-payment-preference",
+          key: "selectPaymentPreference",
+          component: "SelectPaymentPreference",
+          withoutLabel: true,
+          hideInEmployee: true,
+          nextStep: null,
+          texts: {
+            headerCaption: "",
+            header: "ES_FSM_PAYMENT_PREFERENCE_LABEL",
+            cardText: "ES_FSM_PAYMENT_PREFERENCE_TEXT",
+            submitBarLabel: "CS_COMMON_NEXT",
+            skipText: "CORE_COMMON_SKIP_CONTINUE",
+          },
         },
        
         {

@@ -54,8 +54,6 @@ import { pgrCustomizations, pgrComponents } from "./pgr";
 import FireNocCitizenHome from "./FireNocCitizenHome";
 import FireNocModule from "./FireNocModule";
 
-var Digit = window.Digit || {};
-
 const enabledModules = [
   "Tqm",
   "PGR",
@@ -200,7 +198,6 @@ const initDigitUI = () => {
   const stateCode = window?.globalConfigs?.getConfig("STATE_LEVEL_TENANT_ID") || "pb";
   initTokens(stateCode);
 
-  const registry = window?.Digit.ComponentRegistryService.getRegistry();
   ReactDOM.render(<DigitUI stateCode={stateCode} enabledModules={enabledModules} moduleReducers={moduleReducers} />, document.getElementById("root"));
 };
 

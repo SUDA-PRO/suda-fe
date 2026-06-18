@@ -52,7 +52,7 @@ const FireNocCitizenHome = ({ matchPath }) => {
     history.push(`${matchPath || "/suda-ui/citizen/firenoc"}/apply`);
   };
 
-  const toLocaleKey = (code) => code && code.trim().toUpperCase().replace(/[.:\-\s\/]/g, "_");
+  const toLocaleKey = (code) => code && code.trim().toUpperCase().replace(/[.:\-\s/]/g, "_");
 
   const requiredDocs = [
     {

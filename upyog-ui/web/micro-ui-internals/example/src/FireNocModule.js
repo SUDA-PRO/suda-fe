@@ -230,7 +230,7 @@ const BackButton = ({ style, className = "" }) => {
 };
 
 /* Mirrors Digit.Utils.locale.getTransformedLocale */
-const toLocaleKey = (code) => code && code.trim().toUpperCase().replace(/[.:\-\s\/]/g, "_");
+const toLocaleKey = (code) => code && code.trim().toUpperCase().replace(/[.:\-\s/]/g, "_");
 
 /* ------------------------------------------------------------------ */
 /* Stepper                                                              */
@@ -443,11 +443,6 @@ const inputStyle = {
   background: "#fff", outline: "none",
   transition: "border-color 0.15s",
 };
-const selectStyle = {
-  ...inputStyle,
-  appearance: "none", WebkitAppearance: "none", MozAppearance: "none",
-  paddingRight: 36, cursor: "pointer", color: "inherit",
-};
 const labelStyle = { fontSize: 12, fontWeight: 600, color: "#555", display: "block", marginBottom: 2, textTransform: "uppercase", letterSpacing: "0.4px" };
 const sectionHeadStyle = {
   fontSize: 14, fontWeight: 700, margin: "0 0 16px",
@@ -534,6 +529,7 @@ const MapPickerModal = ({ onConfirm, onClose, initialCoords }) => {
     /* Expose map + pinIcon on ref so toolbar buttons can use them */
     mapRef.current = { map, pinIcon };
     return () => { map.remove(); mapRef.current = null; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleZoom = (delta) => mapRef.current?.map.setZoom(mapRef.current.map.getZoom() + delta);
@@ -939,18 +935,6 @@ const PropertyDetails = ({ onNext, onBack }) => {
       <input type={extra.type || "text"} value={val} onChange={e => set(e.target.value)}
         placeholder={extra.placeholder ? t(extra.placeholder) : ""}
         style={inputStyle} />
-    </div>
-  );
-
-  const dropdown = (labelKey, val, set, options, req, placeholderKey) => (
-    <div style={{ marginBottom: 16 }}>
-      <label style={labelStyle}>{t(labelKey)}{req && <span style={{ color: "red" }}> *</span>}</label>
-      <SelectBox value={val} onChange={e => set(e.target.value)}>
-        <option value="" disabled hidden>{t(placeholderKey)}</option>
-        {options.map(o => (
-          <option key={o} value={o}>{o}</option>
-        ))}
-      </SelectBox>
     </div>
   );
 
@@ -1366,13 +1350,6 @@ const Documents = ({ onBack, formData }) => {
   const [submitting, setSubmitting] = useState(false);
 
   // Codes derived from Suda-MDMS/data/cg/firenoc/Documents.json
-  const docList = [
-    { code: "OWNER.IDENTITYPROOF",      required: true },
-    { code: "OWNER.ADDRESSPROOF",       required: true },
-    { code: "BUILDING.BUILDING_PLAN",   required: false },
-    { code: "BUILDING.FIRE_FIGHTING_PLAN", required: false },
-  ];
-
   const handleSubmit = async () => {
     setSubmitting(true);
     try {
