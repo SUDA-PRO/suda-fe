@@ -58,7 +58,7 @@ const defaultImage =
 Feature :: Citizen Webview sidebar
 */
 const OrgHeader = ({ stateInfo, t, onClose }) => (
-  <div className="sidebar-nav__header">
+  <div className="sidebar-nav__header" style={{ flexShrink: 0 }}>
     <button className="sidebar-nav__close" onClick={onClose} aria-label="Close menu">&times;</button>
     <div className="sidebar-nav__logo-wrapper">
       <img src="https://tfstatee8aog.blob.core.windows.net/filestore/Coat_of_arms_of_Chhattisgarh.svg" className="sidebar-nav__logo-img" alt="logo" />
@@ -66,7 +66,7 @@ const OrgHeader = ({ stateInfo, t, onClose }) => (
     <div className="sidebar-nav__org-name">
       URBAN ADMINISTRATION &amp; DEPARTMENT
     </div>
-    <div className="sidebar-nav__org-short" style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", letterSpacing: "1.5px", marginTop: "-4px", marginBottom: "4px" }}>
+    <div className="sidebar-nav__org-short" style={{ fontSize: "11px", color: "rgba(255,255,255,0.6)", letterSpacing: "1.5px", marginTop: "-15px", marginBottom: "4px" }}>
       UAD
     </div>
     <div className="sidebar-nav__divider" />
@@ -257,9 +257,11 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
             // Citizen static sidebar
             .sidebar-nav {
               background-color: #091E64;
-              min-height: 100vh;
+              flex: 1;
+              min-height: 0;
               display: flex;
               flex-direction: column;
+              overflow: hidden;
             }
 
             .sidebar-nav__header {
@@ -267,7 +269,9 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
               display: flex;
               flex-direction: column;
               align-items: center;
-              padding: 65px 12px 0;
+              padding: 15px 12px 0;
+              flex-shrink: 0;
+              position: relative;
             }
 
             .sidebar-nav__logo-wrapper {
@@ -292,7 +296,7 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
             .sidebar-nav__org-name {
               color: #ffffff;
               font-weight: 700;
-              font-size: 21px;
+              font-size: 18px;
               text-align: center;
               line-height: 1.3;
               padding: 0 8px;
@@ -309,6 +313,23 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
               padding-top: 8px;
               padding-bottom: 8px;
               flex: 1;
+              min-height: 0;
+              overflow-y: auto;
+              overflow-x: hidden;
+            }
+
+            .sidebar-nav__menu::-webkit-scrollbar {
+              width: 5px;
+            }
+            .sidebar-nav__menu::-webkit-scrollbar-track {
+              background: rgba(255,255,255,0.06);
+            }
+            .sidebar-nav__menu::-webkit-scrollbar-thumb {
+              background: rgba(255,255,255,0.28);
+              border-radius: 3px;
+            }
+            .sidebar-nav__menu::-webkit-scrollbar-thumb:hover {
+              background: rgba(255,255,255,0.45);
             }
 
             .sidebar-nav__item {
@@ -351,9 +372,9 @@ const StaticCitizenSideBar = ({ linkData, islinkDataLoading, onClose }) => {
             } 
         `}
       </style>
-      <div className="sidebar-nav">
+      <div className="sidebar-nav" style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", overflow: "hidden", backgroundColor: "#091E64" }}>
         <OrgHeader stateInfo={stateInfo} t={t} onClose={onClose} />
-        <div className="sidebar-nav__menu">
+        <div className="sidebar-nav__menu" style={{ flex: 1, minHeight: 0, overflowY: "auto", overflowX: "hidden", backgroundColor: "#091E64", paddingTop: "8px", paddingBottom: "8px" }}>
           {menuItems?.map((item, index) => {
             const normalizedLink = item?.link?.replace("/digit-ui/", "/suda-ui/");
             const isActive = pathname === normalizedLink || pathname === item?.sidebarURL;

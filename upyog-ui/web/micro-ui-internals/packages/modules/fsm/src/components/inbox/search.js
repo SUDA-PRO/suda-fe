@@ -142,10 +142,10 @@ const SearchApplication = ({ onSearch, type, onClose, isFstpOperator, searchFiel
                   {getFields(input)}{" "}
                 </span>
               ))}
+              {type === "desktop" && !mobileView && <span className="clear-search">{clearAll()}</span>}
               {type === "desktop" && !mobileView && <SubmitBar className="submit-bar-search" label={t("ES_COMMON_SEARCH")} submit />}
             </div>
             {error ? <CardLabelError className="search-error-label">{t("ES_SEARCH_APPLICATION_ERROR")}</CardLabelError> : null}
-            {type === "desktop" && !mobileView && <span className="clear-search">{clearAll()}</span>}
           </div>
         </div>
         {(type === "mobile" || mobileView) && (

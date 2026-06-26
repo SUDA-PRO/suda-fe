@@ -143,8 +143,8 @@ const EmployeeApp = ({
           .employee-footer {
             position: fixed;
             bottom: 0;
-            left: 320px;
-            width: calc(100% - 320px);
+            left: 300px;
+            width: calc(100% - 300px);
             background: #ffffff;
             border-top: 1px solid #e8e8e8;
             padding: 10px 0;

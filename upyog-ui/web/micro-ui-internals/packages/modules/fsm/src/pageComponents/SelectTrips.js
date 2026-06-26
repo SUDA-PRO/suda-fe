@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getVehicleType } from "../utils";
 import { LabelFieldPair, CardLabel, TextInput, Dropdown, Loader, CardLabelError } from "@upyog/digit-ui-react-components";
 import { useLocation, useParams } from "react-router-dom";
@@ -18,6 +18,8 @@ const SelectTrips = ({ t, config, onSelect, formData = {}, userType, styles, FSM
 
   const [vehicle, setVehicle] = useState({ label: formData?.tripData?.vehicleCapacity });
   const [billError, setError] = useState(false);
+  const mountedRef = useRef(true);
+  useEffect(() => { return () => { mountedRef.current = false; }; }, []);
 
   const { isLoading: isVehicleMenuLoading, data: vehicleData } = Digit.Hooks.fsm.useMDMS(state, "Vehicle", "VehicleType", { staleTime: Infinity });
 
@@ -25,8 +27,6 @@ const SelectTrips = ({ t, config, onSelect, formData = {}, userType, styles, FSM
     limit: -1,
     status: "ACTIVE",
   });
-  console.log("ffff",formData)
-
   const [vehicleMenu, setVehicleMenu] = useState([]);
   const [noOfTrips, setNoOfTrips] = useState(formData?.tripData?.noOfTrips || '');
   const [distancefromroad, setDistanceFromRoad] = useState(formData?.tripData?.distancefromroad||'');
@@ -137,15 +137,12 @@ const SelectTrips = ({ t, config, onSelect, formData = {}, userType, styles, FSM
 
         const billSlab = billingDetails?.billingSlab?.length && billingDetails?.billingSlab[0];
         if (billSlab?.price || billSlab?.price === 0) {
-          // setValue({
-          //   amountPerTrip: billSlab.price,
-          //   amount: billSlab.price * formData.tripData.noOfTrips,
-          // });
-          // onSelect(config.key, { ...formData[config.key], amount: amount, amountPerTrip: billSlab.price });
+          if (!mountedRef.current) return;
           setValue(billSlab.price,"amountPerTrip");
           setValue(billSlab.price * formData.tripData.noOfTrips,"amount");
           setError(false);
         } else {
+          if (!mountedRef.current) return;
           setValue({
             amountPerTrip: "",
             amount: "",

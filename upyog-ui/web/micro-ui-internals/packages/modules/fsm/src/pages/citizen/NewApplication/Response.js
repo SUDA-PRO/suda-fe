@@ -368,7 +368,10 @@ const Response = ({ data, onSuccess }) => {
               {t("CS_FILE_APPLICATION_INFO_LABEL", { defaultValue: "Info" })}
             </div>
             <div style={{ fontSize: "12px", color: "#7a4000", lineHeight: "1.6" }}>
-              {t("CS_FILE_APPLICATION_INFO_TEXT", { defaultValue: "Application process will take a minute to complete. It might cost around Rs.1000-2000 for cleaning your septic tank and there are concessed rates for people living in slum areas." })}
+              {(() => {
+                const raw = t("CS_FILE_APPLICATION_INFO_TEXT", { defaultValue: "It might cost around Rs.1000-2000 for cleaning your septic tank and there are concessed rates for people living in slum areas." });
+                return raw.replace(/\{CONTENT\}\s*/g, "").replace(/\{MINAMOUNT\}/g, "1000").replace(/\{MAXAMOUNT\}/g, "2000");
+              })()}
             </div>
           </div>
         </div>

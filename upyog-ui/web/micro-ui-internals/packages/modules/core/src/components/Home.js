@@ -539,9 +539,9 @@ const EmployeeHome = ({ modules }) => {
     },
   });
 
-  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan, PT Reports
+  // Only show: Property Tax, Collections, Water & Sewerage, Solid Waste, Building Plan, PT Reports, Desludging
   // const visibleModules = modules.filter(({ code }) => !["Payment", "QuickPayLinks", "Engagement"].includes(code));
-  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS", "ASSET", "PTR"].includes(code));
+  const visibleModules = modules.filter(({ code }) => ["PT", "MCollect", "WS", "SW", "OBPS", "ASSET", "PTR", "FSM"].includes(code));
   const heroModules = visibleModules.slice(0, 4);
 
   return (

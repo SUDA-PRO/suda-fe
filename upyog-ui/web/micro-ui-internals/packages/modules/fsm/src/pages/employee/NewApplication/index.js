@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FormComposer, Loader, Header } from "@upyog/digit-ui-react-components";
+import { FormComposer, Loader } from "@upyog/digit-ui-react-components";
 import { useHistory } from "react-router-dom";
+
+const NAVY = "#1a2b49";
+const ACCENT = "#B54708";
 
 const isConventionalSpecticTank = (tankDimension) => tankDimension === "lbd";
 
@@ -219,7 +222,8 @@ export const NewApplication = ({ parentUrl, heading }) => {
           "withoutLabel": true,
           "key": "cpt",
           "type": "component",
-          "hideInCitizen": true
+          "hideInCitizen": true,
+          "hideInEmployee": true
         },
         {
           "label": "ES_NEW_APPLICATION_PROPERTY_TYPE",
@@ -515,29 +519,59 @@ export const NewApplication = ({ parentUrl, heading }) => {
   ]
   
   return (
-    <React.Fragment>
-      <div style={{ marginLeft: "15px" }}>
-        <Header>{t("ES_TITLE_NEW_DESULDGING_APPLICATION")}</Header>
+    <div className="fsm-edit-page">
+      {/* Banner */}
+      <div style={{
+        background: `linear-gradient(135deg, ${NAVY} 0%, #274080 60%, ${ACCENT}cc 100%)`,
+        padding: "18px 32px 22px",
+        display: "flex", flexDirection: "column",
+        position: "relative",
+      }}>
+        <div style={{ position: "absolute", top: "-40px", right: "160px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+        {/* Breadcrumb */}
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "12px", zIndex: 1 }}>
+          <a href="/suda-ui/employee" style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: "500", textDecoration: "none" }}>{t("ES_COMMON_HOME")}</a>
+          <span style={{ color: "rgba(255,255,255,0.30)", fontSize: "11px" }}>›</span>
+          <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: "500" }}>FSM</span>
+          <span style={{ color: "rgba(255,255,255,0.30)", fontSize: "11px" }}>›</span>
+          <span style={{ color: "#ffffff", fontSize: "12px", fontWeight: "600" }}>{t("ES_TITLE_NEW_DESULDGING_APPLICATION")}</span>
+        </div>
+        {/* Title row */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", zIndex: 1 }}>
+          <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>🚿</div>
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "2px" }}>{t("ES_TITLE_FAECAL_SLUDGE_MGMT")}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ color: "#ffffff", fontSize: "18px", fontWeight: "800" }}>{t("ES_TITLE_NEW_DESULDGING_APPLICATION")}</span>
+            </div>
+          </div>
+        </div>
       </div>
-      <FormComposer
-        isDisabled={!canSubmit}
-        label={t("ES_COMMON_APPLICATION_SUBMIT")}
-        config={conf
-          .filter((i) => !i.hideInEmployee)
-          .map((config) => {
-            return {
-              ...config,
-              body: config.body.filter((a) => !a.hideInEmployee),
-            };
-          })}
-        fieldStyle={{ marginRight: 0 }}
-        formCardStyle={true}
-        onSubmit={onSubmit}
-        defaultValues={defaultValues}
-        onFormValueChange={onFormValueChange}
-        noBreakLine={true}
-        fms_inline
-      />
-    </React.Fragment>
+
+      {/* Form body */}
+      <div style={{ background: "#f0f2f7", padding: "24px 32px 40px" }}>
+        <FormComposer
+          isDisabled={!canSubmit}
+          label={t("ES_COMMON_APPLICATION_SUBMIT")}
+          config={conf
+            .filter((i) => !i.hideInEmployee)
+            .map((config) => {
+              return {
+                ...config,
+                body: config.body.filter((a) => !a.hideInEmployee),
+              };
+            })}
+          fieldStyle={{ marginRight: 0 }}
+          onSubmit={onSubmit}
+          defaultValues={defaultValues}
+          onFormValueChange={onFormValueChange}
+          sectionWrapperClass="fsm-section-card"
+          noBreakLine={true}
+          submitInForm={true}
+          buttonStyle={{ alignSelf: "flex-end", marginTop: "4px", height: "44px", minWidth: "200px", padding: "0 28px" }}
+          cardStyle={{ background: "transparent", boxShadow: "none", border: "none", padding: 0, margin: 0 }}
+        />
+      </div>
+    </div>
   );
 };

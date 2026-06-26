@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { LabelFieldPair, CardLabel, TextInput, Dropdown, Loader, CardLabelError } from "@upyog/digit-ui-react-components";
 import { useParams, useLocation } from "react-router-dom";
 
@@ -20,6 +20,8 @@ const AdvanceCollection = ({ t, config, onSelect, formData, userType, FSMTextFie
     label: formData?.tripData?.vehicleCapacity,
   });
   const [billError, setError] = useState(false);
+  const mountedRef = useRef(true);
+  useEffect(() => { return () => { mountedRef.current = false; }; }, []);
 
   const { isLoading: isVehicleMenuLoading, data: vehicleData } = Digit.Hooks.fsm.useMDMS(state, "Vehicle", "VehicleType", {
     staleTime: Infinity,
@@ -86,6 +88,7 @@ const AdvanceCollection = ({ t, config, onSelect, formData, userType, FSMTextFie
           });
           Digit.SessionStorage.set("total_amount", totaltripAmount);
           Digit.SessionStorage.set("advance_amount", advanceBalanceAmount);
+          if (!mountedRef.current) return;
           setTotalAmount(totaltripAmount);
           setAdvanceAmounts(advanceBalanceAmount);
           if (!url.includes("modify") || (url.includes("modify") && advanceBalanceAmount > formData?.advancepaymentPreference?.advanceAmount)) {
@@ -98,6 +101,7 @@ const AdvanceCollection = ({ t, config, onSelect, formData, userType, FSMTextFie
         } else {
           sessionStorage.removeItem("Digit.total_amount");
           sessionStorage.removeItem("Digit.advance_amount");
+          if (!mountedRef.current) return;
           setError(true);
         }
       }
@@ -114,6 +118,7 @@ const AdvanceCollection = ({ t, config, onSelect, formData, userType, FSMTextFie
         });
         Digit.SessionStorage.set("total_amount", totaltripAmount);
         Digit.SessionStorage.set("advance_amount", advanceBalanceAmount);
+        if (!mountedRef.current) return;
         setTotalAmount(totaltripAmount);
         setAdvanceAmounts(advanceBalanceAmount);
         if (!url.includes("modify") || (url.includes("modify") && advanceBalanceAmount > formData?.advancepaymentPreference?.advanceAmount)) {

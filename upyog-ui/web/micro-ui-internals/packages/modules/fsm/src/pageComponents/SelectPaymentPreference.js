@@ -111,214 +111,265 @@ const SelectPaymentPreference = ({ config, formData, t, onSelect, userType }) =>
   let max = Digit.SessionStorage.get("total_amount");
   let min = Digit.SessionStorage.get("advance_amount");
 
-  if (advanceAmount === null) {
+  if (advanceAmount === null && !billError) {
     return <Loader />;
   }
 
   const isDisabled = currentValue > max || currentValue < min;
 
+  /* ── Shared card styles (matches CheckPage) ── */
+  const cardStyle = {
+    background: "#fff",
+    borderRadius: "16px",
+    border: "1px solid #e8edf5",
+    boxShadow: "0 2px 12px rgba(9,30,100,0.07)",
+    marginBottom: "16px",
+    overflow: "hidden",
+  };
+  const sectionHeaderStyle = {
+    display: "flex", alignItems: "center", gap: "10px",
+    padding: "14px 20px",
+    background: "linear-gradient(135deg,#f8faff 0%,#f0f4ff 100%)",
+    borderBottom: "1px solid #e8edf5",
+  };
+  const rowStyle = {
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    padding: "13px 20px", borderBottom: "1px solid #f3f4f6",
+  };
+  const lastRowStyle = {
+    display: "flex", alignItems: "center", justifyContent: "space-between",
+    padding: "13px 20px",
+  };
+  const labelStyle = { fontSize: "13px", color: "#6b7280", fontWeight: "500", whiteSpace: "nowrap" };
+  const valueStyle = { fontSize: "14px", color: "#111827", fontWeight: "600", flex: 1, textAlign: "right" };
+
   return (
     <React.Fragment>
       <Timeline currentStep={2} flow="APPLY" />
-      <div style={{ padding: "16px 0", maxWidth: "640px" }}>
+      <div style={{ padding: "16px 0" }}>
 
-        {/* ── Header ── */}
-        <div style={{ marginBottom: "24px" }}>
-          <h2 style={{ fontSize: "22px", fontWeight: "700", color: "#091E64", margin: "0 0 6px 0", letterSpacing: "-0.3px" }}>
-            {t("ES_FSM_PAYMENT_PREFERENCE_LABEL", { defaultValue: "Select Payment Preference" })}
-          </h2>
-          <p style={{ fontSize: "14px", color: "#6b7280", margin: 0 }}>
-            {t("CS_FSM_PAYMENT_SUBTITLE", { defaultValue: "Review the amount details and confirm your advance payment." })}
-          </p>
-        </div>
+        {/* ── Content container ── */}
+        <div style={{ maxWidth: "900px" }}>
 
-        {/* ── Amount Summary Card ── */}
-        <div style={{
-          background: "#fff",
-          borderRadius: "16px",
-          border: "1px solid #e8edf5",
-          boxShadow: "0 2px 12px rgba(9,30,100,0.07)",
-          marginBottom: "20px",
-          overflow: "hidden",
-        }}>
-          {/* Card header */}
+          {/* ── Hero intro ── */}
           <div style={{
-            display: "flex", alignItems: "center", gap: "10px",
-            padding: "14px 20px",
-            background: "linear-gradient(135deg, #f8faff 0%, #f0f4ff 100%)",
-            borderBottom: "1px solid #e8edf5",
+            display: "flex", alignItems: "center", gap: "14px",
+            padding: "18px 22px",
+            background: "linear-gradient(135deg,#091e64 0%,#1a3a8f 100%)",
+            borderRadius: "16px",
+            marginBottom: "18px",
+            boxShadow: "0 6px 24px rgba(9,30,100,0.18)",
           }}>
             <div style={{
-              width: "32px", height: "32px", borderRadius: "50%",
-              background: "linear-gradient(135deg, #f47738, #e8621f)",
+              flexShrink: 0, width: "48px", height: "48px", borderRadius: "12px",
+              background: "rgba(255,255,255,0.15)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0, boxShadow: "0 2px 6px rgba(244,119,56,0.3)",
+              border: "1px solid rgba(255,255,255,0.25)",
             }}>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round">
-                <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
               </svg>
             </div>
-            <span style={{ fontSize: "15px", fontWeight: "700", color: "#091E64" }}>
-              {t("ES_TITLE_PAYMENT_DETAILS", { defaultValue: "Payment Details" })}
-            </span>
-          </div>
-
-          {/* Total Amount row */}
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "16px 20px", borderBottom: "1px solid #f3f4f6",
-          }}>
             <div>
-              <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500", marginBottom: "2px" }}>
-                {t("ADV_TOTAL_AMOUNT", { defaultValue: "Total Amount" })}
+              <div style={{ fontSize: "16px", fontWeight: "700", color: "#fff", marginBottom: "2px" }}>
+                {t("ES_FSM_PAYMENT_PREFERENCE_LABEL", { defaultValue: "Payment Preference" })}
               </div>
-              {isGpFlow && (
-                <div style={{ fontSize: "11px", color: "#f47738", fontWeight: "500", marginTop: "2px" }}>
-                  {t("FSM_TOTAL_AMOUNT_NOTE", { defaultValue: "Amount will be determined after field inspection" })}
-                </div>
-              )}
+              <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.72)", lineHeight: "1.5" }}>
+                {t("CS_FSM_PAYMENT_SUBTITLE", { defaultValue: "Review the amount breakdown and confirm your advance payment." })}
+              </div>
             </div>
+          </div>
+
+          {/* ── Billing error banner ── */}
+          {billError && (
             <div style={{
-              fontSize: "18px", fontWeight: "700",
-              color: isGpFlow ? "#9ca3af" : "#111827",
+              display: "flex", alignItems: "flex-start", gap: "10px",
+              padding: "12px 16px", marginBottom: "14px",
+              background: "#fff8f0", border: "1px solid #fcd9b0", borderRadius: "12px",
             }}>
-              {isGpFlow ? "N/A" : (max ? `₹ ${max}` : "—")}
-            </div>
-          </div>
-
-          {/* Minimum Advance row */}
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "16px 20px", borderBottom: "1px solid #f3f4f6",
-          }}>
-            <div style={{ fontSize: "13px", color: "#6b7280", fontWeight: "500" }}>
-              {t("FSM_ADV_MIN_PAY", { defaultValue: "Minimum Advance" })}
-            </div>
-            <div style={{ fontSize: "18px", fontWeight: "700", color: "#111827" }}>
-              {min != null ? `₹ ${Math.ceil(min)}` : "—"}
-            </div>
-          </div>
-
-          {/* Advance Amount (highlighted) */}
-          <div style={{
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            padding: "18px 20px",
-            background: "linear-gradient(135deg, #fff8f3 0%, #fff3e8 100%)",
-          }}>
-            <div>
-              <div style={{ fontSize: "13px", color: "#f47738", fontWeight: "600", marginBottom: "2px" }}>
-                {t("ES_NEW_APPLICATION_ADVANCE_COLLECTION", { defaultValue: "Advance Collection" })} (₹)
-                <span style={{ color: "#ef4444", marginLeft: "4px" }}>*</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" style={{ flexShrink: 0, marginTop: "1px" }}>
+                <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+              </svg>
+              <div style={{ fontSize: "13px", color: "#92400e", lineHeight: "1.6" }}>
+                {t("FSM_BILLING_SLAB_NOT_FOUND", { defaultValue: "Billing details could not be loaded. You can still proceed — the advance amount will be determined after field inspection." })}
               </div>
-              <div style={{ fontSize: "11px", color: "#9ca3af", marginTop: "2px" }}>
-                {t("CS_FSM_ADV_AUTO_CALC", { defaultValue: "Auto-calculated based on your property" })}
-              </div>
-            </div>
-            <div style={{
-              fontSize: "22px", fontWeight: "800", color: "#f47738",
-              background: "#fff", borderRadius: "10px",
-              padding: "8px 18px",
-              border: "1.5px solid #fed7aa",
-              boxShadow: "0 2px 8px rgba(244,119,56,0.12)",
-              minWidth: "90px", textAlign: "center",
-            }}>
-              ₹ {advanceAmount != null ? Math.ceil(advanceAmount) : 0}
-            </div>
-          </div>
-
-          {/* Validation errors */}
-          {currentValue > max && (
-            <div style={{ padding: "10px 20px", background: "#fff5f5", borderTop: "1px solid #fecaca" }}>
-              <span style={{ color: "#dc2626", fontSize: "13px" }}>
-                {t("FSM_ADVANCE_AMOUNT_MAX", { defaultValue: "Advance amount cannot exceed total amount" })}
-              </span>
             </div>
           )}
-          {currentValue < min && (
-            <div style={{ padding: "10px 20px", background: "#fff5f5", borderTop: "1px solid #fecaca" }}>
-              <span style={{ color: "#dc2626", fontSize: "13px" }}>
-                {t("FSM_ADVANCE_AMOUNT_MIN", { defaultValue: "Advance amount cannot be less than minimum amount" })}
+
+          {/* ── Payment Details card ── */}
+          <div style={cardStyle}>
+            {/* Card header */}
+            <div style={sectionHeaderStyle}>
+              <div style={{
+                width: "32px", height: "32px", borderRadius: "8px",
+                background: "#f4773820",
+                display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+              }}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                </svg>
+              </div>
+              <span style={{ fontSize: "14px", fontWeight: "700", color: "#091E64" }}>
+                {t("ES_TITLE_PAYMENT_DETAILS", { defaultValue: "Payment Details" })}
               </span>
             </div>
-          )}
-        </div>
 
-        {/* ── Info box ── */}
-        <div style={{
-          borderRadius: "14px",
-          background: "linear-gradient(135deg, #fffbf5 0%, #fff3e0 100%)",
-          border: "1px solid #ffe0b2",
-          padding: "16px 18px",
-          display: "flex",
-          gap: "12px",
-          alignItems: "flex-start",
-          marginBottom: "24px",
-          boxShadow: "0 2px 8px rgba(244,119,56,0.07)",
-        }}>
+            {/* Total Amount */}
+            <div style={rowStyle}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#c7d2fe", flexShrink: 0, display: "inline-block" }} />
+                <span style={labelStyle}>{t("ADV_TOTAL_AMOUNT", { defaultValue: "Total Amount" })} (₹)</span>
+              </div>
+              <span style={valueStyle}>
+                {isGpFlow ? (
+                  <span style={{ color: "#9ca3af", fontSize: "13px" }}>N/A</span>
+                ) : (
+                  <span style={{
+                    background: "#f0f4ff", borderRadius: "6px",
+                    padding: "3px 12px", color: "#091E64", fontWeight: "700",
+                  }}>
+                    ₹ {max != null ? max : "—"}
+                  </span>
+                )}
+              </span>
+            </div>
+            {isGpFlow && (
+              <div style={{ padding: "0 20px 10px 34px", fontSize: "12px", color: "#f47738" }}>
+                {t("FSM_TOTAL_AMOUNT_NOTE", { defaultValue: "Amount will be determined after field inspection" })}
+              </div>
+            )}
+
+            {/* Minimum Advance */}
+            <div style={rowStyle}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#c7d2fe", flexShrink: 0, display: "inline-block" }} />
+                <span style={labelStyle}>{t("FSM_ADV_MIN_PAY", { defaultValue: "Minimum Advance" })} (₹)</span>
+              </div>
+              <span style={valueStyle}>
+                <span style={{
+                  background: "#f0f4ff", borderRadius: "6px",
+                  padding: "3px 12px", color: "#091E64", fontWeight: "700",
+                }}>
+                  ₹ {min != null ? Math.ceil(min) : "—"}
+                </span>
+              </span>
+            </div>
+
+            {/* Advance Amount — highlighted */}
+            <div style={{
+              ...lastRowStyle,
+              background: "linear-gradient(135deg,#fff8f3 0%,#fff3e8 100%)",
+              borderTop: "2px dashed #fed7aa",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f47738", flexShrink: 0, display: "inline-block" }} />
+                <span style={{ ...labelStyle, color: "#c2410c", fontWeight: "700" }}>
+                  {t("ADV_AMOUNT", { defaultValue: "Advance Amount" })} (₹)
+                </span>
+              </div>
+              <span style={{
+                fontSize: "20px", fontWeight: "800", color: "#f47738",
+                background: "#fff",
+                borderRadius: "10px",
+                padding: "6px 18px",
+                border: "2px solid #fed7aa",
+                boxShadow: "0 4px 12px rgba(244,119,56,0.18)",
+                letterSpacing: "0.5px",
+              }}>
+                ₹ {advanceAmount != null ? Math.ceil(advanceAmount) : 0}
+              </span>
+            </div>
+
+            {/* Validation errors */}
+            {currentValue > max && (
+              <div style={{ padding: "8px 20px", background: "#fef2f2", borderTop: "1px solid #fecaca" }}>
+                <span style={{ fontSize: "12px", color: "#dc2626" }}>
+                  {t("FSM_ADVANCE_AMOUNT_MAX", { defaultValue: "Advance amount cannot exceed total amount" })}
+                </span>
+              </div>
+            )}
+            {currentValue < min && (
+              <div style={{ padding: "8px 20px", background: "#fef2f2", borderTop: "1px solid #fecaca" }}>
+                <span style={{ fontSize: "12px", color: "#dc2626" }}>
+                  {t("FSM_ADVANCE_AMOUNT_MIN", { defaultValue: "Advance amount cannot be less than minimum amount" })}
+                </span>
+              </div>
+            )}
+          </div>
+
+          {/* ── Info box ── */}
           <div style={{
-            flexShrink: 0, width: "32px", height: "32px", borderRadius: "50%",
-            background: "linear-gradient(135deg, #f47738, #e85d00)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            boxShadow: "0 2px 6px rgba(244,119,56,0.3)",
+            borderRadius: "14px",
+            background: "linear-gradient(135deg,#fffbf5 0%,#fff3e0 100%)",
+            border: "1px solid #ffe0b2",
+            padding: "14px 18px",
+            display: "flex", gap: "12px", alignItems: "flex-start",
+            boxShadow: "0 2px 8px rgba(244,119,56,0.07)",
+            marginBottom: "24px",
           }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
-              <path d="M12 8v4m0 4h.01" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            <div style={{ fontSize: "13px", fontWeight: "700", color: "#e65c00", marginBottom: "4px" }}>
-              {t("CS_FILE_APPLICATION_INFO_LABEL", { defaultValue: "Info" })}
+            <div style={{
+              flexShrink: 0, width: "30px", height: "30px", borderRadius: "50%",
+              background: "linear-gradient(135deg,#f47738,#e85d00)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              boxShadow: "0 2px 6px rgba(244,119,56,0.3)",
+            }}>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2"/>
+                <path d="M12 8v4m0 4h.01" stroke="white" strokeWidth="2" strokeLinecap="round"/>
+              </svg>
             </div>
-            <div style={{ fontSize: "13px", color: "#7a4000", lineHeight: "1.6" }}>
-              {t("CS_FILE_APPLICATION_INFO_TEXT", { defaultValue: "Application process will take a minute to complete. It might cost around Rs.1000-2000 for cleaning your septic tank and there are concessed rates for people living in slum areas." })}
+            <div>
+              <div style={{ fontSize: "13px", fontWeight: "700", color: "#e65c00", marginBottom: "3px" }}>
+                {t("CS_FILE_APPLICATION_INFO_LABEL", { defaultValue: "Info" })}
+              </div>
+              <div style={{ fontSize: "13px", color: "#7a4000", lineHeight: "1.6" }}>
+                It might cost around Rs.1000–2000 for cleaning your septic tank. Concession rates are available for residents of slum areas.
+              </div>
             </div>
           </div>
-        </div>
 
-        {/* ── Actions ── */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "12px", alignItems: "stretch" }}>
-          <button
-            type="button"
-            onClick={onSubmit}
-            disabled={isDisabled}
-            style={{
-              width: "100%", padding: "14px 24px",
-              borderRadius: "10px", border: "none",
-              background: isDisabled
-                ? "#d1d5db"
-                : "linear-gradient(135deg, #f47738 0%, #e8621f 100%)",
-              color: "#fff", fontSize: "16px", fontWeight: "700",
-              cursor: isDisabled ? "not-allowed" : "pointer",
-              boxShadow: isDisabled ? "none" : "0 4px 14px rgba(244,119,56,0.4)",
-              transition: "opacity 0.15s, transform 0.1s",
-              letterSpacing: "0.3px",
+          {/* ── Actions ── */}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <button
+              type="button"
+              onClick={onSkip}
+              style={{
+                padding: "11px 28px",
+                borderRadius: "8px",
+                border: "1.5px solid #f47738",
+                background: "#fff",
+                color: "#f47738", fontSize: "14px", fontWeight: "600",
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(244,119,56,0.12)",
+                transition: "background 0.15s",
+              }}
+              onMouseEnter={(e) => { e.currentTarget.style.background = "#fff8f3"; }}
+              onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+            >
+              {t("CS_COMMON_SKIP", { defaultValue: "Skip and Continue" })}
+            </button>
+            <button
+              type="button"
+              onClick={onSubmit}
+              disabled={isDisabled}
+              style={{
+                padding: "12px 40px",
+                borderRadius: "8px", border: "none",
+                background: isDisabled ? "#d1d5db" : "linear-gradient(135deg,#f47738 0%,#e05e18 100%)",
+                color: "#fff", fontSize: "15px", fontWeight: "700",
+                cursor: isDisabled ? "not-allowed" : "pointer",
+                boxShadow: isDisabled ? "none" : "0 4px 14px rgba(244,119,56,0.4)",
+                transition: "opacity 0.15s",
             }}
             onMouseEnter={(e) => { if (!isDisabled) e.currentTarget.style.opacity = "0.9"; }}
             onMouseLeave={(e) => { e.currentTarget.style.opacity = "1"; }}
           >
             {t("CS_COMMON_NEXT", { defaultValue: "Next" })}
           </button>
-
-          <button
-            type="button"
-            onClick={onSkip}
-            style={{
-              width: "100%", padding: "10px 24px",
-              borderRadius: "10px",
-              border: "1.5px solid #e5e7eb",
-              background: "#fff",
-              color: "#6b7280", fontSize: "14px", fontWeight: "600",
-              cursor: "pointer",
-              transition: "border-color 0.15s, color 0.15s",
-            }}
-            onMouseEnter={(e) => { e.currentTarget.style.borderColor = "#f47738"; e.currentTarget.style.color = "#f47738"; }}
-            onMouseLeave={(e) => { e.currentTarget.style.borderColor = "#e5e7eb"; e.currentTarget.style.color = "#6b7280"; }}
-          >
-            {t("CS_COMMON_SKIP", { defaultValue: "Skip and Continue" })}
-          </button>
         </div>
 
+        </div>{/* end narrow container */}
       </div>
     </React.Fragment>
   );

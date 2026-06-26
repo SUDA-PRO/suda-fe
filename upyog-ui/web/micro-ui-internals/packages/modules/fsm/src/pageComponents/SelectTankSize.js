@@ -54,7 +54,11 @@ const SelectTankSize = ({ config, onSelect, t, formData = {}, userType }) => {
 
   const onSkip = () => onSelect();
   if (userType === "employee") {
-    return <PitDimension sanitationType={formData.pitType} size={size} handleChange={handleChange} t={t} disable={!formData?.pitType} />;
+    return (
+      <div className="fsm-fullwidth fsm-center-field">
+        <PitDimension sanitationType={formData.pitType} size={size} handleChange={handleChange} t={t} disable={!formData?.pitType} />
+      </div>
+    );
   }
 
   return (

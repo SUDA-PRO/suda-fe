@@ -110,16 +110,57 @@ useEffect(()=>{
     return <Loader />;
   }
   if (userType === "employee") {
+    const employeeSelectedType =
+      typeof propertyType === "string"
+        ? (propertyTypesData.data || []).find((p) => p.code === propertyType) || null
+        : propertyType;
+    const isDisabled = !(url.includes("/modify-application/") || (url.includes("/new-application") && propertyType !== undefined));
+    const ptIcons = {
+      RESIDENTIAL: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 01-1 1H4a1 1 0 01-1-1V9.5z"/><path d="M9 21V12h6v9"/></svg>),
+      COMMERCIAL: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="7" width="20" height="14" rx="1"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>),
+      INSTITUTIONAL: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 2L2 7h20L12 2z"/><rect x="4" y="7" width="16" height="13"/><rect x="9" y="12" width="6" height="8"/></svg>),
+      INDUSTRIAL: (<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="2" y="10" width="20" height="11"/><path d="M6 10V6l4 4V6l4 4V6l4 4"/></svg>),
+    };
     return (
-      <Dropdown
-        option={propertyTypesData.data?.sort((a, b) => a.name.localeCompare(b.name))}
-        optionKey="i18nKey"
-        id="propertyType"
-        selected={propertyType}
-        select={selectedType}
-        t={t}
-        disable={url.includes("/modify-application/") || (url.includes("/new-application") && propertyType !== undefined) ? false : true}
-      />
+      <div className="fsm-fullwidth fsm-center-field" style={{ display: "flex", flexWrap: "wrap", gap: "12px", opacity: isDisabled ? 0.7 : 1 }}>
+        {(propertyTypesData.data?.sort((a, b) => a.name.localeCompare(b.name)) || []).map((opt) => {
+          const selected = employeeSelectedType?.code === opt.code;
+          const icon = ptIcons[opt.code?.toUpperCase()] || (
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          );
+          return (
+            <div
+              key={opt.code}
+              onClick={() => { if (!isDisabled) selectedType(opt); }}
+              style={{
+                position: "relative",
+                flex: "1 1 120px", minWidth: "110px", maxWidth: "180px",
+                display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                gap: "10px", padding: "16px 12px",
+                borderRadius: "12px", cursor: isDisabled ? "not-allowed" : "pointer",
+                border: selected ? "2px solid #f47738" : "1.5px solid #e5e7eb",
+                background: selected ? "#fff8f3" : "#fff",
+                boxShadow: selected ? "0 0 0 3px rgba(244,119,56,0.15)" : "0 1px 3px rgba(0,0,0,0.06)",
+                color: selected ? "#f47738" : "#4b5563",
+                transition: "all 0.15s",
+                userSelect: "none",
+              }}
+              onMouseEnter={(e) => { if (!selected && !isDisabled) e.currentTarget.style.borderColor = "#f47738"; }}
+              onMouseLeave={(e) => { if (!selected) e.currentTarget.style.borderColor = "#e5e7eb"; }}
+            >
+              <div style={{ color: selected ? "#f47738" : "#6b7280" }}>{icon}</div>
+              <span style={{ fontSize: "13px", fontWeight: selected ? "700" : "500", textAlign: "center", lineHeight: "1.3" }}>
+                {opt.i18nKey}
+              </span>
+              {selected && (
+                <div style={{ position: "absolute", top: "8px", right: "8px", width: "18px", height: "18px", borderRadius: "50%", background: "#f47738", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     );
   } else {
     return (

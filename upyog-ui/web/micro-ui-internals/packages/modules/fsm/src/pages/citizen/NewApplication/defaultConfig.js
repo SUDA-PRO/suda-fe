@@ -42,7 +42,7 @@ export const config = {
           component: CPTSearchResults, 
           key: "cptsearchresults",
           withoutLabel: true,
-          nextStep: 'property-type',
+          nextStep: 'fsm-property-details',
           hideInEmployee: true,
         },
         {

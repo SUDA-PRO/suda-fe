@@ -1,4 +1,4 @@
-import { Dropdown, FormComposer, InfoBannerIcon, Loader, Localities, RadioButtons, Toast } from "@upyog/digit-ui-react-components";
+import { InfoBannerIcon, Loader, Localities, RadioButtons, Toast } from "@upyog/digit-ui-react-components";
 import _ from "lodash";
 import PropTypes from "prop-types";
 import React, { useEffect, useLayoutEffect, useState } from "react";
@@ -36,136 +36,15 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   sessionStorage.setItem("VisitedLightCreate",false);
   let allCities = Digit.Hooks.pt.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
   // if called from tl module get tenants from tl usetenants
-  allCities = allCities ? allCities : Digit.Hooks.tl.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));  
-  
+  allCities = allCities?.length ? allCities : Digit.Hooks.tl.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
+  // if called from fsm module get tenants from fsm usetenants
+  allCities = allCities?.length ? allCities : Digit.Hooks.fsm.useTenants()?.sort((a, b) => a?.i18nKey?.localeCompare?.(b?.i18nKey));
+  allCities = allCities || [];
+
   if(window.location.href.includes("obps") )
   {
-    allCities = Digit.SessionStorage.get("OBPS_TENANTS")
+    allCities = Digit.SessionStorage.get("OBPS_TENANTS") || [];
   }
-  else if(window.location.href.includes("fsm") )
-  {
-    allCities = [
-      {
-          "i18nKey": "TENANT_TENANTS_PG_CITYA",
-          "code": "pg.citya",
-          "name": "City A",
-          "description": "City A",
-          "pincode": [
-              143001,
-              143002,
-              143003,
-              143004,
-              143005
-          ],
-          "logoId": "https://in-egov-assets.s3.ap-south-1.amazonaws.com/in.citya/logo.png",
-          "imageId": null,
-          "domainUrl": "https://www.upyog.niua.org",
-          "type": "CITY",
-          "twitterUrl": null,
-          "facebookUrl": null,
-          "emailId": "citya@gmail.com",
-          "OfficeTimings": {
-              "Mon - Fri": "9.00 AM - 6.00 PM"
-          },
-          "city": {
-              "name": "City A",
-              "localName": null,
-              "districtCode": "CITYA",
-              "districtName": null,
-              "districtTenantCode": "pg.citya",
-              "regionName": null,
-              "ulbGrade": "Municipal Corporation",
-              "longitude": 75.5761829,
-              "latitude": 31.3260152,
-              "shapeFileLocation": null,
-              "captcha": null,
-              "code": "1013",
-              "ddrName": "DDR A"
-          },
-          "address": "City A Municipal Corporation",
-          "contactNumber": "001-2345876"
-      },
-      {
-          "i18nKey": "TENANT_TENANTS_PG_CITYB",
-          "code": "pg.cityb",
-          "name": "City B",
-          "description": null,
-          "pincode": [
-              143006,
-              143007,
-              143008,
-              143009,
-              143010
-          ],
-          "logoId": "https://in-egov-assets.s3.ap-south-1.amazonaws.com/in.citya/logo.png",
-          "imageId": null,
-          "domainUrl": "https://www.upyog.niua.org",
-          "type": "CITY",
-          "twitterUrl": null,
-          "facebookUrl": null,
-          "emailId": "cityb@gmail.com",
-          "OfficeTimings": {
-              "Mon - Fri": "9.00 AM - 6.00 PM",
-              "Sat": "9.00 AM - 12.00 PM"
-          },
-          "city": {
-              "name": "City B",
-              "localName": null,
-              "districtCode": "CITYB",
-              "districtName": null,
-              "districtTenantCode": "pg.cityb",
-              "regionName": null,
-              "ulbGrade": "Municipal Corporation",
-              "longitude": 74.8722642,
-              "latitude": 31.6339793,
-              "shapeFileLocation": null,
-              "captcha": null,
-              "code": "107",
-              "ddrName": "DDR B"
-          },
-          "address": "City B Municipal Corporation Address",
-          "contactNumber": "0978-7645345",
-          "helpLineNumber": "0654-8734567"
-      },
-      {
-          "i18nKey": "TENANT_TENANTS_PG_CITYC",
-          "code": "pg.cityc",
-          "name": "City C",
-          "description": null,
-          "logoId": "https://in-egov-assets.s3.ap-south-1.amazonaws.com/in.citya/logo.png",
-          "imageId": null,
-          "domainUrl": "https://www.upyog.niua.org",
-          "type": "CITY",
-          "twitterUrl": null,
-          "facebookUrl": null,
-          "emailId": "cityc@gmail.com",
-          "OfficeTimings": {
-              "Mon - Fri": "9.00 AM - 6.00 PM",
-              "Sat": "9.00 AM - 12.00 PM"
-          },
-          "city": {
-              "name": "City C",
-              "localName": null,
-              "districtCode": "CITYC",
-              "districtName": null,
-              "districtTenantCode": "pg.cityc",
-              "regionName": null,
-              "ulbGrade": "Municipal Corporation",
-              "longitude": 73.8722642,
-              "latitude": 31.6339793,
-              "shapeFileLocation": null,
-              "captcha": null,
-              "code": "108",
-              "ddrName": "DDR C"
-          },
-          "address": "City C Municipal Corporation Address",
-          "contactNumber": "0978-7645345",
-          "helpLineNumber": "0654-8734567"
-      }
-  ]
-    
-  }
-  console.log("allCities",allCities)
   const [cityCode, setCityCode] = useState();
   const [errorShown, seterrorShown] = useState(false);
   const [formCity, setFormCity] = useState(null);
@@ -175,12 +54,43 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   const [formOldPropertyId, setFormOldPropertyId] = useState("");
   const [formDoorNo, setFormDoorNo] = useState("");
   const [formOwnerName, setFormOwnerName] = useState("");
+  const [cityOpen, setCityOpen] = useState(false);
+  const [localityOpen, setLocalityOpen] = useState(false);
+  const [citySearch, setCitySearch] = useState("");
+  const [localitySearch, setLocalitySearch] = useState("");
+
+
+  const [localityList, setLocalityList] = useState([]);
+  const [isLocalityLoading, setIsLocalityLoading] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    if (!cityCode) { setLocalityList([]); return; }
+    setIsLocalityLoading(true);
+    Digit.LocationService.getRevenueLocalities(cityCode)
+      .then((res) => {
+        if (cancelled) return;
+        const tenantBoundary = res?.TenantBoundary?.[0];
+        if (!tenantBoundary) { setLocalityList([]); return; }
+        const adminCode = tenantBoundary.tenantId.replace(".", "_").toUpperCase() + "_" + tenantBoundary.hierarchyType?.code;
+        const localities = (tenantBoundary.boundary || [])
+          .filter((b) => b.code)
+          .map((b) => ({ ...b, i18nkey: adminCode + "_" + b.code }))
+          .sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+        setLocalityList(localities);
+      })
+      .catch(() => { if (!cancelled) setLocalityList([]); })
+      .finally(() => { if (!cancelled) setIsLocalityLoading(false); });
+    return () => { cancelled = true; };
+  }, [cityCode]);
   let isMobile = window.Digit.Utils.browser.isMobile();
   const { data: propertyData, isLoading: propertyDataLoading, error, isSuccess, billData } = Digit.Hooks.pt.usePropertySearchWithDue({
     tenantId: searchData?.city,
     filters: searchData?.filters,
-    auth: true /*  to enable open search set false  */,
-    configs: { enabled: Object.keys(searchData).length > 0, retry: false, retryOnMount: false, staleTime: Infinity },
+    auth: true,
+    configs: {
+      enabled: Object.keys(searchData).length > 0 && !!searchData?.city && !!searchData?.filters && Object.values(searchData?.filters || {}).some(v => !!v),
+      retry: false, retryOnMount: false, staleTime: Infinity
+    },
   });
 
   useEffect(() => {
@@ -199,7 +109,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   }, [action, propertyDataLoading]);
 
   useEffect(() => {
-    if(!propertyDataLoading && propertyData && searchData && propertyData?.Properties?.length <= 0)
+    if(!propertyDataLoading && propertyData && searchData && Object.keys(searchData).length > 0 && propertyData?.Properties?.length <= 0)
     {
       setShowToast({ error: true, warning: true, label: "NO_PROPERTIES_FOUND" });
     }
@@ -673,28 +583,35 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
     </div>
   );
 
-  const StepBadge = ({ n }) => (
-    <span style={{ width: "22px", height: "22px", borderRadius: "7px", background: "linear-gradient(135deg, #f47738 0%, #d44f0a 100%)", display: "inline-flex", alignItems: "center", justifyContent: "center", color: "#fff", fontSize: "11px", fontWeight: "800", flexShrink: 0 }}>
-      {n}
-    </span>
-  );
+  const cardStyle = {
+    background: "#fff",
+    borderRadius: "16px",
+    border: "1px solid #e8edf5",
+    boxShadow: "0 2px 12px rgba(9,30,100,0.07)",
+    marginBottom: "16px",
+    overflow: "hidden",
+  };
 
-  const SectionHeader = ({ step, title, required }) => (
-    <div style={{ display: "flex", alignItems: "center", gap: "9px", marginBottom: "16px" }}>
-      <StepBadge n={step} />
-      <span style={{ fontSize: "13px", fontWeight: "700", color: "#374151", letterSpacing: "0.2px" }}>
-        {title}
-        {required && <span style={{ color: "#ef4444", marginLeft: "3px" }}>*</span>}
-      </span>
+  const CardHeader = ({ icon, title }) => (
+    <div style={{
+      display: "flex", alignItems: "center", gap: "10px",
+      padding: "14px 20px",
+      background: "linear-gradient(135deg,#f8faff 0%,#f0f4ff 100%)",
+      borderBottom: "1px solid #e8edf5",
+    }}>
+      <div style={{
+        width: "32px", height: "32px", borderRadius: "8px",
+        background: "#f4773820",
+        display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
+      }}>
+        {icon}
+      </div>
+      <span style={{ fontSize: "14px", fontWeight: "700", color: "#091E64" }}>{title}</span>
     </div>
   );
 
   const sectionCard = {
-    background: "#fff",
-    borderRadius: "14px",
-    border: "1px solid #eaedf3",
-    padding: "20px 24px",
-    boxShadow: "0 1px 6px rgba(26,43,73,0.05)",
+    padding: "18px 20px",
   };
 
   const currentAction = parseInt(action);
@@ -739,46 +656,48 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
   return (
     <div style={{ minHeight: "100vh", background: "#f5f6fa" }}>
 
-      {/* ── Top Hero Banner ── */}
+      {/* ── Hero Banner ── */}
       <div style={{
-        background: "linear-gradient(135deg, #ff8c42 0%, #f47738 50%, #d44f0a 100%)",
-        padding: isMobile ? "24px 20px 28px" : "28px 32px 32px",
-        position: "relative",
-        overflow: "hidden",
+        display: "flex", alignItems: "center", gap: "14px",
+        padding: isMobile ? "18px 16px" : "18px 22px",
+        background: "linear-gradient(135deg,#091e64 0%,#1a3a8f 100%)",
+        boxShadow: "0 6px 24px rgba(9,30,100,0.18)",
+        marginBottom: "0",
       }}>
-        <div style={{ position: "absolute", right: "-60px", top: "-60px", width: "220px", height: "220px", borderRadius: "50%", background: "rgba(255,255,255,0.07)", pointerEvents: "none" }} />
-        <div style={{ position: "absolute", left: "-50px", bottom: "-50px", width: "180px", height: "180px", borderRadius: "50%", background: "rgba(0,0,0,0.08)", pointerEvents: "none" }} />
-
-        <div style={{ position: "relative", display: "flex", alignItems: isMobile ? "flex-start" : "center", justifyContent: "space-between", flexWrap: "wrap", gap: "16px", marginBottom: "20px" }}>
-          <div>
-            <div style={{ fontSize: "clamp(20px, 2.5vw, 28px)", fontWeight: "800", color: "#fff", letterSpacing: "-0.3px", lineHeight: 1.2 }}>
-              {t("SEARCH_PROPERTY")}
-            </div>
-            <div style={{ fontSize: "13px", color: "rgba(255,255,255,0.85)", marginTop: "4px" }}>
-              {t("CS_PT_HOME_SEARCH_RESULTS_DESC")}
-            </div>
-          </div>
+        <div style={{
+          flexShrink: 0, width: "48px", height: "48px", borderRadius: "12px",
+          background: "rgba(255,255,255,0.15)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          border: "1px solid rgba(255,255,255,0.25)",
+        }}>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
         </div>
-        <div style={{ position: "relative", display: "flex", gap: "10px", flexWrap: "wrap" }}>
-          {[
-            { svg: <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>, text: "Search by mobile, ID or owner name" },
-          ].map((f, i) => (
-            <div key={i} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "5px 12px", background: "rgba(255,255,255,0.14)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.2)" }}>
-              {f.svg}
-              <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.92)", fontWeight: "500" }}>{f.text}</span>
-            </div>
-          ))}
+        <div>
+          <div style={{ fontSize: "16px", fontWeight: "700", color: "#fff", marginBottom: "2px" }}>
+            {t("SEARCH_PROPERTY") || "Search Property"}
+          </div>
+          <div style={{ fontSize: "12px", color: "rgba(255,255,255,0.72)", lineHeight: "1.5" }}>
+            {t("CS_PT_HOME_SEARCH_RESULTS_DESC") || "Provide at least one search parameter to find your property."}
+          </div>
         </div>
       </div>
 
       {/* ── Form Body ── */}
-      <div style={{ padding: isMobile ? "20px 16px 48px" : "24px 32px 56px" }}>
+      <div style={{ padding: isMobile ? "16px 16px 48px" : "20px 24px 56px" }}>
 
         {/* ── Search Mode Toggle ── */}
-        <div style={{ ...sectionCard, marginBottom: "16px" }}>
-          <div style={{ fontSize: "11px", fontWeight: "700", color: "#9ca3af", textTransform: "uppercase", letterSpacing: "0.6px", marginBottom: "12px" }}>
-            {t("PT_HOME_SEARCH_PROPERTY_BY")}
-          </div>
+        <div style={{ ...cardStyle, marginBottom: "16px" }}>
+          <CardHeader
+            icon={
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/>
+              </svg>
+            }
+            title={t("PT_HOME_SEARCH_PROPERTY_BY") || "Search Property By"}
+          />
+          <div style={{ padding: "16px 20px" }}>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
             {[
               {
@@ -823,67 +742,214 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
               );
             })}
           </div>
+          </div>
         </div>
 
         {/* ── City (+ Locality for mode 1) ── */}
         <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : currentAction === 1 ? "1fr 1fr" : "1fr", gap: "16px", marginBottom: "16px" }}>
 
           {/* City */}
-          <div style={sectionCard}>
-            <SectionHeader step="1" title={t("PT_SELECT_CITY")} required />
-            <div style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "10px" }}>
-              {t("CS_LOCATION_SUBTEXT")}
-            </div>
-            <Dropdown
-              t={t}
-              isMandatory
-              option={allCities}
-              optionKey="i18nKey"
-              selected={formCity}
-              optionCardStyles={{ maxHeight: "220px", overflowY: "auto", zIndex: 20 }}
-              select={(d) => {
-                Digit.LocalizationService.getLocale({
-                  modules: [`rainmaker-${d?.code}`],
-                  locale: Digit.StoreData.getCurrentLanguage(),
-                  tenantId: `${d?.code}`,
-                });
-                if (d?.code !== cityCode) setFormLocality(null);
-                setCityCode(d?.code);
-                setFormCity(d);
-              }}
+          <div style={{ ...cardStyle, overflow: "visible" }}>
+            <CardHeader
+              icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>}
+              title={t("PT_SELECT_CITY") || "Select City"}
             />
+            <div style={sectionCard}>
+              {/* Custom city dropdown — in-field search */}
+              <div style={{ position: "relative" }}>
+                <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                  <input
+                    type="text"
+                    value={cityOpen ? citySearch : (formCity ? (formCity.name || t(formCity.i18nKey)) : "")}
+                    placeholder={formCity ? (formCity.name || t(formCity.i18nKey)) : "Select City"}
+                    onChange={(e) => { setCitySearch(e.target.value); }}
+                    onFocus={() => { setCityOpen(true); setCitySearch(""); }}
+                    onBlur={() => setTimeout(() => { setCityOpen(false); setCitySearch(""); }, 200)}
+                    readOnly={!cityOpen}
+                    style={{
+                      width: "100%", padding: "11px 36px 11px 14px",
+                      borderRadius: "10px",
+                      border: cityOpen ? "1.5px solid #f47738" : "1.5px solid #e2e8f0",
+                      fontSize: "14px",
+                      color: formCity ? "#111827" : "#9ca3af",
+                      fontWeight: formCity ? "500" : "400",
+                      background: "#fafbfc",
+                      outline: "none",
+                      cursor: cityOpen ? "text" : "pointer",
+                      boxShadow: cityOpen ? "0 0 0 3px rgba(244,119,56,0.10)" : "0 1px 3px rgba(0,0,0,0.04)",
+                      transition: "border-color 0.15s, box-shadow 0.15s",
+                      boxSizing: "border-box",
+                    }}
+                  />
+                  <svg
+                    width="11" height="11" viewBox="0 0 24 24" fill="none"
+                    stroke="#6b7280" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                    style={{ position: "absolute", right: "12px", pointerEvents: "none", transition: "transform 0.18s", transform: cityOpen ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}
+                  >
+                    <polyline points="6 9 12 15 18 9"/>
+                  </svg>
+                </div>
+
+                {cityOpen && (
+                  <div style={{
+                    position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+                    background: "#fff",
+                    borderRadius: "12px",
+                    border: "1.5px solid #f47738",
+                    boxShadow: "0 8px 28px rgba(9,30,100,0.13)",
+                    zIndex: 100,
+                    overflow: "hidden",
+                    maxHeight: "220px", overflowY: "auto",
+                  }}>
+                    {(allCities || []).filter((c) => !citySearch || (c.name || "").toLowerCase().includes(citySearch.toLowerCase())).map((city, idx, arr) => (
+                      <button
+                        key={city.code}
+                        type="button"
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          if (city.code !== cityCode) setFormLocality(null);
+                          setCityCode(city.code);
+                          setFormCity(city);
+                          setCityOpen(false);
+                          setCitySearch("");
+                        }}
+                        style={{
+                          width: "100%", padding: "10px 16px",
+                          textAlign: "left", border: "none",
+                          borderBottom: idx < (arr.length - 1) ? "1px solid #f3f4f6" : "none",
+                          background: formCity?.code === city.code ? "linear-gradient(135deg,#fff8f4 0%,#fff3ec 100%)" : "#fff",
+                          color: formCity?.code === city.code ? "#d44f0a" : "#111827",
+                          fontWeight: formCity?.code === city.code ? "700" : "400",
+                          fontSize: "14px", cursor: "pointer",
+                          display: "flex", alignItems: "center", justifyContent: "space-between",
+                          transition: "background 0.1s",
+                        }}
+                        onMouseEnter={(e) => { if (formCity?.code !== city.code) e.currentTarget.style.background = "#f9fafb"; }}
+                        onMouseLeave={(e) => { if (formCity?.code !== city.code) e.currentTarget.style.background = "#fff"; }}
+                      >
+                        {city.name || t(city.i18nKey)}
+                        {formCity?.code === city.code && (
+                          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                            <polyline points="20 6 9 17 4 12"/>
+                          </svg>
+                        )}
+                      </button>
+                    ))}
+                    {(allCities || []).filter((c) => !citySearch || (c.name || "").toLowerCase().includes(citySearch.toLowerCase())).length === 0 && (
+                      <div style={{ padding: "12px 16px", fontSize: "13px", color: "#9ca3af" }}>No cities found</div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* Locality — mode 1 only */}
           {currentAction === 1 && (
-            <div style={sectionCard}>
-              <SectionHeader step="2" title={t("PT_SELECT_LOCALITY")} required />
-              <Localities
-                selectLocality={(d) => setFormLocality(d)}
-                tenantId={cityCode}
-                boundaryType="revenue"
-                keepNull={false}
-                optionCardStyles={{ maxHeight: "220px", overflowY: "auto", zIndex: 20 }}
-                selected={formLocality}
-                disable={!cityCode}
-                disableLoader={true}
+            <div style={{ ...cardStyle, overflow: "visible" }}>
+              <CardHeader
+                icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>}
+                title={t("PT_SELECT_LOCALITY") || "Select Locality"}
               />
+              <div style={sectionCard}>
+                <div style={{ position: "relative" }}>
+                  <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+                    <input
+                      type="text"
+                      value={localityOpen ? localitySearch : (formLocality ? (formLocality.name || t(formLocality.i18nkey)) : "")}
+                      placeholder={formLocality ? (formLocality.name || t(formLocality.i18nkey)) : "Select Locality"}
+                      onChange={(e) => { setLocalitySearch(e.target.value); }}
+                      onFocus={() => { if (cityCode) { setLocalityOpen(true); setLocalitySearch(""); } }}
+                      onBlur={() => setTimeout(() => { setLocalityOpen(false); setLocalitySearch(""); }, 200)}
+                      readOnly={!localityOpen}
+                      disabled={!cityCode}
+                      style={{
+                        width: "100%", padding: "11px 36px 11px 14px",
+                        borderRadius: "10px",
+                        border: localityOpen ? "1.5px solid #f47738" : "1.5px solid #e2e8f0",
+                        fontSize: "14px",
+                        color: !cityCode ? "#c0c0c0" : formLocality ? "#111827" : "#9ca3af",
+                        fontWeight: formLocality ? "500" : "400",
+                        background: !cityCode ? "#f5f5f5" : "#fafbfc",
+                        outline: "none",
+                        cursor: !cityCode ? "not-allowed" : localityOpen ? "text" : "pointer",
+                        boxShadow: localityOpen ? "0 0 0 3px rgba(244,119,56,0.10)" : "0 1px 3px rgba(0,0,0,0.04)",
+                        transition: "border-color 0.15s, box-shadow 0.15s",
+                        boxSizing: "border-box",
+                      }}
+                    />
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+                      style={{ position: "absolute", right: "12px", pointerEvents: "none", transition: "transform 0.18s", transform: localityOpen ? "rotate(180deg)" : "rotate(0deg)", flexShrink: 0 }}>
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </div>
+                  {localityOpen && (
+                    <div style={{
+                      position: "absolute", top: "calc(100% + 4px)", left: 0, right: 0,
+                      background: "#fff", borderRadius: "12px",
+                      border: "1.5px solid #f47738",
+                      boxShadow: "0 8px 28px rgba(9,30,100,0.13)",
+                      zIndex: 100, overflow: "hidden",
+                      maxHeight: "220px", overflowY: "auto",
+                    }}>
+                      {isLocalityLoading ? (
+                        <div style={{ padding: "12px 16px", fontSize: "13px", color: "#9ca3af" }}>Loading...</div>
+                      ) : (() => {
+                        const filtered = localityList.filter((l) => !localitySearch || (l.name || "").toLowerCase().includes(localitySearch.toLowerCase()));
+                        return filtered.length === 0 ? (
+                          <div style={{ padding: "12px 16px", fontSize: "13px", color: "#9ca3af" }}>No localities found</div>
+                        ) : filtered.map((loc, idx, arr) => (
+                          <button
+                            key={loc.code}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setFormLocality(loc);
+                              setLocalityOpen(false);
+                              setLocalitySearch("");
+                            }}
+                            style={{
+                              width: "100%", padding: "10px 16px",
+                              textAlign: "left", border: "none",
+                              borderBottom: idx < arr.length - 1 ? "1px solid #f3f4f6" : "none",
+                              background: formLocality?.code === loc.code ? "linear-gradient(135deg,#fff8f4 0%,#fff3ec 100%)" : "#fff",
+                              color: formLocality?.code === loc.code ? "#d44f0a" : "#111827",
+                              fontWeight: formLocality?.code === loc.code ? "700" : "400",
+                              fontSize: "14px", cursor: "pointer",
+                              display: "flex", alignItems: "center", justifyContent: "space-between",
+                            }}
+                            onMouseEnter={(e) => { if (formLocality?.code !== loc.code) e.currentTarget.style.background = "#f9fafb"; }}
+                            onMouseLeave={(e) => { if (formLocality?.code !== loc.code) e.currentTarget.style.background = "#fff"; }}
+                          >
+                            {loc.name || t(loc.i18nkey)}
+                            {formLocality?.code === loc.code && (
+                              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="20 6 9 17 4 12"/>
+                              </svg>
+                            )}
+                          </button>
+                        ));
+                      })()}
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
           )}
         </div>
 
         {/* ── Additional fields ── */}
-        <div style={{ ...sectionCard, marginBottom: "20px" }}>
-          <SectionHeader
-            step={currentAction === 1 ? "3" : "2"}
-            title={t("PT_PROVIDE_ONE_MORE_PARAM")}
-            required={false}
+        <div style={{ ...cardStyle, marginBottom: "20px" }}>
+          <CardHeader
+            icon={<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="14" y2="12"/><line x1="4" y1="18" x2="18" y2="18"/></svg>}
+            title={t("PT_PROVIDE_ONE_MORE_PARAM") || "Provide Search Parameters"}
           />
+          <div style={sectionCard}>
 
           {currentAction === 0 ? (
-            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "18px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr 1fr", gap: "18px", alignItems: "end" }}>
               {/* Mobile */}
-              <div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <FieldLabel text={t(mobileNumber.label)} />
                 <input
                   type="tel"
@@ -897,7 +963,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
                 />
               </div>
               {/* Property ID */}
-              <div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <div style={{ fontSize: "11px", fontWeight: "700", color: "#6b7280", textTransform: "uppercase", letterSpacing: "0.45px", marginBottom: "7px", display: "flex", alignItems: "center", gap: "6px" }}>
                   {t(property.label)}
                   <div className="tooltip" style={{ display: "inline-flex", cursor: "help" }}>
@@ -918,7 +984,7 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
                 />
               </div>
               {/* Old Property ID */}
-              <div>
+              <div style={{ display: "flex", flexDirection: "column" }}>
                 <FieldLabel text={t(oldProperty.label)} />
                 <input
                   type="text"
@@ -961,7 +1027,8 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
               </div>
             </div>
           )}
-        </div>
+          </div>
+          </div>
 
         {/* ── Search Button ── */}
         <button
@@ -1003,29 +1070,14 @@ const SearchProperty = ({ config: propsConfig, onSelect, onSkip, redirectToUrl }
         </button>
 
         {/* ── Register / Skip Row ── */}
-        <div style={{ background: "#fff", borderRadius: "12px", border: "1px solid #eaedf3", padding: "14px 20px", display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap", boxShadow: "0 1px 8px rgba(26,43,73,0.05)" }}>
-          <div style={{ width: "36px", height: "36px", borderRadius: "9px", background: "#fff5ef", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f47738" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-            </svg>
-          </div>
-          <div style={{ flex: 1 }}>
-            {window.location.href.includes("/obps/bpa/") || window.location.href.includes("/fsm/new-application/") ? (
-              <span style={{ fontSize: "13px", fontWeight: "600", color: "#374151" }}>{t("CORE_COMMON_SKIP_CONTINUE")}</span>
-            ) : (
-              <React.Fragment>
-                <span style={{ fontSize: "13px", fontWeight: "600", color: "#374151" }}>{t("PT_REGISTER_NEW_PROPERTY_MSG")}</span>
-                <span style={{ fontSize: "12px", color: "#9ca3af", marginLeft: "6px" }}>{t("PT_HOME_NEW_APP_DESC")}</span>
-              </React.Fragment>
-            )}
-          </div>
+        <div style={{ display: "flex", justifyContent: "flex-end" }}>
           {getBottomLink()}
         </div>
 
       </div>
 
       {showToast && (
-        <Toast isDleteBtn={true} error={showToast.error} warning={showToast.warning} label={t(showToast.label)} onClose={() => setShowToast(null)} />
+        <Toast isDleteBtn="true" error={showToast.error} warning={showToast.warning} label={t(showToast.label)} onClose={() => setShowToast(null)} />
       )}
     </div>
   );

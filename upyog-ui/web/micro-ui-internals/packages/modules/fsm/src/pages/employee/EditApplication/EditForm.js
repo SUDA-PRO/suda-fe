@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { FormComposer, Header, Loader } from "@upyog/digit-ui-react-components";
+import { FormComposer, Loader } from "@upyog/digit-ui-react-components";
 import { useTranslation } from "react-i18next";
+
+const NAVY = "#1a2b49";
+const ACCENT = "#B54708";
+const ORANGE = "#f47738";
 
 const isConventionalSpecticTank = (tankDimension) => tankDimension === "lbd";
 
 const EditForm = ({ tenantId, applicationData, channelMenu, vehicleMenu, sanitationMenu }) => {
-  console.log("applndata",applicationData)
   const { t } = useTranslation();
   const history = useHistory();
   const [canSubmit, setSubmitValve] = useState(false);
@@ -25,6 +28,7 @@ const EditForm = ({ tenantId, applicationData, channelMenu, vehicleMenu, sanitat
   }, []);
 
   var defaultValues = {
+    cpt: null,
     channel: channelMenu.filter((channel) => channel.code === applicationData.source)[0],
     applicationData: {
       applicantName: applicationData.citizen.name,
@@ -61,6 +65,7 @@ const EditForm = ({ tenantId, applicationData, channelMenu, vehicleMenu, sanitat
     pitDetail: applicationData.pitDetail,
     paymentPreference: applicationData.paymentPreference,
     advanceAmount: applicationData.advanceAmount,
+    advancepaymentPreference: { advanceAmount: applicationData.advanceAmount || 0 },
   };
 
   if (
@@ -253,7 +258,6 @@ const EditForm = ({ tenantId, applicationData, channelMenu, vehicleMenu, sanitat
   }
 
   const configs = [...preFields, ...commonFields];
-  console.log(configs,"configs");
   let conf = [
    
     {
@@ -266,7 +270,8 @@ const EditForm = ({ tenantId, applicationData, channelMenu, vehicleMenu, sanitat
           "withoutLabel": true,
           "key": "cpt",
           "type": "component",
-          "hideInCitizen": true
+          "hideInCitizen": true,
+          "hideInEmployee": true
         },
         {
           "label": "ES_NEW_APPLICATION_PROPERTY_TYPE",
@@ -561,31 +566,63 @@ const EditForm = ({ tenantId, applicationData, channelMenu, vehicleMenu, sanitat
       ]
     }
   ]
+  const submitLabel = applicationData?.applicationStatus !== "CREATED" ? t("ES_FSM_APPLICATION_SCHEDULE") : t("ES_FSM_APPLICATION_UPDATE");
+
   return (
-    // <>
-    //   <div style={{ marginLeft: "15px" }}>
-    //     <Header>{t("ES_TITLE_MODIFY_DESULDGING_APPLICATION")}</Header>
-    //   </div>
-      <FormComposer
-        isDisabled={!canSubmit}
-        label={applicationData?.applicationStatus != "CREATED" ? t("ES_FSM_APPLICATION_SCHEDULE") : t("ES_FSM_APPLICATION_UPDATE")}
-        config={conf
-          .filter((i) => !i.hideInEmployee)
-          .map((config) => {
-            return {
-              ...config,
-              body: config.body.filter((a) => !a.hideInEmployee),
-            };
-          })}
-        fieldStyle={{ marginRight: 0 }}
-        // formCardStyle={true}
-        onSubmit={onSubmit}
-        defaultValues={defaultValues}
-        onFormValueChange={onFormValueChange}
-        // noBreakLine={true}
-        // fms_inline
-      />
-    // </>
+    <div className="fsm-edit-page">
+      {/* Banner */}
+      <div style={{
+        background: `linear-gradient(135deg, ${NAVY} 0%, #274080 60%, ${ACCENT}cc 100%)`,
+        padding: "18px 32px 22px",
+        display: "flex", flexDirection: "column",
+        position: "relative",
+      }}>
+        <div style={{ position: "absolute", top: "-40px", right: "160px", width: "120px", height: "120px", borderRadius: "50%", background: "rgba(255,255,255,0.05)", pointerEvents: "none" }} />
+        {/* Breadcrumb */}
+        <div style={{ display: "flex", alignItems: "center", gap: "5px", marginBottom: "12px", zIndex: 1 }}>
+          <a href="/suda-ui/employee" style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: "500", textDecoration: "none" }}>{t("ES_COMMON_HOME")}</a>
+          <span style={{ color: "rgba(255,255,255,0.30)", fontSize: "11px" }}>›</span>
+          <span style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: "500" }}>FSM</span>
+          <span style={{ color: "rgba(255,255,255,0.30)", fontSize: "11px" }}>›</span>
+          <a href="/suda-ui/employee/fsm/inbox" style={{ color: "rgba(255,255,255,0.55)", fontSize: "12px", fontWeight: "500", textDecoration: "none" }}>{t("ES_COMMON_INBOX")}</a>
+          <span style={{ color: "rgba(255,255,255,0.30)", fontSize: "11px" }}>›</span>
+          <span style={{ color: "#ffffff", fontSize: "12px", fontWeight: "600" }}>{t("ES_FSM_APPLICATION_UPDATE")}</span>
+        </div>
+        {/* Title row */}
+        <div style={{ display: "flex", alignItems: "center", gap: "14px", zIndex: 1 }}>
+          <div style={{ width: "44px", height: "44px", borderRadius: "12px", background: "rgba(255,255,255,0.15)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "22px", flexShrink: 0 }}>🚿</div>
+          <div>
+            <div style={{ color: "rgba(255,255,255,0.65)", fontSize: "11px", fontWeight: "600", textTransform: "uppercase", letterSpacing: "0.8px", marginBottom: "2px" }}>{t("ES_TITLE_FAECAL_SLUDGE_MGMT")}</div>
+            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <span style={{ color: "#ffffff", fontSize: "18px", fontWeight: "800" }}>{applicationData?.applicationNo}</span>
+              {applicationData?.applicationStatus && (
+                <span style={{ background: "rgba(255,255,255,0.18)", border: "1px solid rgba(255,255,255,0.35)", borderRadius: "20px", padding: "3px 12px", fontSize: "12px", fontWeight: "600", color: "#ffffff" }}>
+                  {t(`CS_COMMON_FSM_${applicationData.applicationStatus}`)}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Form body */}
+      <div style={{ background: "#f0f2f7", padding: "24px 32px 40px" }}>
+        <FormComposer
+          isDisabled={!canSubmit}
+          label={submitLabel}
+          config={conf
+            .filter((i) => !i.hideInEmployee)
+            .map((config) => ({ ...config, body: config.body.filter((a) => !a.hideInEmployee) }))}
+          fieldStyle={{ marginRight: 0 }}
+          onSubmit={onSubmit}
+          defaultValues={defaultValues}
+          onFormValueChange={onFormValueChange}
+          sectionWrapperClass="fsm-section-card"
+          noBreakLine={true}
+          cardStyle={{ background: "transparent", boxShadow: "none", border: "none", padding: 0, margin: 0 }}
+        />
+      </div>
+    </div>
   );
 };
 

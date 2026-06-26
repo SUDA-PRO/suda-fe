@@ -224,12 +224,6 @@ const Inbox = ({ parentRoute, isSearch = false, isInbox = false }) => {
     } else {
       return (
         <div>
-          {!isSearch && (
-            <Header>
-              {t("ES_COMMON_INBOX")}
-              {Number(inboxTotalCount) ? <p className="inbox-count">{Number(inboxTotalCount)}</p> : null}
-            </Header>
-          )}
           <DesktopInbox
             data={isInbox ? applications : data}
             isLoading={isInbox ? isLoading || isIdle : isSearchLoading}
@@ -250,6 +244,7 @@ const Inbox = ({ parentRoute, isSearch = false, isInbox = false }) => {
             paginationParms={paginationParms}
             sortParams={sortParams}
             totalRecords={isInbox ? Number(inboxTotalCount) : totalCount}
+            inboxTotalCount={inboxTotalCount}
           />
         </div>
       );

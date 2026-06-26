@@ -205,13 +205,17 @@ const EmployeeApp = ({ path, url, userType }) => {
   const locationCheck =
     window.location.href.includes("/employee/fsm/inbox") ||
     window.location.href.includes("/employee/fsm/registry") ||
-    window.location.href.includes("/employee/fsm/application-details/");
+    window.location.href.includes("/employee/fsm/application-details/") ||
+    window.location.href.includes("/employee/fsm/dso-application-details/") ||
+    window.location.href.includes("/employee/fsm/modify-application/") ||
+    window.location.href.includes("/employee/fsm/response") ||
+    window.location.href.includes("/employee/fsm/new-application");
 
   const desludgingApplicationCheck = window.location.href.includes("/employee/fsm/new-application") || window.location.href.includes("/employee/fsm/modify-application");
   return (
     <Switch>
       <React.Fragment>
-        <div className="ground-container">
+        <div className="ground-container" style={{ marginBottom: 0 }}>
           {FSTPO ? (
             <BackButton
               isCommonPTPropertyScreen={location.pathname.includes("new") ? true : false}
@@ -220,7 +224,9 @@ const EmployeeApp = ({ path, url, userType }) => {
               {t("CS_COMMON_BACK")}
             </BackButton>
           ) : (
-            <div style={locationCheck ? { marginLeft: "-4px" } : desludgingApplicationCheck ? { marginLeft: "12px" } : { marginLeft: "20px" }}>
+            <div
+              style={locationCheck ? { display: "none" } : desludgingApplicationCheck ? { marginLeft: "12px" } : { marginLeft: "20px" }}
+            >
               <BreadCrumbComp location={location} />
             </div>
           )}
@@ -229,6 +235,10 @@ const EmployeeApp = ({ path, url, userType }) => {
           <PrivateRoute path={`${path}/fstp-inbox`} component={() => <FstpInbox parentRoute={path} />} />
           <PrivateRoute path={`${path}/new-application`} component={() => <NewApplication parentUrl={url} />} />
           <PrivateRoute path={`${path}/modify-application/:id`} component={() => <EditApplication />} />
+          <PrivateRoute
+            path={`${path}/dso-application-details/:id`}
+            component={() => <EmployeeApplicationDetails parentRoute={path} userType="DSO" />}
+          />
           <PrivateRoute
             path={`${path}/application-details/:id`}
             component={() => <EmployeeApplicationDetails parentRoute={path} userType="EMPLOYEE" />}

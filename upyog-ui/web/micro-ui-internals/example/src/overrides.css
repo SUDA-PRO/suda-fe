@@ -18,6 +18,1081 @@
 .back-btn2:hover svg path {
   fill: #1E3A8A !important;
 }
+/* Protect mask paths (fill="none") from being colored on hover */
+.back-btn2:hover svg path[fill="none"],
+.back-btn2 svg path[fill="none"] {
+  fill: none !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FSM INBOX — Page layout, table, search, filter overrides
+   ═══════════════════════════════════════════════════════════════ */
+
+/* FSM inbox page — no negative margin needed; breadcrumb bar above handles spacing */
+.fsm-inbox-page {
+  margin-top: 0 !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   FSM APPLICATION DETAILS — breadcrumb bar + misc
+   ═══════════════════════════════════════════════════════════════ */
+
+/* Dark breadcrumb bar that extends edge-to-edge of the content area */
+.fsm-appdetails-breadcrumb {
+  background: linear-gradient(135deg, #1a2b49 0%, #274080 100%) !important;
+  padding: 9px 20px 8px !important;
+  margin: 0 -16px !important;
+  margin-bottom: 0 !important;
+}
+.fsm-appdetails-breadcrumb .bread-crumb {
+  margin-bottom: 0 !important;
+  color: rgba(255,255,255,0.60) !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+}
+.fsm-appdetails-breadcrumb .bread-crumb--item button,
+.fsm-appdetails-breadcrumb .bread-crumb--item a {
+  color: rgba(255,255,255,0.60) !important;
+  background: none !important;
+  border: none !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
+  padding: 0 !important;
+  outline: none !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+}
+.fsm-appdetails-breadcrumb .bread-crumb--item button:hover {
+  color: #f47738 !important;
+}
+.fsm-appdetails-breadcrumb .bread-crumb--item:not(:last-child):after {
+  color: rgba(255,255,255,0.30) !important;
+}
+.fsm-appdetails-breadcrumb .bread-crumb--item .last,
+.fsm-appdetails-breadcrumb .bread-crumb--item:last-child span {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FSM Edit / New Application form page
+   ═══════════════════════════════════════════════════════════════ */
+.fsm-edit-page {
+  margin-top: 0 !important;
+}
+/* The form is a flex/shrink-to-fit context in DIGIT; pin it (and the Card) to the
+   container width with border-box so the grid card can't size to its content's
+   min-content and overflow the viewport, which is what pushed the right column
+   past the card edge. min-width:0 lets it shrink inside any flex ancestor. */
+.fsm-edit-page form {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+/* Outer FormComposer card — transparent container, pinned to full container width.
+   Flex column so the in-form Submit button (rendered after the last section card)
+   can right-align itself with align-self:flex-end, sitting under the Payment
+   Details card on the right. The stacked section cards are unaffected (they remain
+   full-width block-equivalents as flex items with the default align-items:stretch). */
+.fsm-edit-page .employeeCard {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+/* Each section wrapped in its own white card — 2-column grid layout.
+   Columns use minmax(0, 1fr) (NOT 1fr): plain 1fr = minmax(auto, 1fr), whose
+   `auto` floor lets a column grow to its widest child's min-content — a dropdown
+   or +91 row can then blow a column wider than its half, making the two columns
+   unequal and pushing the right column toward/over the card edge. minmax(0, 1fr)
+   pins the floor to 0 so both columns are always exactly equal and fit the card. */
+.fsm-section-card {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  border: 1px solid #e8edf5 !important;
+  margin-bottom: 16px !important;
+  box-shadow: 0 2px 10px rgba(9,30,100,0.07) !important;
+  overflow: hidden !important;
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+  column-gap: 22px !important;
+  row-gap: 16px !important;
+  align-items: stretch !important;
+  padding: 0 24px 18px !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+}
+/* When a dropdown inside the card is OPEN it gets the .select-active class. The
+   open options list is position:absolute and would be clipped by the card's
+   overflow:hidden (used to keep the full-bleed section header tidy). So only while
+   a dropdown is open: let the card overflow, and lift the whole card above the
+   following section cards (position+z-index) so the list overlays the next card
+   instead of being cut off at this card's bottom edge. */
+.fsm-section-card:has(.select-active) {
+  overflow: visible !important;
+  position: relative !important;
+  z-index: 50 !important;
+}
+/* Section header — spans both columns, navy text + full-bleed bottom border */
+.fsm-section-card .card-section-header {
+  grid-column: 1 / -1 !important;
+  font-size: 15px !important;
+  font-weight: 700 !important;
+  color: #091E64 !important;
+  padding: 15px 24px 11px !important;
+  border-bottom: 1.5px solid #f0f3f9 !important;
+  margin: 0 -24px 4px !important;
+  background: transparent !important;
+  display: block !important;
+  box-shadow: none !important;
+}
+/* Flatten every wrapper between the section and the leaf fields, so each individual
+   field becomes its own uniform grid cell — nothing spans full width.
+   Exclude .fsm-property-search: it has equal specificity to this rule, so without
+   the exclusion the cascade was decided only by source order. Excluding it here
+   guarantees the property-search block keeps its own display:block + full-width
+   grid-column (set below) instead of being dissolved to display:contents. */
+.fsm-section-card *:has(.label-field-pair):not(.fsm-property-search) {
+  display: contents !important;
+}
+/* Leaf field cells — stacked label-above-field, one field per grid column.
+   Tight 3px gap so the control sits directly under its label. */
+.fsm-section-card .label-field-pair:not(:has(.label-field-pair)) {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
+  padding: 0 !important;
+  gap: 3px !important;
+  min-width: 0 !important;
+}
+/* Pin each field's control directly beneath its label (tight, uniform spacing on
+   every row, matching the text inputs). A dropdown's box has different internal
+   metrics than a plain input, so vertically centering it left an uneven gap under
+   the label; pinning to the top removes that extra space everywhere. */
+.fsm-section-card .label-field-pair:not(:has(.label-field-pair)) > *:not(.card-label):not(.card-label-error) {
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+/* Re-centre specific tall/short widget pairs (Property Type ↔ Property Sub-Type,
+   Onsite sanitation ↔ Pit Dimension). Their controls carry the .fsm-center-field
+   marker (added on the component root). Keep the LABEL pinned at the top so labels
+   stay aligned across the row, but vertically centre the CONTROL in the cell's
+   remaining height: auto top+bottom margins absorb the free space equally, so a
+   short control (Sub-Type dropdown, Onsite buttons) lines up with the middle of
+   its taller partner (Property Type icon cards, Pit Dimension boxes). One class
+   more specific than the pin-to-top rule above, so it wins for these cells only. */
+.fsm-section-card .label-field-pair:not(:has(.label-field-pair)):has(.fsm-center-field) > *:not(.card-label):not(.card-label-error) {
+  margin-top: auto !important;
+  margin-bottom: auto !important;
+}
+/* Full-width widget blocks (Property Type icon cards, Pit Dimension, Trips, etc.)
+   that are NOT flattened (they hold no .label-field-pair) sit in a single grid
+   column. Give them min-width:0 so their wide inner flex content can't force the
+   column past its half and unbalance the row. */
+.fsm-section-card .fsm-fullwidth {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+/* If a .fsm-fullwidth's inner inline grid (e.g. SelectName's 1fr 1fr) is ever NOT
+   flattened to display:contents, keep its columns equal and shrinkable so it can
+   never overflow its cell. (When flattened to display:contents this is a no-op.) */
+.fsm-section-card .fsm-fullwidth[style*="grid"] {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
+}
+.fsm-section-card .fsm-fullwidth > * {
+  min-width: 0 !important;
+}
+/* Error labels span full width and reset DIGIT's 70%/30% inline offset */
+.fsm-section-card > .card-label-error,
+.fsm-section-card .label-field-pair > .card-label-error {
+  grid-column: 1 / -1 !important;
+  width: auto !important;
+  margin-left: 0 !important;
+}
+/* Labels — citizen Title Case dark style (smaller).
+   Keep the label text and its mandatory "*" on the SAME line (row + wrap).
+   Reserve just a single line of height (18px) with the text bottom-aligned, so the
+   label sits directly above its control with no extra empty space, while paired
+   single-line labels in a row still end at the same baseline and keep their
+   controls aligned. */
+.fsm-section-card .card-label {
+  width: auto !important;
+  min-width: unset !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  color: #0b0c0c !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  line-height: 1.35 !important;
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: flex-end !important;
+  column-gap: 2px !important;
+  min-height: 18px !important;
+  flex: 0 0 auto !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+/* Field containers — full width, no own padding (gutter comes from label-field-pair).
+   min-width:0 lets the field shrink so a wide dropdown/input never forces its
+   grid column past its half. min-height:40px makes EVERY field reserve the same
+   control height (even a shorter control like radio buttons), so each row's two
+   fields are the same height and start at the same place. */
+.fsm-section-card .field {
+  width: 100% !important;
+  max-width: 100% !important;
+  min-width: 0 !important;
+  min-height: 40px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+/* Radio-button fields (e.g. Property Location) — DIGIT's dist stacks each option
+   as a block with a 16px bottom margin, the component adds an inline 10px left
+   indent, and labels render at 16px. That makes the radios sit shorter, higher
+   and pushed right of their label, so the City | Property Location row looks
+   misaligned. Re-lay the options as ONE clean row, left-aligned with the label,
+   vertically centred in the 40px field (to match the paired City dropdown), with
+   the form's 14px type.
+   IMPORTANT: use ":has(> .radio-wrap)" (direct child) — NOT ":has(.radio-wrap)".
+   FSMSelectAddress renders City + Property Location inside ONE component, so the
+   outer FormComposer ".field" wrapping the whole component ALSO contains a deep
+   .radio-wrap. A descendant ":has(.radio-wrap)" would match that outer wrapper
+   too, flipping it from display:contents to display:flex and collapsing City +
+   Property Location into a single grid column. The child combinator targets only
+   the innermost field that directly holds the radios. */
+.fsm-section-card .field:has(> .radio-wrap) {
+  display: flex !important;
+  align-items: center !important;
+}
+.fsm-section-card .field > .radio-wrap {
+  display: flex !important;
+  flex-direction: row !important;
+  flex-wrap: wrap !important;
+  align-items: center !important;
+  gap: 6px 28px !important;
+  margin: 0 !important;
+  line-height: normal !important;
+}
+/* Each option: inline row; kill dist block-stacking margin AND the inline 10px
+   left indent so the first radio starts exactly under the label. */
+.fsm-section-card .field > .radio-wrap > div {
+  display: flex !important;
+  align-items: center !important;
+  float: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.fsm-section-card .field > .radio-wrap .radio-btn-wrap {
+  float: none !important;
+  flex-shrink: 0 !important;
+}
+.fsm-section-card .field > .radio-wrap label {
+  font-size: 14px !important;
+  line-height: 1.3 !important;
+  color: #1a2b49 !important;
+  margin-left: 8px !important;
+}
+/* ═══ Field controls — match citizen custom inputs (FSMPropertyDetailsForm) ═══ */
+
+/* Make the TextInput wrapper fill the field width */
+.fsm-section-card .text-input {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+
+/* Plain text / number / tel / email / date inputs + textarea
+   (dist classes: employee-card-input, employee-card-input-error) */
+.fsm-section-card input[type="text"],
+.fsm-section-card input[type="number"],
+.fsm-section-card input[type="tel"],
+.fsm-section-card input[type="email"],
+.fsm-section-card input[type="date"],
+.fsm-section-card .employee-card-input,
+.fsm-section-card .employee-card-input-error,
+.fsm-section-card textarea,
+.fsm-section-card select {
+  width: 100% !important;
+  border-radius: 8px !important;
+  border: 1.5px solid #e5e7eb !important;
+  font-size: 14px !important;
+  color: #1a2b49 !important;
+  background: #fafbfc !important;
+  box-sizing: border-box !important;
+  box-shadow: none !important;
+  transition: border-color 0.15s, box-shadow 0.15s !important;
+}
+/* Uniform 40px height for single-line controls so each row's fields align */
+.fsm-section-card input[type="text"],
+.fsm-section-card input[type="number"],
+.fsm-section-card input[type="tel"],
+.fsm-section-card input[type="email"],
+.fsm-section-card input[type="date"],
+.fsm-section-card .employee-card-input,
+.fsm-section-card .employee-card-input-error,
+.fsm-section-card select {
+  height: 40px !important;
+  padding: 0 12px !important;
+}
+/* Textarea (Landmark) — made identical to a single-line text input (House No.):
+   reset the dist margin that created the gap above it, no resize handle, 40px tall. */
+.fsm-section-card textarea {
+  min-height: 40px !important;
+  height: 40px !important;
+  margin: 0 !important;
+  padding: 9px 12px !important;
+  line-height: 1.4 !important;
+  vertical-align: top !important;
+  resize: none !important;
+}
+/* The TextArea atom always renders an empty <p class="cell-text"> hint after the
+   textarea; hide it when empty so it adds no extra space below the field. */
+.fsm-section-card .cell-text:empty {
+  display: none !important;
+  margin: 0 !important;
+}
+.fsm-section-card input:focus,
+.fsm-section-card .employee-card-input:focus,
+.fsm-section-card .employee-card-input-error:focus,
+.fsm-section-card textarea:focus,
+.fsm-section-card select:focus {
+  border-color: #f47738 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(244,119,56,0.10) !important;
+  background: #ffffff !important;
+}
+
+/* ── Mobile-number "+91" prefix box ── */
+.fsm-section-card .employee-card-input--front {
+  width: auto !important;
+  flex: 0 0 auto !important;
+  min-width: 52px !important;
+  height: 40px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 8px 0 0 8px !important;
+  border: 1.5px solid #e5e7eb !important;
+  border-right: none !important;
+  background: #f1f3f7 !important;
+  color: #6b7280 !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+.fsm-section-card .field[style*="flex"] .text-input {
+  flex: 1 1 auto !important;
+}
+.fsm-section-card .employee-card-input--front + .text-input .employee-card-input,
+.fsm-section-card .employee-card-input--front + .text-input .employee-card-input-error {
+  border-radius: 0 8px 8px 0 !important;
+}
+
+/* ── Dropdown — restyle the .select box, remove inner double-border ── */
+.fsm-section-card .employee-select-wrap,
+.fsm-section-card .select-wrap {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+.fsm-section-card .employee-select-wrap .select,
+.fsm-section-card .employee-select-wrap .select-active,
+.fsm-section-card .select-wrap .select,
+.fsm-section-card .select-wrap .select-active {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  border: 1.5px solid #e5e7eb !important;
+  border-radius: 8px !important;
+  background: #fafbfc !important;
+  padding: 0 12px 0 0 !important;
+  margin: 0 !important;
+  box-shadow: none !important;
+  box-sizing: border-box !important;
+  height: 40px !important;
+  min-height: 40px !important;
+  position: relative !important;
+}
+.fsm-section-card .employee-select-wrap .select-active,
+.fsm-section-card .select-wrap .select-active {
+  border-color: #f47738 !important;
+  box-shadow: 0 0 0 3px rgba(244,119,56,0.10) !important;
+  background: #ffffff !important;
+}
+/* Inner dropdown input — transparent, no own border */
+.fsm-section-card .employee-select-wrap--elipses {
+  width: 100% !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 0 0 0 14px !important;
+  font-size: 14px !important;
+  color: #1a2b49 !important;
+  box-shadow: none !important;
+  height: 100% !important;
+}
+.fsm-section-card .employee-select-wrap--elipses:focus {
+  border: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
+/* Chevron icon */
+.fsm-section-card .employee-select-wrap .select svg,
+.fsm-section-card .employee-select-wrap .select-active svg,
+.fsm-section-card .select-wrap .select svg,
+.fsm-section-card .select-wrap .select-active svg {
+  fill: #6b7280 !important;
+  flex-shrink: 0 !important;
+}
+/* Options list */
+.fsm-section-card .options-card {
+  border: 1.5px solid #f47738 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 28px rgba(9,30,100,0.13) !important;
+  margin-top: 4px !important;
+  padding: 4px !important;
+  background: #ffffff !important;
+  max-height: 220px !important;
+  overflow-y: auto !important;
+  z-index: 100 !important;
+}
+.fsm-section-card .options-card .profile-dropdown--item {
+  padding: 10px 14px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  color: #111827 !important;
+  border-bottom: none !important;
+}
+.fsm-section-card .options-card .profile-dropdown--item:hover {
+  background: #f9fafb !important;
+}
+/* ═══ Property ID search block (new-application only) ═══
+   PropertySearchNSummary renders "Property ID" + Search button + links (and a
+   result summary once a property is found). It lives inside the Property Details
+   card, but must NOT be split across the 2-column grid like normal fields —
+   render it as one clean full-width block above the Property Type / Sub-Type row.
+   (On modify-application this whole block is hidden, so it only affects new-application.) */
+.fsm-section-card .fsm-property-search {
+  grid-column: 1 / -1 !important;
+  display: block !important;
+  width: 100% !important;
+  margin: 0 0 2px !important;
+}
+/* Inner Property ID label + field flows as a normal stacked block (capped width) */
+.fsm-section-card .fsm-property-search .label-field-pair {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 6px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: 560px !important;
+}
+.fsm-section-card .fsm-property-search .card-label {
+  min-height: 0 !important;
+  margin: 0 !important;
+}
+/* Input + Search button on one row; input fills the remaining space */
+.fsm-section-card .fsm-property-search .field {
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.fsm-section-card .fsm-property-search .field .text-input {
+  flex: 1 1 auto !important;
+  width: auto !important;
+  float: none !important;
+  margin: 0 !important;
+}
+.fsm-section-card .fsm-property-search .field .text-input input {
+  width: 100% !important;
+  float: none !important;
+  margin: 0 !important;
+}
+.fsm-section-card .fsm-property-search .field .submit-bar {
+  flex: 0 0 auto !important;
+  min-width: 0 !important;
+  height: 40px !important;
+  padding: 0 22px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+}
+/* "Search property | Create property" links row, below the field */
+.fsm-section-card .fsm-property-search > span {
+  display: inline-block !important;
+  margin-top: 12px !important;
+}
+/* Submit / action bar */
+.fsm-edit-page .action-bar-wrap {
+  background: #ffffff !important;
+  border-top: 1px solid #e8edf5 !important;
+  box-shadow: 0 -2px 12px rgba(26,43,73,0.07) !important;
+  padding: 12px 32px !important;
+  left: 300px !important;
+}
+.fsm-edit-page .submit-bar {
+  background: linear-gradient(135deg, #f47738 0%, #e05a1a 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  box-shadow: 0 4px 14px rgba(244,119,56,0.35) !important;
+  min-width: 180px !important;
+}
+/* Disabled state (form not yet valid) — keep the dist grey fill but match the
+   enabled button's shape/typography so the in-form button looks consistent. */
+.fsm-edit-page .submit-bar-disabled {
+  border: none !important;
+  border-radius: 10px !important;
+  font-size: 14px !important;
+  font-weight: 700 !important;
+  min-width: 180px !important;
+}
+
+/* ── Table card wrapper ── */
+.fsm-table-wrap {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(26,43,73,0.09) !important;
+  border: 1px solid #e8edf5 !important;
+  overflow: hidden !important;
+}
+
+/* Table header */
+.fsm-table-wrap table {
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+
+.fsm-table-wrap table thead tr th {
+  background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
+  color: #92400e !important;
+  font-weight: 700 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  padding: 13px 18px !important;
+  border-bottom: 2px solid #fed7aa !important;
+  border-right: 1px solid #ffe4c4 !important;
+  white-space: nowrap !important;
+}
+.fsm-table-wrap table thead tr th:last-child {
+  border-right: none !important;
+}
+
+/* Table body */
+.fsm-table-wrap table tbody tr td {
+  padding: 12px 18px !important;
+  border-bottom: 1px solid #f3f4f6 !important;
+  border-right: 1px solid #f9fafb !important;
+  color: #374151 !important;
+  font-size: 13px !important;
+  vertical-align: middle !important;
+}
+.fsm-table-wrap table tbody tr td:last-child {
+  border-right: none !important;
+}
+.fsm-table-wrap table tbody tr:nth-child(even) {
+  background: #fffbf7 !important;
+}
+.fsm-table-wrap table tbody tr:hover {
+  background: #fff7ed !important;
+  transition: background 0.12s ease !important;
+}
+
+/* Application No. link */
+.fsm-table-wrap .link a {
+  color: #B54708 !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+}
+.fsm-table-wrap .link a:hover {
+  text-decoration: underline !important;
+  color: #92400e !important;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   FSM Search form — single-row layout with icon-only Clear button
+   ══════════════════════════════════════════════════════════════
+   After the DOM fix in search.js, .complaint-input-container now contains:
+     [<span.complaint-input>] [<span.mobile-input>×4] [<span.clear-search>] [<button.submit-bar-search>]
+   All siblings in the SAME flex container — no display:contents, no absolute
+   positioning, no pixel arithmetic. order is not needed: DOM order is correct.  */
+
+.fsm-inbox-page .search-container {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(26,43,73,0.09) !important;
+  border: 1px solid #e8edf5 !important;
+  padding: 16px 20px 14px !important;
+  margin-left: 0 !important;
+  width: auto !important;
+}
+.fsm-inbox-page .search-container .search-complaint-container {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+/* The one flex row that contains everything */
+.fsm-inbox-page .search-container .complaint-input-container {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: flex-end !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+/* Fields — shrink equally; min-width:0 allows shrinking below min-content */
+.fsm-inbox-page .search-container .complaint-input,
+.fsm-inbox-page .search-container .mobile-input {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+}
+/* Labels — nowrap + ellipsis so they don't force a large min-content */
+.fsm-inbox-page .search-container .complaint-input label,
+.fsm-inbox-page .search-container .mobile-input label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+/* Text + date inputs */
+.fsm-inbox-page .search-container .complaint-input input:not(.employee-select-wrap--elipses),
+.fsm-inbox-page .search-container .mobile-input input:not(.employee-select-wrap--elipses) {
+  height: 38px !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+}
+/* Date-picker wrapper */
+.fsm-inbox-page .search-container .digit-date-picker-wrapper,
+.fsm-inbox-page .search-container .date-picker-wrapper,
+.fsm-inbox-page .search-container .react-date-picker {
+  margin-bottom: 0 !important;
+  width: 100% !important;
+}
+/* Status dropdown */
+.fsm-inbox-page .search-container .employee-select-wrap,
+.fsm-inbox-page .search-container .select-wrap {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin-bottom: 0 !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select,
+.fsm-inbox-page .search-container .employee-select-wrap .select-active,
+.fsm-inbox-page .search-container .select-wrap .select,
+.fsm-inbox-page .search-container .select-wrap .select-active {
+  height: 38px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select:hover,
+.fsm-inbox-page .search-container .select-wrap .select:hover {
+  border-color: #f47738 !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select p,
+.fsm-inbox-page .search-container .select-wrap .select p {
+  padding-top: 8px !important;
+  font-size: 13px !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select svg,
+.fsm-inbox-page .search-container .select-wrap .select svg {
+  margin-top: 7px !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .options-card,
+.fsm-inbox-page .search-container .select-wrap .options-card {
+  z-index: 200 !important;
+  min-width: 160px !important;
+  position: absolute !important;
+}
+/* ── ✕ Clear icon — fixed 38×38 circle, flex-shrink:0 so it never collapses ── */
+.fsm-inbox-page .search-container .clear-search {
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  flex-shrink: 0 !important;
+  margin: 0 !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+/* "Clear" tooltip */
+.fsm-inbox-page .search-container .clear-search::after {
+  content: "Clear" !important;
+  position: absolute !important;
+  bottom: calc(100% + 6px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  padding: 3px 10px !important;
+  border-radius: 5px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.15s !important;
+  z-index: 100 !important;
+}
+.fsm-inbox-page .search-container .clear-search:hover::after {
+  opacity: 1 !important;
+}
+/* Circle — font-size:0 hides "Clear Search" text; ::before restores ✕ at 14px */
+.fsm-inbox-page .search-container .clear-search .link-label,
+.fsm-inbox-page .search-container .clear-search a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  font-size: 0 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  transition: border-color 0.15s, background 0.15s, color 0.15s !important;
+}
+.fsm-inbox-page .search-container .clear-search .link-label:hover,
+.fsm-inbox-page .search-container .clear-search a:hover {
+  border-color: #f47738 !important;
+  background: #fff7ed !important;
+  color: #ea580c !important;
+}
+.fsm-inbox-page .search-container .clear-search .link-label::before,
+.fsm-inbox-page .search-container .clear-search a::before {
+  content: "✕" !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  color: currentColor !important;
+}
+/* ── Search button — fixed auto width, never shrinks ── */
+.fsm-inbox-page .search-container .submit-bar-search {
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  background: linear-gradient(135deg, #f47738 0%, #e05a1a 100%) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  box-shadow: 0 3px 10px rgba(244,119,56,0.30) !important;
+  padding: 0 20px !important;
+  white-space: nowrap !important;
+}
+/* ── Validation error — below the row ── */
+.fsm-inbox-page .search-container .search-error-label {
+  display: block !important;
+  margin-top: 4px !important;
+}
+
+.fsm-inbox-page .search-container {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(26,43,73,0.09) !important;
+  border: 1px solid #e8edf5 !important;
+  padding: 16px 20px 14px !important;
+  margin-left: 0 !important;
+  width: auto !important;
+}
+/* Single no-wrap flex row — flex-wrap:nowrap is critical (see comment above) */
+.fsm-inbox-page .search-container .search-complaint-container {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  align-items: flex-end !important;
+  gap: 10px !important;
+  position: static !important;
+}
+/* Dissolve the wrapper — children join .search-complaint-container's flex row */
+.fsm-inbox-page .search-container .complaint-input-container {
+  display: contents !important;
+}
+/* Fields: equal-width, order 1; min-width:0 lets flex shrink below min-content */
+.fsm-inbox-page .search-container .complaint-input,
+.fsm-inbox-page .search-container .mobile-input {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  order: 1 !important;
+  overflow: visible !important;   /* keep dropdowns / datepicker overlays visible */
+}
+/* Labels: nowrap + ellipsis prevents them from driving a large min-content */
+.fsm-inbox-page .search-container .complaint-input > label,
+.fsm-inbox-page .search-container .mobile-input > label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  color: #475569 !important;
+  margin-bottom: 4px !important;
+  display: block !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  min-width: 0 !important;
+}
+/* Text + date inputs — 38px height */
+.fsm-inbox-page .search-container .complaint-input input:not(.employee-select-wrap--elipses),
+.fsm-inbox-page .search-container .mobile-input input:not(.employee-select-wrap--elipses) {
+  height: 38px !important;
+  width: 100% !important;
+  margin-bottom: 0 !important;
+  box-sizing: border-box !important;
+  border-radius: 6px !important;
+  font-size: 13px !important;
+  min-width: 0 !important;
+}
+/* Date-picker wrapper */
+.fsm-inbox-page .search-container .digit-date-picker-wrapper,
+.fsm-inbox-page .search-container .date-picker-wrapper,
+.fsm-inbox-page .search-container .react-date-picker {
+  margin-bottom: 0 !important;
+  width: 100% !important;
+}
+/* Status dropdown */
+.fsm-inbox-page .search-container .employee-select-wrap,
+.fsm-inbox-page .search-container .select-wrap {
+  width: 100% !important;
+  min-width: 0 !important;
+  margin-bottom: 0 !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select,
+.fsm-inbox-page .search-container .employee-select-wrap .select-active,
+.fsm-inbox-page .search-container .select-wrap .select,
+.fsm-inbox-page .search-container .select-wrap .select-active {
+  height: 38px !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 6px !important;
+  background: #ffffff !important;
+  min-width: 0 !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select:hover,
+.fsm-inbox-page .search-container .select-wrap .select:hover {
+  border-color: #f47738 !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select p,
+.fsm-inbox-page .search-container .select-wrap .select p {
+  padding-top: 8px !important;
+  font-size: 13px !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .select svg,
+.fsm-inbox-page .search-container .select-wrap .select svg {
+  margin-top: 7px !important;
+}
+.fsm-inbox-page .search-container .employee-select-wrap .options-card,
+.fsm-inbox-page .search-container .select-wrap .options-card {
+  z-index: 200 !important;
+  min-width: 160px !important;
+  position: absolute !important;
+}
+/* ── ✕ Clear icon — order 2 slots it between fields and Search ── */
+.fsm-inbox-page .search-container .clear-search {
+  order: 2 !important;
+  flex: 0 0 38px !important;
+  width: 38px !important;
+  height: 38px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  position: relative !important;
+  z-index: 5 !important;
+}
+/* "Clear" tooltip */
+.fsm-inbox-page .search-container .clear-search::after {
+  content: "Clear" !important;
+  position: absolute !important;
+  bottom: calc(100% + 6px) !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  background: #1e293b !important;
+  color: #ffffff !important;
+  padding: 3px 10px !important;
+  border-radius: 5px !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  white-space: nowrap !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+  transition: opacity 0.15s !important;
+  z-index: 100 !important;
+}
+.fsm-inbox-page .search-container .clear-search:hover::after {
+  opacity: 1 !important;
+}
+/* Circle — font-size:0 hides link text; ::before restores the ✕ at 14px */
+.fsm-inbox-page .search-container .clear-search .link-label,
+.fsm-inbox-page .search-container .clear-search a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  font-size: 0 !important;
+  cursor: pointer !important;
+  text-decoration: none !important;
+  transition: border-color 0.15s, background 0.15s, color 0.15s !important;
+}
+.fsm-inbox-page .search-container .clear-search .link-label:hover,
+.fsm-inbox-page .search-container .clear-search a:hover {
+  border-color: #f47738 !important;
+  background: #fff7ed !important;
+  color: #ea580c !important;
+}
+.fsm-inbox-page .search-container .clear-search .link-label::before,
+.fsm-inbox-page .search-container .clear-search a::before {
+  content: "✕" !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  color: currentColor !important;
+}
+/* ── Search button — order 3, last in row; flex-shrink:0 prevents compression ── */
+.fsm-inbox-page .search-container .submit-bar-search {
+  order: 3 !important;
+  flex: 0 0 auto !important;
+  flex-shrink: 0 !important;
+  background: linear-gradient(135deg, #f47738 0%, #e05a1a 100%) !important;
+  color: #ffffff !important;
+  border-radius: 8px !important;
+  font-size: 13px !important;
+  font-weight: 700 !important;
+  height: 38px !important;
+  min-height: 38px !important;
+  box-shadow: 0 3px 10px rgba(244,119,56,0.30) !important;
+  padding: 0 20px !important;
+  white-space: nowrap !important;
+}
+/* ── Validation error label wraps to its own row below ── */
+.fsm-inbox-page .search-container .search-error-label {
+  order: 9 !important;
+  flex: 0 0 100% !important;
+  margin-top: 2px !important;
+}
+.fsm-inbox-page .search-container .clear-search:hover::after {
+  opacity: 1 !important;
+}
+/* The anchor/LinkLabel inside clear-search: circle shape, icon-only */
+.fsm-inbox-page .search-container .clear-search .link-label,
+.fsm-inbox-page .search-container .clear-search a {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 50% !important;
+  border: 1.5px solid #e2e8f0 !important;
+  background: #f8fafc !important;
+  color: #94a3b8 !important;
+  font-size: 0 !important;          /* hides "Clear Search" text */
+  cursor: pointer !important;
+  text-decoration: none !important;
+  transition: border-color 0.15s, background 0.15s, color 0.15s !important;
+}
+.fsm-inbox-page .search-container .clear-search .link-label:hover,
+.fsm-inbox-page .search-container .clear-search a:hover {
+  border-color: #f47738 !important;
+  background: #fff7ed !important;
+  color: #ea580c !important;
+}
+/* ✕ icon via ::before — explicit font-size overrides the parent's font-size:0 */
+.fsm-inbox-page .search-container .clear-search .link-label::before,
+.fsm-inbox-page .search-container .clear-search a::before {
+  content: "✕" !important;
+  font-size: 14px !important;
+  line-height: 1 !important;
+  color: currentColor !important;
+}
+
+/* ── Filter panel inside FSM inbox sidebar ── */
+.fsm-inbox-page .filter .filter-card {
+  background: #ffffff !important;
+  border-radius: 14px !important;
+  box-shadow: 0 2px 12px rgba(26,43,73,0.09) !important;
+  border: 1px solid #e8edf5 !important;
+  padding: 16px !important;
+  margin-top: 0 !important;
+}
+.fsm-inbox-page .filter .filter-card .heading {
+  border-bottom: 2px solid #fff7ed !important;
+  padding-bottom: 10px !important;
+  margin-bottom: 10px !important;
+}
+.fsm-inbox-page .filter .filter-card .filter-label {
+  color: #1a2b49 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.6px !important;
+  margin-top: 14px !important;
+  margin-bottom: 6px !important;
+}
+.fsm-inbox-page .filter .filter-card .clearAll,
+.fsm-inbox-page .filter .filter-card .clear-search {
+  color: #B54708 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+.fsm-inbox-page .filter input[type="checkbox"] {
+  accent-color: #f47738 !important;
+  width: 14px !important;
+  height: 14px !important;
+}
+.fsm-inbox-page .filter input[type="radio"] {
+  accent-color: #f47738 !important;
+}
+.fsm-inbox-page .filter .filter-button {
+  color: #f47738 !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  margin-top: 8px !important;
+  text-decoration: underline !important;
+}
+.fsm-inbox-page .filter .status-container {
+  margin-top: 8px !important;
+}
+.fsm-inbox-page .filter .status-container label {
+  font-size: 13px !important;
+  color: #374151 !important;
+}
 
 /* mCollect Search Challan — force card to full screen width */
 .mcollect-search-card .card,

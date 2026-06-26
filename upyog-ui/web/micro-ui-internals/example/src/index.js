@@ -53,6 +53,7 @@ import { PGRAIComponents, PGRAILinks, PGRAIModule } from "@upyog/upyog-ui-module
 import { pgrCustomizations, pgrComponents } from "./pgr";
 import FireNocCitizenHome from "./FireNocCitizenHome";
 import FireNocModule from "./FireNocModule";
+import FSMCitizenHome from "./FSMCitizenHome";
 
 const enabledModules = [
   "Tqm",
@@ -163,6 +164,7 @@ const initDigitUI = () => {
   ...PGRAIComponents,
   FireNocHomePage: FireNocCitizenHome,
   FireNocModule: FireNocModule,
+  FSMHomePage: FSMCitizenHome,
   });
 
   initFSMComponents();

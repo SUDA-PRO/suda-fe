@@ -70,6 +70,7 @@ const SelectPropertySubtype = ({ config, onSelect, t, userType, formData }) => {
   if (userType === "employee") {
     return (
       <Dropdown
+        className="fsm-center-field"
         option={subtypeOptions?.sort((a, b) => a.name.localeCompare(b.name))}
         optionKey="i18nKey"
         id="propertySubType"

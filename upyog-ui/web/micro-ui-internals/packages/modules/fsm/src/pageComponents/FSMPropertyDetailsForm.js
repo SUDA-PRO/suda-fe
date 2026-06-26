@@ -377,6 +377,39 @@ const OpenStreetMapPicker = ({ value, onChange, onAddressFill, t }) => {
   const onAddressFillRef = useRef(onAddressFill);
   onAddressFillRef.current = onAddressFill;
   const [error, setError] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [searching, setSearching] = useState(false);
+  const [searchError, setSearchError] = useState(null);
+  const debounceRef = useRef(null);
+  const searchContainerRef = useRef(null);
+
+  const PHOTON_URL    = "https://photon.komoot.io/api/";
+  const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search";
+
+  const buildPhotonLabel = (p) => {
+    const parts = [
+      p.name,
+      p.housenumber ? `${p.housenumber} ${p.street || ""}`.trim() : p.street,
+      p.district || p.suburb || p.village,
+      p.city || p.town,
+      p.state,
+      p.country,
+    ].filter(Boolean);
+    return parts.filter((v, i) => v !== parts[i - 1]).join(", ");
+  };
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target)) {
+        setSuggestionsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   const reverseGeocode = (lat, lng) => {
     if (!onAddressFillRef.current) return;
@@ -471,6 +504,68 @@ const OpenStreetMapPicker = ({ value, onChange, onAddressFill, t }) => {
     );
   };
 
+  const handleSearchInput = (e) => {
+    const q = e.target.value;
+    setSearchQuery(q);
+    setSearchError(null);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    if (!q.trim()) { setSearchResults([]); setSuggestionsOpen(false); return; }
+    debounceRef.current = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const mapCenter = mapRef.current ? mapRef.current.getCenter() : { lat: 20.5937, lng: 78.9629 };
+        const [photonRes, nomRes1, nomRes2] = await Promise.allSettled([
+          fetch(`${PHOTON_URL}?${new URLSearchParams({ q, limit: "15", lang: "en", countrycode: "in", lat: String(mapCenter.lat), lon: String(mapCenter.lng), location_bias_scale: "0.8" })}`, { headers: { "Accept-Language": "en" } }),
+          fetch(`${NOMINATIM_URL}?${new URLSearchParams({ q, format: "json", addressdetails: "1", dedupe: "0", limit: "10", countrycodes: "in" })}`, { headers: { "Accept-Language": "en" } }),
+          fetch(`${NOMINATIM_URL}?${new URLSearchParams({ neighbourhood: q, suburb: q, city: "", country: "India", format: "json", addressdetails: "1", dedupe: "0", limit: "5" })}`, { headers: { "Accept-Language": "en" } }),
+        ]);
+        const seen = new Set();
+        const merged = [];
+        const add = (item) => {
+          const key = `${parseFloat(item.lat).toFixed(4)},${parseFloat(item.lon).toFixed(4)}`;
+          if (!seen.has(key)) { seen.add(key); merged.push(item); }
+        };
+        if (photonRes.status === "fulfilled" && photonRes.value.ok) {
+          const data = await photonRes.value.json();
+          (data.features || []).forEach((f) => add({
+            place_id: `${f.properties.osm_type}${f.properties.osm_id}`,
+            lat: f.geometry.coordinates[1],
+            lon: f.geometry.coordinates[0],
+            display_name: buildPhotonLabel(f.properties),
+          }));
+        }
+        if (nomRes1.status === "fulfilled" && nomRes1.value.ok) {
+          const data = await nomRes1.value.json();
+          data.forEach((r) => add({ place_id: r.place_id, lat: parseFloat(r.lat), lon: parseFloat(r.lon), display_name: r.display_name }));
+        }
+        if (nomRes2.status === "fulfilled" && nomRes2.value.ok) {
+          const data = await nomRes2.value.json();
+          data.forEach((r) => add({ place_id: `s_${r.place_id}`, lat: parseFloat(r.lat), lon: parseFloat(r.lon), display_name: r.display_name }));
+        }
+        setSearchResults(merged.slice(0, 20));
+        setSuggestionsOpen(merged.length > 0);
+      } catch {
+        setSearchError(t("FSM_MAP_LOAD_ERROR", { defaultValue: "Search failed. Please try again." }));
+        setSearchResults([]);
+      } finally {
+        setSearching(false);
+      }
+    }, 400);
+  };
+
+  const handleSuggestionSelect = (item) => {
+    setSearchQuery(item.display_name);
+    setSuggestionsOpen(false);
+    setSearchResults([]);
+    if (setPointRef.current) {
+      setPointRef.current(
+        typeof item.lat === "number" ? item.lat : parseFloat(item.lat),
+        typeof item.lon === "number" ? item.lon : parseFloat(item.lon),
+        true
+      );
+    }
+  };
+
   const hasValue = value && value.latitude && value.longitude;
 
   return (
@@ -491,6 +586,100 @@ const OpenStreetMapPicker = ({ value, onChange, onAddressFill, t }) => {
       <div style={{ fontSize: "12px", color: "#6b7280", marginBottom: "10px", display: "flex", alignItems: "center", gap: "4px" }}>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" strokeWidth="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
         {t("FSM_MAP_PICK_HINT", { defaultValue: "Click on the map or drag the marker to set the property location. Address fields will be filled automatically." })}
+      </div>
+
+      {/* Location autocomplete */}
+      <div ref={searchContainerRef} style={{ position: "relative", marginBottom: "10px" }}>
+        <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+          {/* Search icon */}
+          <svg
+            width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke={searching ? "#f47738" : "#9ca3af"} strokeWidth="2"
+            style={{ position: "absolute", left: "12px", pointerEvents: "none", flexShrink: 0, transition: "stroke 0.15s" }}
+          >
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input
+            type="text"
+            placeholder={t("FSM_MAP_SEARCH_PLACEHOLDER", { defaultValue: "Search for a location..." })}
+            value={searchQuery}
+            onChange={handleSearchInput}
+            onFocus={() => { if (searchResults.length > 0) setSuggestionsOpen(true); }}
+            onKeyDown={(e) => { if (e.key === "Escape") setSuggestionsOpen(false); }}
+            style={{
+              width: "100%", height: "40px", padding: "0 36px 0 38px",
+              border: `1px solid ${suggestionsOpen ? "#f47738" : "#b1b4b6"}`,
+              borderRadius: suggestionsOpen ? "8px 8px 0 0" : "8px",
+              fontSize: "14px", outline: "none", fontFamily: "inherit",
+              color: "#111827", background: "#fff",
+              boxSizing: "border-box",
+            }}
+          />
+          {/* Clear button */}
+          {searchQuery && (
+            <button
+              type="button"
+              onMouseDown={(e) => { e.preventDefault(); setSearchQuery(""); setSearchResults([]); setSuggestionsOpen(false); }}
+              style={{
+                position: "absolute", right: "10px",
+                width: "20px", height: "20px", borderRadius: "50%",
+                background: "#e5e7eb", border: "none", cursor: "pointer",
+                display: "flex", alignItems: "center", justifyContent: "center", padding: 0,
+              }}
+            >
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6b7280" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          )}
+          {searching && (
+            <span style={{ position: "absolute", right: searchQuery ? "36px" : "10px", fontSize: "12px", color: "#505a5f", pointerEvents: "none" }}>
+              {t("FSM_MAP_SEARCHING", { defaultValue: "Searching..." })}
+            </span>
+          )}
+        </div>
+
+        {/* Suggestions dropdown */}
+        {suggestionsOpen && searchResults.length > 0 && (
+          <ul style={{
+            position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10000,
+            background: "#fff",
+            border: "1px solid #b1b4b6", borderTop: "none",
+            borderRadius: "0 0 8px 8px",
+            boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
+            listStyle: "none", margin: 0, padding: "4px 0",
+            maxHeight: "220px", overflowY: "auto",
+          }}>
+            {searchResults.map((item, idx) => (
+              <li
+                key={item.place_id || idx}
+                onMouseDown={(e) => { e.preventDefault(); handleSuggestionSelect(item); }}
+                style={{
+                  padding: "8px 12px", fontSize: "13px", cursor: "pointer",
+                  borderBottom: "1px solid #f0f0f0", lineHeight: "1.4",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.background = "#EEF6FB"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.background = "#fff"; }}
+              >
+                {item.display_name}
+              </li>
+            ))}
+          </ul>
+        )}
+
+        {/* No results */}
+        {!searching && !searchError && suggestionsOpen && searchResults.length === 0 && searchQuery.trim() && (
+          <div style={{
+            position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10000,
+            background: "#fff", border: "1px solid #b1b4b6", borderTop: "none",
+            borderRadius: "0 0 8px 8px", padding: "10px 12px",
+            fontSize: "12px", color: "#505a5f",
+          }}>
+            No results found. Try a broader search term or click directly on the map.
+          </div>
+        )}
+
+        {searchError && (
+          <div style={{ fontSize: "12px", color: "#d4351c", marginTop: "4px" }}>{searchError}</div>
+        )}
       </div>
 
       {error ? (
@@ -572,13 +761,18 @@ const FSMPropertyDetailsForm = ({ config, onSelect, t, formData }) => {
   const _ss = Digit.SessionStorage.get("FSM_CITIZEN_FILE_PROPERTY") || {};
   const _saved = formData?.propertyType ? formData : _ss;
 
+  // ── Derive city from selected property (set by searchResults.js) ──
+  const _selectedPt = (() => { try { return JSON.parse(sessionStorage.getItem("Digit_FSM_PT") || "null"); } catch { return null; } })();
+  const _ptCityCode = _selectedPt?.tenantid || _selectedPt?.tenantId || null;
+  const _ptCity = _ptCityCode && allCities ? (allCities.find((c) => c.code === _ptCityCode) || null) : null;
+
   // ── Form State ──
   const [propertyType, setPropertyType] = useState(_saved?.propertyType || null);
   const [subtype, setSubtype] = useState(_saved?.subtype || null);
   const [subtypeOptions, setSubtypeOptions] = useState([]);
 
   const [city, setCity] = useState(
-    _saved?.address?.city || Digit.SessionStorage.get("CITIZEN.COMMON.HOME.CITY") || null
+    _saved?.address?.city || _ptCity || null
   );
   const [locationType, setLocationType] = useState(_saved?.address?.propertyLocation || locationTypes[0]);
   const [locality, setLocality] = useState(_saved?.address?.locality || null);
@@ -610,6 +804,51 @@ const FSMPropertyDetailsForm = ({ config, onSelect, t, formData }) => {
   const [errors, setErrors] = useState({});
   const [subtypeOpen, setSubtypeOpen] = useState(false);
   const [subtypeSearch, setSubtypeSearch] = useState("");
+
+  // ── Real-time session storage sync ──
+  // Persist all form fields on every state change so that if the component is
+  // unmounted/remounted (e.g. parent re-renders while boundary localities load
+  // for the first time) the form can restore exactly where the user left off.
+  useEffect(() => {
+    const existing = Digit.SessionStorage.get("FSM_CITIZEN_FILE_PROPERTY") || {};
+    Digit.SessionStorage.set("FSM_CITIZEN_FILE_PROPERTY", {
+      ...existing,
+      propertyType,
+      subtype,
+      address: {
+        ...(existing.address || {}),
+        city,
+        propertyLocation: locationType,
+        geoLocation,
+        locality,
+        newLocality,
+        gramPanchayat,
+        newGramPanchayat: newGp,
+        village,
+        newVillage,
+        pincode,
+        street,
+        doorNo,
+        landmark,
+        slumArea: slumCheck,
+        slum: slumCheck?.code === true ? (slumName?.code || null) : null,
+        slumData: slumCheck?.code === true ? (slumName || null) : null,
+      },
+      pitType,
+      pitDetail: pitImages && pitImages.length ? { images: pitImages } : undefined,
+      roadWidth: { roadWidth, distancefromroad: distanceFromRoad },
+    });
+  }, [
+    propertyType, subtype,
+    city, locationType, geoLocation,
+    locality, newLocality,
+    gramPanchayat, newGp,
+    village, newVillage,
+    pincode, street, doorNo, landmark,
+    slumCheck, slumName,
+    pitType, pitImages,
+    roadWidth, distanceFromRoad,
+  ]);
   const subtypeRef = useRef(null);
   useEffect(() => {
     if (!subtypeOpen) return;

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { getVehicleType } from "../utils";
 import { LabelFieldPair, CardLabel, TextInput, Dropdown, Loader, CardLabelError } from "@upyog/digit-ui-react-components";
 import { useLocation, useParams } from "react-router-dom";
@@ -20,6 +20,8 @@ const SelectTripData = ({ t, config, onSelect, formData = {}, userType }) => {
 
   const [vehicle, setVehicle] = useState({ label: formData?.tripData?.vehicleCapacity });
   const [billError, setError] = useState(false);
+  const mountedRef = useRef(true);
+  useEffect(() => { return () => { mountedRef.current = false; }; }, []);
 
   const { isLoading: isVehicleMenuLoading, data: vehicleData } = Digit.Hooks.fsm.useMDMS(state, "Vehicle", "VehicleType", { staleTime: Infinity });
 
@@ -92,7 +94,6 @@ const SelectTripData = ({ t, config, onSelect, formData = {}, userType }) => {
 
   function setValue(object) {
     let a = {...formData[config.key],...object}
-    console.log("config.key",config.key,a)
     onSelect(config.key,  a);
   }
   useEffect(() => {
@@ -111,15 +112,16 @@ const SelectTripData = ({ t, config, onSelect, formData = {}, userType }) => {
           capacity,
           slum,
         });
-        console.log("billingDetails",billingDetails)
         const billSlab = billingDetails?.billingSlab?.length && billingDetails?.billingSlab[0];
         if (billSlab?.price || billSlab?.price === 0) {
+          if (!mountedRef.current) return;
           setValue({
             amountPerTrip: billSlab.price,
             amount: billSlab.price * formData.tripData.noOfTrips,
           });
           setError(false);
         } else {
+          if (!mountedRef.current) return;
           setValue({
             amountPerTrip: "",
             amount: "",
@@ -145,7 +147,7 @@ const SelectTripData = ({ t, config, onSelect, formData = {}, userType }) => {
       {inputs?.map((input, index) => (
         <LabelFieldPair key={index}>
           <CardLabel className="card-label-smaller">
-            {t(input.label) + " (₹)"}
+            {t(input.label)}
             {input.isMandatory ? <span className="check-page-link-button"> *</span> : null}
           </CardLabel>
           <div className="field">

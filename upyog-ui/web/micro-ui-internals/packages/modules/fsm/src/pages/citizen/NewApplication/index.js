@@ -79,6 +79,13 @@ const FileComplaint = ({ parentRoute }) => {
   });
 
   configs = [...config]
+
+  // Always ensure search-results navigates to fsm-property-details, regardless of MDMS data
+  const searchResultsRoute = configs.find((r) => r.route === "search-results");
+  if (searchResultsRoute) {
+    searchResultsRoute.nextStep = "fsm-property-details";
+  }
+
   const fallbackFsmPropertyRoute = (newConfig || [])
     .flatMap((section) => section.body || [])
     .find((routeObj) => routeObj?.route === "fsm-property-details");

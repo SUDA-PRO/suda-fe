@@ -233,7 +233,13 @@ const Home = ({
               .citizen-home-flex {
                 display: flex !important;
                 align-items: stretch;
-                min-height: 100vh;
+                height: 100vh !important;
+                overflow: hidden !important;
+              }
+
+              html, body, .body-container {
+                overflow: hidden !important;
+                height: 100% !important;
               }
 
               .SideBarStatic {
@@ -241,7 +247,10 @@ const Home = ({
                 min-width: 300px !important;
                 flex-shrink: 0 !important;
                 background: #091E64 !important;
-                align-self: stretch;
+                height: 100% !important;
+                overflow: hidden !important;
+                display: flex !important;
+                flex-direction: column !important;
               }
 
               .citizen-home-flex > .HomePageContainer,
@@ -339,6 +348,24 @@ const Home = ({
               }
               .citizen-content-wrap {
                 padding-bottom: 50px;
+                height: 100% !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+              }
+
+              /* Content scrollbar */
+              .citizen-content-wrap::-webkit-scrollbar {
+                width: 7px;
+              }
+              .citizen-content-wrap::-webkit-scrollbar-track {
+                background: #f0f0f0;
+              }
+              .citizen-content-wrap::-webkit-scrollbar-thumb {
+                background: #bdbdbd;
+                border-radius: 4px;
+              }
+              .citizen-content-wrap::-webkit-scrollbar-thumb:hover {
+                background: #9e9e9e;
               }
             `
           }
@@ -358,7 +385,7 @@ const Home = ({
       /> */}
 
       {/* <div className={`main center-container citizen-home-container mb-25`}> */}
-         <div className="citizen-home-flex">
+         <div className="citizen-home-flex" style={{ display: "flex", height: "100vh", overflow: "hidden", alignItems: "stretch" }}>
         {!hideSidebar && (
           <button className="sidebar-hamburger" onClick={() => setMobileOpen(true)} aria-label="Open menu">
             <span /><span /><span />
@@ -368,7 +395,9 @@ const Home = ({
           <div className={`sidebar-overlay${mobileOpen ? " mobile-open" : ""}`} onClick={() => setMobileOpen(false)} />
         )}
         {hideSidebar ? null : (
-          <div className={`SideBarStatic${mobileOpen ? " mobile-open" : ""}`}>
+          <div className={`SideBarStatic${mobileOpen ? " mobile-open" : ""}`}
+            style={{ display: "flex", flexDirection: "column", position: "sticky", top: 0, height: "100vh", overflow: "hidden", width: "300px", minWidth: "300px", flexShrink: 0, background: "#091E64" }}
+          >
             <StaticCitizenSideBar linkData={linkData} islinkDataLoading={islinkDataLoading} onClose={() => setMobileOpen(false)} />
           </div>
         )}

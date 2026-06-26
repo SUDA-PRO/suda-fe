@@ -21,7 +21,7 @@ export const newConfig = [
           component: "CPTSearchResults", 
           key: "cptsearchresults",
           withoutLabel: true,
-          nextStep: 'property-type',
+          nextStep: 'fsm-property-details',
           hideInEmployee: true,
         },
         {

@@ -26,7 +26,6 @@ const SelectChannel = ({ t, config, onSelect, formData = {}, userType }) => {
       select={selectChannel}
       t={t}
       disable={editScreen}
-      autoFocus={!editScreen}
     />
   ) : (
     <Loader />

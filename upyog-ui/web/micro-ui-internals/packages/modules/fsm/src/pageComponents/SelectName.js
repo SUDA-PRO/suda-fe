@@ -73,9 +73,9 @@ const SelectName = ({ t, config, onSelect, formData = {}, userType, register, er
   }
 
   return (
-    <div>
+    <div className="fsm-fullwidth" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", columnGap: "22px" }}>
       {inputs?.map((input, index) => (
-        <React.Fragment key={index}>
+        <div key={index}>
                   {input.type === "text" && (
             <React.Fragment>
               {errors[input.name] && <CardLabelError>{t(input.error)}</CardLabelError>}
@@ -120,7 +120,7 @@ const SelectName = ({ t, config, onSelect, formData = {}, userType, register, er
               </div>
             </LabelFieldPair>
           )}
-        </React.Fragment>
+        </div>
       ))}
     </div>
   );
